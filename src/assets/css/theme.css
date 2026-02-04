@@ -1,0 +1,21 @@
+/* 主题动态样式 */
+
+/* 字体大小 */
+html {
+  font-size: var(--font-size-base, 16px);
+}
+
+/* 减少动画 */
+.reduce-motion,
+.reduce-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* 侧边栏宽度变量 */
+:root {
+  --sidebar-width: 280px;
+  --sidebar-collapsed-width: 72px;
+  --header-height: 56px;
+}
