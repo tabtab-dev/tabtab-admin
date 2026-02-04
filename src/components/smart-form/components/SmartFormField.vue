@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends GenericObject">
-import { computed } from 'vue'
-import { Field, type GenericObject } from 'vee-validate'
+import { computed, inject, h, defineComponent, type VNode, ref } from 'vue'
+import { Field, type GenericObject, type FormContext, type Path, type PathValue } from 'vee-validate'
 import { Eye, EyeOff, Calendar as CalendarIcon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -45,7 +45,23 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Badge } from '@/components/ui/badge'
-import type { FormFieldConfig } from '../types'
+import {
+  Combobox,
+  ComboboxAnchor,
+  ComboboxEmpty,
+  ComboboxGroup,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from '@/components/ui/combobox'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from '@/components/ui/command'
+import type { FormFieldConfig, DateRangeValue } from '../types'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 
@@ -75,6 +91,11 @@ const emit = defineEmits<{
 }>()
 
 /**
+ * 注入表单上下文（用于 render 函数）
+ */
+const form = inject<FormContext<T>>('form')
+
+/**
  * 字段名（字符串形式）
  */
 const fieldName = computed(() => String(props.field.name))
@@ -95,7 +116,38 @@ const shouldShowLabel = computed(() => {
 const formatDate = (date: Date | string | undefined): string => {
   if (!date) return ''
   const d = typeof date === 'string' ? new Date(date) : date
+  if (isNaN(d.getTime())) return ''
   return format(d, 'yyyy-MM-dd', { locale: zhCN })
+}
+
+/**
+ * 格式化日期时间
+ */
+const formatDateTime = (date: Date | string | undefined): string => {
+  if (!date) return ''
+  const d = typeof date === 'string' ? new Date(date) : date
+  if (isNaN(d.getTime())) return ''
+  return format(d, "yyyy-MM-dd'T'HH:mm", { locale: zhCN })
+}
+
+/**
+ * 格式化时间
+ */
+const formatTime = (date: Date | string | undefined): string => {
+  if (!date) return ''
+  const d = typeof date === 'string' ? new Date(date) : date
+  if (isNaN(d.getTime())) return ''
+  return format(d, 'HH:mm', { locale: zhCN })
+}
+
+/**
+ * 解析日期值（支持 Date 对象和字符串）
+ */
+const parseDateValue = (value: Date | string | undefined): Date | undefined => {
+  if (!value) return undefined
+  if (value instanceof Date) return isNaN(value.getTime()) ? undefined : value
+  const d = new Date(value)
+  return isNaN(d.getTime()) ? undefined : d
 }
 
 /**
@@ -116,7 +168,7 @@ const handleDateSelect = (date: Date | undefined, onChange: (value: string) => v
 /**
  * 处理日期范围选择器关闭
  */
-const handleRangeSelect = (range: { from?: Date; to?: Date } | undefined, onChange: (value: unknown) => void) => {
+const handleRangeSelect = (range: DateRangeValue | undefined, onChange: (value: DateRangeValue | undefined) => void) => {
   onChange(range)
   if (range?.from && range?.to) {
     emit('update:date-picker-open', false)
@@ -156,6 +208,60 @@ const handleNumberChange = (value: string, onChange: (value: number | undefined)
 const handleSliderChange = (value: number[], onChange: (value: number) => void) => {
   onChange(value[0])
 }
+
+/**
+ * 处理 combobox 输入变化
+ */
+const comboboxInputValue = ref('')
+const handleComboboxSelect = (value: string, onChange: (value: string) => void) => {
+  onChange(value)
+  comboboxInputValue.value = ''
+}
+const handleComboboxInput = (value: string) => {
+  comboboxInputValue.value = value
+}
+
+/**
+ * RenderFunction 组件 - 用于执行 render 函数
+ */
+const RenderFunction = defineComponent<{
+  renderFn: (props: {
+    field: {
+      value: PathValue<T, Path<T>>
+      onChange: (value: PathValue<T, Path<T>>) => void
+      onBlur: () => void
+    }
+    form: FormContext<T>
+  }) => VNode
+  fieldValue: unknown
+  onChange: (value: unknown) => void
+  onBlur: () => void
+  form: FormContext<T> | undefined
+}>({
+  name: 'RenderFunction',
+  props: ['renderFn', 'fieldValue', 'onChange', 'onBlur', 'form'],
+  setup(props) {
+    return () => {
+      if (!props.renderFn || !props.form) {
+        return h('div', { class: 'text-sm text-destructive' }, '渲染函数未提供')
+      }
+      try {
+        return props.renderFn({
+          field: {
+            value: props.fieldValue as PathValue<T, Path<T>>,
+            onChange: props.onChange as (value: PathValue<T, Path<T>>) => void,
+            onBlur: props.onBlur,
+          },
+          form: props.form,
+        })
+      } catch (error) {
+        console.error('[SmartFormField] Render function error:', error)
+        return h('div', { class: 'text-sm text-destructive p-2 border border-destructive rounded' },
+          '自定义渲染出错，请检查控制台')
+      }
+    }
+  },
+})
 </script>
 
 <template>
@@ -163,11 +269,18 @@ const handleSliderChange = (value: number[], onChange: (value: number) => void) 
     v-slot="{ field: fieldProps, errorMessage }"
     :name="field.name"
   >
-    <FormItem :class="field.colSpan ? `col-span-${field.colSpan}` : ''">
+    <FormItem
+      :class="field.colSpan ? `col-span-${field.colSpan}` : ''"
+      :aria-invalid="errorMessage ? 'true' : 'false'"
+      :aria-describedby="errorMessage ? `${fieldName}-error` : field.description ? `${fieldName}-description` : undefined"
+    >
       <!-- 标签 -->
-      <FormLabel v-if="shouldShowLabel">
+      <FormLabel
+        v-if="shouldShowLabel"
+        :for="fieldName"
+      >
         {{ field.label }}
-        <span v-if="field.required" class="text-destructive ml-1">*</span>
+        <span v-if="field.required" class="text-destructive ml-1" aria-hidden="true">*</span>
       </FormLabel>
 
       <!-- 输入控件 -->
@@ -183,12 +296,15 @@ const handleSliderChange = (value: number[], onChange: (value: number) => void) 
             class="absolute left-3 w-4 h-4 text-muted-foreground pointer-events-none"
           />
           <Input
+            :id="fieldName"
             :type="field.type"
             :model-value="fieldProps.value as string"
             @update:model-value="fieldProps.onChange"
             :placeholder="field.placeholder"
             :disabled="fieldState.disabled || fieldProps.disabled"
             :readonly="field.readonly"
+            :aria-required="field.required"
+            :aria-disabled="fieldState.disabled || fieldProps.disabled"
             @blur="fieldProps.onBlur"
             :class="field.prefixIcon ? 'pl-10' : ''"
           />
@@ -226,6 +342,7 @@ const handleSliderChange = (value: number[], onChange: (value: number) => void) 
         <!-- 数字输入 -->
         <Input
           v-else-if="field.type === 'number'"
+          :id="fieldName"
           type="number"
           :model-value="fieldProps.value as number"
           @update:model-value="(val: string) => handleNumberChange(val, fieldProps.onChange)"
@@ -269,39 +386,90 @@ const handleSliderChange = (value: number[], onChange: (value: number) => void) 
         </Select>
 
         <!-- 多选下拉 -->
-        <Select
-          v-else-if="field.type === 'multi-select'"
-          :model-value="fieldProps.value as string[]"
-          @update:model-value="fieldProps.onChange"
+        <div v-else-if="field.type === 'multi-select'" class="relative">
+          <Popover>
+            <PopoverTrigger as-child>
+              <Button
+                type="button"
+                variant="outline"
+                class="w-full justify-start min-h-10 h-auto"
+                :disabled="fieldState.disabled || fieldProps.disabled"
+              >
+                <div class="flex flex-wrap gap-1">
+                  <template v-if="(fieldProps.value as string[])?.length">
+                    <Badge
+                      v-for="v in (fieldProps.value as string[])"
+                      :key="v"
+                      variant="secondary"
+                      class="mr-1"
+                    >
+                      {{ field.options?.find(o => o.value === v)?.label || v }}
+                    </Badge>
+                  </template>
+                  <span v-else class="text-muted-foreground">{{ field.placeholder || '请选择' }}</span>
+                </div>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent class="w-[200px] p-0" align="start">
+              <Command>
+                <CommandInput :placeholder="'搜索...'" />
+                <CommandEmpty>无匹配选项</CommandEmpty>
+                <CommandGroup>
+                  <CommandItem
+                    v-for="opt in field.options"
+                    :key="opt.value"
+                    :value="opt.value as string"
+                    @update:checked="(checked) => {
+                      const current = (fieldProps.value as string[]) || []
+                      if (checked) {
+                        fieldProps.onChange([...current, opt.value as string])
+                      } else {
+                        fieldProps.onChange(current.filter(v => v !== opt.value as string))
+                      }
+                    }"
+                  >
+                    <div class="flex items-center gap-2">
+                      <Checkbox :checked="(fieldProps.value as string[])?.includes(opt.value as string)" />
+                      <span>{{ opt.label }}</span>
+                    </div>
+                  </CommandItem>
+                </CommandGroup>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        <!-- Combobox 可搜索下拉 -->
+        <Combobox
+          v-else-if="field.type === 'combobox'"
+          :model-value="fieldProps.value as string"
+          @update:model-value="(val) => handleComboboxSelect(val as string, fieldProps.onChange)"
           :disabled="fieldState.disabled || fieldProps.disabled"
-          multiple
         >
-          <SelectTrigger class="h-auto min-h-10">
-            <div class="flex flex-wrap gap-1">
-              <template v-if="(fieldProps.value as string[])?.length">
-                <Badge
-                  v-for="v in (fieldProps.value as string[])"
-                  :key="v"
-                  variant="secondary"
-                  class="mr-1"
-                >
-                  {{ field.options?.find(o => o.value === v)?.label || v }}
-                </Badge>
-              </template>
-              <span v-else class="text-muted-foreground">{{ field.placeholder || '请选择' }}</span>
+          <ComboboxAnchor as-child>
+            <div class="relative w-full">
+              <ComboboxInput
+                :placeholder="field.placeholder || '搜索或选择...'"
+                :model-value="comboboxInputValue || (fieldProps.value ? field.options?.find(o => o.value === fieldProps.value)?.label : '')"
+                @update:model-value="handleComboboxInput"
+                class="w-full"
+              />
             </div>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem
-              v-for="opt in field.options"
-              :key="opt.value"
-              :value="opt.value as string"
-              :disabled="opt.disabled"
-            >
-              {{ opt.label }}
-            </SelectItem>
-          </SelectContent>
-        </Select>
+          </ComboboxAnchor>
+          <ComboboxList>
+            <ComboboxEmpty>无匹配选项</ComboboxEmpty>
+            <ComboboxGroup>
+              <ComboboxItem
+                v-for="opt in field.options"
+                :key="opt.value"
+                :value="opt.value as string"
+                :disabled="opt.disabled"
+              >
+                {{ opt.label }}
+              </ComboboxItem>
+            </ComboboxGroup>
+          </ComboboxList>
+        </Combobox>
 
         <!-- 复选框 -->
         <div v-else-if="field.type === 'checkbox'" class="flex items-center space-x-2">
@@ -364,12 +532,12 @@ const handleSliderChange = (value: number[], onChange: (value: number) => void) 
               :disabled="fieldState.disabled || fieldProps.disabled"
             >
               <CalendarIcon class="mr-2 h-4 w-4" />
-              {{ fieldProps.value ? formatDate(fieldProps.value as string) : field.placeholder || '选择日期' }}
+              {{ fieldProps.value ? formatDate(fieldProps.value as string | Date) : field.placeholder || '选择日期' }}
             </Button>
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0" align="start">
             <Calendar
-              :model-value="fieldProps.value ? new Date(fieldProps.value as string) : undefined"
+              :model-value="parseDateValue(fieldProps.value as Date | string | undefined)"
               @update:model-value="(date) => handleDateSelect(date, fieldProps.onChange)"
               locale="zh-CN"
             />
@@ -385,12 +553,12 @@ const handleSliderChange = (value: number[], onChange: (value: number) => void) 
           <PopoverTrigger as-child>
             <Button
               variant="outline"
-              :class="`w-full justify-start text-left font-normal ${!(fieldProps.value as any)?.from ? 'text-muted-foreground' : ''}`"
+              :class="`w-full justify-start text-left font-normal ${!(fieldProps.value as DateRangeValue | undefined)?.from ? 'text-muted-foreground' : ''}`"
               :disabled="fieldState.disabled || fieldProps.disabled"
             >
               <CalendarIcon class="mr-2 h-4 w-4" />
-              <template v-if="(fieldProps.value as any)?.from">
-                {{ formatDate((fieldProps.value as any).from) }} - {{ formatDate((fieldProps.value as any).to) }}
+              <template v-if="(fieldProps.value as DateRangeValue | undefined)?.from">
+                {{ formatDate((fieldProps.value as DateRangeValue).from) }} - {{ formatDate((fieldProps.value as DateRangeValue).to) }}
               </template>
               <template v-else>
                 {{ field.placeholder || '选择日期范围' }}
@@ -399,8 +567,8 @@ const handleSliderChange = (value: number[], onChange: (value: number) => void) 
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0" align="start">
             <RangeCalendar
-              :model-value="fieldProps.value as any"
-              @update:model-value="(range) => handleRangeSelect(range, fieldProps.onChange)"
+              :model-value="fieldProps.value as DateRangeValue | undefined"
+              @update:model-value="(range) => handleRangeSelect(range as DateRangeValue | undefined, fieldProps.onChange)"
               locale="zh-CN"
             />
           </PopoverContent>
@@ -409,7 +577,7 @@ const handleSliderChange = (value: number[], onChange: (value: number) => void) 
         <!-- 滑块 -->
         <div v-else-if="field.type === 'slider'" class="py-4">
           <Slider
-            :model-value="[(fieldProps.value as number) ?? (field.sliderConfig?.min ?? 0)]"
+            :model-value="[Number(fieldProps.value ?? field.sliderConfig?.min ?? 0)]"
             @update:model-value="(val) => handleSliderChange(val, fieldProps.onChange)"
             :min="field.sliderConfig?.min ?? 0"
             :max="field.sliderConfig?.max ?? 100"
@@ -418,7 +586,7 @@ const handleSliderChange = (value: number[], onChange: (value: number) => void) 
           />
           <div class="flex justify-between text-xs text-muted-foreground mt-1">
             <span>{{ field.sliderConfig?.min ?? 0 }}</span>
-            <span class="font-medium text-foreground">{{ fieldProps.value ?? (field.sliderConfig?.min ?? 0) }}</span>
+            <span class="font-medium text-foreground">{{ Number(fieldProps.value ?? field.sliderConfig?.min ?? 0) }}</span>
             <span>{{ field.sliderConfig?.max ?? 100 }}</span>
           </div>
         </div>
@@ -442,14 +610,14 @@ const handleSliderChange = (value: number[], onChange: (value: number) => void) 
           v-else-if="field.type === 'otp'"
           :model-value="fieldProps.value as string"
           @update:model-value="fieldProps.onChange"
-          :maxlength="field.otpConfig?.length ?? 6"
+          :maxlength="Number(field.otpConfig?.length ?? 6)"
           :disabled="fieldState.disabled || fieldProps.disabled"
         >
           <InputOTPGroup>
             <InputOTPSlot
-              v-for="i in (field.otpConfig?.length ?? 6)"
+              v-for="i in Number(field.otpConfig?.length ?? 6)"
               :key="i"
-              :index="i"
+              :index="i - 1"
             />
           </InputOTPGroup>
         </InputOTP>
@@ -459,15 +627,15 @@ const handleSliderChange = (value: number[], onChange: (value: number) => void) 
           v-else-if="field.type === 'pin'"
           :model-value="fieldProps.value as string"
           @update:model-value="fieldProps.onChange"
-          :maxlength="field.otpConfig?.length ?? 4"
+          :maxlength="Number(field.otpConfig?.length ?? 4)"
           mask
           :disabled="fieldState.disabled || fieldProps.disabled"
         >
           <InputOTPGroup>
             <InputOTPSlot
-              v-for="i in (field.otpConfig?.length ?? 4)"
+              v-for="i in Number(field.otpConfig?.length ?? 4)"
               :key="i"
-              :index="i"
+              :index="i - 1"
             />
           </InputOTPGroup>
         </InputOTP>
@@ -493,9 +661,8 @@ const handleSliderChange = (value: number[], onChange: (value: number) => void) 
         <Input
           v-else-if="field.type === 'datetime'"
           type="datetime-local"
-          :model-value="fieldProps.value as string"
+          :model-value="formatDateTime(fieldProps.value as Date | string | undefined)"
           @update:model-value="fieldProps.onChange"
-          :placeholder="field.placeholder"
           :disabled="fieldState.disabled || fieldProps.disabled"
           :readonly="field.readonly"
           @blur="fieldProps.onBlur"
@@ -505,9 +672,8 @@ const handleSliderChange = (value: number[], onChange: (value: number) => void) 
         <Input
           v-else-if="field.type === 'time'"
           type="time"
-          :model-value="fieldProps.value as string"
+          :model-value="formatTime(fieldProps.value as Date | string | undefined)"
           @update:model-value="fieldProps.onChange"
-          :placeholder="field.placeholder"
           :disabled="fieldState.disabled || fieldProps.disabled"
           :readonly="field.readonly"
           @blur="fieldProps.onBlur"
@@ -519,9 +685,18 @@ const handleSliderChange = (value: number[], onChange: (value: number) => void) 
           type="file"
           @change="(e: Event) => handleFileChange(e, fieldProps.onChange)"
           :placeholder="field.placeholder"
-          :disabled="fieldState.disabled || fieldProps.disabled"
-          :readonly="field.readonly"
+          :disabled="fieldState.disabled || fieldProps.disabled || field.readonly"
           @blur="fieldProps.onBlur"
+        />
+
+        <!-- 自定义 render 函数 -->
+        <RenderFunction
+          v-else-if="field.type === 'custom' && field.render"
+          :render-fn="field.render"
+          :field-value="fieldProps.value"
+          :on-change="fieldProps.onChange"
+          :on-blur="fieldProps.onBlur"
+          :form="form"
         />
 
         <!-- 自定义组件 -->
@@ -550,12 +725,15 @@ const handleSliderChange = (value: number[], onChange: (value: number) => void) 
       </FormControl>
 
       <!-- 描述文字 -->
-      <FormDescription v-if="showDescriptions && field.description">
+      <FormDescription
+        v-if="showDescriptions && field.description"
+        :id="`${fieldName}-description`"
+      >
         {{ field.description }}
       </FormDescription>
 
       <!-- 错误信息 -->
-      <FormMessage />
+      <FormMessage :id="`${fieldName}-error`" />
     </FormItem>
   </Field>
 </template>

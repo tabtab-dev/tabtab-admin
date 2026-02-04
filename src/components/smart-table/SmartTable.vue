@@ -12,7 +12,7 @@ import {
   getSortedRowModel,
   useVueTable,
 } from '@tanstack/vue-table'
-import { computed, h, ref, watch } from 'vue'
+import { computed, h, ref, watch, onUnmounted, nextTick } from 'vue'
 import { ChevronDown, ChevronUp, MoreHorizontal, RefreshCw, ChevronLeft, ChevronRight, Filter, X, ChevronDown as ExpandIcon, Eye, Settings2 } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -52,6 +52,7 @@ import type {
   SmartTableConfig,
   SmartTableExpose,
 } from './types'
+import FilterContent from './FilterContent.vue'
 
 /**
  * 组件属性定义
@@ -63,6 +64,7 @@ const props = withDefaults(defineProps<SmartTableConfig<T>>(), {
     total: 0,
     pageSizeOptions: [10, 20, 50, 100],
     show: true,
+    hideOnSinglePage: false,
   }),
   showIndex: false,
   selectable: false,
@@ -101,7 +103,7 @@ const emit = defineEmits<{
 const sorting = ref<SortingState>([])
 const rowSelection = ref<RowSelectionState>({})
 const paginationState = ref<PaginationState>({
-  pageIndex: props.pagination.pageIndex - 1,
+  pageIndex: Math.max(0, props.pagination.pageIndex - 1),
   pageSize: props.pagination.pageSize,
 })
 
@@ -109,6 +111,18 @@ const paginationState = ref<PaginationState>({
  * 筛选状态
  */
 const filters = ref<Record<string, any>>({})
+
+/**
+ * 筛选 Popover 打开状态
+ */
+const filterPopoverOpen = ref<Record<string, boolean>>({})
+
+/**
+ * 关闭筛选 Popover
+ */
+function closeFilterPopover(columnId: string) {
+  filterPopoverOpen.value[columnId] = false
+}
 
 /**
  * 是否有激活的筛选
@@ -126,11 +140,13 @@ const expandedRows = ref<Set<string>>(new Set())
  * 切换行展开状态
  */
 function toggleRowExpand(rowId: string) {
-  if (expandedRows.value.has(rowId)) {
-    expandedRows.value.delete(rowId)
+  const newSet = new Set(expandedRows.value)
+  if (newSet.has(rowId)) {
+    newSet.delete(rowId)
   } else {
-    expandedRows.value.add(rowId)
+    newSet.add(rowId)
   }
+  expandedRows.value = newSet
 }
 
 /**
@@ -158,18 +174,23 @@ const columnVisibility = ref<Record<string, boolean>>({})
  * 初始化列显隐状态
  */
 function initColumnVisibility() {
+  const newVisibility: Record<string, boolean> = { ...columnVisibility.value }
   props.columns.forEach(col => {
-    if (columnVisibility.value[col.key] === undefined) {
-      columnVisibility.value[col.key] = true
+    if (newVisibility[col.key] === undefined) {
+      newVisibility[col.key] = true
     }
   })
+  columnVisibility.value = newVisibility
 }
 
 /**
  * 切换列显隐
  */
 function toggleColumnVisibility(columnKey: string) {
-  columnVisibility.value[columnKey] = !columnVisibility.value[columnKey]
+  columnVisibility.value = {
+    ...columnVisibility.value,
+    [columnKey]: !columnVisibility.value[columnKey],
+  }
 }
 
 /**
@@ -206,11 +227,14 @@ function startResize(columnId: string, event: MouseEvent) {
  */
 function handleResize(event: MouseEvent) {
   if (!isResizing.value || !resizingColumn.value) return
-  
+
   const delta = event.clientX - startX.value
   const newWidth = Math.max(50, startWidth.value + delta)
-  
-  columnSizes.value[resizingColumn.value] = newWidth
+
+  columnSizes.value = {
+    ...columnSizes.value,
+    [resizingColumn.value]: newWidth,
+  }
 }
 
 /**
@@ -224,15 +248,40 @@ function stopResize() {
 }
 
 /**
+ * 组件卸载时清理事件监听器
+ */
+onUnmounted(() => {
+  document.removeEventListener('mousemove', handleResize)
+  document.removeEventListener('mouseup', stopResize)
+})
+
+/**
  * 监听分页配置变化
  */
 watch(
-  () => props.pagination,
+  () => ({
+    pageIndex: props.pagination.pageIndex,
+    pageSize: props.pagination.pageSize,
+  }),
   (newPagination) => {
     paginationState.value = {
-      pageIndex: newPagination.pageIndex - 1,
+      pageIndex: Math.max(0, newPagination.pageIndex - 1),
       pageSize: newPagination.pageSize,
     }
+  }
+)
+
+/**
+ * 监听列定义变化，更新表格
+ */
+watch(
+  tableColumns,
+  (newColumns) => {
+    nextTick(() => {
+      table.setOptions({
+        columns: newColumns,
+      })
+    })
   },
   { deep: true }
 )
@@ -241,11 +290,13 @@ watch(
  * 处理筛选变化
  */
 function handleFilterChange(columnKey: string, value: any) {
+  const newFilters = { ...filters.value }
   if (value === '' || value === null || value === undefined) {
-    delete filters.value[columnKey]
+    delete newFilters[columnKey]
   } else {
-    filters.value[columnKey] = value
+    newFilters[columnKey] = value
   }
+  filters.value = newFilters
   // 重置到第一页
   paginationState.value.pageIndex = 0
   emit('filter-change', filters.value)
@@ -261,52 +312,74 @@ function clearAllFilters() {
 }
 
 /**
- * 渲染筛选器
- */
-function renderFilter(column: SmartTableColumn<T>) {
-  if (!column.filter) return null
-
-  const filterValue = filters.value[column.key]
-
-  switch (column.filter.type) {
-    case 'text':
-      return h('div', { class: 'p-2' }, [
-        h(Input, {
-          modelValue: filterValue || '',
-          'onUpdate:modelValue': (value: string) => handleFilterChange(column.key, value),
-          placeholder: column.filter.placeholder || '请输入...',
-          class: 'w-40',
-        }),
-      ])
-
-    case 'select':
-      return h('div', { class: 'p-2' }, [
-        h(Select, {
-          modelValue: filterValue || '',
-          'onUpdate:modelValue': (value: any) => handleFilterChange(column.key, value),
-        }, {
-          default: () => h(SelectTrigger, { class: 'w-40' }, () => [
-            h(SelectValue, { placeholder: column.filter?.placeholder || '请选择...' }),
-          ]),
-          content: () => h(SelectContent, {}, () => [
-            h(SelectItem, { value: '' }, () => '全部'),
-            ...(column.filter?.options || []).map(option =>
-              h(SelectItem, { value: option.value }, () => option.label)
-            ),
-          ]),
-        }),
-      ])
-
-    default:
-      return null
-  }
-}
-
-/**
  * 获取列的筛选配置
  */
 function getColumnFilter(columnId: string): SmartTableColumn<T> | undefined {
   return props.columns.find(col => col.key === columnId && col.filter)
+}
+
+/**
+ * 获取左侧固定列的 sticky 位置
+ */
+function getStickyLeft(header: any): number {
+  const headers = table.getHeaderGroups()[0]?.headers || []
+  const currentIndex = headers.findIndex((h: any) => h.id === header.id)
+  let left = 0
+  for (let i = 0; i < currentIndex; i++) {
+    const h = headers[i]
+    if ((h.column.columnDef.meta as any)?.fixed === 'left') {
+      left += h.getSize()
+    }
+  }
+  return left
+}
+
+/**
+ * 获取右侧固定列的 sticky 位置
+ */
+function getStickyRight(header: any): number {
+  const headers = table.getHeaderGroups()[0]?.headers || []
+  const currentIndex = headers.findIndex((h: any) => h.id === header.id)
+  let right = 0
+  for (let i = headers.length - 1; i > currentIndex; i--) {
+    const h = headers[i]
+    if ((h.column.columnDef.meta as any)?.fixed === 'right') {
+      right += h.getSize()
+    }
+  }
+  return right
+}
+
+/**
+ * 获取左侧固定单元格的 sticky 位置
+ */
+function getStickyLeftCell(cell: any): number {
+  const cells = cell.row.getVisibleCells()
+  const currentIndex = cells.findIndex((c: any) => c.column.id === cell.column.id)
+  let left = 0
+  for (let i = 0; i < currentIndex; i++) {
+    const c = cells[i]
+    if ((c.column.columnDef.meta as any)?.fixed === 'left') {
+      left += c.column.getSize()
+    }
+  }
+  return left
+}
+
+/**
+ * 获取右侧固定单元格的 sticky 位置
+ */
+function getStickyRightCell(cell: any): number {
+  const cells = cell.row.getVisibleCells()
+  const currentIndex = cells.findIndex((c: any) => c.column.id === cell.column.id)
+  let right = 0
+  for (let i = cells.length - 1; i > currentIndex; i--) {
+    const c = cells[i]
+    if ((c.column.columnDef.meta as any)?.fixed === 'right') {
+      right += c.column.getSize()
+    }
+  }
+  return right
 }
 
 /**
@@ -330,10 +403,15 @@ function renderActionsCell(row: T, index: number) {
       variant: 'ghost',
       size: 'sm',
       disabled: isDisabled,
-      class: action.danger ? 'text-red-600 hover:text-red-700 hover:bg-red-50' : '',
+      class: [
+        action.danger && !isDisabled ? 'text-red-600 hover:text-red-700 hover:bg-red-50' : '',
+        action.class || '',
+      ],
       onClick: (e: Event) => {
         e.stopPropagation()
-        action.onClick(row, index)
+        if (!isDisabled) {
+          action.onClick(row, index)
+        }
       },
     }, () => [
       action.icon ? h(action.icon, { class: 'h-4 w-4 mr-1' }) : null,
@@ -417,14 +495,16 @@ const tableColumns = computed<ColumnDef<T>[]>(() => {
       header: ({ table }) => {
         return h(Checkbox, {
           checked: table.getIsAllPageRowsSelected(),
-          'onUpdate:checked': () => {
-            table.toggleAllPageRowsSelected()
+          'onUpdate:checked': (checked: boolean) => {
+            table.toggleAllPageRowsSelected(checked)
           },
         })
       },
       cell: ({ row }) => h(Checkbox, {
         checked: row.getIsSelected(),
-        'onUpdate:checked': (value: boolean) => row.toggleSelected(!!value),
+        'onUpdate:checked': (checked: boolean) => {
+          row.toggleSelected(checked)
+        },
       }),
       enableSorting: false,
       enableHiding: false,
@@ -463,6 +543,7 @@ const tableColumns = computed<ColumnDef<T>[]>(() => {
       meta: {
         align: col.align || 'left',
         resizable: props.resizable,
+        fixed: col.fixed,
       },
     }
     columns.push(columnDef)
@@ -470,12 +551,32 @@ const tableColumns = computed<ColumnDef<T>[]>(() => {
 
   // 操作列
   if (props.actions && props.actions.length > 0) {
+    // 计算操作列宽度：根据可见操作按钮数量动态计算
+    const actionColumnWidth = computed(() => {
+      const visibleActions = props.actions!.filter(action => {
+        if (action.show) {
+          // 使用第一条数据作为参考来估算宽度
+          const firstRow = props.data[0]
+          if (firstRow) {
+            return action.show(firstRow)
+          }
+        }
+        return true
+      })
+      // 基础宽度 + 每个按钮的宽度
+      // 单个按钮约 60px，多个按钮时每个约 40px
+      if (visibleActions.length === 1) {
+        return Math.max(props.actionColumnWidth, 80)
+      }
+      return Math.max(props.actionColumnWidth, visibleActions.length * 40 + 20)
+    })
+
     columns.push({
       id: 'actions',
       header: props.actionColumnTitle,
       cell: ({ row }) => renderActionsCell(row.original, row.index),
       enableSorting: false,
-      size: props.actionColumnWidth,
+      size: actionColumnWidth.value,
       meta: {
         align: 'center',
       },
@@ -525,7 +626,25 @@ const table = useVueTable({
   manualPagination: true,
   manualSorting: true,
   enableRowSelection: props.selectable,
+  enableMultiRowSelection: props.selectable,
+  getRowId: (row) => {
+    const key = props.rowKey as string
+    return String(row[key] ?? Math.random().toString(36).substr(2, 9))
+  },
 })
+
+/**
+ * 监听列定义变化，更新表格
+ */
+watch(
+  tableColumns,
+  (newColumns) => {
+    table.setOptions({
+      columns: newColumns,
+    })
+  },
+  { deep: true }
+)
 
 /**
  * 计算总页数
@@ -542,29 +661,50 @@ const visiblePages = computed(() => {
   const current = paginationState.value.pageIndex + 1
   const total = pageCount.value
   const pages: (number | string)[] = []
-  
+
+  if (total <= 1) return pages
+
   const delta = 2
   const range: number[] = []
-  
-  for (let i = Math.max(2, current - delta); i <= Math.min(total - 1, current + delta); i++) {
+
+  // 计算中间显示的页码范围
+  const startPage = Math.max(2, current - delta)
+  const endPage = Math.min(total - 1, current + delta)
+
+  for (let i = startPage; i <= endPage; i++) {
     range.push(i)
   }
-  
-  if (current - delta > 2) {
-    range.unshift('...')
+
+  // 添加第一页
+  pages.push(1)
+
+  // 添加前省略号
+  if (startPage > 2) {
+    pages.push('...')
+  } else if (startPage === 2) {
+    pages.push(2)
   }
-  if (current + delta < total - 1) {
-    range.push('...')
+
+  // 添加中间页码（排除已经添加的）
+  for (const page of range) {
+    if (page > 2 && page < total) {
+      pages.push(page)
+    }
   }
-  
+
+  // 添加后省略号
+  if (endPage < total - 1) {
+    pages.push('...')
+  } else if (endPage === total - 1 && total > 2) {
+    pages.push(total - 1)
+  }
+
+  // 添加最后一页
   if (total > 1) {
-    range.unshift(1)
+    pages.push(total)
   }
-  if (total > 1 && current !== total) {
-    range.push(total)
-  }
-  
-  return range
+
+  return pages
 })
 
 /**
@@ -678,12 +818,13 @@ defineExpose<SmartTableExpose>({
           :key="action.key"
           size="sm"
           :variant="action.danger ? 'destructive' : 'default'"
+          :disabled="action.batchDisabled ? action.batchDisabled(table.getSelectedRowModel().rows.map(r => r.original)) : false"
           @click="action.onClick(table.getSelectedRowModel().rows.map(r => r.original), -1)"
         >
           <component :is="action.icon" v-if="action.icon" class="h-4 w-4 mr-1" />
           {{ action.label }}
         </Button>
-        <Button variant="ghost" size="sm" @click="clearSelection">
+        <Button variant="ghost" size="sm" @click="table.resetRowSelection()">
           取消选择
         </Button>
       </div>
@@ -763,13 +904,20 @@ defineExpose<SmartTableExpose>({
             <TableHead
               v-for="header in table.getHeaderGroups()[0]?.headers"
               :key="header.id"
-              :style="{ width: header.getSize() ? `${header.getSize()}px` : undefined }"
+              :style="{
+                width: header.getSize() ? `${header.getSize()}px` : undefined,
+                position: (header.column.columnDef.meta as any)?.fixed ? 'sticky' : undefined,
+                left: (header.column.columnDef.meta as any)?.fixed === 'left' ? `${getStickyLeft(header)}px` : undefined,
+                right: (header.column.columnDef.meta as any)?.fixed === 'right' ? `${getStickyRight(header)}px` : undefined,
+                zIndex: (header.column.columnDef.meta as any)?.fixed ? 20 : undefined,
+              }"
               :class="[
                 'h-11 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground relative',
                 header.column.getCanSort() ? 'cursor-pointer select-none hover:text-foreground' : '',
                 (header.column.columnDef.meta as any)?.align === 'center' && 'text-center',
                 (header.column.columnDef.meta as any)?.align === 'right' && 'text-right',
                 isResizing && resizingColumn === header.column.id && 'bg-muted',
+                (header.column.columnDef.meta as any)?.fixed && 'bg-muted/80 backdrop-blur-sm',
               ]"
               @click="header.column.getToggleSortingHandler()?.($event)"
             >
@@ -801,20 +949,24 @@ defineExpose<SmartTableExpose>({
                   <ChevronDown class="h-3.5 w-3.5 text-primary" />
                 </template>
                 <!-- 筛选按钮 -->
-                <Popover v-if="getColumnFilter(header.column.id)">
-                  <PopoverTrigger as-child>
+                <Popover v-if="getColumnFilter(header.column.id)" v-model:open="filterPopoverOpen[header.column.id]">
+                  <PopoverTrigger as-child @click.stop>
                     <Button
                       variant="ghost"
                       size="icon"
                       class="h-5 w-5 ml-1"
                       :class="{ 'text-primary': filters[header.column.id] }"
-                      @click.stop
                     >
                       <Filter class="h-3 w-3" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent class="p-0 w-auto" align="start">
-                    <component :is="() => renderFilter(getColumnFilter(header.column.id)!)" />
+                    <FilterContent
+                      :column="getColumnFilter(header.column.id)!"
+                      v-model:filters="filters"
+                      @filter-change="handleFilterChange"
+                      @close="closeFilterPopover(header.column.id)"
+                    />
                   </PopoverContent>
                 </Popover>
               </div>
@@ -830,7 +982,7 @@ defineExpose<SmartTableExpose>({
         </TableHeader>
         <TableBody>
           <template v-if="table.getRowModel().rows?.length">
-            <template v-for="(row, index) in table.getRowModel().rows" :key="row.id">
+            <template v-for="(row, index) in table.getRowModel().rows" :key="`${row.id}-${index}`">
               <TableRow
                 :data-state="row.getIsSelected() && 'selected'"
                 :class="[
@@ -843,12 +995,19 @@ defineExpose<SmartTableExpose>({
                 @click="handleRowClick(row.original, index)"
               >
                 <TableCell
-                  v-for="cell in row.getVisibleCells()"
-                  :key="cell.id"
+                  v-for="(cell, cellIndex) in row.getVisibleCells()"
+                  :key="`${row.id}-${cell.column.id}-${cellIndex}`"
+                  :style="{
+                    position: (cell.column.columnDef.meta as any)?.fixed ? 'sticky' : undefined,
+                    left: (cell.column.columnDef.meta as any)?.fixed === 'left' ? `${getStickyLeftCell(cell)}px` : undefined,
+                    right: (cell.column.columnDef.meta as any)?.fixed === 'right' ? `${getStickyRightCell(cell)}px` : undefined,
+                    zIndex: (cell.column.columnDef.meta as any)?.fixed ? 10 : undefined,
+                  }"
                   :class="[
                     'py-3 px-4 text-sm',
                     (cell.column.columnDef.meta as any)?.align === 'center' && 'text-center',
                     (cell.column.columnDef.meta as any)?.align === 'right' && 'text-right',
+                    (cell.column.columnDef.meta as any)?.fixed && 'bg-background',
                   ]"
                 >
                   <!-- 优先使用插槽渲染 -->
@@ -908,7 +1067,7 @@ defineExpose<SmartTableExpose>({
 
     <!-- 分页器 -->
     <div
-      v-if="pagination.show && pagination.total !== undefined && pagination.total > 0"
+      v-if="pagination.show && pagination.total !== undefined && pagination.total > 0 && !(pagination.hideOnSinglePage && pageCount <= 1)"
       class="flex items-center justify-between px-1"
     >
       <slot name="pagination-prefix" />
@@ -956,7 +1115,7 @@ defineExpose<SmartTableExpose>({
           </Button>
           
           <div class="flex items-center gap-1 px-2">
-            <template v-for="(page, i) in visiblePages" :key="i">
+            <template v-for="page in visiblePages" :key="page">
               <span v-if="page === '...'" class="px-2 text-muted-foreground">...</span>
               <Button
                 v-else
@@ -964,8 +1123,8 @@ defineExpose<SmartTableExpose>({
                 size="sm"
                 :class="[
                   'h-8 min-w-[32px] px-2.5 text-xs font-medium',
-                  page === paginationState.pageIndex + 1 
-                    ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-primary' 
+                  page === paginationState.pageIndex + 1
+                    ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-primary'
                     : 'hover:bg-muted',
                 ]"
                 @click="goToPage(page as number)"
@@ -996,7 +1155,7 @@ defineExpose<SmartTableExpose>({
             :max="pageCount"
             class="h-8 w-16 text-xs"
             @keyup.enter="handleJumpPage"
-            @update:model-value="(v: string) => jumpPage = v"
+            @update:model-value="(v: string | number) => jumpPage = String(v)"
           />
           <span class="text-sm text-muted-foreground">页</span>
         </div>

@@ -16,12 +16,19 @@ export interface FieldGroupResult<T extends GenericObject = GenericObject> {
  * 使用字段分组
  * @param fields - 字段配置数组
  * @param groups - 分组配置数组
+ * @param options - 配置选项
  * @returns 分组后的字段列表
  */
 export function useFieldGroups<T extends GenericObject>(
   fields: Ref<FormFieldConfig<T>[]>,
-  groups: Ref<FormFieldGroup<T>[] | undefined>
+  groups: Ref<FormFieldGroup<T>[] | undefined>,
+  options: {
+    /** 未分组字段的位置：'start' - 开头（默认），'end' - 末尾 */
+    ungroupedPosition?: 'start' | 'end'
+  } = {}
 ) {
+  const { ungroupedPosition = 'start' } = options
+
   const groupedFields = computed<FieldGroupResult<T>[]>(() => {
     if (!groups.value || groups.value.length === 0) {
       return [{ fields: fields.value }]
@@ -46,7 +53,11 @@ export function useFieldGroups<T extends GenericObject>(
       (f) => !groupedFieldNames.has(String(f.name))
     )
     if (ungroupedFields.length > 0) {
-      result.unshift({ fields: ungroupedFields })
+      if (ungroupedPosition === 'start') {
+        result.unshift({ fields: ungroupedFields })
+      } else {
+        result.push({ fields: ungroupedFields })
+      }
     }
 
     return result

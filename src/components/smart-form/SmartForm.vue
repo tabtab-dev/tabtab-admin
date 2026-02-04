@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends GenericObject">
-import { computed, ref, toRef } from 'vue'
-import { useForm, type GenericObject } from 'vee-validate'
+import { computed, ref, toRef, provide, h, defineComponent, type VNode } from 'vue'
+import { useForm, type GenericObject, type FormContext } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { Button } from '@/components/ui/button'
 import { SmartFormField, SmartFormGroup } from './components'
@@ -9,6 +9,44 @@ import type {
   SmartFormConfig,
   SmartFormExpose,
 } from './types'
+import type { FieldState } from './composables'
+
+/**
+ * RenderActions 组件 - 用于渲染自定义操作按钮
+ */
+const RenderActions = defineComponent<{
+  renderActions: (props: {
+    form: FormContext<GenericObject>
+    isSubmitting: boolean
+    isValid: boolean
+    handleSubmit: () => void
+    handleReset: () => void
+  }) => VNode
+  form: FormContext<GenericObject>
+  isSubmitting: boolean
+  isValid: boolean
+  handleSubmit: () => void
+  handleReset: () => void
+}>({
+  name: 'RenderActions',
+  props: ['renderActions', 'form', 'isSubmitting', 'isValid', 'handleSubmit', 'handleReset'],
+  setup(props) {
+    return () => {
+      try {
+        return props.renderActions({
+          form: props.form,
+          isSubmitting: props.isSubmitting,
+          isValid: props.isValid,
+          handleSubmit: props.handleSubmit,
+          handleReset: props.handleReset,
+        })
+      } catch (error) {
+        console.error('[SmartForm] renderActions error:', error)
+        return null
+      }
+    }
+  },
+})
 
 /**
  * SmartForm 组件 - 基于 VeeValidate + Zod 的通用表单组件
@@ -33,43 +71,77 @@ const props = withDefaults(defineProps<SmartFormConfig<T>>(), {
 const emit = defineEmits<{
   (e: 'submit', values: T): void
   (e: 'change', values: Partial<T>): void
+  (e: 'reset'): void
 }>()
 
 /**
- * 构建初始值
+ * 构建初始值（带类型安全检查）
  */
 const buildInitialValues = (): T => {
   const values: Record<string, unknown> = {}
   props.fields.forEach((field) => {
+    const fieldName = String(field.name)
+    // 验证字段名
+    if (!fieldName) {
+      console.warn('[SmartForm] Field name is empty, skipping')
+      return
+    }
+
     if (field.defaultValue !== undefined) {
-      values[field.name as string] = field.defaultValue
+      values[fieldName] = field.defaultValue
     } else {
       switch (field.type) {
         case 'checkbox':
         case 'switch':
-          values[field.name as string] = false
+          values[fieldName] = false
           break
         case 'multi-select':
         case 'tags':
         case 'toggle-group':
-          values[field.name as string] = []
+          values[fieldName] = []
           break
         case 'select':
         case 'radio':
-          values[field.name as string] = ''
+        case 'combobox':
+          values[fieldName] = ''
           break
         case 'number':
-          values[field.name as string] = undefined
-          break
         case 'slider':
-          values[field.name as string] = field.sliderConfig?.min ?? 0
+          values[fieldName] = field.sliderConfig?.min ?? 0
+          break
+        case 'date':
+        case 'datetime':
+        case 'time':
+          values[fieldName] = ''
+          break
+        case 'date-range':
+          values[fieldName] = { from: undefined, to: undefined }
+          break
+        case 'file':
+          values[fieldName] = null
           break
         default:
-          values[field.name as string] = ''
+          values[fieldName] = ''
       }
     }
   })
-  return { ...values, ...props.initialValues } as T
+
+  // 合并 initialValues 并进行类型安全检查
+  const mergedValues = { ...values, ...props.initialValues }
+
+  // 运行时类型验证（开发环境）
+  if (import.meta.env.DEV && props.validationSchema) {
+    try {
+      const result = props.validationSchema.safeParse(mergedValues)
+      if (!result.success) {
+        console.warn('[SmartForm] Initial values validation failed:', result.error)
+      }
+    } catch (error) {
+      console.warn('[SmartForm] Initial values validation error:', error)
+    }
+  }
+
+  return mergedValues as T
 }
 
 /**
@@ -94,10 +166,15 @@ const form = useForm<T>({
 })
 
 /**
+ * 提供表单上下文给子组件（用于 render 函数）
+ */
+provide<FormContext<T>>('form', form)
+
+/**
  * 使用字段条件联动
  */
 const fieldsRef = toRef(props, 'fields')
-const { fieldStates } = useFieldConditions(form, fieldsRef)
+const { fieldStates, processConditions } = useFieldConditions(form, fieldsRef)
 
 /**
  * 使用表单变更监听（带防抖）
@@ -125,18 +202,48 @@ const updateDatePickerOpen = (fieldName: string, open: boolean) => {
 }
 
 /**
+ * 网格列数类名映射（用于 Tailwind JIT 模式兼容）
+ */
+const gridColsClassMap: Record<number, string> = {
+  1: 'md:grid-cols-1',
+  2: 'md:grid-cols-2',
+  3: 'md:grid-cols-3',
+  4: 'md:grid-cols-4',
+  5: 'md:grid-cols-5',
+  6: 'md:grid-cols-6',
+}
+
+/**
  * 表单布局类名
  */
 const formLayoutClass = computed(() => {
   switch (props.layout) {
     case 'horizontal':
       return 'space-y-4'
-    case 'grid':
-      return `grid grid-cols-1 md:grid-cols-${props.gridCols} gap-4`
+    case 'grid': {
+      const colsClass = gridColsClassMap[props.gridCols] || 'md:grid-cols-2'
+      return `grid grid-cols-1 ${colsClass} gap-4`
+    }
     case 'vertical':
     default:
       return 'space-y-4'
   }
+})
+
+/**
+ * 字段状态缓存（使用 computed 缓存所有字段状态）
+ */
+const normalizedFieldStates = computed<Record<string, FieldState>>(() => {
+  const result: Record<string, FieldState> = {}
+  props.fields.forEach((field) => {
+    const fieldName = String(field.name)
+    const state = fieldStates.value[fieldName]
+    result[fieldName] = state ?? {
+      visible: !field.hidden,
+      disabled: field.disabled ?? false,
+    }
+  })
+  return result
 })
 
 /**
@@ -150,9 +257,18 @@ const handleSubmit = form.handleSubmit(async (values) => {
  * 重置表单
  */
 const handleReset = () => {
+  // 重置 vee-validate 表单
   form.resetForm()
+
+  // 清理所有内部状态
   passwordVisible.value = {}
   datePickerOpen.value = {}
+
+  // 触发条件重新评估（composable 会自动重新初始化字段状态）
+  processConditions()
+
+  // 触发自定义重置事件
+  emit('reset')
 }
 
 /**
@@ -177,11 +293,17 @@ defineExpose<SmartFormExpose<T>>({
 </script>
 
 <template>
-  <form @submit="handleSubmit" :class="card ? 'bg-card rounded-lg border p-6' : ''">
+  <form
+    @submit="handleSubmit"
+    :class="card ? 'bg-card rounded-lg border p-6' : ''"
+    role="form"
+    :aria-label="title || '表单'"
+    :aria-describedby="description ? 'form-description' : undefined"
+  >
     <!-- 表单标题 -->
     <div v-if="title || description" class="mb-6">
-      <h3 v-if="title" class="text-lg font-semibold">{{ title }}</h3>
-      <p v-if="description" class="text-sm text-muted-foreground mt-1">{{ description }}</p>
+      <h3 v-if="title" class="text-lg font-semibold" id="form-title">{{ title }}</h3>
+      <p v-if="description" id="form-description" class="text-sm text-muted-foreground mt-1">{{ description }}</p>
     </div>
 
     <!-- 表单内容 - 使用分组 -->
@@ -193,7 +315,7 @@ defineExpose<SmartFormExpose<T>>({
         :fields="groupItem.fields"
         :show-labels="showLabels"
         :show-descriptions="showDescriptions"
-        :field-states="fieldStates"
+        :field-states="normalizedFieldStates"
         :password-visible="passwordVisible"
         :date-picker-open="datePickerOpen"
         @toggle-password="togglePasswordVisibility"
@@ -205,15 +327,15 @@ defineExpose<SmartFormExpose<T>>({
     <div v-else :class="formLayoutClass">
       <template v-for="field in fields" :key="field.name">
         <SmartFormField
-          v-if="fieldStates[field.name]?.visible !== false"
+          v-if="normalizedFieldStates[field.name as string]?.visible !== false"
           :field="field"
           :show-labels="showLabels"
           :show-descriptions="showDescriptions"
-          :field-state="fieldStates[field.name] || { visible: true, disabled: false }"
-          :password-visible="passwordVisible[field.name] || false"
-          :date-picker-open="datePickerOpen[field.name] || false"
+          :field-state="normalizedFieldStates[field.name as string] ?? { visible: true, disabled: false }"
+          :password-visible="passwordVisible[field.name as string] ?? false"
+          :date-picker-open="datePickerOpen[field.name as string] ?? false"
           @toggle-password="togglePasswordVisibility"
-          @update:date-picker-open="(open) => datePickerOpen[field.name] = open"
+          @update:date-picker-open="(open) => datePickerOpen[field.name as string] = open"
         />
       </template>
     </div>
@@ -221,14 +343,13 @@ defineExpose<SmartFormExpose<T>>({
     <!-- 操作按钮 -->
     <div class="mt-6 flex items-center gap-4">
       <template v-if="renderActions">
-        <component
-          :is="() => renderActions({
-            form,
-            isSubmitting: form.isSubmitting.value,
-            isValid: form.meta.value.valid,
-            handleSubmit,
-            handleReset,
-          })"
+        <RenderActions
+          :render-actions="renderActions"
+          :form="form"
+          :is-submitting="form.isSubmitting.value"
+          :is-valid="form.meta.value.valid"
+          :handle-submit="handleSubmit"
+          :handle-reset="handleReset"
         />
       </template>
       <template v-else>

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, h } from 'vue'
 import { useRouter } from 'vue-router'
 import { z } from 'zod'
-import { Mail, Lock, ArrowRight } from 'lucide-vue-next'
+import { Mail, Lock, ArrowRight, Loader2, CheckCircle2 } from 'lucide-vue-next'
 import { SmartForm } from '@/components/smart-form'
 import type { FormFieldConfig } from '@/components/smart-form'
 import { useAuthStore } from '@/stores/auth'
+import { Button } from '@/components/ui/button'
 
 /**
  * 登录表单数据类型
@@ -87,28 +88,25 @@ const renderActions = ({ isSubmitting, isValid, handleSubmit }: {
   isValid: boolean
   handleSubmit: () => void
 }) => {
-  return (
-    <button
-      type="submit"
-      disabled={!isValid || isLoading.value}
-      class="w-full h-12 font-medium text-base transition-all duration-200 hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5 bg-primary text-primary-foreground rounded-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      {isLoading.value || isSubmitting ? (
-        <>
-          <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-          </svg>
-          登录中...
-        </>
-      ) : (
-        <>
-          立即登录
-          <ArrowRight class="w-4 h-4" />
-        </>
-      )}
-    </button>
-  )
+  const isDisabled = !isValid || isLoading.value
+  const isProcessing = isLoading.value || isSubmitting
+
+  return h(Button, {
+    type: 'submit',
+    disabled: isDisabled,
+    class: 'w-full h-12 font-medium text-base transition-all duration-200 hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5',
+    onClick: handleSubmit,
+  }, {
+    default: () => isProcessing
+      ? [
+          h(Loader2, { class: 'w-4 h-4 animate-spin mr-2' }),
+          '登录中...'
+        ]
+      : [
+          '立即登录',
+          h(ArrowRight, { class: 'w-4 h-4 ml-2' })
+        ]
+  })
 }
 </script>
 

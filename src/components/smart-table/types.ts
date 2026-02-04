@@ -27,11 +27,13 @@ export interface SmartTableAction<T = any> {
    */
   show?: (row: T) => boolean
   /**
-   * 是否禁用
+   * 是否禁用（单条操作）
    */
   disabled?: (row: T) => boolean
   /**
    * 点击回调
+   * @param row 行数据
+   * @param index 行索引，批量操作时传入 -1
    */
   onClick: (row: T, index: number) => void
   /**
@@ -42,6 +44,10 @@ export interface SmartTableAction<T = any> {
    * 是否危险操作（红色样式）
    */
   danger?: boolean
+  /**
+   * 批量操作时是否禁用
+   */
+  batchDisabled?: (rows: T[]) => boolean
 }
 
 /**
@@ -140,6 +146,10 @@ export interface SmartTablePagination {
    * 是否显示分页
    */
   show?: boolean
+  /**
+   * 只有一页时是否隐藏分页器
+   */
+  hideOnSinglePage?: boolean
 }
 
 /**
@@ -185,7 +195,7 @@ export interface SmartTableConfig<T = any> {
   /**
    * 行唯一键字段名
    */
-  rowKey?: keyof T | string
+  rowKey?: keyof T | (string & {})
   /**
    * 表格高度
    */

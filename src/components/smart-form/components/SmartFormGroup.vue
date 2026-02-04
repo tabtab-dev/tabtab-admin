@@ -88,18 +88,19 @@ const handleDatePickerOpen = (fieldName: string, open: boolean) => {
       </AccordionTrigger>
       <AccordionContent>
         <div class="space-y-4 pt-2">
-          <SmartFormField
-            v-for="field in fields"
-            :key="field.name"
-            :field="field"
-            :show-labels="showLabels"
-            :show-descriptions="showDescriptions"
-            :field-state="fieldStates[field.name] || { visible: true, disabled: false }"
-            :password-visible="passwordVisible[field.name] || false"
-            :date-picker-open="datePickerOpen[field.name] || false"
-            @toggle-password="handleTogglePassword"
-            @update:date-picker-open="(open) => handleDatePickerOpen(field.name as string, open)"
-          />
+          <template v-for="field in fields" :key="field.name">
+            <SmartFormField
+              v-if="fieldStates[field.name]?.visible !== false"
+              :field="field"
+              :show-labels="showLabels"
+              :show-descriptions="showDescriptions"
+              :field-state="fieldStates[field.name] || { visible: true, disabled: false }"
+              :password-visible="passwordVisible[field.name] || false"
+              :date-picker-open="datePickerOpen[field.name] || false"
+              @toggle-password="handleTogglePassword"
+              @update:date-picker-open="(open) => handleDatePickerOpen(field.name as string, open)"
+            />
+          </template>
         </div>
       </AccordionContent>
     </AccordionItem>
@@ -113,33 +114,35 @@ const handleDatePickerOpen = (fieldName: string, open: boolean) => {
         {{ group.description }}
       </p>
     </div>
-    <SmartFormField
-      v-for="field in fields"
-      :key="field.name"
-      :field="field"
-      :show-labels="showLabels"
-      :show-descriptions="showDescriptions"
-      :field-state="fieldStates[field.name] || { visible: true, disabled: false }"
-      :password-visible="passwordVisible[field.name] || false"
-      :date-picker-open="datePickerOpen[field.name] || false"
-      @toggle-password="handleTogglePassword"
-      @update:date-picker-open="(open) => handleDatePickerOpen(field.name as string, open)"
-    />
+    <template v-for="field in fields" :key="field.name">
+      <SmartFormField
+        v-if="fieldStates[field.name]?.visible !== false"
+        :field="field"
+        :show-labels="showLabels"
+        :show-descriptions="showDescriptions"
+        :field-state="fieldStates[field.name] || { visible: true, disabled: false }"
+        :password-visible="passwordVisible[field.name] || false"
+        :date-picker-open="datePickerOpen[field.name] || false"
+        @toggle-password="handleTogglePassword"
+        @update:date-picker-open="(open) => handleDatePickerOpen(field.name as string, open)"
+      />
+    </template>
   </div>
 
   <!-- 无分组配置 -->
   <template v-else>
-    <SmartFormField
-      v-for="field in fields"
-      :key="field.name"
-      :field="field"
-      :show-labels="showLabels"
-      :show-descriptions="showDescriptions"
-      :field-state="fieldStates[field.name] || { visible: true, disabled: false }"
-      :password-visible="passwordVisible[field.name] || false"
-      :date-picker-open="datePickerOpen[field.name] || false"
-      @toggle-password="handleTogglePassword"
-      @update:date-picker-open="(open) => handleDatePickerOpen(field.name as string, open)"
-    />
+    <template v-for="field in fields" :key="field.name">
+      <SmartFormField
+        v-if="fieldStates[field.name]?.visible !== false"
+        :field="field"
+        :show-labels="showLabels"
+        :show-descriptions="showDescriptions"
+        :field-state="fieldStates[field.name] || { visible: true, disabled: false }"
+        :password-visible="passwordVisible[field.name] || false"
+        :date-picker-open="datePickerOpen[field.name] || false"
+        @toggle-password="handleTogglePassword"
+        @update:date-picker-open="(open) => handleDatePickerOpen(field.name as string, open)"
+      />
+    </template>
   </template>
 </template>

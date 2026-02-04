@@ -40,6 +40,15 @@ export interface SelectOption {
 }
 
 /**
+ * 日期范围值类型
+ * @注意 from 和 to 必须同时存在或同时不存在
+ */
+export type DateRangeValue =
+  | { from: Date | string; to: Date | string }
+  | { from?: undefined; to?: undefined }
+  | undefined
+
+/**
  * 字段联动条件（旧版，保持兼容）
  */
 export interface FieldCondition<T extends GenericObject = GenericObject> {
@@ -67,6 +76,22 @@ export interface FormFieldGroup<T extends GenericObject = GenericObject> {
   collapsible?: boolean
   /** 默认是否展开 */
   defaultExpanded?: boolean
+}
+
+/**
+ * 验证字段名是否合法
+ * @param name - 字段名
+ * @returns 是否合法
+ */
+export function isValidFieldName(name: string): boolean {
+  // 字段名不能为空
+  if (!name || typeof name !== 'string') return false
+  // 字段名不能包含特殊字符
+  if (/[.\[\]]/.test(name)) {
+    console.warn(`[SmartForm] Field name "${name}" contains special characters which may cause issues`)
+    return false
+  }
+  return true
 }
 
 /**
