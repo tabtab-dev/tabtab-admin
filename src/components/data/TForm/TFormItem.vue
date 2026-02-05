@@ -221,6 +221,35 @@ const datePickerTypes: Record<string, string> = {
 }
 
 /**
+ * 处理验证规则 - 为 checkbox-single 和 switch 类型的必填验证做特殊处理
+ * @description 布尔类型的字段使用 required: true 时，需要验证值是否为 true 而不是是否有值
+ */
+const processedRules = computed(() => {
+  if (!props.field.rules) return undefined
+
+  return props.field.rules.map(rule => {
+    // 如果是 checkbox-single 或 switch 类型，且使用了 required: true
+    // 自动转换为自定义验证器
+    if (
+      (props.field.type === 'checkbox-single' || props.field.type === 'switch') &&
+      rule.required === true &&
+      !rule.validator
+    ) {
+      return {
+        ...rule,
+        validator: (_: any, value: boolean) => {
+          if (value !== true) {
+            return Promise.reject(new Error(rule.message || '请勾选此项'))
+          }
+          return Promise.resolve()
+        }
+      }
+    }
+    return rule
+  })
+})
+
+/**
  * 暴露方法
  */
 defineExpose({
@@ -232,7 +261,7 @@ defineExpose({
   <a-form-item
     :name="field.name"
     :label="field.label"
-    :rules="field.rules"
+    :rules="processedRules"
     :label-col="field.labelCol"
     :wrapper-col="field.wrapperCol"
   >
