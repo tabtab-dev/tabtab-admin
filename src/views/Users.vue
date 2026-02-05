@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { TModal } from '@/components/data/TModal'
 
 import { useUsersStore, type User } from '@/stores/users'
-import { Plus, Users, UserCheck, UserCog, TrendingUp } from 'lucide-vue-next'
+import { Plus, Users, UserCheck, UserCog, TrendingUp, Search } from 'lucide-vue-next'
 import { Avatar, Space, Tag } from 'antdv-next'
 
 // ==================== Store ====================

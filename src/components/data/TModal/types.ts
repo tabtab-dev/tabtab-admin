@@ -4,8 +4,11 @@
  * @description 基于 antdv-next Modal 的类型定义
  */
 
-import type { VueNode, ButtonProps } from 'antdv-next'
-import type { CSSProperties } from 'vue'
+import type { ButtonProps } from 'antdv-next'
+import type { VNode, VNodeChild, CSSProperties } from 'vue'
+
+/** VueNode 类型 - 与 antdv-next 兼容 */
+type VueNode = ((...args: any[]) => VNodeChild) | string | number | null | undefined | VNode | boolean
 
 /**
  * Modal 关闭按钮配置类型
@@ -22,9 +25,18 @@ export interface ClosableType {
 }
 
 /**
- * Modal 遮罩类型
+ * Modal 遮罩配置
  */
-export type MaskType = boolean | { style?: CSSProperties; class?: string }
+export interface MaskConfig {
+  enabled?: boolean
+  blur?: boolean
+}
+
+/**
+ * Modal 遮罩类型
+ * @description 与 antdv-next 的 MaskType 兼容
+ */
+export type MaskType = MaskConfig | boolean | undefined
 
 /**
  * 鼠标位置类型（用于动画起点）

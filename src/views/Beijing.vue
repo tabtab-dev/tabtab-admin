@@ -41,7 +41,7 @@ const searchSchema: FormSchema = {
   searchConfig: { enabled: true, collapsed: false, showCollapseButton: false, searchText: '搜索', resetText: '重置', showReset: true }
 }
 
-const tableRef = ref<TTableExpose>()
+
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
     { title: '商品信息', dataIndex: 'productName', width: 200, slot: 'product' },

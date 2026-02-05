@@ -54,6 +54,7 @@ const userInitials = computed(() => {
 const touchStartX = ref(0);
 const touchEndX = ref(0);
 const touchStartY = ref(0);
+const touchEndY = ref(0);
 const minSwipeDistance = 80; // 最小滑动距离
 const maxVerticalDistance = 100; // 最大垂直滑动距离（防止误触）
 
@@ -61,16 +62,18 @@ const maxVerticalDistance = 100; // 最大垂直滑动距离（防止误触）
  * 处理触摸开始
  */
 const handleTouchStart = (e: TouchEvent) => {
-  touchStartX.value = e.touches[0].clientX;
-  touchStartY.value = e.touches[0].clientY;
+  touchStartX.value = e.touches[0]?.clientX ?? 0;
+  touchStartY.value = e.touches[0]?.clientY ?? 0;
   touchEndX.value = touchStartX.value;
+  touchEndY.value = touchStartY.value;
 };
 
 /**
  * 处理触摸移动
  */
 const handleTouchMove = (e: TouchEvent) => {
-  touchEndX.value = e.touches[0].clientX;
+  touchEndX.value = e.touches[0]?.clientX ?? 0;
+  touchEndY.value = e.touches[0]?.clientY ?? 0;
 };
 
 /**

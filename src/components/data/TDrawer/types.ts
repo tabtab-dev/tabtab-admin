@@ -4,8 +4,10 @@
  * @description 基于 antdv-next Drawer 的类型定义
  */
 
-import type { VueNode } from 'antdv-next'
-import type { CSSProperties } from 'vue'
+import type { VNode, VNodeChild, CSSProperties } from 'vue'
+
+/** VueNode 类型 - 与 antdv-next 兼容 */
+type VueNode = ((...args: any[]) => VNodeChild) | string | number | null | undefined | VNode | boolean
 
 /**
  * Drawer 关闭按钮配置类型
@@ -20,9 +22,18 @@ export interface ClosableType {
 }
 
 /**
- * Drawer 遮罩类型
+ * Drawer 遮罩配置
  */
-export type MaskType = boolean | { style?: CSSProperties; class?: string }
+export interface MaskConfig {
+  enabled?: boolean
+  blur?: boolean
+}
+
+/**
+ * Drawer 遮罩类型
+ * @description 与 antdv-next 的 MaskType 兼容
+ */
+export type MaskType = MaskConfig | boolean | undefined
 
 /**
  * 抽屉方向

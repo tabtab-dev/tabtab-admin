@@ -82,7 +82,7 @@ export function useMenuUtils(expandedKeys?: Ref<Set<string>>) {
 /**
  * 缓存计算结果的百分比转换函数
  */
-const percentCache = new Map<number, number>();
+const percentCache = new Map<string, number>();
 
 /**
  * 将像素转换为百分比（带缓存）
@@ -102,7 +102,9 @@ export function pxToPercent(px: number, windowWidth: number): number {
   // 限制缓存大小
   if (percentCache.size > 100) {
     const firstKey = percentCache.keys().next().value;
-    percentCache.delete(firstKey);
+    if (firstKey !== undefined) {
+      percentCache.delete(firstKey);
+    }
   }
   
   percentCache.set(cacheKey, percent);

@@ -7,8 +7,7 @@ import { TTable } from '@/components/data/TTable'
 import { TForm } from '@/components/data/TForm'
 import { TModal } from '@/components/data/TModal'
 import type { TableSchema, TTableExpose } from '@/components/data/TTable'
-import type { FormSchema, TFormExpose } from '@/components/data/TForm'
-import type { TModalExpose } from '@/components/data/TModal'
+import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -238,7 +237,7 @@ const addSchema: FormSchema = {
       label: '上级分类',
       placeholder: '请选择上级分类',
       options: () => categoriesStore.level1Categories.map(c => ({ label: c.name, value: c.id })),
-      show: computed(() => addFormData.value.level === 2)
+      show: () => addFormData.value.level === 2
     },
     {
       name: 'sort',

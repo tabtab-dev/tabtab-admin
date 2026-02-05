@@ -690,6 +690,7 @@ export const useThemeStore = defineStore('theme', () => {
    */
   const applyThemeColors = () => {
     const colors = currentColors.value;
+    if (!colors) return;
     const root = document.documentElement;
 
     root.style.setProperty('--primary', colors.primary);
@@ -780,8 +781,8 @@ export const useThemeStore = defineStore('theme', () => {
     
     // 检查是否支持 view-transition API
     if ('startViewTransition' in document) {
-      // @ts-expect-error: startViewTransition 是较新的 API
-      const transition = document.startViewTransition(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const transition = (document as any).startViewTransition(() => {
         setMode(newMode);
       });
       

@@ -260,6 +260,8 @@ export interface FormField<T extends Record<string, any> = Record<string, any>> 
   cacheFields?: string[]
   /** 自定义类名 */
   className?: string
+  /** 是否显示该字段 */
+  show?: boolean | (() => boolean)
 }
 
 /**

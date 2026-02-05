@@ -5,6 +5,7 @@
  * 仅在 TForm 组件内部生效，不污染全局主题
  */
 import { computed } from 'vue'
+import type { ComputedRef } from 'vue'
 import { useThemeStore } from '@/stores/theme'
 import { theme as antdTheme } from 'antdv-next'
 import type { ThemeConfig } from 'antdv-next'
@@ -33,8 +34,6 @@ const colorMap: Record<string, string> = {
   'oklch(0.558 0.288 302.321)': '#9333ea',
   // 橙色主题
   'oklch(0.646 0.222 41.116)': '#ea580c',
-  // 红色主题
-  'oklch(0.577 0.245 27.325)': '#dc2626',
   // 粉色主题
   'oklch(0.606 0.285 349.5)': '#db2777',
   // 青绿主题
@@ -52,17 +51,6 @@ const colorMap: Record<string, string> = {
   'oklch(1 0 0 / 15%)': 'rgba(255, 255, 255, 0.15)',
   // 红色变体（用于错误/危险状态）
   'oklch(0.704 0.191 22.216)': '#ef4444',
-  // Dark 模式背景色
-  'oklch(0.205 0 0)': '#262626',
-  'oklch(0.145 0 0)': '#171717',
-  // Dark 模式前景色
-  'oklch(0.985 0 0)': '#fafafa',
-  'oklch(0.922 0 0)': '#e5e5e5',
-  // Dark 模式次级背景
-  'oklch(0.269 0 0)': '#404040',
-  // Dark 模式边框（带透明度）
-  'oklch(1 0 0 / 10%)': 'rgba(255, 255, 255, 0.1)',
-  'oklch(1 0 0 / 15%)': 'rgba(255, 255, 255, 0.15)',
 }
 
 /**
@@ -91,9 +79,9 @@ export function oklchToHex(oklchColor: string): string {
 
 /**
  * 生成 antdv-next 主题配置
- * @returns ThemeConfig 对象
+ * @returns ComputedRef<ThemeConfig> 主题配置
  */
-export function useTFormTheme(): ThemeConfig {
+export function useTFormTheme(): ComputedRef<ThemeConfig> {
   const themeStore = useThemeStore()
 
   return computed<ThemeConfig>(() => {

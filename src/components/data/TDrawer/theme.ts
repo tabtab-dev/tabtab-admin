@@ -5,6 +5,7 @@
  * 仅在 TDrawer 组件内部生效，不污染全局主题
  */
 import { computed } from 'vue'
+import type { ComputedRef } from 'vue'
 import { useThemeStore } from '@/stores/theme'
 import { theme as antdTheme } from 'antdv-next'
 import type { ThemeConfig } from 'antdv-next'
@@ -33,8 +34,6 @@ const colorMap: Record<string, string> = {
   'oklch(0.558 0.288 302.321)': '#9333ea',
   // 橙色主题
   'oklch(0.646 0.222 41.116)': '#ea580c',
-  // 红色主题
-  'oklch(0.577 0.245 27.325)': '#dc2626',
   // 粉色主题
   'oklch(0.606 0.285 349.5)': '#db2777',
   // 青绿主题
@@ -52,17 +51,6 @@ const colorMap: Record<string, string> = {
   'oklch(1 0 0 / 15%)': 'rgba(255, 255, 255, 0.15)',
   // 红色变体（用于错误/危险状态）
   'oklch(0.704 0.191 22.216)': '#ef4444',
-  // Dark 模式背景色
-  'oklch(0.205 0 0)': '#262626',
-  'oklch(0.145 0 0)': '#171717',
-  // Dark 模式前景色
-  'oklch(0.985 0 0)': '#fafafa',
-  'oklch(0.922 0 0)': '#e5e5e5',
-  // Dark 模式次级背景
-  'oklch(0.269 0 0)': '#404040',
-  // Dark 模式边框（带透明度）
-  'oklch(1 0 0 / 10%)': 'rgba(255, 255, 255, 0.1)',
-  'oklch(1 0 0 / 15%)': 'rgba(255, 255, 255, 0.15)',
 }
 
 /**
@@ -91,9 +79,9 @@ export function oklchToHex(oklchColor: string): string {
 
 /**
  * 生成 antdv-next 主题配置
- * @returns ThemeConfig 对象
+ * @returns ComputedRef<ThemeConfig> 主题配置
  */
-export function useTDrawerTheme(): ThemeConfig {
+export function useTDrawerTheme(): ComputedRef<ThemeConfig> {
   const themeStore = useThemeStore()
 
   return computed<ThemeConfig>(() => {
@@ -108,47 +96,65 @@ export function useTDrawerTheme(): ThemeConfig {
         // 核心颜色
         colorPrimary: oklchToHex(colors.primary),
         colorBgContainer: oklchToHex(colors.background),
-        colorBgElevated: oklchToHex(colors.card),
         colorText: oklchToHex(colors.foreground),
-        colorTextSecondary: oklchToHex(colors.mutedForeground),
-        colorBorder: oklchToHex(colors.border),
-        colorError: oklchToHex(colors.destructive),
 
-        // 边框圆角
-        borderRadius: radius * 16, // rem 转 px
-        borderRadiusSM: radius * 12,
-        borderRadiusLG: radius * 20,
+        // 边框和分割线
+        colorBorder: oklchToHex(colors.border),
+        colorSplit: oklchToHex(colors.border),
+
+        // 头部样式
+        colorBgElevated: oklchToHex(colors.card),
+
+        // 遮罩层
+        colorBgMask: 'rgba(0, 0, 0, 0.5)',
+
+        // 圆角 - 使用主题配置的圆角值
+        borderRadiusLG: radius,
+        borderRadius: radius,
 
         // 间距
-        paddingSM: 8,
-        padding: 12,
+        paddingLG: 24,
         paddingMD: 16,
-        paddingLG: 20,
-        paddingXL: 24,
+        paddingSM: 12,
+        paddingXS: 8,
 
-        // 字体大小
-        fontSizeSM: 12,
+        // 字体
         fontSize: 14,
-        fontSizeLG: 16,
-        fontSizeXL: 18,
+        lineHeight: 1.5,
+
+        // 动画
+        motionDurationMid: '0.2s',
+        motionDurationSlow: '0.3s',
       },
       components: {
-        // Drawer 抽屉组件
         Drawer: {
-          colorBgElevated: oklchToHex(colors.card),
-          colorText: oklchToHex(colors.foreground),
-          colorTextHeading: oklchToHex(colors.foreground),
-          colorBorder: oklchToHex(colors.border),
-          colorPrimary: oklchToHex(colors.primary),
-        },
-        // 按钮
-        Button: {
-          colorPrimary: oklchToHex(colors.primary),
-          colorPrimaryHover: oklchToHex(colors.primary),
-          colorPrimaryActive: oklchToHex(colors.primary),
-          colorText: oklchToHex(colors.foreground),
+          // 抽屉内容区域
           colorBgContainer: oklchToHex(colors.background),
+          colorText: oklchToHex(colors.foreground),
+
+          // 头部样式
+          colorBgElevated: oklchToHex(colors.card),
+          colorTextHeading: oklchToHex(colors.foreground),
+
+          // 关闭按钮
+          colorIcon: oklchToHex(colors.mutedForeground),
+          colorIconHover: oklchToHex(colors.foreground),
+
+          // 边框
           colorBorder: oklchToHex(colors.border),
+
+          // 圆角
+          borderRadiusLG: radius,
+
+          // 阴影
+          boxShadow: isDark
+            ? '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+            : '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+
+          // 尺寸
+          sizeLG: 378,
+          sizeMD: 320,
+          sizeSM: 256,
         },
       },
     }
@@ -156,25 +162,53 @@ export function useTDrawerTheme(): ThemeConfig {
 }
 
 /**
- * 静态主题配置（用于不需要响应式的场景）
+ * 获取 TDrawer 主题配置（非响应式版本）
+ * @returns ThemeConfig 对象
  */
 export function getTDrawerThemeConfig(): ThemeConfig {
   const themeStore = useThemeStore()
   const colors = themeStore.currentColors
   const radius = themeStore.layoutConfig.radius
+  const isDark = themeStore.currentMode === 'dark'
 
   return {
+    algorithm: isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
     token: {
       colorPrimary: oklchToHex(colors.primary),
       colorBgContainer: oklchToHex(colors.background),
-      colorBgElevated: oklchToHex(colors.card),
       colorText: oklchToHex(colors.foreground),
-      colorTextSecondary: oklchToHex(colors.mutedForeground),
       colorBorder: oklchToHex(colors.border),
-      colorError: oklchToHex(colors.destructive),
-      borderRadius: radius * 16,
+      colorSplit: oklchToHex(colors.border),
+      colorBgElevated: oklchToHex(colors.card),
+      colorBgMask: 'rgba(0, 0, 0, 0.5)',
+      borderRadiusLG: radius,
+      borderRadius: radius,
+      paddingLG: 24,
+      paddingMD: 16,
+      paddingSM: 12,
+      paddingXS: 8,
+      fontSize: 14,
+      lineHeight: 1.5,
+      motionDurationMid: '0.2s',
+      motionDurationSlow: '0.3s',
+    },
+    components: {
+      Drawer: {
+        colorBgContainer: oklchToHex(colors.background),
+        colorText: oklchToHex(colors.foreground),
+        colorBgElevated: oklchToHex(colors.card),
+        colorTextHeading: oklchToHex(colors.foreground),
+        colorIcon: oklchToHex(colors.mutedForeground),
+        colorIconHover: oklchToHex(colors.foreground),
+        colorBorder: oklchToHex(colors.border),
+        borderRadiusLG: radius,
+        boxShadow: isDark
+          ? '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+          : '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        sizeLG: 378,
+        sizeMD: 320,
+        sizeSM: 256,
+      },
     },
   }
 }
-
-export default useTDrawerTheme

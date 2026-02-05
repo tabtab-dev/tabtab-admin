@@ -235,7 +235,6 @@ defineExpose<TModalExpose>({
       :focus-trigger-after-close="focusTriggerAfterClose"
       :loading="loading"
       :modal-render="modalRender"
-      :mouse-position="(mousePosition as any)"
       :root-class="rootClass"
       :root-style="rootStyle"
       :classes="classes"
