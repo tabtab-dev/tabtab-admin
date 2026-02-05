@@ -48,6 +48,18 @@ const routes: RouteRecordRaw[] = [
         name: 'Settings',
         component: () => import('@/views/Settings.vue'),
         meta: { title: '系统设置' }
+      },
+      {
+        path: 'tform-demo',
+        name: 'TFormDemo',
+        component: () => import('@/views/TFormDemo.vue'),
+        meta: { title: 'TForm 演示' }
+      },
+      {
+        path: 'ttable-demo',
+        name: 'TTableDemo',
+        component: () => import('@/views/TTableDemo.vue'),
+        meta: { title: 'TTable 演示' }
       }
     ]
   },

@@ -17,9 +17,10 @@ import {
   Box,
   Truck,
   ClipboardList,
-  Archive,
   MapPin,
   Building,
+  FormInput,
+  Table,
 } from 'lucide-vue-next';
 
 /**
@@ -209,6 +210,20 @@ export const defaultSidebarConfig: SidebarConfig = {
       icon: Settings,
       group: 'system',
     },
+    {
+      key: 'tform-demo',
+      title: 'TForm 演示',
+      path: '/tform-demo',
+      icon: FormInput,
+      group: 'system',
+    },
+    {
+      key: 'ttable-demo',
+      title: 'TTable 演示',
+      path: '/ttable-demo',
+      icon: Table,
+      group: 'system',
+    },
   ],
 };
 
@@ -236,6 +251,8 @@ export const routeTitleMap: Record<string, string> = {
   '/analytics/sales': '销售分析',
   '/analytics/users': '用户分析',
   '/settings': '系统设置',
+  '/tform-demo': 'TForm 演示',
+  '/ttable-demo': 'TTable 演示',
 };
 
 /**
