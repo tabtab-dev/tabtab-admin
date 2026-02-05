@@ -43,31 +43,236 @@
   @apply flex items-center gap-2 flex-shrink-0 pb-[1px];
 }
 
-/* 网格布局 */
+/* ==================== 网格布局美化 ==================== */
+
+/* 网格布局容器 - 添加卡片式背景 */
 .t-form-search .search-form-container {
-  @apply w-full;
+  @apply w-full rounded-lg bg-muted/30 p-4;
+  @apply border border-border/50;
+  transition: all 0.3s ease;
 }
 
+/* 网格项样式 */
 .t-form-search .search-form-item {
   @apply mb-0;
 }
 
+/* 标签样式优化 */
 .t-form-search .search-form-item :deep(.ant-form-item-label) {
-  @apply pb-1;
+  @apply pb-1.5;
 }
 
+.t-form-search .search-form-item :deep(.ant-form-item-label > label) {
+  @apply text-sm font-medium text-foreground/80;
+}
+
+/* 必填标记样式 */
+.t-form-search .search-form-item :deep(.ant-form-item-required::before) {
+  @apply text-destructive mr-0.5;
+}
+
+/* 控件区域 */
 .t-form-search .search-form-item :deep(.ant-form-item-control) {
   @apply min-w-0;
 }
 
-/* 操作按钮区域 */
-.t-form-search .search-form-actions {
-  @apply flex items-center gap-2 mt-4 pt-4 border-t border-border;
+/* 输入框样式优化 */
+.t-form-search .search-form-item :deep(.ant-input),
+.t-form-search .search-form-item :deep(.ant-select-selector),
+.t-form-search .search-form-item :deep(.ant-picker) {
+  @apply rounded-md border-border/60;
+  @apply transition-all duration-200;
 }
+
+.t-form-search .search-form-item :deep(.ant-input:hover),
+.t-form-search .search-form-item :deep(.ant-select-selector:hover),
+.t-form-search .search-form-item :deep(.ant-picker:hover) {
+  @apply border-primary/60;
+}
+
+.t-form-search .search-form-item :deep(.ant-input:focus),
+.t-form-search .search-form-item :deep(.ant-select-focused .ant-select-selector),
+.t-form-search .search-form-item :deep(.ant-picker-focused) {
+  @apply border-primary ring-1 ring-primary/20;
+}
+
+/* ==================== 操作按钮区域美化 ==================== */
+
+/* 折叠/展开状态 - 按钮与搜索条件同行 */
+.t-form-search .search-form-collapsed-row,
+.t-form-search .search-form-expanded-row {
+  @apply items-end;
+}
+
+/* 折叠状态下的按钮容器 */
+.t-form-search .search-form-actions-collapsed {
+  @apply flex items-center gap-2;
+  @apply h-fit;
+}
+
+/* 展开状态下的按钮容器 */
+.t-form-search .search-form-actions-expanded {
+  @apply flex items-center gap-2;
+  @apply h-fit;
+  @apply pb-[1px];
+}
+
+/* 折叠状态下的搜索按钮 */
+.t-form-search .search-btn-collapsed {
+  @apply inline-flex items-center justify-center;
+  @apply rounded-md bg-primary px-3 py-2;
+  @apply text-sm font-medium text-primary-foreground;
+  @apply shadow-sm;
+  @apply transition-all duration-200;
+  @apply hover:bg-primary/90 hover:shadow-md;
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  @apply disabled:pointer-events-none disabled:opacity-50;
+  @apply whitespace-nowrap;
+}
+
+/* 折叠状态下的重置按钮 */
+.t-form-search .reset-btn-collapsed {
+  @apply inline-flex items-center justify-center;
+  @apply rounded-md border border-input bg-background px-3 py-2;
+  @apply text-sm font-medium text-foreground;
+  @apply shadow-sm;
+  @apply transition-all duration-200;
+  @apply hover:bg-accent hover:text-accent-foreground hover:border-accent;
+  @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  @apply whitespace-nowrap;
+}
+
+/* 展开状态下的搜索按钮 */
+.t-form-search .search-btn-expanded {
+  @apply inline-flex items-center justify-center;
+  @apply rounded-md bg-primary px-4 py-2;
+  @apply text-sm font-medium text-primary-foreground;
+  @apply shadow-sm;
+  @apply transition-all duration-200;
+  @apply hover:bg-primary/90 hover:shadow-md;
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  @apply disabled:pointer-events-none disabled:opacity-50;
+  @apply whitespace-nowrap;
+}
+
+/* 展开状态下的重置按钮 */
+.t-form-search .reset-btn-expanded {
+  @apply inline-flex items-center justify-center;
+  @apply rounded-md border border-input bg-background px-4 py-2;
+  @apply text-sm font-medium text-foreground;
+  @apply shadow-sm;
+  @apply transition-all duration-200;
+  @apply hover:bg-accent hover:text-accent-foreground hover:border-accent;
+  @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  @apply whitespace-nowrap;
+}
+
+/* 操作按钮容器 */
+.t-form-search .search-form-actions {
+  @apply flex items-center gap-2 mt-4;
+  @apply p-3 rounded-md bg-background border border-border/50;
+  @apply shadow-sm;
+}
+
+/* 搜索按钮 */
+.t-form-search .search-form-actions button[type="submit"],
+.t-form-search .search-form-actions-inline button[type="submit"] {
+  @apply inline-flex items-center justify-center;
+  @apply rounded-md bg-primary px-4 py-2;
+  @apply text-sm font-medium text-primary-foreground;
+  @apply shadow-sm;
+  @apply transition-all duration-200;
+  @apply hover:bg-primary/90 hover:shadow-md;
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  @apply disabled:pointer-events-none disabled:opacity-50;
+}
+
+/* 重置按钮 */
+.t-form-search .search-form-actions button[type="button"]:not(.collapse-btn),
+.t-form-search .search-form-actions-inline button[type="button"]:not(.collapse-btn) {
+  @apply inline-flex items-center justify-center;
+  @apply rounded-md border border-input bg-background px-4 py-2;
+  @apply text-sm font-medium text-foreground;
+  @apply shadow-sm;
+  @apply transition-all duration-200;
+  @apply hover:bg-accent hover:text-accent-foreground hover:border-accent;
+  @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+}
+
+/* 折叠展开按钮 */
+.t-form-search .search-form-actions .collapse-btn,
+.t-form-search .search-form-actions-inline .collapse-btn {
+  @apply inline-flex items-center justify-center;
+  @apply rounded-md px-3 py-2;
+  @apply text-sm font-medium text-muted-foreground;
+  @apply transition-all duration-200;
+  @apply hover:bg-muted hover:text-foreground;
+  @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+}
+
+/* 折叠状态下的展开按钮容器 */
+.t-form-search .search-form-collapse-btn-wrapper {
+  @apply flex items-end justify-start;
+  @apply h-fit;
+}
+
+/* 行内折叠按钮 */
+.t-form-search .collapse-btn-inline {
+  @apply inline-flex items-center justify-center;
+  @apply h-9 px-3 rounded-md;
+  @apply text-sm font-medium text-muted-foreground;
+  @apply transition-all duration-200;
+  @apply hover:bg-muted hover:text-foreground;
+  @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  @apply whitespace-nowrap;
+}
+
+/* 折叠展开按钮图标动画 */
+.t-form-search .collapse-btn .chevron-icon {
+  @apply transition-transform duration-300 ease-in-out;
+}
+
+.t-form-search .collapse-btn[data-collapsed="true"] .chevron-icon {
+  @apply rotate-0;
+}
+
+.t-form-search .collapse-btn[data-collapsed="false"] .chevron-icon {
+  @apply rotate-180;
+}
+
+/* ==================== 折叠动画 ==================== */
 
 /* 折叠状态 */
 .t-form-search.t-form-collapsed .search-form-container {
   @apply overflow-hidden;
+}
+
+/* 网格项进入动画 */
+.t-form-search .search-form-item {
+  @apply opacity-100;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* 折叠时隐藏项的动画 */
+.t-form-search.t-form-collapsed .search-form-item[data-hidden="true"] {
+  @apply opacity-0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+
+/* ==================== 字段组样式 ==================== */
+
+/* 字段组标题 */
+.t-form-search .search-form-group-title {
+  @apply col-span-full;
+  @apply text-sm font-semibold text-foreground/90;
+  @apply pb-2 mb-2 border-b border-border/50;
+  @apply flex items-center gap-2;
+}
+
+/* 字段组图标 */
+.t-form-search .search-form-group-title .group-icon {
+  @apply w-4 h-4 text-primary/70;
 }
 
 /* ==================== 响应式布局 ==================== */
@@ -75,6 +280,15 @@
 @media (max-width: 640px) {
   .t-form-search .search-form-container {
     grid-template-columns: 1fr !important;
+    @apply p-3;
+  }
+
+  .t-form-search .search-form-actions {
+    @apply flex-wrap gap-2;
+  }
+
+  .t-form-search .search-form-actions button {
+    @apply flex-1 min-w-[80px];
   }
 }
 
@@ -82,4 +296,39 @@
   .t-form-search .search-form-container {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
+}
+
+/* ==================== 暗色主题适配 ==================== */
+
+.dark .t-form-search .search-form-container {
+  @apply bg-muted/20 border-border/30;
+}
+
+.dark .t-form-search .search-form-actions {
+  @apply bg-muted/30 border-border/30;
+}
+
+.dark .t-form-search .search-form-item :deep(.ant-input),
+.dark .t-form-search .search-form-item :deep(.ant-select-selector),
+.dark .t-form-search .search-form-item :deep(.ant-picker) {
+  @apply bg-background/50 border-border/50;
+}
+
+/* ==================== 加载状态 ==================== */
+
+.t-form-search .search-form-actions button[type="submit"].loading {
+  @apply relative;
+}
+
+.t-form-search .search-form-actions button[type="submit"].loading::after {
+  content: '';
+  @apply absolute inset-0;
+  @apply bg-primary/20;
+  @apply animate-pulse;
+}
+
+/* ==================== 聚焦状态高亮 ==================== */
+
+.t-form-search .search-form-item:focus-within :deep(.ant-form-item-label > label) {
+  @apply text-primary;
 }

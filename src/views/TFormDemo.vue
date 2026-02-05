@@ -777,7 +777,7 @@ const searchCustomInlineFormData = ref({
 })
 
 /**
- * 搜索表单 Schema
+ * 搜索表单 Schema - 网格布局（7个条件 + 折叠）
  */
 const searchSchema: FormSchema = {
   layout: 'inline',
@@ -786,7 +786,8 @@ const searchSchema: FormSchema = {
       name: 'keyword',
       type: 'input',
       label: '关键词',
-      placeholder: '请输入关键词搜索'
+      placeholder: '请输入关键词搜索',
+      tooltip: '支持模糊搜索标题、内容'
     },
     {
       name: 'status',
@@ -857,17 +858,16 @@ const searchSchema: FormSchema = {
     collapseThreshold: 3,
     showCollapseButton: true,
     columns: 3,
-    searchText: '搜索',
+    gutter: 20,
+    searchText: '查询',
     resetText: '重置',
     showReset: true,
     onSearch: (values) => {
       console.log('搜索条件:', values)
-      // 这里可以触发 TTable 的刷新
       alert(`搜索条件：\n${JSON.stringify(values, null, 2)}`)
     },
     onReset: () => {
       console.log('重置搜索条件')
-      // 这里可以触发 TTable 的刷新
     }
   }
 }

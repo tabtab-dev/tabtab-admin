@@ -168,6 +168,12 @@ export interface RowSelectionConfig {
   selections?: Array<'SELECT_ALL' | 'SELECT_INVERT' | 'SELECT_NONE' | { key: string; text: string; onSelect: (changeableRowKeys: (string | number)[]) => void }>
   /** 是否允许选择该行的复选框 */
   getCheckboxProps?: (record: TableRecord) => { disabled?: boolean; indeterminate?: boolean }
+  /** 
+   * 父子节点选择是否严格独立
+   * @description 设置为 true 时，父子节点的选择互不影响；设置为 false 时，选择父节点会自动选中所有子节点
+   * @default false
+   */
+  checkStrictly?: boolean
 }
 
 /**
@@ -314,6 +320,18 @@ export interface TableSchema {
   emptySlot?: string
   /** 汇总行配置 */
   summary?: SummaryConfig
+  /** 
+   * 树形数据子节点字段名
+   * @description 指定数据中作为子节点的字段名，默认为 'children'
+   * @default 'children'
+   */
+  childrenColumnName?: string
+  /**
+   * 树形层级缩进宽度
+   * @description 控制树形表格每一层级的缩进像素值
+   * @default 15
+   */
+  indentSize?: number
 }
 
 /**

@@ -523,20 +523,22 @@ initFormData()
           <button
             v-if="searchConfig.showCollapseButton && hasMoreFields"
             type="button"
-            class="inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none"
+            class="collapse-btn"
+            :data-collapsed="isCollapsed"
             @click="toggleCollapse"
           >
             {{ isCollapsed ? searchConfig.expandButtonText : searchConfig.collapseButtonText }}
-            <ChevronDown v-if="isCollapsed" class="w-4 h-4 ml-1" />
-            <ChevronUp v-else class="w-4 h-4 ml-1" />
+            <ChevronDown class="chevron-icon w-4 h-4 ml-1" />
           </button>
         </div>
       </div>
 
       <!-- 网格布局：条件多时纵向排列 -->
       <template v-else>
+        <!-- 折叠状态：搜索条件 + 展开按钮同行 -->
         <div
-          class="search-form-container"
+          v-if="isCollapsed"
+          class="search-form-container search-form-collapsed-row"
           :style="{
             display: 'grid',
             gridTemplateColumns: `repeat(${searchConfig.columns}, minmax(0, 1fr))`,
@@ -558,38 +560,97 @@ initFormData()
               <slot :name="field.slot" v-bind="slotProps" />
             </template>
           </TFormItem>
+
+          <!-- 折叠状态下的操作按钮（放在最后一列） -->
+          <div class="search-form-actions-collapsed">
+            <button
+              type="submit"
+              :disabled="loading"
+              class="search-btn-collapsed"
+            >
+              <Search class="w-4 h-4 mr-1" />
+              {{ searchConfig.searchText }}
+            </button>
+            <button
+              v-if="searchConfig.showReset"
+              type="button"
+              class="reset-btn-collapsed"
+              @click="handleReset"
+            >
+              <RotateCcw class="w-4 h-4 mr-1" />
+              {{ searchConfig.resetText }}
+            </button>
+            <button
+              v-if="searchConfig.showCollapseButton && hasMoreFields"
+              type="button"
+              class="collapse-btn collapse-btn-inline"
+              :data-collapsed="isCollapsed"
+              @click="toggleCollapse"
+            >
+              {{ searchConfig.expandButtonText }}
+              <ChevronDown class="chevron-icon w-4 h-4 ml-1" />
+            </button>
+          </div>
         </div>
 
-        <!-- 搜索表单操作按钮 -->
-        <div class="search-form-actions">
-          <button
-            type="submit"
-            :disabled="loading"
-            class="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+        <!-- 展开状态：搜索条件网格 + 按钮同行（放在最后一列） -->
+        <template v-else>
+          <div
+            class="search-form-container search-form-expanded-row"
+            :style="{
+              display: 'grid',
+              gridTemplateColumns: `repeat(${searchConfig.columns}, minmax(0, 1fr))`,
+              gap: `${searchConfig.gutter}px`
+            }"
           >
-            <Search class="w-4 h-4 mr-1" />
-            {{ searchConfig.searchText }}
-          </button>
-          <button
-            v-if="searchConfig.showReset"
-            type="button"
-            class="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium text-foreground shadow-sm hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-            @click="handleReset"
-          >
-            <RotateCcw class="w-4 h-4 mr-1" />
-            {{ searchConfig.resetText }}
-          </button>
-          <button
-            v-if="searchConfig.showCollapseButton && hasMoreFields"
-            type="button"
-            class="inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none"
-            @click="toggleCollapse"
-          >
-            {{ isCollapsed ? searchConfig.expandButtonText : searchConfig.collapseButtonText }}
-            <ChevronDown v-if="isCollapsed" class="w-4 h-4 ml-1" />
-            <ChevronUp v-else class="w-4 h-4 ml-1" />
-          </button>
-        </div>
+            <TFormItem
+              v-for="field in searchVisibleFields"
+              :key="String(field.name)"
+              :field="field"
+              :form-data="formData"
+              class="search-form-item"
+            >
+              <!-- 自定义插槽透传 -->
+              <template
+                v-if="field.type === 'custom' && field.slot && slots[field.slot]"
+                v-slot:[field.slot]="slotProps"
+              >
+                <slot :name="field.slot" v-bind="slotProps" />
+              </template>
+            </TFormItem>
+
+            <!-- 展开状态下的操作按钮（放在最后一列） -->
+            <div class="search-form-actions-expanded">
+              <button
+                type="submit"
+                :disabled="loading"
+                class="search-btn-expanded"
+              >
+                <Search class="w-4 h-4 mr-1" />
+                {{ searchConfig.searchText }}
+              </button>
+              <button
+                v-if="searchConfig.showReset"
+                type="button"
+                class="reset-btn-expanded"
+                @click="handleReset"
+              >
+                <RotateCcw class="w-4 h-4 mr-1" />
+                {{ searchConfig.resetText }}
+              </button>
+              <button
+                v-if="searchConfig.showCollapseButton && hasMoreFields"
+                type="button"
+                class="collapse-btn collapse-btn-inline"
+                :data-collapsed="isCollapsed"
+                @click="toggleCollapse"
+              >
+                {{ searchConfig.collapseButtonText }}
+                <ChevronDown class="chevron-icon w-4 h-4 ml-1" />
+              </button>
+            </div>
+          </div>
+        </template>
       </template>
     </template>
 

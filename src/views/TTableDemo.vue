@@ -4,14 +4,14 @@
  *
  * @description 展示 TTable 表格组件的各种使用场景和配置方式
  */
-import { ref, reactive, h } from 'vue'
+import { ref, reactive, h, computed } from 'vue'
 import { TTable } from '@/components/data/TTable'
 import type { TableSchema, TTableExpose, TableColumn } from '@/components/data/TTable'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Tag, Space, Avatar } from 'antdv-next'
+import { Tag, Space, Avatar, Switch } from 'antdv-next'
 
 /**
  * 表格引用
@@ -254,6 +254,84 @@ function handleExpand(expanded: boolean, record: any) {
 function clearSelection() {
   tableRef.value?.clearSelection()
 }
+
+// ==================== 树形表格示例数据 ====================
+const treeData = ref([
+  {
+    id: 1,
+    name: '技术部',
+    manager: '张三',
+    count: 45,
+    budget: 500000,
+    children: [
+      {
+        id: 11,
+        name: '前端组',
+        manager: '李四',
+        count: 15,
+        budget: 150000,
+        children: [
+          { id: 111, name: 'Web 前端', manager: '王五', count: 8, budget: 80000 },
+          { id: 112, name: '移动端', manager: '赵六', count: 7, budget: 70000 }
+        ]
+      },
+      {
+        id: 12,
+        name: '后端组',
+        manager: '孙七',
+        count: 20,
+        budget: 200000,
+        children: [
+          { id: 121, name: 'Java 组', manager: '周八', count: 12, budget: 120000 },
+          { id: 122, name: 'Go 组', manager: '吴九', count: 8, budget: 80000 }
+        ]
+      },
+      { id: 13, name: '测试组', manager: '郑十', count: 10, budget: 100000 }
+    ]
+  },
+  {
+    id: 2,
+    name: '产品部',
+    manager: '钱十一',
+    count: 12,
+    budget: 120000,
+    children: [
+      { id: 21, name: '产品设计', manager: '冯十二', count: 6, budget: 60000 },
+      { id: 22, name: '用户研究', manager: '陈十三', count: 6, budget: 60000 }
+    ]
+  },
+  { id: 3, name: '运营部', manager: '褚十四', count: 20, budget: 200000 }
+])
+
+const checkStrictly = ref(false)
+
+const treeSchema = computed<TableSchema>(() => ({
+  columns: [
+    { title: '部门名称', dataIndex: 'name', width: 200 },
+    { title: '负责人', dataIndex: 'manager', width: 120 },
+    { title: '人数', dataIndex: 'count', width: 100, align: 'center' },
+    { 
+      title: '预算', 
+      dataIndex: 'budget', 
+      width: 150,
+      customRender: ({ text }) => `¥${text?.toLocaleString()}`
+    }
+  ],
+  pagination: false,
+  rowSelection: { 
+    type: 'checkbox',
+    checkStrictly: checkStrictly.value
+  },
+  indentSize: 20
+}))
+
+const treeSelectedKeys = ref<(string | number)[]>([])
+const treeSelectedRows = ref<any[]>([])
+
+function handleTreeSelectChange(keys: (string | number)[], rows: any[]) {
+  treeSelectedKeys.value = keys
+  treeSelectedRows.value = rows
+}
 </script>
 
 <template>
@@ -268,12 +346,13 @@ function clearSelection() {
 
     <!-- 标签页切换不同示例 -->
     <Tabs default-value="basic" class="w-full">
-      <TabsList class="grid w-full grid-cols-5">
+      <TabsList class="grid w-full grid-cols-6">
         <TabsTrigger value="basic">基础用法</TabsTrigger>
         <TabsTrigger value="advanced">高级功能</TabsTrigger>
         <TabsTrigger value="selection">行选择</TabsTrigger>
         <TabsTrigger value="expand">展开行</TabsTrigger>
         <TabsTrigger value="fixed">固定列</TabsTrigger>
+        <TabsTrigger value="tree">树形表格</TabsTrigger>
       </TabsList>
 
       <!-- 基础用法 -->
@@ -454,6 +533,46 @@ function clearSelection() {
           </CardContent>
         </Card>
       </TabsContent>
+
+      <!-- 树形表格 -->
+      <TabsContent value="tree">
+        <Card>
+          <CardHeader>
+            <CardTitle>树形表格</CardTitle>
+            <CardDescription>
+              展示树形层级数据结构，支持父子节点选择联动
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <!-- 控制选项 -->
+            <div class="mb-4 flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium">严格独立选择:</span>
+                <Switch v-model:checked="checkStrictly" size="small" />
+                <span class="text-xs text-muted-foreground">
+                  {{ checkStrictly ? '父子节点选择互不影响' : '选择父节点自动选中子节点' }}
+                </span>
+              </div>
+            </div>
+
+            <TTable
+              v-model:data="treeData"
+              :schema="treeSchema"
+              @select-change="handleTreeSelectChange"
+            />
+
+            <!-- 选中数据展示 -->
+            <div class="mt-4 p-4 bg-muted rounded-lg">
+              <h4 class="text-sm font-medium mb-2">已选中的部门（{{ treeSelectedKeys.length }} 个）:</h4>
+              <div class="flex flex-wrap gap-2">
+                <Badge v-for="key in treeSelectedKeys" :key="key" variant="secondary">
+                  ID: {{ key }}
+                </Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
     </Tabs>
 
     <!-- 特性说明 -->
@@ -491,6 +610,12 @@ function clearSelection() {
             <h4 class="font-medium mb-2">展开行</h4>
             <p class="text-sm text-muted-foreground">
               支持展开行显示详细信息，支持自定义渲染
+            </p>
+          </div>
+          <div class="p-4 border rounded-lg">
+            <h4 class="font-medium mb-2">树形数据</h4>
+            <p class="text-sm text-muted-foreground">
+              支持树形层级数据展示，支持父子节点选择联动
             </p>
           </div>
           <div class="p-4 border rounded-lg">

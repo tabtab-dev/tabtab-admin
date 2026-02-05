@@ -118,6 +118,48 @@
  *   </TTable>
  * </template>
  * ```
+ *
+ * @example
+ * // 树形表格
+ * ```vue
+ * <script setup lang="ts">
+ * import { TTable } from '@/components/data/TTable'
+ * import type { TableSchema } from '@/components/data/TTable'
+ *
+ * const schema: TableSchema = {
+ *   columns: [
+ *     { title: '部门名称', dataIndex: 'name' },
+ *     { title: '负责人', dataIndex: 'manager' },
+ *     { title: '人数', dataIndex: 'count' }
+ *   ],
+ *   // 树形数据配置
+ *   childrenColumnName: 'children',  // 子节点字段名（默认）
+ *   indentSize: 20,                   // 层级缩进宽度（像素）
+ *   rowSelection: {
+ *     type: 'checkbox',
+ *     checkStrictly: false  // false: 父子联动选择，true: 独立选择
+ *   }
+ * }
+ *
+ * const treeData = ref([
+ *   {
+ *     id: 1,
+ *     name: '技术部',
+ *     manager: '张三',
+ *     count: 45,
+ *     children: [
+ *       { id: 11, name: '前端组', manager: '李四', count: 15 },
+ *       { id: 12, name: '后端组', manager: '王五', count: 20 }
+ *     ]
+ *   },
+ *   { id: 2, name: '产品部', manager: '赵六', count: 12 }
+ * ])
+ * </script>
+ *
+ * <template>
+ *   <TTable :schema="schema" :data="treeData" />
+ * </template>
+ * ```
  */
 
 // 导出组件

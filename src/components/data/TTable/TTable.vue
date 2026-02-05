@@ -297,6 +297,7 @@ const rowSelection = computed(() => {
     selections: config.selections,
     getCheckboxProps: config.getCheckboxProps,
     preserveSelectedRowKeys: config.preserveSelectedRowKeys,
+    checkStrictly: config.checkStrictly,
     onChange: (selectedRowKeys: (string | number)[], selectedRows: TableRecord[]) => {
       state.value.selectedRowKeys = selectedRowKeys
       // 直接使用 antd 返回的 selectedRows
@@ -561,6 +562,8 @@ watch(
       :virtual="schema.virtual"
       :sticky="schema.sticky"
       :expandable="expandable"
+      :children-column-name="schema.childrenColumnName || 'children'"
+      :indent-size="schema.indentSize ?? 15"
       :class="cn('t-table', $attrs.class as string)"
       @change="handleChange"
     >
