@@ -2,7 +2,7 @@
 import { ref, defineAsyncComponent, watch, onMounted, onUnmounted } from 'vue';
 import Header from '@/components/layout/Header.vue';
 import TabBar from './TabBar.vue';
-import Sidebar from '@/components/layout/sidebar/Sidebar.vue';
+import AppSidebar from '@/components/layout/sidebar/AppSidebar.vue';
 import PageHeader from '@/components/layout/PageHeader.vue';
 import ErrorBoundary from '@/components/layout/ErrorBoundary.vue';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -73,7 +73,7 @@ onUnmounted(() => {
       @toggle-collapse="toggleSidebarCollapse"
     />
     <div class="flex-1 overflow-hidden">
-      <Sidebar v-model:collapsed="sidebarCollapsed">
+      <AppSidebar v-model:collapsed="sidebarCollapsed">
         <ScrollArea class="h-full flex flex-col">
           <!-- 标签栏 - 根据主题配置显示/隐藏 -->
           <TabBar v-if="themeStore.layoutConfig.showTabBar" />
@@ -103,7 +103,7 @@ onUnmounted(() => {
             </ErrorBoundary>
           </div>
         </ScrollArea>
-      </Sidebar>
+      </AppSidebar>
     </div>
   </div>
 </template>

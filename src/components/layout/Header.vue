@@ -49,7 +49,7 @@ import {
   CheckCircle,
   MessageSquare,
 } from 'lucide-vue-next';
-import Breadcrumb from './Breadcrumb.vue';
+import PageBreadcrumb from './PageBreadcrumb.vue';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -253,7 +253,7 @@ onUnmounted(() => {
 
         <!-- 面包屑导航 -->
         <div v-if="themeStore.layoutConfig.showBreadcrumb" class="hidden md:flex items-center min-w-0">
-          <Breadcrumb />
+          <PageBreadcrumb />
         </div>
 
         <!-- 移动端页面标题 -->
