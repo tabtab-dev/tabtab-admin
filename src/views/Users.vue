@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TModal } from '@/components/data/TModal'
-import type { TModalExpose } from '@/components/data/TModal'
+
 import { useUsersStore, type User } from '@/stores/users'
 import { Plus, Users, UserCheck, UserCog, TrendingUp } from 'lucide-vue-next'
 import { Avatar, Space, Tag } from 'antdv-next'

@@ -6,7 +6,7 @@ import { ref, computed } from 'vue'
 import { TTable } from '@/components/data/TTable'
 import { TForm } from '@/components/data/TForm'
 import { TModal } from '@/components/data/TModal'
-import type { TableSchema, TTableExpose } from '@/components/data/TTable'
+import type { TableSchema } from '@/components/data/TTable'
 import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -158,7 +158,6 @@ const filteredCompanies = computed(() => {
 })
 
 // 表格配置
-const tableRef = ref<TTableExpose>()
 
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
