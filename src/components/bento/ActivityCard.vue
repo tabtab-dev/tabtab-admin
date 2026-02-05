@@ -54,8 +54,7 @@ const typeStyles = {
 
 <template>
   <Card
-    class="border border-border/40 shadow-none"
-    :style="{ borderRadius: 'calc(var(--radius))' }"
+    class="border border-border/40 shadow-sm rounded-xl"
   >
     <CardHeader class="pb-3">
       <CardTitle class="text-base font-semibold">{{ title }}</CardTitle>
@@ -66,8 +65,8 @@ const typeStyles = {
           <div
             v-for="(item, index) in items.slice(0, maxItems)"
             :key="item.id"
-            class="group flex items-start gap-3 p-3 transition-all duration-200 hover:bg-muted/50 cursor-pointer"
-            :style="{ animationDelay: `${index * 50}ms`, borderRadius: 'calc(var(--radius) * 0.6)' }"
+            class="group flex items-start gap-3 p-3 transition-all duration-200 hover:bg-muted/50 cursor-pointer rounded-lg"
+            :style="{ animationDelay: `${index * 50}ms` }"
           >
             <!-- 状态指示点 -->
             <div :class="['w-2 h-2 mt-2 rounded-full flex-shrink-0', typeStyles[item.type].dot]" />
@@ -94,7 +93,7 @@ const typeStyles = {
           
           <!-- 空状态 -->
           <div v-if="items.length === 0" class="flex flex-col items-center justify-center py-8 text-muted-foreground">
-            <div class="w-12 h-12 bg-muted/50 flex items-center justify-center mb-3" :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }">
+            <div class="w-12 h-12 bg-muted/50 flex items-center justify-center mb-3 rounded-lg">
               <svg class="w-6 h-6 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>

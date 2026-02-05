@@ -91,8 +91,7 @@ const isPositive = computed(() => props.trend >= 0);
 
 <template>
   <Card
-    class="group relative overflow-hidden border border-border/40 shadow-none transition-all duration-300 hover:-translate-y-1"
-    :style="{ borderRadius: 'calc(var(--radius))' }"
+    class="group relative overflow-hidden border border-border/40 shadow-sm transition-all duration-300 hover:-translate-y-1 rounded-xl"
   >
     <!-- 背景渐变 -->
     <div 
@@ -105,7 +104,7 @@ const isPositive = computed(() => props.trend >= 0);
         <div class="flex-1 min-w-0">
           <!-- 图标和标题 -->
           <div class="flex items-center gap-2 mb-3">
-            <div :class="['p-2', theme.bg]" :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }">
+            <div :class="['p-2 rounded-lg', theme.bg]">
               <component :is="icon" :class="['h-4 w-4', theme.icon]" />
             </div>
             <span class="text-sm font-medium text-muted-foreground">{{ title }}</span>

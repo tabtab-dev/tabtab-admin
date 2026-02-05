@@ -31,8 +31,7 @@ const trendBgColor = computed(() => {
 
 <template>
   <Card
-    class="relative overflow-hidden border-0 shadow-lg group"
-    :style="{ borderRadius: 'calc(var(--radius))' }"
+    class="relative overflow-hidden border-0 shadow-sm group rounded-xl"
   >
     <!-- 渐变背景 -->
     <div class="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-primary/70" />
@@ -51,7 +50,7 @@ const trendBgColor = computed(() => {
       <div class="flex items-start justify-between">
         <div class="flex items-center gap-4">
           <!-- 图标容器 -->
-          <div class="p-3 bg-white/20 backdrop-blur-sm" :style="{ borderRadius: 'calc(var(--radius) * 0.8)' }">
+          <div class="p-3 bg-white/20 backdrop-blur-sm rounded-lg">
             <component v-if="icon" :is="icon" class="h-8 w-8 text-white" />
           </div>
           <div>
@@ -63,8 +62,7 @@ const trendBgColor = computed(() => {
         <!-- 趋势徽章 -->
         <div
           v-if="trend"
-          :class="['flex items-center gap-1 px-3 py-1.5 backdrop-blur-sm', trendBgColor]"
-          :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }"
+          :class="['flex items-center gap-1 px-3 py-1.5 backdrop-blur-sm rounded-md', trendBgColor]"
         >
           <component :is="trend.isPositive ? TrendingUp : TrendingDown" class="h-4 w-4 text-white" />
           <span class="text-sm font-semibold text-white">{{ Math.abs(trend.value) }}%</span>

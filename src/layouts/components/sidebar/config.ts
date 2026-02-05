@@ -21,6 +21,8 @@ import {
   Building,
   FormInput,
   Table,
+  MessageSquare,
+  PanelRight,
 } from 'lucide-vue-next';
 
 /**
@@ -224,6 +226,20 @@ export const defaultSidebarConfig: SidebarConfig = {
       icon: Table,
       group: 'system',
     },
+    {
+      key: 'tmodal-demo',
+      title: 'TModal 演示',
+      path: '/tmodal-demo',
+      icon: MessageSquare,
+      group: 'system',
+    },
+    {
+      key: 'tdrawer-demo',
+      title: 'TDrawer 演示',
+      path: '/tdrawer-demo',
+      icon: PanelRight,
+      group: 'system',
+    },
   ],
 };
 
@@ -253,6 +269,8 @@ export const routeTitleMap: Record<string, string> = {
   '/settings': '系统设置',
   '/tform-demo': 'TForm 演示',
   '/ttable-demo': 'TTable 演示',
+  '/tmodal-demo': 'TModal 演示',
+  '/tdrawer-demo': 'TDrawer 演示',
 };
 
 /**

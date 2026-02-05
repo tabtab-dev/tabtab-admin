@@ -60,6 +60,18 @@ const routes: RouteRecordRaw[] = [
         name: 'TTableDemo',
         component: () => import('@/views/TTableDemo.vue'),
         meta: { title: 'TTable 演示' }
+      },
+      {
+        path: 'tmodal-demo',
+        name: 'TModalDemo',
+        component: () => import('@/views/TModalDemo.vue'),
+        meta: { title: 'TModal 演示' }
+      },
+      {
+        path: 'tdrawer-demo',
+        name: 'TDrawerDemo',
+        component: () => import('@/views/TDrawerDemo.vue'),
+        meta: { title: 'TDrawer 演示' }
       }
     ]
   },

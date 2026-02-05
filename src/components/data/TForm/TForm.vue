@@ -216,6 +216,10 @@ function handleReset(): void {
   if (isSearchMode.value && props.schema.searchConfig?.onReset) {
     props.schema.searchConfig.onReset()
   }
+  // 普通表单模式下触发 actions.onReset 回调
+  if (!isSearchMode.value && props.schema.actions?.onReset) {
+    props.schema.actions.onReset()
+  }
   emit('reset')
 }
 

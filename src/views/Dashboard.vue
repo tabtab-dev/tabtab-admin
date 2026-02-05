@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { 
-  MasonryGrid, 
   HeroCard, 
   StatCard, 
   ActivityCard, 
@@ -9,6 +8,7 @@ import {
   MiniChart,
   ProgressRing 
 } from '@/components/bento';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { 
   Users, 
   DollarSign, 
@@ -25,7 +25,9 @@ import {
   Bell,
   Sparkles,
   ArrowUpRight,
-  Zap
+  Zap,
+  Download,
+  Plus
 } from 'lucide-vue-next';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -143,39 +145,25 @@ const pendingTasks = ref([
 
 <template>
   <div class="space-y-6">
-    <!-- 顶部欢迎区域 -->
+    <!-- 页面标题区域 -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <div class="flex items-center gap-4">
-        <Avatar class="h-14 w-14 border-2 border-primary/20">
-          <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin" />
-          <AvatarFallback class="bg-primary/10 text-primary text-lg">AD</AvatarFallback>
-        </Avatar>
-        <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-2xl font-bold">{{ greeting }}，管理员</h1>
-            <Sparkles class="h-5 w-5 text-amber-500" />
-          </div>
-          <p class="text-muted-foreground text-sm mt-0.5 flex items-center gap-2">
-            <Calendar class="h-4 w-4" />
-            {{ currentDate }}
-          </p>
-        </div>
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">仪表盘</h1>
+        <p class="text-muted-foreground mt-1">欢迎回来，{{ greeting }}！今天是 {{ currentDate }}</p>
       </div>
-      
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
         <Button variant="outline" size="sm" class="gap-2">
-          <Bell class="h-4 w-4" />
-          <span class="hidden sm:inline">通知</span>
-          <Badge variant="secondary" class="ml-1">3</Badge>
+          <Download class="h-4 w-4" />
+          <span class="hidden sm:inline">导出报表</span>
         </Button>
         <Button size="sm" class="gap-2">
-          <Zap class="h-4 w-4" />
+          <Plus class="h-4 w-4" />
           <span class="hidden sm:inline">快速操作</span>
         </Button>
       </div>
     </div>
 
-    <!-- 核心指标卡片 - 使用网格布局 -->
+    <!-- 核心指标卡片 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <StatCard
         v-for="(metric, index) in metrics"
@@ -190,185 +178,212 @@ const pendingTasks = ref([
       />
     </div>
 
-    <!-- 瀑布流布局 - 其他内容 -->
-    <MasonryGrid :columns="{ default: 1, sm: 1, md: 2, lg: 3, xl: 3 }" gap="md">
-      <!-- HeroCard - 仪表板概览 -->
-      <HeroCard
-        title="本月业绩"
-        description="实时监控业务数据和核心指标"
-        value="$84,230"
-        :trend="{ value: 12.5, isPositive: true }"
-        :icon="Activity"
-        :action="{ label: '查看详细报告', onClick: () => console.log('查看报告') }"
-      >
-        <div class="grid grid-cols-3 gap-3 mt-2">
-          <div class="text-center p-3 bg-white/10 backdrop-blur-sm" :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }">
-            <p class="text-xs text-white/70">本周收入</p>
-            <p class="text-lg font-semibold text-white">$18.5k</p>
-          </div>
-          <div class="text-center p-3 bg-white/10 backdrop-blur-sm" :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }">
-            <p class="text-xs text-white/70">本周订单</p>
-            <p class="text-lg font-semibold text-white">856</p>
-          </div>
-          <div class="text-center p-3 bg-white/10 backdrop-blur-sm" :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }">
-            <p class="text-xs text-white/70">新客户</p>
-            <p class="text-lg font-semibold text-white">128</p>
-          </div>
-        </div>
-      </HeroCard>
-
-      <!-- 最近活动 -->
-      <ActivityCard title="最近动态" :items="activities" :max-items="6" />
-
-      <!-- 快捷操作 -->
-      <QuickActions title="快捷入口" :actions="quickActions" />
-
-      <!-- 系统状态 -->
-      <div class="bg-card border border-border/40 shadow-none p-5" :style="{ borderRadius: 'calc(var(--radius))' }">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="font-semibold">系统状态</h3>
-          <Badge variant="outline" class="text-emerald-500 border-emerald-500/20 bg-emerald-500/10">
-            <div class="w-1.5 h-1.5 bg-emerald-500 mr-1.5 animate-pulse" :style="{ borderRadius: 'calc(var(--radius) * 0.3)' }" />
-            正常运行
-          </Badge>
-        </div>
-        <div class="space-y-3">
-          <div
-            v-for="service in systemStatus"
-            :key="service.name"
-            class="flex items-center justify-between p-3 bg-muted/50 hover:bg-muted transition-colors"
-            :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }"
-          >
-            <div class="flex items-center gap-3">
-              <div class="w-2 h-2 bg-emerald-500" :style="{ borderRadius: 'calc(var(--radius) * 0.3)' }" />
-              <span class="text-sm font-medium">{{ service.name }}</span>
+    <!-- 主要内容网格 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- 左侧列 -->
+      <div class="space-y-6">
+        <!-- HeroCard - 本月业绩 -->
+        <HeroCard
+          title="本月业绩"
+          description="实时监控业务数据和核心指标"
+          value="$84,230"
+          :trend="{ value: 12.5, isPositive: true }"
+          :icon="Activity"
+          :action="{ label: '查看详细报告', onClick: () => console.log('查看报告') }"
+        >
+          <div class="grid grid-cols-3 gap-3 mt-2">
+            <div class="text-center p-3 bg-white/10 backdrop-blur-sm rounded-lg">
+              <p class="text-xs text-white/70">本周收入</p>
+              <p class="text-lg font-semibold text-white">$18.5k</p>
             </div>
-            <span class="text-xs text-muted-foreground">可用率 {{ service.uptime }}</span>
+            <div class="text-center p-3 bg-white/10 backdrop-blur-sm rounded-lg">
+              <p class="text-xs text-white/70">本周订单</p>
+              <p class="text-lg font-semibold text-white">856</p>
+            </div>
+            <div class="text-center p-3 bg-white/10 backdrop-blur-sm rounded-lg">
+              <p class="text-xs text-white/70">新客户</p>
+              <p class="text-lg font-semibold text-white">128</p>
+            </div>
           </div>
-        </div>
-      </div>
+        </HeroCard>
 
-      <!-- 待处理事项 -->
-      <div class="bg-card border border-border/40 shadow-none p-5" :style="{ borderRadius: 'calc(var(--radius))' }">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="font-semibold">待处理事项</h3>
-          <Badge variant="secondary">{{ pendingTasks.reduce((acc, t) => acc + t.count, 0) }}</Badge>
-        </div>
-        <div class="space-y-2">
-          <div
-            v-for="task in pendingTasks"
-            :key="task.label"
-            class="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors cursor-pointer group"
-            :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }"
-          >
-            <div class="flex items-center gap-3">
-              <div :class="['w-8 h-8 flex items-center justify-center', task.bgColor]" :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }">
-                <AlertCircle :class="['h-4 w-4', task.color]" />
+        <!-- 最近活动 -->
+        <ActivityCard title="最近动态" :items="activities" :max-items="6" />
+
+        <!-- 本周趋势 -->
+        <Card>
+          <CardHeader class="pb-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <CardTitle class="text-base">本周趋势</CardTitle>
+                <CardDescription>过去 7 天数据变化</CardDescription>
               </div>
-              <span class="text-sm">{{ task.label }}</span>
+              <Badge variant="default" class="gap-1">
+                <TrendingUp class="h-3 w-3" />
+                +5.3%
+              </Badge>
             </div>
-            <div class="flex items-center gap-2">
-              <span :class="['text-sm font-semibold', task.color]">{{ task.count }}</span>
-              <ArrowUpRight class="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          </CardHeader>
+          <CardContent class="pt-0">
+            <MiniChart
+              type="line"
+              :data="[45, 52, 48, 65, 72, 68, 75]"
+              color="bg-primary"
+              :height="80"
+            />
+            <div class="flex justify-between text-xs text-muted-foreground mt-3">
+              <span>周一</span>
+              <span>周三</span>
+              <span>周五</span>
+              <span>周日</span>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
-      <!-- 本周趋势 -->
-      <div class="bg-card border border-border/40 shadow-none p-5" :style="{ borderRadius: 'calc(var(--radius))' }">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h3 class="font-semibold">本周趋势</h3>
-            <p class="text-xs text-muted-foreground mt-0.5">过去 7 天数据变化</p>
-          </div>
-          <Badge variant="default" class="gap-1">
-            <TrendingUp class="h-3 w-3" />
-            +5.3%
-          </Badge>
-        </div>
-        <MiniChart
-          type="line"
-          :data="[45, 52, 48, 65, 72, 68, 75]"
-          color="bg-primary"
-          :height="80"
-        />
-        <div class="flex justify-between text-xs text-muted-foreground mt-3">
-          <span>周一</span>
-          <span>周三</span>
-          <span>周五</span>
-          <span>周日</span>
-        </div>
+      <!-- 中间列 -->
+      <div class="space-y-6">
+        <!-- 快捷操作 -->
+        <QuickActions title="快捷入口" :actions="quickActions" />
+
+        <!-- 系统状态 -->
+        <Card>
+          <CardHeader class="pb-4">
+            <div class="flex items-center justify-between">
+              <CardTitle class="text-base">系统状态</CardTitle>
+              <Badge variant="outline" class="text-emerald-500 border-emerald-500/20 bg-emerald-500/10">
+                <div class="w-1.5 h-1.5 bg-emerald-500 mr-1.5 animate-pulse rounded-full" />
+                正常运行
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent class="pt-0">
+            <div class="space-y-3">
+              <div
+                v-for="service in systemStatus"
+                :key="service.name"
+                class="flex items-center justify-between p-3 bg-muted/50 hover:bg-muted transition-colors rounded-lg"
+              >
+                <div class="flex items-center gap-3">
+                  <div class="w-2 h-2 bg-emerald-500 rounded-full" />
+                  <span class="text-sm font-medium">{{ service.name }}</span>
+                </div>
+                <span class="text-xs text-muted-foreground">可用率 {{ service.uptime }}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- 订单状态分布 -->
+        <Card>
+          <CardHeader class="pb-4">
+            <CardTitle class="text-base">订单状态</CardTitle>
+          </CardHeader>
+          <CardContent class="pt-0">
+            <div class="flex items-center justify-center mb-4">
+              <ProgressRing :progress="75" color="text-primary" :size="100" :stroke-width="10" text="75%" />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="text-center p-2 bg-muted/50 rounded-lg">
+                <p class="text-lg font-semibold">28</p>
+                <p class="text-xs text-muted-foreground">新订单</p>
+              </div>
+              <div class="text-center p-2 bg-muted/50 rounded-lg">
+                <p class="text-lg font-semibold">15</p>
+                <p class="text-xs text-muted-foreground">处理中</p>
+              </div>
+              <div class="text-center p-2 bg-muted/50 rounded-lg">
+                <p class="text-lg font-semibold">8</p>
+                <p class="text-xs text-muted-foreground">配送中</p>
+              </div>
+              <div class="text-center p-2 bg-muted/50 rounded-lg">
+                <p class="text-lg font-semibold">42</p>
+                <p class="text-xs text-muted-foreground">已完成</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      <!-- 订单状态分布 -->
-      <div class="bg-card border border-border/40 shadow-none p-5" :style="{ borderRadius: 'calc(var(--radius))' }">
-        <h3 class="font-semibold mb-4">订单状态</h3>
-        <div class="flex items-center justify-center mb-4">
-          <ProgressRing :progress="75" color="text-primary" :size="100" :stroke-width="10" text="75%" />
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div class="text-center p-2 bg-muted/50" :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }">
-            <p class="text-lg font-semibold">28</p>
-            <p class="text-xs text-muted-foreground">新订单</p>
-          </div>
-          <div class="text-center p-2 bg-muted/50" :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }">
-            <p class="text-lg font-semibold">15</p>
-            <p class="text-xs text-muted-foreground">处理中</p>
-          </div>
-          <div class="text-center p-2 bg-muted/50" :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }">
-            <p class="text-lg font-semibold">8</p>
-            <p class="text-xs text-muted-foreground">配送中</p>
-          </div>
-          <div class="text-center p-2 bg-muted/50" :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }">
-            <p class="text-lg font-semibold">42</p>
-            <p class="text-xs text-muted-foreground">已完成</p>
-          </div>
-        </div>
-      </div>
+      <!-- 右侧列 -->
+      <div class="space-y-6">
+        <!-- 待处理事项 -->
+        <Card>
+          <CardHeader class="pb-4">
+            <div class="flex items-center justify-between">
+              <CardTitle class="text-base">待处理事项</CardTitle>
+              <Badge variant="secondary">{{ pendingTasks.reduce((acc, t) => acc + t.count, 0) }}</Badge>
+            </div>
+          </CardHeader>
+          <CardContent class="pt-0">
+            <div class="space-y-2">
+              <div
+                v-for="task in pendingTasks"
+                :key="task.label"
+                class="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors cursor-pointer group rounded-lg"
+              >
+                <div class="flex items-center gap-3">
+                  <div :class="['w-8 h-8 flex items-center justify-center rounded-lg', task.bgColor]">
+                    <AlertCircle :class="['h-4 w-4', task.color]" />
+                  </div>
+                  <span class="text-sm">{{ task.label }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span :class="['text-sm font-semibold', task.color]">{{ task.count }}</span>
+                  <ArrowUpRight class="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-      <!-- 处理效率 -->
-      <div class="bg-card border border-border/40 shadow-none p-5" :style="{ borderRadius: 'calc(var(--radius))' }">
-        <h3 class="font-semibold mb-4">平均处理时间</h3>
-        <div class="space-y-4">
-          <div>
-            <div class="flex justify-between text-sm mb-2">
-              <span class="text-muted-foreground">支付处理</span>
-              <span class="font-medium">2.3 秒</span>
+        <!-- 处理效率 -->
+        <Card>
+          <CardHeader class="pb-4">
+            <CardTitle class="text-base">平均处理时间</CardTitle>
+          </CardHeader>
+          <CardContent class="pt-0">
+            <div class="space-y-4">
+              <div>
+                <div class="flex justify-between text-sm mb-2">
+                  <span class="text-muted-foreground">支付处理</span>
+                  <span class="font-medium">2.3 秒</span>
+                </div>
+                <div class="h-2 bg-muted overflow-hidden rounded-full">
+                  <div class="h-full bg-emerald-500 transition-all duration-1000 rounded-full" style="width: 85%" />
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm mb-2">
+                  <span class="text-muted-foreground">订单确认</span>
+                  <span class="font-medium">5.1 秒</span>
+                </div>
+                <div class="h-2 bg-muted overflow-hidden rounded-full">
+                  <div class="h-full bg-blue-500 transition-all duration-1000 rounded-full" style="width: 70%" />
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm mb-2">
+                  <span class="text-muted-foreground">发货处理</span>
+                  <span class="font-medium">12.5 分钟</span>
+                </div>
+                <div class="h-2 bg-muted overflow-hidden rounded-full">
+                  <div class="h-full bg-amber-500 transition-all duration-1000 rounded-full" style="width: 60%" />
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm mb-2">
+                  <span class="text-muted-foreground">客户响应</span>
+                  <span class="font-medium">3.2 分钟</span>
+                </div>
+                <div class="h-2 bg-muted overflow-hidden rounded-full">
+                  <div class="h-full bg-purple-500 transition-all duration-1000 rounded-full" style="width: 90%" />
+                </div>
+              </div>
             </div>
-            <div class="h-2 bg-muted overflow-hidden" :style="{ borderRadius: 'calc(var(--radius) * 0.3)' }">
-              <div class="h-full bg-emerald-500 transition-all duration-1000" style="width: 85%; borderRadius: calc(var(--radius) * 0.3)" />
-            </div>
-          </div>
-          <div>
-            <div class="flex justify-between text-sm mb-2">
-              <span class="text-muted-foreground">订单确认</span>
-              <span class="font-medium">5.1 秒</span>
-            </div>
-            <div class="h-2 bg-muted overflow-hidden" :style="{ borderRadius: 'calc(var(--radius) * 0.3)' }">
-              <div class="h-full bg-blue-500 transition-all duration-1000" style="width: 70%; borderRadius: calc(var(--radius) * 0.3)" />
-            </div>
-          </div>
-          <div>
-            <div class="flex justify-between text-sm mb-2">
-              <span class="text-muted-foreground">发货处理</span>
-              <span class="font-medium">12.5 分钟</span>
-            </div>
-            <div class="h-2 bg-muted overflow-hidden" :style="{ borderRadius: 'calc(var(--radius) * 0.3)' }">
-              <div class="h-full bg-amber-500 transition-all duration-1000" style="width: 60%; borderRadius: calc(var(--radius) * 0.3)" />
-            </div>
-          </div>
-          <div>
-            <div class="flex justify-between text-sm mb-2">
-              <span class="text-muted-foreground">客户响应</span>
-              <span class="font-medium">3.2 分钟</span>
-            </div>
-            <div class="h-2 bg-muted overflow-hidden" :style="{ borderRadius: 'calc(var(--radius) * 0.3)' }">
-              <div class="h-full bg-purple-500 transition-all duration-1000" style="width: 90%; borderRadius: calc(var(--radius) * 0.3)" />
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
-    </MasonryGrid>
+    </div>
   </div>
 </template>
