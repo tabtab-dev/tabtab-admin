@@ -104,15 +104,23 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
   const path = route.path;
   const items: BreadcrumbItem[] = [];
 
+  // 判断是否为首页（支持 '/' 和 '/dashboard'）
+  const isHomePage = path === '/' || path === '/dashboard';
+
   // 首页
   items.push({
     title: t('common.breadcrumb.home'),
-    path: '/',
-    clickable: path !== '/',
+    path: '/dashboard',
+    clickable: false,
     icon: Home,
   });
 
-  // 解析路径
+  // 如果是首页，直接返回
+  if (isHomePage) {
+    return items;
+  }
+
+  // 解析其他路径
   const segments = path.split('/').filter(Boolean);
   let currentPath = '';
 

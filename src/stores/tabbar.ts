@@ -171,14 +171,13 @@ const getIconComponent = (iconName?: string): Component | undefined => {
 
 /**
  * 默认固定标签（首页）
- * 直接使用图标组件，避免在菜单未加载时图标丢失
  */
 const defaultFixedTabs: TabItem[] = [
   {
-    path: '/',
+    path: '/dashboard',
     title: '首页',
     titleKey: 'menu.dashboard',
-    icon: markRaw(LayoutDashboard),
+    icon: findIconFromMenu('/'),
     closable: false,
     affix: true,
   },
