@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 /**
  * 订单管理页 - 使用 TTable + TForm 重构
  *
@@ -13,7 +13,7 @@ import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { useOrdersStore, type Order } from '@/stores/orders'
+import { useOrdersStore, type Order } from '@/stores/business/orders'
 import {
   Plus,
   ShoppingCart,

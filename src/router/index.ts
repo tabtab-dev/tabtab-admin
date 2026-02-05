@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import type { RouteRecordRaw, RouteLocationNormalized } from 'vue-router';
 import { updateDocumentTitle } from '@/i18n';
-import { useMenuStore } from '@/stores/menu';
+import { useMenuStore } from '@/stores/global/menu';
 
 /**
  * 基础路由配置

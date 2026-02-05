@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { TForm } from '@/components/data/TForm';
 import type { FormSchema, TFormExpose } from '@/components/data/TForm';
-import { useAuthStore } from '@/stores/auth';
-import { useThemeStore } from '@/stores/theme';
+import { useAuthStore } from '@/stores/global/auth';
+import { useThemeStore } from '@/stores/global/theme';
 import {
   Shield,
   ArrowRight,

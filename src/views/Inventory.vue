@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 /**
  * 库存管理页
  */
@@ -10,7 +10,7 @@ import type { FormSchema } from '@/components/data/TForm'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useInventoryStore } from '@/stores/inventory'
+import { useInventoryStore } from '@/stores/business/inventory'
 import {
   Warehouse,
   Package,

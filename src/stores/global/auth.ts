@@ -1,6 +1,6 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
-import { authApi, authApiMock } from '@/api';
+import { authApi } from '@/api';
 import { useMenuStore } from './menu';
 
 export interface User {
@@ -11,18 +11,6 @@ export interface User {
   role: 'admin' | 'editor' | 'viewer';
   permissions: string[];
 }
-
-/**
- * 是否使用 Mock 接口
- * 通过环境变量 VITE_USE_MOCK 控制
- */
-const useMock = import.meta.env.VITE_USE_MOCK === 'true';
-
-/**
- * 获取当前使用的 auth API
- * 根据环境变量自动切换正式接口和 Mock 接口
- */
-const currentAuthApi = useMock ? authApiMock : authApi;
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null);
@@ -42,7 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
     isLoading.value = true;
     try {
       // 使用 Alova 发送登录请求（根据配置自动选择正式或 Mock 接口）
-      const response = await currentAuthApi.login({ email, password });
+      const response = await authApi.login({ email, password });
 
       // 保存用户信息和 Token
       user.value = response.user;
@@ -69,7 +57,7 @@ export const useAuthStore = defineStore('auth', () => {
   const logout = async (): Promise<void> => {
     try {
       // 调用登出 API（根据配置自动选择正式或 Mock 接口）
-      await currentAuthApi.logout();
+      await authApi.logout();
     } catch (error) {
       console.error('Logout API error:', error);
     } finally {
@@ -93,7 +81,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return false;
 
     try {
-      const userData = await currentAuthApi.getCurrentUser();
+      const userData = await authApi.getCurrentUser();
       user.value = userData;
       localStorage.setItem('user', JSON.stringify(userData));
       return true;

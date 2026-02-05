@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 /**
  * 二级分类页
  */
@@ -11,7 +11,7 @@ import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useCategoriesStore, type Category } from '@/stores/categories'
+import { useCategoriesStore, type Category } from '@/stores/business/categories'
 import { Plus, Layers, CheckCircle, XCircle, Package } from 'lucide-vue-next'
 
 const categoriesStore = useCategoriesStore()

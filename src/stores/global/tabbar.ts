@@ -1,7 +1,7 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed, markRaw, type Component } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useMenuStore } from '@/stores/menu';
+import { useMenuStore } from '@/stores/global/menu';
 import {
   LayoutDashboard,
   Users,

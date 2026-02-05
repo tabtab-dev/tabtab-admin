@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick, watch, type Component } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { useTabBarStore } from '@/stores/tabbar';
+import { useTabBarStore } from '@/stores/global/tabbar';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,

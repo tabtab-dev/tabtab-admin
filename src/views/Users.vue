@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TModal } from '@/components/data/TModal'
 
-import { useUsersStore, type User } from '@/stores/users'
+import { useUsersStore, type User } from '@/stores/business/users'
 import { Plus, Users, UserCheck, UserCog, TrendingUp, Search } from 'lucide-vue-next'
 import { Avatar, Space, Tag } from 'antdv-next'
 

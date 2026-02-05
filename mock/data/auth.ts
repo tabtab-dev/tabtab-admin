@@ -3,7 +3,7 @@
  * @description 登录、登出、用户信息等相关 Mock 数据
  */
 
-import type { User } from '@/stores/auth';
+import type { User } from '@/stores/global/auth';
 
 /**
  * Mock 用户数据

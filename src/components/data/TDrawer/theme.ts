@@ -6,7 +6,7 @@
  */
 import { computed } from 'vue'
 import type { ComputedRef } from 'vue'
-import { useThemeStore } from '@/stores/theme'
+import { useThemeStore } from '@/stores/global/theme'
 import { theme as antdTheme } from 'antdv-next'
 import type { ThemeConfig } from 'antdv-next'
 

@@ -170,7 +170,7 @@ export const menuData: MenuItem[] = [
   {
     key: 'tform-demo',
     title: 'TForm Demo',
-    path: '/tform-demo',
+    path: '/demos/tform-demo',
     icon: 'FormInput',
     group: 'system',
     i18nKey: 'menu.tformDemo',
@@ -178,7 +178,7 @@ export const menuData: MenuItem[] = [
   {
     key: 'ttable-demo',
     title: 'TTable Demo',
-    path: '/ttable-demo',
+    path: '/demos/ttable-demo',
     icon: 'Table',
     group: 'system',
     i18nKey: 'menu.ttableDemo',
@@ -186,7 +186,7 @@ export const menuData: MenuItem[] = [
   {
     key: 'tmodal-demo',
     title: 'TModal Demo',
-    path: '/tmodal-demo',
+    path: '/demos/tmodal-demo',
     icon: 'MessageSquare',
     group: 'system',
     i18nKey: 'menu.tmodalDemo',
@@ -194,7 +194,7 @@ export const menuData: MenuItem[] = [
   {
     key: 'tdrawer-demo',
     title: 'TDrawer Demo',
-    path: '/tdrawer-demo',
+    path: '/demos/tdrawer-demo',
     icon: 'PanelRight',
     group: 'system',
     i18nKey: 'menu.tdrawerDemo',

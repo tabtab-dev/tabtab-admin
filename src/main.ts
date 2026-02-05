@@ -1,9 +1,9 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import router from './router';
-import { useAuthStore } from './stores/auth';
-import { useThemeStore } from './stores/theme';
-import { useLocaleStore } from './stores/locale';
+import { useAuthStore } from '@/stores/global/auth';
+import { useThemeStore } from '@/stores/global/theme';
+import { useLocaleStore } from '@/stores/global/locale';
 import { i18n } from './i18n';
 import './assets/css/app.css';
 import './assets/css/theme.css';

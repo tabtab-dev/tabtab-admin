@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 /**
  * 北京仓库页
  */
@@ -9,7 +9,7 @@ import type { TableSchema } from '@/components/data/TTable'
 import type { FormSchema } from '@/components/data/TForm'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useInventoryStore } from '@/stores/inventory'
+import { useInventoryStore } from '@/stores/business/inventory'
 import { Building, Package, AlertTriangle, CheckCircle, MapPin } from 'lucide-vue-next'
 
 const inventoryStore = useInventoryStore()

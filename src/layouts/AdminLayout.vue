@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, watch, onMounted, onUnmounted } from 'vue';
-import Header from './components/Header.vue';
+import Header from '@/components/layout/Header.vue';
 import TabBar from './TabBar.vue';
-import Sidebar from './components/sidebar/Sidebar.vue';
-import PageHeader from './components/PageHeader.vue';
-import ErrorBoundary from './components/ErrorBoundary.vue';
+import Sidebar from '@/components/layout/sidebar/Sidebar.vue';
+import PageHeader from '@/components/layout/PageHeader.vue';
+import ErrorBoundary from '@/components/layout/ErrorBoundary.vue';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useThemeStore } from '@/stores/theme';
+import { useThemeStore } from '@/stores/global/theme';
 
 /**
  * 异步加载骨架屏组件
  */
-const PageSkeleton = defineAsyncComponent(() => import('./components/PageSkeleton.vue'));
+const PageSkeleton = defineAsyncComponent(() => import('@/components/layout/PageSkeleton.vue'));
 
 /**
  * 主题 store

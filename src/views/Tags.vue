@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 /**
  * 标签管理页
  */
@@ -11,7 +11,7 @@ import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { useCategoriesStore, type Tag as TagType } from '@/stores/categories'
+import { useCategoriesStore, type Tag as TagType } from '@/stores/business/categories'
 import {
   Plus,
   Tag,

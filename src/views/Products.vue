@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 /**
  * 商品管理页 - 使用 TTable + TForm 重构
  *
@@ -13,7 +13,7 @@ import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useProductsStore, type Product } from '@/stores/products'
+import { useProductsStore, type Product } from '@/stores/business/products'
 import {
   Plus,
   Package,

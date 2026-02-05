@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 /**
  * TFormDemo - TForm 组件演示页面
  *
@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { useThemeStore } from '@/stores/theme'
+import { useThemeStore } from '@/stores/global/theme'
 import { Moon, Sun } from 'lucide-vue-next'
 
 /**

@@ -5,22 +5,10 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
 import type { RouteRecordRaw } from 'vue-router';
-import { menuApi, menuApiMock } from '@/api';
+import { menuApi } from '@/api';
 import type { MenuItem, RouteConfig } from '@/types/menu';
 import router from '@/router';
 import { convertToRouteRecords } from '@/router/routeMapping';
-
-/**
- * 是否使用 Mock 接口
- * 通过环境变量 VITE_USE_MOCK 控制
- */
-const useMock = import.meta.env.VITE_USE_MOCK === 'true';
-
-/**
- * 获取当前使用的 menu API
- * 根据环境变量自动切换正式接口和 Mock 接口
- */
-const currentMenuApi = useMock ? menuApiMock : menuApi;
 
 export const useMenuStore = defineStore('menu', () => {
   // State
@@ -73,7 +61,7 @@ export const useMenuStore = defineStore('menu', () => {
 
     isLoading.value = true;
     try {
-      const response = await currentMenuApi.getMenus();
+      const response = await menuApi.getMenus();
       menus.value = response.menus;
       routes.value = response.routes;
       isLoaded.value = true;

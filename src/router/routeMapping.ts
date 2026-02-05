@@ -26,6 +26,7 @@ const componentCache = new Map<string, () => Promise<any>>();
 function initComponentMap() {
   for (const [path, loader] of Object.entries(modules)) {
     // 从 /src/views/Users.vue 提取 users
+    // 从 /src/views/demos/TFormDemo.vue 提取 demos/tform-demo
     const match = path.match(/\/src\/views\/(.+)\.vue$/);
     if (match) {
       const fileName = match[1];
@@ -33,6 +34,7 @@ function initComponentMap() {
       // Users → /users
       // UsersAnalysis → /users-analysis
       // Categories → /categories
+      // demos/TFormDemo → /demos/tform-demo
       const kebabName = fileName
         .replace(/([a-z])([A-Z])/g, '$1-$2')
         .toLowerCase();

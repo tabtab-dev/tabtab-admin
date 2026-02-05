@@ -7,8 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useAuthStore } from '@/stores/auth';
-import { useThemeStore } from '@/stores/theme';
+import { useAuthStore } from '@/stores/global/auth';
+import { useThemeStore } from '@/stores/global/theme';
 import { Save, Bell, Shield, Palette, Database, User, Mail } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
