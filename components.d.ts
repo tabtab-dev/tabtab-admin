@@ -224,6 +224,7 @@ declare module 'vue' {
     Kbd: typeof import('./src/components/ui/kbd/Kbd.vue')['default']
     KbdGroup: typeof import('./src/components/ui/kbd/KbdGroup.vue')['default']
     Label: typeof import('./src/components/ui/label/Label.vue')['default']
+    Logo: typeof import('./src/components/Logo.vue')['default']
     MasonryGrid: typeof import('./src/components/bento/MasonryGrid.vue')['default']
     Menubar: typeof import('./src/components/ui/menubar/Menubar.vue')['default']
     MenubarCheckboxItem: typeof import('./src/components/ui/menubar/MenubarCheckboxItem.vue')['default']

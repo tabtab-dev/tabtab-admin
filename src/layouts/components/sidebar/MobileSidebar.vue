@@ -10,6 +10,7 @@ import { useMenuUtils } from '@/layouts/composables/useMenuUtils';
 import type { MenuItem, SidebarConfig } from './config';
 import SidebarItem from './SidebarItem.vue';
 import SidebarSubMenu from './SidebarSubMenu.vue';
+import Logo from '@/components/Logo.vue';
 import { ChevronLeft, User } from 'lucide-vue-next';
 
 /**
@@ -152,9 +153,8 @@ const isExpanded = (key: string): boolean => {
               <!-- Logo 区域 -->
               <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-3">
-                  <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/25 ring-2 ring-primary/20">
-                    <span class="text-sm font-bold text-primary-foreground">A</span>
-                  </div>
+                  <!-- Logo 图标 - 支持主题色切换 -->
+                  <Logo :size="40" :collapsed="false" />
                   <div>
                     <span class="text-base font-bold tracking-tight block">TabTab Admin</span>
                     <span class="text-xs text-muted-foreground">管理系统</span>

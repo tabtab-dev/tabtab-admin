@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import type { RouteRecordRaw } from 'vue-router';
+import type { RouteRecordRaw, RouteLocationNormalized } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -166,9 +166,28 @@ const router = createRouter({
   routes
 });
 
+/**
+ * 更新页面标题
+ * 组合页面标题和网站标题
+ * @param to 目标路由
+ */
+const updatePageTitle = (to: RouteLocationNormalized): void => {
+  const appTitle = import.meta.env.VITE_APP_TITLE || 'TabTab Admin';
+  const pageTitle = to.meta?.title as string | undefined;
+
+  if (pageTitle) {
+    document.title = `${pageTitle} - ${appTitle}`;
+  } else {
+    document.title = appTitle;
+  }
+};
+
 router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('token');
-  
+
+  // 更新页面标题
+  updatePageTitle(to);
+
   if (to.meta.requiresAuth !== false && !isAuthenticated) {
     next({ name: 'Login' });
   } else if (to.name === 'Login' && isAuthenticated) {

@@ -13,6 +13,7 @@ import { pxToPercent } from '@/layouts/composables/useMenuUtils';
 import type { MenuItem, SidebarConfig } from './config';
 import SidebarItem from './SidebarItem.vue';
 import SidebarSubMenu from './SidebarSubMenu.vue';
+import Logo from '@/components/Logo.vue';
 
 /**
  * 组件属性
@@ -181,13 +182,8 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
         class="flex items-center border-b border-border/40 bg-gradient-to-r from-background to-muted/20 transition-all duration-300 ease-in-out overflow-hidden"
         :class="collapsed ? 'justify-center px-2 py-3.5' : 'gap-3 px-4 py-3.5'"
       >
-        <div
-          class="bg-gradient-to-br from-primary via-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/20 ring-2 ring-primary/10 flex-shrink-0 transition-all duration-300"
-          :class="collapsed ? 'h-9 w-9' : 'h-9 w-9'"
-          :style="{ borderRadius: 'calc(var(--radius) * 0.8)' }"
-        >
-          <span class="text-sm font-bold text-primary-foreground">A</span>
-        </div>
+        <!-- Logo 图标 - 支持主题色切换 -->
+        <Logo :size="36" :collapsed="collapsed" />
         <div
           class="flex flex-col min-w-0 transition-all duration-300 ease-in-out"
           :class="collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'"
