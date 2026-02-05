@@ -70,9 +70,10 @@ const handleSaveSystem = async () => {
 
 <template>
   <div class="space-y-6">
+    <!-- 页面标题 -->
     <div>
-      <h1 class="text-3xl font-bold">系统设置</h1>
-      <p class="text-muted-foreground mt-1">管理账户和系统配置</p>
+      <h1 class="text-3xl font-bold tracking-tight">系统设置</h1>
+      <p class="text-muted-foreground mt-1.5 text-sm">管理账户和系统配置</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">

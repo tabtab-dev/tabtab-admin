@@ -117,12 +117,6 @@
   body {
     @apply bg-background text-foreground;
   }
-  /* 预留滚动条空间，避免抽屉打开时出现布局抖动 */
-  html {
-    scrollbar-gutter: stable;
-    /* 降级方案：始终显示滚动条轨道 */
-    overflow-y: scroll;
-  }
 }
 
  

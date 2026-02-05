@@ -38,6 +38,18 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '商品管理' }
       },
       {
+        path: 'products/categories',
+        name: 'Categories',
+        component: () => import('@/views/Categories.vue'),
+        meta: { title: '分类管理' }
+      },
+      {
+        path: 'products/inventory',
+        name: 'Inventory',
+        component: () => import('@/views/Inventory.vue'),
+        meta: { title: '库存管理' }
+      },
+      {
         path: 'analytics',
         name: 'Analytics',
         component: () => import('@/views/Analytics.vue'),

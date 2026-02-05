@@ -503,24 +503,18 @@ function handleBatchDelete(): void {
     </TModal>
 
     <!-- 统计卡片 -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <Card
+    <div class="flex flex-wrap gap-3">
+      <div
         v-for="stat in statistics"
         :key="stat.title"
-        class="border-0 shadow-sm hover:shadow-md transition-shadow"
+        class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
       >
-        <CardContent class="p-4">
-          <div class="flex items-center gap-4">
-            <div :class="['p-3 rounded-xl', stat.bgColor]">
-              <component :is="stat.icon" :class="['h-5 w-5', stat.color]" />
-            </div>
-            <div>
-              <p class="text-sm text-muted-foreground">{{ stat.title }}</p>
-              <p class="text-2xl font-bold">{{ stat.value }}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        <component :is="stat.icon" :class="['h-4 w-4', stat.color]" />
+        <div class="flex items-baseline gap-2">
+          <span class="text-lg font-semibold">{{ stat.value }}</span>
+          <span class="text-xs text-muted-foreground">{{ stat.title }}</span>
+        </div>
+      </div>
     </div>
 
     <!-- 搜索表单 -->

@@ -28,6 +28,7 @@
  */
 import { computed, ref, watch } from 'vue'
 import { ConfigProvider, Drawer } from 'antdv-next'
+import { useScrollLock } from '@vueuse/core'
 import zhCN from 'antdv-next/locale/zh_CN'
 import { cn } from '@/lib/utils'
 import type { TDrawerProps, TDrawerEmits, TDrawerExpose } from './types'
@@ -77,6 +78,25 @@ const emit = defineEmits<TDrawerEmits>()
  * 内部状态
  */
 const internalOpen = ref(props.open)
+
+/**
+ * 使用 VueUse 的 useScrollLock 锁定 html 和 body 滚动
+ * 抽屉打开时自动锁定外层滚动，关闭时恢复
+ */
+const isHtmlLocked = useScrollLock(document.documentElement)
+const isBodyLocked = useScrollLock(document.body)
+
+/**
+ * 监听抽屉状态，自动锁定/解锁 html 和 body 滚动
+ */
+watch(
+  () => internalOpen.value,
+  (open) => {
+    isHtmlLocked.value = open
+    isBodyLocked.value = open
+  },
+  { immediate: true }
+)
 
 /**
  * 监听外部 open 变化
