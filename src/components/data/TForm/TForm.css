@@ -2,22 +2,10 @@
  * TForm 组件样式
  *
  * @description TForm 组件的样式定义，与 shadcn-vue 主题对齐
- * @note 大部分样式通过 antdv-next 的 theme token 配置，此处仅保留布局和特殊样式
+ * @note 大部分样式通过 antdv-next 的 theme token 配置，此处仅保留布局样式
  */
 
 @reference "@/assets/css/app.css";
-
-/* ==================== 表单基础样式 ==================== */
-
-/* 表单标签样式 */
-.t-form :deep(.ant-form-item-label) {
-  @apply font-medium;
-}
-
-/* 错误提示样式 */
-.t-form :deep(.ant-form-item-explain-error) {
-  @apply text-sm text-destructive mt-1;
-}
 
 /* ==================== 搜索表单布局样式 ==================== */
 
@@ -26,17 +14,15 @@
   @apply w-full;
 }
 
-/* 同行布局容器 */
+/* 同行布局 */
 .t-form-search .search-form-inline {
   @apply flex items-end gap-4 w-full;
 }
 
-/* 同行布局字段区域 */
 .t-form-search .search-form-fields {
   @apply flex flex-1 items-end gap-4 min-w-0;
 }
 
-/* 同行布局字段项 */
 .t-form-search .search-form-item-inline {
   @apply mb-0 flex-1 min-w-0;
 }
@@ -53,17 +39,15 @@
   @apply min-w-0;
 }
 
-/* 同行布局按钮区域 */
 .t-form-search .search-form-actions-inline {
   @apply flex items-center gap-2 flex-shrink-0 pb-[1px];
 }
 
-/* 网格布局容器 */
+/* 网格布局 */
 .t-form-search .search-form-container {
   @apply w-full;
 }
 
-/* 网格布局字段项 */
 .t-form-search .search-form-item {
   @apply mb-0;
 }
@@ -76,26 +60,24 @@
   @apply min-w-0;
 }
 
-/* 搜索表单操作按钮区域 */
+/* 操作按钮区域 */
 .t-form-search .search-form-actions {
   @apply flex items-center gap-2 mt-4 pt-4 border-t border-border;
 }
 
-/* 搜索表单折叠状态 */
+/* 折叠状态 */
 .t-form-search.t-form-collapsed .search-form-container {
   @apply overflow-hidden;
 }
 
 /* ==================== 响应式布局 ==================== */
 
-/* 移动端 */
 @media (max-width: 640px) {
   .t-form-search .search-form-container {
     grid-template-columns: 1fr !important;
   }
 }
 
-/* 平板 */
 @media (min-width: 641px) and (max-width: 1024px) {
   .t-form-search .search-form-container {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
