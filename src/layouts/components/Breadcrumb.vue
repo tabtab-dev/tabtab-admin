@@ -40,6 +40,8 @@ interface BreadcrumbItem {
   clickable: boolean;
   /** 图标组件 */
   icon: Component;
+  /** 是否为省略号 */
+  isEllipsis?: boolean;
 }
 
 /**
@@ -127,9 +129,9 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
 });
 
 /**
- * 是否需要折叠（路径超过4项时）
+ * 是否需要折叠（路径超过5项时）
  */
-const shouldCollapse = computed(() => breadcrumbs.value.length > 4);
+const shouldCollapse = computed(() => breadcrumbs.value.length > 5);
 
 /**
  * 折叠后的面包屑列表
@@ -141,8 +143,8 @@ const displayedBreadcrumbs = computed(() => {
   const items = breadcrumbs.value;
   return [
     items[0], // 首页
-    { title: '...', path: '', clickable: false, icon: MoreHorizontal }, // 省略号
-    ...items.slice(-2), // 最后两项
+    { title: '...', path: '', clickable: false, icon: MoreHorizontal, isEllipsis: true }, // 省略号
+    ...items.slice(-3), // 最后三项
   ];
 });
 
@@ -188,12 +190,16 @@ const handleClick = (item: BreadcrumbItem): void => {
             />
 
             <!-- 内容区域 -->
-            <div class="relative flex items-center gap-1.5 px-3 py-1.5">
+            <div
+              class="relative flex items-center gap-1.5 px-3 py-1.5"
+              :class="{ 'px-2': item.isEllipsis }"
+            >
               <!-- 图标 -->
               <component
                 :is="item.icon"
-                class="h-3.5 w-3.5 transition-colors duration-300"
+                class="transition-colors duration-300"
                 :class="[
+                  item.isEllipsis ? 'h-4 w-4' : 'h-3.5 w-3.5',
                   index === displayedBreadcrumbs.length - 1
                     ? 'text-primary'
                     : 'text-muted-foreground group-hover:text-foreground',
@@ -202,6 +208,7 @@ const handleClick = (item: BreadcrumbItem): void => {
 
               <!-- 标题 -->
               <span
+                v-if="!item.isEllipsis"
                 class="text-sm font-medium transition-colors duration-300 whitespace-nowrap"
                 :class="[
                   index === displayedBreadcrumbs.length - 1
