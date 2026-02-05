@@ -28,6 +28,9 @@ export type FieldType =
   | 'pin'
   | 'combobox'
   | 'toggle-group'
+  | 'color'
+  | 'rating'
+  | 'rich-text'
   | 'custom'
 
 /**

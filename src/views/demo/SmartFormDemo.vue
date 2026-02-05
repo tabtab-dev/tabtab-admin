@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, h } from 'vue'
+import { ref } from 'vue'
 import { z } from 'zod'
 import { toast } from 'vue-sonner'
 import {
@@ -7,20 +7,12 @@ import {
   Lock,
   User,
   Phone,
-  Calendar,
-  Briefcase,
-  MapPin,
-  CreditCard,
-  ArrowRight,
-  RotateCcw,
   CheckCircle2,
   FormInput,
   Sparkles,
   SlidersHorizontal,
   Tags,
   ToggleLeft,
-  CalendarRange,
-  Shield,
 } from 'lucide-vue-next'
 
 import { Button } from '@/components/ui/button'
@@ -36,7 +28,7 @@ import type { FormFieldConfig, FormFieldGroup, SmartFormExpose } from '@/compone
 interface LoginForm {
   email: string
   password: string
-  rememberMe: boolean
+  rememberMe?: boolean
 }
 
 // ============ 高级表单类型 ============
@@ -44,8 +36,8 @@ interface AdvancedForm {
   username: string
   email: string
   phone: string
-  birthDate: string
-  dateRange: { from: string; to: string }
+  birthDate?: string
+  dateRange?: { from: string; to: string }
   gender: string
   password: string
   confirmPassword: string
@@ -53,8 +45,8 @@ interface AdvancedForm {
   skills: string[]
   interests: string[]
   experience: number
-  notifications: boolean
-  newsletter: boolean
+  notifications?: boolean
+  newsletter?: boolean
   agreeTerms: boolean
   verifyCode: string
   pin: string
@@ -63,21 +55,46 @@ interface AdvancedForm {
 // ============ 联动表单类型 ============
 interface ConditionalForm {
   userType: string
-  companyName: string
-  jobTitle: string
-  studentId: string
-  school: string
+  companyName?: string
+  jobTitle?: string
+  studentId?: string
+  school?: string
   vipLevel: string
-  discount: number
+  discount?: number
 }
 
+// ============ 新功能表单类型 ============
+interface NewFeaturesForm {
+  themeColor?: string
+  satisfaction?: number
+  description: string
+}
+
+// ============ AutoForm 演示类型 ============
+interface AutoFormDemo {
+  name: string
+  email: string
+  age: number
+  role: 'admin' | 'user' | 'guest'
+  bio?: string
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const loginFormRef = ref<SmartFormExpose<LoginForm> | null>(null)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const advancedFormRef = ref<SmartFormExpose<AdvancedForm> | null>(null)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const conditionalFormRef = ref<SmartFormExpose<ConditionalForm> | null>(null)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const newFeaturesFormRef = ref<SmartFormExpose<NewFeaturesForm> | null>(null)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const autoFormRef = ref<SmartFormExpose<AutoFormDemo> | null>(null)
 
 const loginLoading = ref(false)
 const advancedLoading = ref(false)
 const conditionalLoading = ref(false)
+const newFeaturesLoading = ref(false)
+const autoFormLoading = ref(false)
 
 // ============ 登录表单配置 ============
 const loginSchema = z.object({
@@ -428,6 +445,79 @@ const handleConditionalSubmit = async (values: ConditionalForm) => {
   conditionalLoading.value = false
 }
 
+// ============ 新功能表单配置 ============
+const newFeaturesSchema = z.object({
+  themeColor: z.string().default('#3b82f6'),
+  satisfaction: z.number().min(0).max(5).default(0),
+  description: z.string().min(10, '描述至少10个字符').max(500, '描述最多500个字符'),
+})
+
+const newFeaturesFields: FormFieldConfig<NewFeaturesForm>[] = [
+  {
+    name: 'themeColor',
+    type: 'color',
+    label: '主题颜色',
+    description: '选择您喜欢的主题颜色',
+  },
+  {
+    name: 'satisfaction',
+    type: 'rating',
+    label: '满意度评分',
+    description: '请对我们的产品进行评分',
+  },
+  {
+    name: 'description',
+    type: 'rich-text',
+    label: '详细描述',
+    placeholder: '请输入详细描述...',
+    description: '支持富文本编辑',
+  },
+]
+
+const handleNewFeaturesSubmit = async (values: NewFeaturesForm) => {
+  newFeaturesLoading.value = true
+  await new Promise(resolve => setTimeout(resolve, 1500))
+  toast.success('新功能表单提交成功', {
+    description: `颜色: ${values.themeColor}, 评分: ${values.satisfaction}`,
+  })
+  newFeaturesLoading.value = false
+}
+
+// ============ AutoForm 演示配置 ============
+import { zodToFieldConfig } from '@/components/smart-form'
+
+const autoFormSchema = z.object({
+  name: z.string().min(2, '姓名至少2个字符').max(50, '姓名最多50个字符'),
+  email: z.string().email('请输入有效的邮箱地址'),
+  age: z.number().min(18, '年龄必须大于18岁').max(120, '年龄必须小于120岁'),
+  role: z.enum(['admin', 'user', 'guest']),
+  bio: z.string().max(200, '简介最多200个字符').optional(),
+})
+
+const autoFormFields = zodToFieldConfig<AutoFormDemo>(autoFormSchema, {
+  labels: {
+    name: '姓名',
+    email: '邮箱',
+    age: '年龄',
+    role: '角色',
+    bio: '个人简介',
+  },
+  placeholders: {
+    name: '请输入姓名',
+    email: 'example@email.com',
+    bio: '请输入个人简介（可选）',
+  },
+})
+
+const handleAutoFormSubmit = async (values: AutoFormDemo) => {
+  autoFormLoading.value = true
+  await new Promise(resolve => setTimeout(resolve, 1500))
+  toast.success('AutoForm 提交成功', {
+    description: `姓名: ${values.name}, 角色: ${values.role}`,
+  })
+  autoFormLoading.value = false
+}
+
 // 代码示例
 const codeExample = `const fields: FormFieldConfig<FormType>[] = [
   {
@@ -465,12 +555,17 @@ const fieldTypes = [
   { name: 'radio', desc: '单选框', component: 'RadioGroup' },
   { name: 'date', desc: '日期选择', component: 'Calendar' },
   { name: 'date-range', desc: '日期范围', component: 'RangeCalendar' },
+  { name: 'datetime', desc: '日期时间', component: 'Input' },
+  { name: 'time', desc: '时间选择', component: 'Input' },
   { name: 'slider', desc: '滑块', component: 'Slider' },
   { name: 'tags', desc: '标签输入', component: 'TagsInput' },
   { name: 'otp', desc: '验证码', component: 'InputOTP' },
   { name: 'pin', desc: 'PIN码', component: 'InputOTP' },
   { name: 'toggle-group', desc: '切换按钮组', component: 'ToggleGroup' },
   { name: 'file', desc: '文件上传', component: 'Input' },
+  { name: 'color', desc: '颜色选择', component: 'ColorPicker', isNew: true },
+  { name: 'rating', desc: '评分', component: 'Rating', isNew: true },
+  { name: 'rich-text', desc: '富文本', component: 'RichText', isNew: true },
   { name: 'custom', desc: '自定义组件', component: 'Custom' },
 ]
 </script>
@@ -546,10 +641,14 @@ const fieldTypes = [
 
     <!-- 表单演示 Tabs -->
     <Tabs default-value="login" class="w-full">
-      <TabsList class="grid w-full grid-cols-3 lg:w-[400px]">
+      <TabsList class="grid w-full grid-cols-4 lg:w-[500px]">
         <TabsTrigger value="login">登录表单</TabsTrigger>
         <TabsTrigger value="advanced">高级表单</TabsTrigger>
         <TabsTrigger value="conditional">联动表单</TabsTrigger>
+        <TabsTrigger value="new-features">
+          <Sparkles class="w-3 h-3 mr-1" />
+          新功能
+        </TabsTrigger>
       </TabsList>
 
       <!-- 登录表单演示 -->
@@ -690,6 +789,59 @@ const fieldTypes = [
           </Card>
         </div>
       </TabsContent>
+
+      <!-- 新功能演示 -->
+      <TabsContent value="new-features">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- 新组件演示 -->
+          <Card class="border-primary/20 shadow-sm">
+            <CardHeader class="bg-primary/5 border-b border-primary/10">
+              <CardTitle class="flex items-center gap-2">
+                <Sparkles class="w-5 h-5 text-primary" />
+                新组件演示
+              </CardTitle>
+              <CardDescription>
+                颜色选择器、评分、富文本编辑器
+              </CardDescription>
+            </CardHeader>
+            <CardContent class="pt-6">
+              <SmartForm
+                ref="newFeaturesFormRef"
+                :fields="newFeaturesFields"
+                :validation-schema="newFeaturesSchema"
+                submit-text="提交"
+                :submit-loading="newFeaturesLoading"
+                show-reset
+                @submit="handleNewFeaturesSubmit"
+              />
+            </CardContent>
+          </Card>
+
+          <!-- AutoForm 演示 -->
+          <Card class="border-primary/20 shadow-sm">
+            <CardHeader class="bg-primary/5 border-b border-primary/10">
+              <CardTitle class="flex items-center gap-2">
+                <Sparkles class="w-5 h-5 text-primary" />
+                AutoForm 自动生成
+              </CardTitle>
+              <CardDescription>
+                基于 Zod Schema 自动生成表单配置
+              </CardDescription>
+            </CardHeader>
+            <CardContent class="pt-6">
+              <SmartForm
+                ref="autoFormRef"
+                :fields="autoFormFields"
+                :validation-schema="autoFormSchema"
+                submit-text="提交"
+                :submit-loading="autoFormLoading"
+                show-reset
+                @submit="handleAutoFormSubmit"
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </TabsContent>
     </Tabs>
 
     <!-- 支持的字段类型 -->
@@ -708,10 +860,17 @@ const fieldTypes = [
           <div
             v-for="type in fieldTypes"
             :key="type.name"
-            class="flex flex-col p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
+            class="flex flex-col p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors relative"
           >
             <div class="flex items-center gap-2">
               <code class="text-sm font-semibold text-primary">{{ type.name }}</code>
+              <Badge
+                v-if="type.isNew"
+                variant="default"
+                class="text-[10px] px-1 py-0 h-4 bg-primary text-primary-foreground"
+              >
+                NEW
+              </Badge>
             </div>
             <span class="text-xs text-muted-foreground mt-1">{{ type.desc }}</span>
             <span class="text-xs text-muted-foreground/60">{{ type.component }}</span>

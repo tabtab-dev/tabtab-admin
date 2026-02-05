@@ -605,8 +605,11 @@ const table = useVueTable({
   },
   onRowSelectionChange: (updater) => {
     rowSelection.value = typeof updater === 'function' ? updater(rowSelection.value) : updater
-    const selectedRows = table.getSelectedRowModel().rows.map((row) => row.original)
-    emit('selection-change', selectedRows)
+    // 使用 nextTick 确保 table 已经创建
+    nextTick(() => {
+      const selectedRows = table.getSelectedRowModel().rows.map((row) => row.original)
+      emit('selection-change', selectedRows)
+    })
   },
   onPaginationChange: (updater) => {
     paginationState.value = typeof updater === 'function' ? updater(paginationState.value) : updater
@@ -632,19 +635,6 @@ const table = useVueTable({
     return String(row[key] ?? Math.random().toString(36).substr(2, 9))
   },
 })
-
-/**
- * 监听列定义变化，更新表格
- */
-watch(
-  tableColumns,
-  (newColumns) => {
-    table.setOptions({
-      columns: newColumns,
-    })
-  },
-  { deep: true }
-)
 
 /**
  * 计算总页数
@@ -804,12 +794,12 @@ defineExpose<SmartTableExpose>({
   <div class="smart-table flex flex-col gap-4">
     <!-- 批量操作栏 -->
     <div
-      v-if="selectable && table.getSelectedRowModel().rows.length > 0 && batchActions.length > 0"
+      v-if="selectable && table?.getSelectedRowModel().rows.length > 0 && batchActions.length > 0"
       class="flex items-center justify-between py-2 px-4 bg-primary/5 rounded-lg border border-primary/20"
     >
       <div class="flex items-center gap-2">
         <span class="text-sm font-medium">
-          已选择 {{ table.getSelectedRowModel().rows.length }} 项
+          已选择 {{ table?.getSelectedRowModel().rows.length }} 项
         </span>
       </div>
       <div class="flex items-center gap-2">
@@ -818,13 +808,13 @@ defineExpose<SmartTableExpose>({
           :key="action.key"
           size="sm"
           :variant="action.danger ? 'destructive' : 'default'"
-          :disabled="action.batchDisabled ? action.batchDisabled(table.getSelectedRowModel().rows.map(r => r.original)) : false"
-          @click="action.onClick(table.getSelectedRowModel().rows.map(r => r.original), -1)"
+          :disabled="action.batchDisabled ? action.batchDisabled(table?.getSelectedRowModel().rows.map(r => r.original) || []) : false"
+          @click="action.onClick(table?.getSelectedRowModel().rows.map(r => r.original) || [], -1)"
         >
           <component :is="action.icon" v-if="action.icon" class="h-4 w-4 mr-1" />
           {{ action.label }}
         </Button>
-        <Button variant="ghost" size="sm" @click="table.resetRowSelection()">
+        <Button variant="ghost" size="sm" @click="table?.resetRowSelection()">
           取消选择
         </Button>
       </div>

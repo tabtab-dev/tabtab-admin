@@ -75,6 +75,14 @@ const emit = defineEmits<{
 }>()
 
 /**
+ * 获取当前日期字符串（yyyy-MM-dd 格式）
+ */
+const getTodayString = (): string => {
+  const today = new Date()
+  return today.toISOString().split('T')[0]
+}
+
+/**
  * 构建初始值（带类型安全检查）
  */
 const buildInitialValues = (): T => {
@@ -115,10 +123,25 @@ const buildInitialValues = (): T => {
           values[fieldName] = ''
           break
         case 'date-range':
-          values[fieldName] = { from: undefined, to: undefined }
+          // 根据字段是否必填提供不同的默认值
+          if (field.required) {
+            const today = getTodayString()
+            values[fieldName] = { from: today, to: today }
+          } else {
+            values[fieldName] = { from: undefined, to: undefined }
+          }
           break
         case 'file':
           values[fieldName] = null
+          break
+        case 'color':
+          values[fieldName] = '#000000'
+          break
+        case 'rating':
+          values[fieldName] = 0
+          break
+        case 'rich-text':
+          values[fieldName] = ''
           break
         default:
           values[fieldName] = ''
@@ -130,11 +153,19 @@ const buildInitialValues = (): T => {
   const mergedValues = { ...values, ...props.initialValues }
 
   // 运行时类型验证（开发环境）
+  // 注意：初始值为空是正常的，表单提交时会进行验证
+  // 此警告仅在开发环境出现，用于检查是否有字段配置错误
   if (import.meta.env.DEV && props.validationSchema) {
     try {
       const result = props.validationSchema.safeParse(mergedValues)
       if (!result.success) {
-        console.warn('[SmartForm] Initial values validation failed:', result.error)
+        // 过滤掉 "too_small" 和 "invalid_type" 错误（空值导致的）
+        const criticalErrors = result.error.errors.filter(
+          err => err.code !== 'too_small' && err.code !== 'invalid_type' && err.code !== 'invalid_string'
+        )
+        if (criticalErrors.length > 0) {
+          console.warn('[SmartForm] Initial values validation failed:', criticalErrors)
+        }
       }
     } catch (error) {
       console.warn('[SmartForm] Initial values validation error:', error)
