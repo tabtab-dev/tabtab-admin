@@ -85,70 +85,24 @@ src/
 
 ### TTable - JSON 配置化表格
 
-基于 antdv-next 的 JSON Schema 配置化表格组件，样式与 shadcn-vue 主题对齐。
-
-**特性：**
-- JSON Schema 配置生成表格
-- 支持行选择、分页、排序、筛选
-- 展开行、操作列、固定列
-- 虚拟列表、粘性表头
-
-**Props：**
-
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| schema | `TableSchema` | - | 表格配置 |
-| data | `any[]` | `[]` | 表格数据 |
-| loading | `boolean` | `false` | 加载状态 |
-
-**Events：**
-
-| 事件名 | 说明 | 参数 |
-|--------|------|------|
-| change | 分页/排序/筛选变化 | `(pagination, filters, sorter)` |
-| selectChange | 行选择变化 | `(selectedRowKeys, selectedRows)` |
-| expand | 展开行变化 | `(expanded, record)` |
-
-**Methods：**
-
-```typescript
-// 获取选中行
-getSelectedRows(): any[]
-// 设置选中行
-setSelectedRows(keys: (string | number)[]): void
-// 清空选中
-clearSelection(): void
-// 刷新表格
-refresh(): void
-// 展开/收起行
-expandRow(record: any, expanded?: boolean): void
-expandAllRows(): void
-collapseAllRows(): void
-```
-
-**使用示例：**
+基于 antdv-next 的 JSON Schema 配置化表格组件，支持行选择、分页、排序、筛选、展开行、操作列等功能。
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
 import { TTable } from '@/components/data/TTable'
 import type { TableSchema } from '@/components/data/TTable'
 
 const schema: TableSchema = {
   columns: [
-    { title: '姓名', dataIndex: 'name', width: 120 },
-    { title: '邮箱', dataIndex: 'email', ellipsis: true },
+    { title: '姓名', dataIndex: 'name' },
     { title: '状态', dataIndex: 'status', slot: 'status' }
   ],
   actions: [
     { text: '编辑', type: 'primary', onClick: (row) => edit(row) },
     { text: '删除', type: 'danger', confirm: true, onClick: (row) => del(row) }
   ],
-  rowSelection: { type: 'checkbox' },
-  pagination: { pageSize: 10 }
+  rowSelection: { type: 'checkbox' }
 }
-
-const data = ref([])
 </script>
 
 <template>
@@ -164,68 +118,14 @@ const data = ref([])
 
 ### TForm - JSON 配置化表单
 
-基于 antdv-next 的 JSON Schema 配置化表单组件，支持 36+ 种字段类型。
-
-**特性：**
-- JSON Schema 配置生成表单
-- 36+ 种字段类型（input、select、date、upload 等）
-- 表单验证、字段联动
-- 搜索表单模式（支持折叠展开）
-
-**Props：**
-
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| schema | `FormSchema` | - | 表单配置 |
-| modelValue | `object` | `{}` | 表单数据 |
-| loading | `boolean` | `false` | 加载状态 |
-
-**Events：**
-
-| 事件名 | 说明 | 参数 |
-|--------|------|------|
-| submit | 表单提交成功 | `(values)` |
-| reset | 表单重置 | - |
-| change | 字段值变化 | `(changedValues, allValues)` |
-
-**Methods：**
-
-```typescript
-// 验证表单
-validate(): Promise<Record<string, any>>
-// 重置表单
-resetFields(): void
-// 清除验证
-clearValidate(): void
-// 获取/设置字段值
-getFieldValue(name: NamePath): any
-setFieldValue(name: NamePath, value: any): void
-setFieldsValue(values: Record<string, any>): void
-// 设置字段禁用/隐藏
-setFieldDisabled(name: NamePath, disabled: boolean): void
-setFieldHidden(name: NamePath, hidden: boolean): void
-// 获取表单状态
-getMeta(): FormMeta
-isDirty(): boolean
-isTouched(): boolean
-isValid(): boolean
-```
-
-**使用示例：**
+基于 antdv-next 的 JSON Schema 配置化表单组件，支持 36+ 种字段类型、表单验证、字段联动、搜索表单模式。
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
 import { TForm } from '@/components/data/TForm'
-import type { FormSchema, TFormExpose } from '@/components/data/TForm'
-
-const formRef = ref<TFormExpose>()
-const formData = ref({ name: '', status: 'active' })
+import type { FormSchema } from '@/components/data/TForm'
 
 const schema: FormSchema = {
-  layout: 'horizontal',
-  labelCol: { span: 4 },
-  wrapperCol: { span: 20 },
   fields: [
     { name: 'name', type: 'input', label: '姓名', rules: [{ required: true }] },
     { 
@@ -240,38 +140,54 @@ const schema: FormSchema = {
   ]
 }
 
-const onSubmit = (values: any) => {
-  console.log('提交:', values)
-}
+const onSubmit = (values: any) => console.log(values)
 </script>
 
 <template>
-  <TForm 
-    ref="formRef" 
-    v-model="formData" 
-    :schema="schema" 
-    @submit="onSubmit" 
-  />
+  <TForm :schema="schema" @submit="onSubmit" />
 </template>
 ```
 
-**搜索表单模式：**
+### TModal - JSON 配置化对话框
 
-```typescript
-const schema: FormSchema = {
-  fields: [
-    { name: 'keyword', type: 'input', label: '关键词' },
-    { name: 'status', type: 'select', label: '状态', options: [...] }
-  ],
-  searchConfig: {
-    enabled: true,
-    columns: 3,
-    collapseThreshold: 2,
-    onSearch: (values) => loadData(values),
-    onReset: () => loadData({})
-  }
-}
+基于 antdv-next 的对话框组件，支持表单、表格等内容嵌入，可通过 ref 方法控制。
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { TModal } from '@/components/data/TModal'
+
+const open = ref(false)
+const onSubmit = () => open.value = false
+</script>
+
+<template>
+  <TModal v-model:open="open" title="编辑" @ok="onSubmit">
+    <p>内容</p>
+  </TModal>
+</template>
 ```
+
+### TDrawer - JSON 配置化抽屉
+
+基于 antdv-next 的抽屉组件，支持四个方向弹出，可与表单、表格结合使用。
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { TDrawer } from '@/components/data/TDrawer'
+
+const open = ref(false)
+</script>
+
+<template>
+  <TDrawer v-model:open="open" title="详情" placement="right">
+    <p>内容</p>
+  </TDrawer>
+</template>
+```
+
+> 完整 API 文档请查看组件源码：`src/components/data/`
 
 ## 开发计划
 

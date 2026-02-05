@@ -64,7 +64,8 @@ const props = withDefaults(defineProps<TDrawerProps>(), {
   zIndex: 1000,
   loading: false,
   forceRender: false,
-  push: () => ({ distance: 180 })
+  push: () => ({ distance: 180 }),
+  getContainer: () => document.body
 })
 
 /**
