@@ -149,5 +149,13 @@ export type {
   TTableProps,
   TTableExpose,
   TTableEmits,
-  TableState
+  TableState,
+  // 新增类型
+  TableRecord,
+  TableSorter,
+  TablePagination,
+  TableFilters,
+  TableFilterValue,
+  ExpandableConfig,
+  SummaryConfig
 } from './types'

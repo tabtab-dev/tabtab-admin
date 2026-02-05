@@ -10,6 +10,47 @@ export type SortOrder = 'ascend' | 'descend' | null
 export type TableSize = 'small' | 'middle' | 'large'
 
 /**
+ * 表格记录类型
+ * @description 表格行数据的通用类型
+ */
+export type TableRecord = Record<string, unknown>
+
+/**
+ * 表格排序结果
+ * @description 排序变化时返回的结构
+ */
+export interface TableSorter {
+  /** 排序字段 */
+  field: string
+  /** 排序方向 */
+  order: SortOrder
+  /** 列配置 */
+  column: TableColumn
+}
+
+/**
+ * 表格分页信息
+ */
+export interface TablePagination {
+  /** 当前页码 */
+  current: number
+  /** 每页条数 */
+  pageSize: number
+  /** 总条数 */
+  total: number
+}
+
+/**
+ * 表格筛选值
+ */
+export type TableFilterValue = (string | number | boolean)[] | null
+
+/**
+ * 表格筛选信息
+ */
+export type TableFilters = Record<string, TableFilterValue>
+
+/**
  * 行选择类型
  * @description 行选择的类型
  */
@@ -42,7 +83,7 @@ export interface ColumnSorter {
   /** 是否支持多列排序 */
   multiple?: number
   /** 自定义排序函数 */
-  compare?: (a: any, b: any) => number
+  compare?: (a: TableRecord, b: TableRecord) => number
 }
 
 /**
@@ -65,7 +106,7 @@ export interface TableColumn {
   /** 是否固定列 */
   fixed?: 'left' | 'right' | boolean
   /** 是否允许排序 */
-  sorter?: boolean | ColumnSorter | ((a: any, b: any) => number)
+  sorter?: boolean | ColumnSorter | ((a: TableRecord, b: TableRecord) => number)
   /** 默认排序顺序 */
   defaultSortOrder?: SortOrder
   /** 排序优先级 */
@@ -85,7 +126,7 @@ export interface TableColumn {
   /** 受控筛选值 */
   filteredValue?: string[]
   /** 自定义筛选函数 */
-  onFilter?: (value: string | number | boolean, record: any) => boolean
+  onFilter?: (value: string | number | boolean, record: TableRecord) => boolean
   /** 是否省略显示 */
   ellipsis?: boolean | { showTitle?: boolean; tooltip?: boolean }
   /** 是否可编辑 */
@@ -95,11 +136,11 @@ export interface TableColumn {
   /** 自定义表头插槽名 */
   headerSlot?: string
   /** 透传给 antd 列的其他属性 */
-  props?: Record<string, any>
+  props?: Record<string, unknown>
   /** 自定义渲染函数 */
-  customRender?: (params: { text: any; record: any; index: number; column: TableColumn }) => any
+  customRender?: (params: { text: unknown; record: TableRecord; index: number; column: TableColumn }) => unknown
   /** 自定义表头渲染函数 */
-  customHeaderRender?: (params: { title: any; column: TableColumn; index: number }) => any
+  customHeaderRender?: (params: { title: unknown; column: TableColumn; index: number }) => unknown
   /** 列的类名 */
   className?: string
 }
@@ -126,7 +167,7 @@ export interface RowSelectionConfig {
   /** 自定义选择项 */
   selections?: Array<'SELECT_ALL' | 'SELECT_INVERT' | 'SELECT_NONE' | { key: string; text: string; onSelect: (changeableRowKeys: (string | number)[]) => void }>
   /** 是否允许选择该行的复选框 */
-  getCheckboxProps?: (record: any) => { disabled?: boolean; indeterminate?: boolean }
+  getCheckboxProps?: (record: TableRecord) => { disabled?: boolean; indeterminate?: boolean }
 }
 
 /**
@@ -179,17 +220,49 @@ export interface TableAction {
   /** 按钮类型 */
   type?: 'primary' | 'default' | 'danger' | 'link'
   /** 点击事件 */
-  onClick: (record: any, index: number) => void
+  onClick: (record: TableRecord, index: number) => void
   /** 是否显示（支持函数动态判断） */
-  show?: boolean | ((record: any, index: number) => boolean)
+  show?: boolean | ((record: TableRecord, index: number) => boolean)
   /** 是否禁用（支持函数动态判断） */
-  disabled?: boolean | ((record: any, index: number) => boolean)
+  disabled?: boolean | ((record: TableRecord, index: number) => boolean)
   /** 是否需要确认 */
   confirm?: boolean
   /** 确认提示文本 */
   confirmText?: string
   /** 按钮图标 */
   icon?: string
+}
+
+/**
+ * 展开行配置
+ */
+export interface ExpandableConfig {
+  /** 是否默认展开所有行 */
+  defaultExpandAllRows?: boolean
+  /** 默认展开的行 */
+  defaultExpandedRowKeys?: (string | number)[]
+  /** 展开的行（受控） */
+  expandedRowKeys?: (string | number)[]
+  /** 是否允许展开 */
+  rowExpandable?: (record: TableRecord) => boolean
+  /** 展开图标是否显示在单元格内 */
+  expandIconColumnIndex?: number
+  /** 自定义展开图标 */
+  expandIcon?: (props: { expanded: boolean; onExpand: (expanded: boolean, record: TableRecord) => void; record: TableRecord; expandable: boolean }) => unknown
+  /** 展开行插槽名 */
+  expandedRowSlot?: string
+  /** 展开行渲染函数 */
+  expandedRowRender?: (record: TableRecord, index: number, indent: number, expanded: boolean) => unknown
+}
+
+/**
+ * 汇总行配置
+ */
+export interface SummaryConfig {
+  /** 汇总行插槽名 */
+  slot?: string
+  /** 汇总行渲染函数 */
+  render?: (data: TableRecord[]) => unknown
 }
 
 /**
@@ -212,11 +285,11 @@ export interface TableSchema {
   /** 是否加载中 */
   loading?: boolean
   /** 行 key 的取值字段 */
-  rowKey?: string | ((record: any) => string | number)
+  rowKey?: string | ((record: TableRecord) => string | number)
   /** 表格标题 */
-  title?: string | ((data: any[]) => any)
+  title?: string | ((data: TableRecord[]) => unknown)
   /** 表格尾部 */
-  footer?: string | ((data: any[]) => any)
+  footer?: string | ((data: TableRecord[]) => unknown)
   /** 是否显示表头 */
   showHeader?: boolean
   /** 表格布局 */
@@ -226,24 +299,7 @@ export interface TableSchema {
   /** 粘性表头配置 */
   sticky?: boolean | { offsetHeader?: number; offsetSummary?: number; offsetScroll?: number; getContainer?: () => HTMLElement }
   /** 展开行配置 */
-  expandable?: {
-    /** 是否默认展开所有行 */
-    defaultExpandAllRows?: boolean
-    /** 默认展开的行 */
-    defaultExpandedRowKeys?: (string | number)[]
-    /** 展开的行（受控） */
-    expandedRowKeys?: (string | number)[]
-    /** 是否允许展开 */
-    rowExpandable?: (record: any) => boolean
-    /** 展开图标是否显示在单元格内 */
-    expandIconColumnIndex?: number
-    /** 自定义展开图标 */
-    expandIcon?: (props: { expanded: boolean; onExpand: (expanded: boolean, record: any) => void; record: any; expandable: boolean }) => any
-    /** 展开行插槽名 */
-    expandedRowSlot?: string
-    /** 展开行渲染函数 */
-    expandedRowRender?: (record: any, index: number, indent: number, expanded: boolean) => any
-  }
+  expandable?: ExpandableConfig
   /** 操作列配置 */
   actions?: TableAction[]
   /** 操作列宽度 */
@@ -257,12 +313,7 @@ export interface TableSchema {
   /** 自定义空状态插槽名 */
   emptySlot?: string
   /** 汇总行配置 */
-  summary?: {
-    /** 汇总行插槽名 */
-    slot?: string
-    /** 汇总行渲染函数 */
-    render?: (data: any[]) => any
-  }
+  summary?: SummaryConfig
 }
 
 /**
@@ -272,7 +323,7 @@ export interface TTableProps {
   /** 表格 Schema 配置 */
   schema: TableSchema
   /** 表格数据（支持 v-model:data） */
-  data?: any[]
+  data?: TableRecord[]
   /** 加载状态 */
   loading?: boolean
 }
@@ -285,7 +336,7 @@ export interface TTableExpose {
   /**
    * 获取当前选中的行数据
    */
-  getSelectedRows: () => any[]
+  getSelectedRows: () => TableRecord[]
   /**
    * 获取当前选中的行 key
    */
@@ -302,7 +353,7 @@ export interface TTableExpose {
   /**
    * 获取 antd Table 实例
    */
-  getTableInstance: () => any
+  getTableInstance: () => TableInstance | undefined
   /**
    * 刷新表格数据
    */
@@ -310,18 +361,18 @@ export interface TTableExpose {
   /**
    * 获取当前分页信息
    */
-  getPagination: () => { current: number; pageSize: number; total: number }
+  getPagination: () => TablePagination
   /**
    * 设置分页
    * @param pagination - 分页配置
    */
-  setPagination: (pagination: Partial<{ current: number; pageSize: number; total: number }>) => void
+  setPagination: (pagination: Partial<TablePagination>) => void
   /**
    * 展开指定行
    * @param record - 行数据
    * @param expanded - 是否展开
    */
-  expandRow: (record: any, expanded?: boolean) => void
+  expandRow: (record: TableRecord, expanded?: boolean) => void
   /**
    * 展开所有行
    */
@@ -337,22 +388,22 @@ export interface TTableExpose {
  */
 export interface TTableEmits {
   /** 更新表格数据 */
-  (e: 'update:data', value: any[]): void
+  (e: 'update:data', value: TableRecord[]): void
   /** 分页、排序、筛选变化时触发 */
   (
     e: 'change',
-    pagination: { current: number; pageSize: number; total: number },
-    filters: Record<string, (string | number | boolean)[] | null>,
-    sorter: { field: string; order: SortOrder; column: TableColumn }
+    pagination: TablePagination,
+    filters: TableFilters,
+    sorter: TableSorter
   ): void
   /** 行选择变化时触发 */
-  (e: 'selectChange', selectedRowKeys: (string | number)[], selectedRows: any[]): void
+  (e: 'selectChange', selectedRowKeys: (string | number)[], selectedRows: TableRecord[]): void
   /** 行点击时触发 */
-  (e: 'rowClick', record: any, index: number, event: MouseEvent): void
+  (e: 'rowClick', record: TableRecord, index: number, event: MouseEvent): void
   /** 行双击时触发 */
-  (e: 'rowDblclick', record: any, index: number, event: MouseEvent): void
+  (e: 'rowDblclick', record: TableRecord, index: number, event: MouseEvent): void
   /** 展开行变化时触发 */
-  (e: 'expand', expanded: boolean, record: any): void
+  (e: 'expand', expanded: boolean, record: TableRecord): void
   /** 展开行变化时触发（更新 expandedRowKeys） */
   (e: 'update:expandedRowKeys', keys: (string | number)[]): void
 }
@@ -377,5 +428,29 @@ export interface TableState {
   /** 排序方向 */
   sortOrder?: SortOrder
   /** 筛选条件 */
-  filters: Record<string, (string | number | boolean)[] | null>
+  filters: TableFilters
+}
+
+/**
+ * 表格实例类型（基于 antd Table 实例）
+ */
+export interface TableInstance {
+  /** 获取选中的行 */
+  getSelectedRows: () => TableRecord[]
+  /** 获取选中的行 key */
+  getSelectedRowKeys: () => (string | number)[]
+  /** 设置选中的行 */
+  setSelectedRowKeys: (keys: (string | number)[]) => void
+  /** 清空选中 */
+  clearSelection: () => void
+  /** 获取分页信息 */
+  getPagination: () => TablePagination
+  /** 设置分页 */
+  setPagination: (pagination: Partial<TablePagination>) => void
+  /** 展开行 */
+  expandRow: (record: TableRecord, expanded?: boolean) => void
+  /** 展开所有行 */
+  expandAllRows: () => void
+  /** 收起所有行 */
+  collapseAllRows: () => void
 }

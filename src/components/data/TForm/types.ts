@@ -330,6 +330,52 @@ export interface FormMeta {
 }
 
 /**
+ * 表单实例类型（基于 antd Form 实例）
+ */
+export interface FormInstance {
+  /** 验证表单字段 */
+  validateFields: (nameList?: NamePath[]) => Promise<Record<string, unknown>>
+  /** 重置表单字段 */
+  resetFields: (nameList?: NamePath[]) => void
+  /** 清除验证状态 */
+  clearValidate: (nameList?: NamePath[]) => void
+  /** 获取单个字段值 */
+  getFieldValue: (name: NamePath) => unknown
+  /** 获取多个字段值 */
+  getFieldsValue: (nameList?: NamePath[] | true) => Record<string, unknown>
+  /** 设置单个字段值 */
+  setFieldValue: (name: NamePath, value: unknown) => void
+  /** 设置多个字段值 */
+  setFieldsValue: (values: Record<string, unknown>) => void
+  /** 滚动到指定字段 */
+  scrollToField: (name: NamePath, options?: ScrollIntoViewOptions) => void
+}
+
+/**
+ * 表单验证错误信息
+ */
+export interface FormValidateError {
+  /** 错误字段名 */
+  name: NamePath
+  /** 错误信息数组 */
+  errors: string[]
+  /** 警告信息数组 */
+  warnings?: string[]
+}
+
+/**
+ * 表单验证错误结果
+ */
+export interface FormValidateErrorInfo {
+  /** 错误信息数组 */
+  errorFields: FormValidateError[]
+  /** 是否超出字段 */
+  outOfDate?: boolean
+  /** 错误信息 */
+  values?: Record<string, unknown>
+}
+
+/**
  * TForm 组件暴露的方法
  * @description 通过 ref 可以调用的方法
  */
@@ -338,12 +384,12 @@ export interface TFormExpose {
    * 验证表单
    * @param nameList - 指定验证的字段名列表，不传则验证所有字段
    */
-  validate: (nameList?: NamePath[]) => Promise<Record<string, any>>
+  validate: (nameList?: NamePath[]) => Promise<Record<string, unknown>>
   /**
    * 验证所有字段
    * @param nameList - 指定验证的字段名列表，不传则验证所有字段
    */
-  validateFields: (nameList?: NamePath[]) => Promise<Record<string, any>>
+  validateFields: (nameList?: NamePath[]) => Promise<Record<string, unknown>>
   /**
    * 重置表单
    * @param nameList - 指定重置的字段名列表，不传则重置所有字段
@@ -358,23 +404,23 @@ export interface TFormExpose {
    * 获取单个字段值
    * @param name - 字段名
    */
-  getFieldValue: (name: NamePath) => any
+  getFieldValue: (name: NamePath) => unknown
   /**
    * 获取多个字段值
    * @param nameList - 字段名列表，传 true 则获取所有字段（包括被删除的）
    */
-  getFieldsValue: (nameList?: NamePath[] | true) => Record<string, any>
+  getFieldsValue: (nameList?: NamePath[] | true) => Record<string, unknown>
   /**
    * 设置单个字段值
    * @param name - 字段名
    * @param value - 字段值
    */
-  setFieldValue: (name: NamePath, value: any) => void
+  setFieldValue: (name: NamePath, value: unknown) => void
   /**
    * 设置多个字段值
    * @param values - 字段值对象
    */
-  setFieldsValue: (values: Record<string, any>) => void
+  setFieldsValue: (values: Record<string, unknown>) => void
   /**
    * 设置字段禁用状态
    * @param name - 字段名
@@ -400,24 +446,42 @@ export interface TFormExpose {
   /**
    * 获取 antd Form 实例
    */
-  getFormInstance: () => any
+  getFormInstance: () => FormInstance | undefined
+}
+
+/**
+ * 字段变化信息
+ */
+export interface FieldChangeInfo {
+  /** 字段名 */
+  name: NamePath
+  /** 字段值 */
+  value: unknown
+  /** 是否触碰过 */
+  touched: boolean
+  /** 是否验证过 */
+  validating: boolean
+  /** 错误信息 */
+  errors: string[]
+  /** 警告信息 */
+  warnings?: string[]
 }
 
 /**
  * TForm 组件事件
  * @template T - 表单数据类型
  */
-export interface TFormEmits<T extends Record<string, any> = Record<string, any>> {
+export interface TFormEmits<T extends Record<string, unknown> = Record<string, unknown>> {
   /** 更新表单数据 */
   (e: 'update:modelValue', value: T): void
   /** 表单提交成功 */
   (e: 'submit', values: T): void
   /** 表单提交失败 */
-  (e: 'finishFailed', errorInfo: any): void
+  (e: 'finishFailed', errorInfo: FormValidateErrorInfo): void
   /** 表单重置 */
   (e: 'reset'): void
   /** 字段值变化 */
   (e: 'change', changedValues: Partial<T>, allValues: T): void
   /** 字段变化 */
-  (e: 'fieldsChange', changedFields: any[], allFields: any[]): void
+  (e: 'fieldsChange', changedFields: FieldChangeInfo[], allFields: FieldChangeInfo[]): void
 }

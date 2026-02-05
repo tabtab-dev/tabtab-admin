@@ -6,62 +6,10 @@
  * @example
  *   <TFormItem :field="field" :form-data="formData" />
  */
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, ref, watch, onMounted, shallowRef } from 'vue'
 import TFormList from './TFormList.vue'
 import TFormGroup from './TFormGroup.vue'
 import type { FormField, FormOption, AsyncOptionsLoader } from './types'
-
-/**
- * 中文日期配置
- * @description 用于日期选择器的中文显示
- */
-const dateLocale = {
-  lang: {
-    placeholder: '请选择日期',
-    yearPlaceholder: '请选择年份',
-    quarterPlaceholder: '请选择季度',
-    monthPlaceholder: '请选择月份',
-    weekPlaceholder: '请选择周',
-    rangePlaceholder: ['开始日期', '结束日期'],
-    rangeYearPlaceholder: ['开始年份', '结束年份'],
-    rangeMonthPlaceholder: ['开始月份', '结束月份'],
-    rangeWeekPlaceholder: ['开始周', '结束周'],
-    locale: 'zh_CN',
-    today: '今天',
-    now: '此刻',
-    backToToday: '返回今天',
-    ok: '确定',
-    timeSelect: '选择时间',
-    dateSelect: '选择日期',
-    weekSelect: '选择周',
-    clear: '清除',
-    month: '月',
-    year: '年',
-    previousMonth: '上个月 (PageUp)',
-    nextMonth: '下个月 (PageDown)',
-    monthSelect: '选择月份',
-    yearSelect: '选择年份',
-    decadeSelect: '选择年代',
-    yearFormat: 'YYYY年',
-    dayFormat: 'D日',
-    dateFormat: 'YYYY年M月D日',
-    dateTimeFormat: 'YYYY年M月D日 HH时mm分ss秒',
-    previousYear: '上一年 (Control键加左方向键)',
-    nextYear: '下一年 (Control键加右方向键)',
-    previousDecade: '上一年代',
-    nextDecade: '下一年代',
-    previousCentury: '上一世纪',
-    nextCentury: '下一世纪',
-    shortMonths: '1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月'.split('_'),
-    months: '一月_二月_三月_四月_五月_六月_七月_八月_九月_十月_十一月_十二月'.split('_'),
-    shortWeekDays: '日_一_二_三_四_五_六'.split('_'),
-    weekDays: '周日_周一_周二_周三_周四_周五_周六'.split('_')
-  },
-  timePickerLocale: {
-    placeholder: '请选择时间',
-    rangePlaceholder: ['开始时间', '结束时间']
-  }
-}
 
 /**
  * 组件 Props 定义
@@ -81,9 +29,20 @@ const props = defineProps<Props>()
 const isLoadingOptions = ref(false)
 
 /**
- * 已加载的选项列表
+ * 已加载的选项列表 - 使用 shallowRef 优化性能
  */
-const loadedOptions = ref<FormOption[]>([])
+const loadedOptions = shallowRef<FormOption[]>([])
+
+/**
+ * 选项缓存 - 用于缓存异步加载的选项
+ * @description 使用 Map 存储缓存，key 为序列化后的表单数据快照
+ */
+const optionsCache = new Map<string, FormOption[]>()
+
+/**
+ * 防抖定时器
+ */
+const debounceTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 /**
  * 计算字段是否禁用
@@ -126,26 +85,78 @@ const finalOptions = computed<FormOption[]>(() => {
 })
 
 /**
- * 加载异步选项
+ * 生成缓存 key
+ * @param formData - 表单数据
+ * @returns 缓存 key
+ */
+function generateCacheKey(formData: Record<string, any>): string {
+  // 提取可能影响选项的字段值
+  const cacheFields = props.field.props?.cacheFields as string[] | undefined
+  if (cacheFields && cacheFields.length > 0) {
+    const cacheData: Record<string, any> = {}
+    cacheFields.forEach(field => {
+      cacheData[field] = formData[field]
+    })
+    return JSON.stringify(cacheData)
+  }
+  // 默认使用整个 formData
+  return JSON.stringify(formData)
+}
+
+/**
+ * 加载异步选项 - 带防抖和缓存
  */
 async function loadAsyncOptions(): Promise<void> {
   if (!isAsyncOptions.value) return
 
-  isLoadingOptions.value = true
-  try {
-    const loader = props.field.options as AsyncOptionsLoader
-    const result = await loader(props.formData)
-    loadedOptions.value = result
-  } catch (error) {
-    console.error(`[TForm] 加载字段 "${props.field.name}" 的选项失败:`, error)
-    loadedOptions.value = []
-  } finally {
-    isLoadingOptions.value = false
+  // 清除之前的防抖定时器
+  if (debounceTimer.value) {
+    clearTimeout(debounceTimer.value)
   }
+
+  // 使用防抖延迟加载
+  debounceTimer.value = setTimeout(async () => {
+    const cacheKey = generateCacheKey(props.formData)
+
+    // 检查缓存
+    if (optionsCache.has(cacheKey)) {
+      loadedOptions.value = optionsCache.get(cacheKey)!
+      return
+    }
+
+    isLoadingOptions.value = true
+    try {
+      const loader = props.field.options as AsyncOptionsLoader
+      const result = await loader(props.formData)
+      loadedOptions.value = result
+
+      // 存入缓存
+      optionsCache.set(cacheKey, result)
+
+      // 限制缓存大小，防止内存泄漏
+      if (optionsCache.size > 50) {
+        const firstKey = optionsCache.keys().next().value
+        optionsCache.delete(firstKey)
+      }
+    } catch (error) {
+      console.error(`[TForm] 加载字段 "${props.field.name}" 的选项失败:`, error)
+      loadedOptions.value = []
+    } finally {
+      isLoadingOptions.value = false
+    }
+  }, 300) // 300ms 防抖
+}
+
+/**
+ * 清除选项缓存
+ */
+function clearOptionsCache(): void {
+  optionsCache.clear()
 }
 
 /**
  * 监听表单数据变化，重新加载异步选项
+ * @description 使用 { flush: 'post' } 确保在 DOM 更新后执行
  */
 watch(
   () => props.formData,
@@ -154,7 +165,7 @@ watch(
       loadAsyncOptions()
     }
   },
-  { deep: true }
+  { deep: true, flush: 'post' }
 )
 
 /**
@@ -164,6 +175,56 @@ onMounted(() => {
   if (isAsyncOptions.value) {
     loadAsyncOptions()
   }
+})
+
+/**
+ * 组件映射表 - 用于动态渲染组件
+ */
+const componentMap: Record<string, string> = {
+  'input': 'a-input',
+  'password': 'a-input-password',
+  'textarea': 'a-textarea',
+  'number': 'a-input-number',
+  'select': 'a-select',
+  'radio': 'a-radio-group',
+  'radio-button': 'a-radio-group',
+  'checkbox': 'a-checkbox-group',
+  'checkbox-single': 'a-checkbox',
+  'switch': 'a-switch',
+  'slider': 'a-slider',
+  'rate': 'a-rate',
+  'auto-complete': 'a-auto-complete',
+  'mention': 'a-mentions',
+  'date-picker': 'a-date-picker',
+  'month-picker': 'a-date-picker',
+  'quarter-picker': 'a-date-picker',
+  'year-picker': 'a-date-picker',
+  'week-picker': 'a-date-picker',
+  'range-picker': 'a-range-picker',
+  'time-picker': 'a-time-picker',
+  'time-range-picker': 'a-time-range-picker',
+  'cascader': 'a-cascader',
+  'tree-select': 'a-tree-select',
+  'upload': 'a-upload',
+  'transfer': 'a-transfer',
+  'segmented': 'a-segmented'
+}
+
+/**
+ * 日期选择器类型映射
+ */
+const datePickerTypes: Record<string, string> = {
+  'month-picker': 'month',
+  'quarter-picker': 'quarter',
+  'year-picker': 'year',
+  'week-picker': 'week'
+}
+
+/**
+ * 暴露方法
+ */
+defineExpose({
+  clearOptionsCache
 })
 </script>
 
@@ -337,7 +398,6 @@ onMounted(() => {
       v-model:value="fieldValue"
       :placeholder="field.placeholder"
       :disabled="isDisabled"
-      :locale="dateLocale"
       style="width: 100%"
       v-bind="field.props"
     />
@@ -348,7 +408,6 @@ onMounted(() => {
       v-model:value="fieldValue"
       :placeholder="field.placeholder"
       :disabled="isDisabled"
-      :locale="dateLocale"
       picker="month"
       style="width: 100%"
       v-bind="field.props"
@@ -360,7 +419,6 @@ onMounted(() => {
       v-model:value="fieldValue"
       :placeholder="field.placeholder"
       :disabled="isDisabled"
-      :locale="dateLocale"
       picker="quarter"
       style="width: 100%"
       v-bind="field.props"
@@ -372,7 +430,6 @@ onMounted(() => {
       v-model:value="fieldValue"
       :placeholder="field.placeholder"
       :disabled="isDisabled"
-      :locale="dateLocale"
       picker="year"
       style="width: 100%"
       v-bind="field.props"
@@ -384,7 +441,6 @@ onMounted(() => {
       v-model:value="fieldValue"
       :placeholder="field.placeholder"
       :disabled="isDisabled"
-      :locale="dateLocale"
       picker="week"
       style="width: 100%"
       v-bind="field.props"
@@ -395,7 +451,6 @@ onMounted(() => {
       v-else-if="field.type === 'range-picker'"
       v-model:value="fieldValue"
       :disabled="isDisabled"
-      :locale="dateLocale"
       style="width: 100%"
       v-bind="field.props"
     />
@@ -406,7 +461,6 @@ onMounted(() => {
       v-model:value="fieldValue"
       :placeholder="field.placeholder"
       :disabled="isDisabled"
-      :locale="dateLocale"
       style="width: 100%"
       v-bind="field.props"
     />
@@ -416,7 +470,6 @@ onMounted(() => {
       v-else-if="field.type === 'time-range-picker'"
       v-model:value="fieldValue"
       :disabled="isDisabled"
-      :locale="dateLocale"
       style="width: 100%"
       v-bind="field.props"
     />

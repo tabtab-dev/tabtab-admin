@@ -5,7 +5,6 @@
  * @description 支持通过 JSON Schema 配置生成表格，样式与 shadcn-vue 主题对齐
  */
 import { computed, ref, watch, useSlots, h } from 'vue'
-import type { TableInstance } from 'antdv-next'
 import { ConfigProvider, Popconfirm, Button } from 'antdv-next'
 import { cn } from '@/lib/utils'
 import { useTTableTheme } from './theme'
@@ -16,8 +15,17 @@ import type {
   TTableExpose,
   TableAction,
   RowSelectionConfig,
-  PaginationConfig
+  PaginationConfig,
+  TableSorter,
+  TableRecord,
+  TableFilters,
+  TablePagination
 } from './types'
+
+/**
+ * 导入样式
+ */
+import './TTable.css'
 
 /**
  * 组件选项
@@ -59,14 +67,14 @@ const slots = useSlots()
 /**
  * Table 实例引用
  */
-const tableRef = ref<TableInstance>()
+const tableRef = ref<InstanceType<typeof ConfigProvider> | null>(null)
 
 /**
  * 表格状态
  */
 const state = ref({
   selectedRowKeys: [] as (string | number)[],
-  selectedRows: [] as any[],
+  selectedRows: [] as TableRecord[],
   expandedRowKeys: [] as (string | number)[],
   pagination: {
     current: 1,
@@ -100,25 +108,25 @@ const rowKey = computed(() => {
  * @param record - 行数据
  * @returns 行的唯一标识
  */
-function getRowKey(record: any): string | number {
+function getRowKey(record: TableRecord): string | number {
   // 如果配置了函数类型的 rowKey，直接使用
   if (typeof rowKey.value === 'function') {
     return rowKey.value(record)
   }
   // 如果配置了字符串类型的 rowKey，使用对应字段
   if (typeof rowKey.value === 'string') {
-    const key = record[rowKey.value]
+    const key = record[rowKey.value] as string | number | undefined
     if (key !== undefined) {
       return key
     }
   }
   // 默认尝试 'id' 字段
   if (record.id !== undefined) {
-    return record.id
+    return record.id as string | number
   }
   // 最后尝试 'key' 字段
   if (record.key !== undefined) {
-    return record.key
+    return record.key as string | number
   }
   // 兜底：返回字符串化的 record（避免 undefined 导致的选择问题）
   return JSON.stringify(record)
@@ -137,7 +145,7 @@ const showActionColumn = computed(() => {
  */
 const tableColumns = computed(() => {
   const columns = props.schema.columns.map((col, index) => {
-    const column: any = {
+    const column: Record<string, unknown> = {
       key: col.key || col.dataIndex || index,
       dataIndex: col.dataIndex,
       title: col.title,
@@ -188,7 +196,7 @@ const tableColumns = computed(() => {
 
     // 自定义表头渲染
     if (col.customHeaderRender) {
-      column.customHeaderCell = (column: any) => {
+      column.customHeaderCell = (column: TableColumn) => {
         return col.customHeaderRender?.({
           title: column.title,
           column: col,
@@ -208,7 +216,7 @@ const tableColumns = computed(() => {
       width: props.schema.actionWidth || 150,
       fixed: props.schema.actionFixed || 'right',
       align: 'center',
-      render: (value: any, record: any, index: number) => {
+      render: (_value: unknown, record: TableRecord, index: number) => {
         return renderActions(record, index)
       }
     })
@@ -222,7 +230,7 @@ const tableColumns = computed(() => {
  * @param record - 行数据
  * @param index - 行索引
  */
-function renderActions(record: any, index: number) {
+function renderActions(record: TableRecord, index: number) {
   const actions = props.schema.actions || []
   const visibleActions = actions.filter((action) => {
     if (typeof action.show === 'function') {
@@ -288,11 +296,11 @@ const rowSelection = computed(() => {
     selections: config.selections,
     getCheckboxProps: config.getCheckboxProps,
     preserveSelectedRowKeys: config.preserveSelectedRowKeys,
-    onChange: (selectedRowKeys: (string | number)[], selectedRows: any[], info: { type: string }) => {
+    onChange: (selectedRowKeys: (string | number)[], selectedRows: TableRecord[]) => {
       state.value.selectedRowKeys = selectedRowKeys
       // 直接使用 antd 返回的 selectedRows
       state.value.selectedRows = selectedRows
-      emit('selectChange', selectedRowKeys, selectedRows, info)
+      emit('selectChange', selectedRowKeys, selectedRows)
     }
   }
 })
@@ -314,7 +322,7 @@ const pagination = computed(() => {
     pageSizeOptions: config.pageSizeOptions || ['10', '20', '50', '100'],
     showQuickJumper: config.showQuickJumper ?? true,
     showSizeChanger: config.showSizeChanger ?? true,
-    showTotal: config.showTotal !== false ? (total: number, range: [number, number]) =>
+    showTotal: config.showTotal !== false ? (total: number) =>
       `共 ${total} 条` : undefined,
     simple: config.simple,
     ...config
@@ -340,7 +348,7 @@ const expandable = computed(() => {
     expandIcon: config.expandIcon,
     // 如果配置了 expandedRowRender 函数，使用它；否则如果有 expandedRow 插槽，不设置（由插槽处理）
     expandedRowRender: config.expandedRowRender || (slots.expandedRow ? undefined : undefined),
-    onExpand: (expanded: boolean, record: any) => {
+    onExpand: (expanded: boolean, record: TableRecord) => {
       const key = getRowKey(record)
       // 使用新数组替换，确保响应式更新
       if (expanded) {
@@ -361,9 +369,9 @@ const expandable = computed(() => {
  * @param sorter - 排序信息
  */
 function handleChange(
-  pagination: { current: number; pageSize: number; total: number },
-  filters: Record<string, (string | number | boolean)[] | null>,
-  sorter: any
+  pagination: TablePagination,
+  filters: TableFilters,
+  sorter: { field: string; order: SortOrder; column: TableColumn }
 ) {
   state.value.pagination.current = pagination.current
   state.value.pagination.pageSize = pagination.pageSize
@@ -372,7 +380,7 @@ function handleChange(
     field: sorter.field,
     order: sorter.order,
     column: props.schema.columns.find(col => col.dataIndex === sorter.field)
-  })
+  } as TableSorter)
 }
 
 /**
@@ -399,7 +407,7 @@ defineExpose<TTableExpose>({
     // 使用 rowKey 来匹配，而不是直接使用数组索引
     const keyField = typeof rowKey.value === 'string' ? rowKey.value : 'id'
     state.value.selectedRows = tableData.value.filter(
-      record => selectedRowKeys.includes(record[keyField])
+      record => selectedRowKeys.includes(record[keyField] as string | number)
     )
   },
 
@@ -414,13 +422,13 @@ defineExpose<TTableExpose>({
   /**
    * 获取 antd Table 实例
    */
-  getTableInstance: () => tableRef.value,
+  getTableInstance: () => tableRef.value ?? undefined,
 
   /**
    * 刷新表格数据
    */
   refresh: () => {
-    emit('change', { ...state.value.pagination }, {}, { field: '', order: undefined, column: undefined as any })
+    emit('change', { ...state.value.pagination }, {}, { field: '', order: undefined, column: undefined } as TableSorter)
   },
 
   /**
@@ -446,7 +454,7 @@ defineExpose<TTableExpose>({
   /**
    * 展开指定行
    */
-  expandRow: (record: any, expanded = true) => {
+  expandRow: (record: TableRecord, expanded = true) => {
     const key = getRowKey(record)
     const index = state.value.expandedRowKeys.indexOf(key)
 
@@ -482,7 +490,7 @@ watch(
       // 更新选中行的数据，使用 rowKey 字段进行匹配
       const keyField = typeof rowKey.value === 'string' ? rowKey.value : 'id'
       state.value.selectedRows = newVal.filter(
-        record => state.value.selectedRowKeys.includes(record[keyField])
+        record => state.value.selectedRowKeys.includes(record[keyField] as string | number)
       )
     }
   },
@@ -513,7 +521,7 @@ watch(
       // 使用 rowKey 字段进行匹配
       const keyField = typeof rowKey.value === 'string' ? rowKey.value : 'id'
       state.value.selectedRows = tableData.value.filter(
-        record => newKeys.includes(record[keyField])
+        record => newKeys.includes(record[keyField] as string | number)
       )
     }
   },
@@ -678,174 +686,3 @@ watch(
     </a-table>
   </ConfigProvider>
 </template>
-
-<style scoped>
-@reference "@/assets/css/app.css";
-/* 表格基础样式 - 对齐 shadcn-vue */
-.t-table :deep(.ant-table) {
-  @apply bg-background text-foreground;
-}
-
-/* 表头样式 */
-.t-table :deep(.ant-table-thead > tr > th) {
-  @apply bg-muted/50 text-foreground font-medium;
-  @apply border-b border-border;
-}
-
-/* 表头排序激活样式 */
-.t-table :deep(.ant-table-column-sorter-up.active),
-.t-table :deep(.ant-table-column-sorter-down.active) {
-  @apply text-primary;
-}
-
-/* 表格行样式 */
-.t-table :deep(.ant-table-tbody > tr > td) {
-  @apply border-b border-border;
-}
-
-/* 表格行悬停样式 */
-.t-table :deep(.ant-table-tbody > tr:hover > td) {
-  @apply bg-muted/30;
-}
-
-/* 表格行选中样式 */
-.t-table :deep(.ant-table-tbody > tr.ant-table-row-selected > td) {
-  @apply bg-primary/5;
-}
-
-/* 表格行选中悬停样式 */
-.t-table :deep(.ant-table-tbody > tr.ant-table-row-selected:hover > td) {
-  @apply bg-primary/10;
-}
-
-/* 边框样式 */
-.t-table.bordered :deep(.ant-table) {
-  @apply border border-border rounded-md;
-}
-
-/* 分页器样式 */
-.t-table :deep(.ant-pagination) {
-  @apply text-foreground;
-}
-
-.t-table :deep(.ant-pagination-item) {
-  @apply border-border bg-background;
-}
-
-.t-table :deep(.ant-pagination-item-active) {
-  @apply border-primary bg-primary text-primary-foreground;
-}
-
-.t-table :deep(.ant-pagination-item-active a) {
-  @apply text-primary-foreground;
-}
-
-.t-table :deep(.ant-pagination-prev .ant-pagination-item-link),
-.t-table :deep(.ant-pagination-next .ant-pagination-item-link) {
-  @apply border-border bg-background text-foreground;
-}
-
-.t-table :deep(.ant-pagination-disabled .ant-pagination-item-link) {
-  @apply text-muted-foreground;
-}
-
-.t-table :deep(.ant-pagination-options-quick-jumper input) {
-  @apply border-border bg-background text-foreground;
-}
-
-.t-table :deep(.ant-select-selector) {
-  @apply border-border bg-background text-foreground;
-}
-
-/* 展开行样式 */
-.t-table :deep(.ant-table-expanded-row) {
-  @apply bg-muted/20;
-}
-
-/* 展开/折叠按钮样式 */
-.t-table :deep(.ant-table-row-expand-icon) {
-  @apply border-border bg-background text-foreground;
-  @apply hover:border-primary hover:text-primary;
-  @apply transition-colors duration-200;
-}
-
-/* 展开按钮选中/激活状态 */
-.t-table :deep(.ant-table-row-expand-icon-expanded) {
-  @apply border-primary text-primary bg-primary/5;
-}
-
-/* 展开按钮悬停状态 */
-.t-table :deep(.ant-table-row-expand-icon:hover) {
-  @apply border-ring text-primary;
-}
-
-/* 展开按钮点击状态 */
-.t-table :deep(.ant-table-row-expand-icon:active) {
-  @apply bg-primary/10;
-}
-
-/* 展开按钮禁用状态 */
-.t-table :deep(.ant-table-row-expand-icon-disabled) {
-  @apply border-muted text-muted-foreground bg-muted/50 cursor-not-allowed;
-}
-
-/* 展开按钮聚焦状态 */
-.t-table :deep(.ant-table-row-expand-icon:focus) {
-  @apply outline-none ring-2 ring-ring/50;
-}
-
-/* 固定列阴影 */
-.t-table :deep(.ant-table-cell-fix-left::after),
-.t-table :deep(.ant-table-cell-fix-right::after) {
-  @apply shadow-none;
-}
-
-/* 加载状态样式 */
-.t-table :deep(.ant-table-loading) {
-  @apply opacity-50;
-}
-
-/* 空状态样式 */
-.t-table :deep(.ant-table-empty) {
-  @apply text-muted-foreground;
-}
-
-/* 筛选菜单样式 */
-.t-table :deep(.ant-table-filter-dropdown) {
-  @apply bg-popover border border-border rounded-md shadow-lg;
-}
-
-.t-table :deep(.ant-table-filter-dropdown-btns) {
-  @apply border-t border-border;
-}
-
-/* 排序提示样式 */
-.t-table :deep(.ant-tooltip) {
-  @apply z-50;
-}
-
-/* 选择列样式 */
-.t-table :deep(.ant-table-selection-column) {
-  @apply text-center;
-}
-
-/* 操作列按钮间距 */
-.t-table :deep(.ant-table-cell .ant-btn) {
-  @apply mx-1 first:ml-0 last:mr-0;
-}
-
-/* 小尺寸表格 */
-.t-table :deep(.ant-table-small) {
-  @apply text-sm;
-}
-
-/* 大尺寸表格 */
-.t-table :deep(.ant-table-large) {
-  @apply text-base;
-}
-
-/* 虚拟列表样式 */
-.t-table :deep(.ant-table-virtual-list) {
-  @apply overflow-auto;
-}
-</style>

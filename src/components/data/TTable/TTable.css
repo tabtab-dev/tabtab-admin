@@ -1,0 +1,190 @@
+/**
+ * TTable 组件样式
+ *
+ * @description TTable 组件的样式定义，与 shadcn-vue 主题对齐
+ */
+
+@reference "@/assets/css/app.css";
+
+/* ==================== 基础表格样式 ==================== */
+
+/* 表格基础样式 - 对齐 shadcn-vue */
+.t-table :deep(.ant-table) {
+  @apply bg-background text-foreground;
+}
+
+/* 表头样式 */
+.t-table :deep(.ant-table-thead > tr > th) {
+  @apply bg-muted/50 text-foreground font-medium;
+  @apply border-b border-border;
+}
+
+/* 表头排序激活样式 */
+.t-table :deep(.ant-table-column-sorter-up.active),
+.t-table :deep(.ant-table-column-sorter-down.active) {
+  @apply text-primary;
+}
+
+/* 表格行样式 */
+.t-table :deep(.ant-table-tbody > tr > td) {
+  @apply border-b border-border;
+}
+
+/* 表格行悬停样式 */
+.t-table :deep(.ant-table-tbody > tr:hover > td) {
+  @apply bg-muted/30;
+}
+
+/* 表格行选中样式 */
+.t-table :deep(.ant-table-tbody > tr.ant-table-row-selected > td) {
+  @apply bg-primary/5;
+}
+
+/* 表格行选中悬停样式 */
+.t-table :deep(.ant-table-tbody > tr.ant-table-row-selected:hover > td) {
+  @apply bg-primary/10;
+}
+
+/* 边框样式 */
+.t-table.bordered :deep(.ant-table) {
+  @apply border border-border rounded-md;
+}
+
+/* ==================== 分页器样式 ==================== */
+
+.t-table :deep(.ant-pagination) {
+  @apply text-foreground;
+}
+
+.t-table :deep(.ant-pagination-item) {
+  @apply border-border bg-background;
+}
+
+.t-table :deep(.ant-pagination-item-active) {
+  @apply border-primary bg-primary text-primary-foreground;
+}
+
+.t-table :deep(.ant-pagination-item-active a) {
+  @apply text-primary-foreground;
+}
+
+.t-table :deep(.ant-pagination-prev .ant-pagination-item-link),
+.t-table :deep(.ant-pagination-next .ant-pagination-item-link) {
+  @apply border-border bg-background text-foreground;
+}
+
+.t-table :deep(.ant-pagination-disabled .ant-pagination-item-link) {
+  @apply text-muted-foreground;
+}
+
+.t-table :deep(.ant-pagination-options-quick-jumper input) {
+  @apply border-border bg-background text-foreground;
+}
+
+.t-table :deep(.ant-select-selector) {
+  @apply border-border bg-background text-foreground;
+}
+
+/* ==================== 展开行样式 ==================== */
+
+.t-table :deep(.ant-table-expanded-row) {
+  @apply bg-muted/20;
+}
+
+/* 展开/折叠按钮样式 */
+.t-table :deep(.ant-table-row-expand-icon) {
+  @apply border-border bg-background text-foreground;
+  @apply hover:border-primary hover:text-primary;
+  @apply transition-colors duration-200;
+}
+
+/* 展开按钮选中/激活状态 */
+.t-table :deep(.ant-table-row-expand-icon-expanded) {
+  @apply border-primary text-primary bg-primary/5;
+}
+
+/* 展开按钮悬停状态 */
+.t-table :deep(.ant-table-row-expand-icon:hover) {
+  @apply border-ring text-primary;
+}
+
+/* 展开按钮点击状态 */
+.t-table :deep(.ant-table-row-expand-icon:active) {
+  @apply bg-primary/10;
+}
+
+/* 展开按钮禁用状态 */
+.t-table :deep(.ant-table-row-expand-icon-disabled) {
+  @apply border-muted text-muted-foreground bg-muted/50 cursor-not-allowed;
+}
+
+/* 展开按钮聚焦状态 */
+.t-table :deep(.ant-table-row-expand-icon:focus) {
+  @apply outline-none ring-2 ring-ring/50;
+}
+
+/* ==================== 固定列样式 ==================== */
+
+/* 固定列阴影 */
+.t-table :deep(.ant-table-cell-fix-left::after),
+.t-table :deep(.ant-table-cell-fix-right::after) {
+  @apply shadow-none;
+}
+
+/* ==================== 状态样式 ==================== */
+
+/* 加载状态样式 */
+.t-table :deep(.ant-table-loading) {
+  @apply opacity-50;
+}
+
+/* 空状态样式 */
+.t-table :deep(.ant-table-empty) {
+  @apply text-muted-foreground;
+}
+
+/* ==================== 筛选菜单样式 ==================== */
+
+.t-table :deep(.ant-table-filter-dropdown) {
+  @apply bg-popover border border-border rounded-md shadow-lg;
+}
+
+.t-table :deep(.ant-table-filter-dropdown-btns) {
+  @apply border-t border-border;
+}
+
+/* 排序提示样式 */
+.t-table :deep(.ant-tooltip) {
+  @apply z-50;
+}
+
+/* ==================== 选择列样式 ==================== */
+
+.t-table :deep(.ant-table-selection-column) {
+  @apply text-center;
+}
+
+/* ==================== 操作列样式 ==================== */
+
+/* 操作列按钮间距 */
+.t-table :deep(.ant-table-cell .ant-btn) {
+  @apply mx-1 first:ml-0 last:mr-0;
+}
+
+/* ==================== 尺寸样式 ==================== */
+
+/* 小尺寸表格 */
+.t-table :deep(.ant-table-small) {
+  @apply text-sm;
+}
+
+/* 大尺寸表格 */
+.t-table :deep(.ant-table-large) {
+  @apply text-base;
+}
+
+/* ==================== 虚拟列表样式 ==================== */
+
+.t-table :deep(.ant-table-virtual-list) {
+  @apply overflow-auto;
+}

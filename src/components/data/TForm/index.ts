@@ -98,5 +98,10 @@ export type {
   // 组件类型
   TFormProps,
   TFormExpose,
-  TFormEmits
+  TFormEmits,
+  // 新增类型
+  FormInstance,
+  FormValidateError,
+  FormValidateErrorInfo,
+  FieldChangeInfo
 } from './types'

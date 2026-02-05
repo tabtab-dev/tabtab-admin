@@ -7,3 +7,4 @@
 export { useFieldState, getFieldKey } from './useFieldState'
 export { useFormMeta } from './useFormMeta'
 export { useFormWatch } from './useFormWatch'
+export { useSearchForm } from './useSearchForm'
