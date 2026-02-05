@@ -8,15 +8,15 @@ import { ref, computed } from 'vue'
 import { TTable } from '@/components/data/TTable'
 import { TForm } from '@/components/data/TForm'
 import type { TableSchema, TTableExpose } from '@/components/data/TTable'
-import type { FormSchema, TFormExpose } from '@/components/data/TForm'
+import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TModal } from '@/components/data/TModal'
 import type { TModalExpose } from '@/components/data/TModal'
 import { useUsersStore, type User } from '@/stores/users'
-import { Plus, Users, UserCheck, UserCog, TrendingUp, Search } from 'lucide-vue-next'
-import { Avatar, Space, Tag, Statistic } from 'antdv-next'
+import { Plus, Users, UserCheck, UserCog, TrendingUp } from 'lucide-vue-next'
+import { Avatar, Space, Tag } from 'antdv-next'
 
 // ==================== Store ====================
 const usersStore = useUsersStore()
@@ -227,9 +227,7 @@ const isAddDialogOpen = ref(false)
 const isEditDialogOpen = ref(false)
 const editingUser = ref<User | null>(null)
 
-const formRef = ref<TFormExpose>()
-const addModalRef = ref<TModalExpose>()
-const editModalRef = ref<TModalExpose>()
+
 
 // 新增表单数据
 const addFormData = ref({

@@ -134,7 +134,6 @@ const searchSchema: FormSchema = {
 }
 
 // 表格配置
-const tableRef = ref<TTableExpose>()
 
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
@@ -248,7 +247,7 @@ const addSchema: FormSchema = {
   }
 }
 
-function handleAddSubmit(values: Record<string, any>) {
+function handleAddSubmit(_values: Record<string, any>) {
   // 实际应用中这里会提交到后端
   isAddOpen.value = false
   addFormData.value = { productId: '', warehouseId: '', actualStock: 0, reason: '' }

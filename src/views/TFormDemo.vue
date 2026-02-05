@@ -4,9 +4,9 @@
  *
  * @description 展示 TForm 表单组件的各种使用场景和配置方式
  */
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import { TForm } from '@/components/data/TForm'
-import type { FormSchema, TFormExpose } from '@/components/data/TForm'
+import type { FormSchema } from '@/components/data/TForm'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
@@ -17,7 +17,7 @@ import { Moon, Sun } from 'lucide-vue-next'
 /**
  * 表单引用
  */
-const formRef = ref<TFormExpose>()
+
 
 /**
  * 主题状态管理
@@ -1158,7 +1158,7 @@ const generateLargeOptions = (prefix: string, count: number) => {
 /**
  * 异步加载大量选项
  */
-async function loadLargeOptions(formData: Record<string, any>): Promise<Array<{ label: string; value: string }>> {
+async function loadLargeOptions(_formData: Record<string, any>): Promise<Array<{ label: string; value: string }>> {
   await new Promise(resolve => setTimeout(resolve, 300))
   return generateLargeOptions('商品', 1000)
 }
@@ -1336,33 +1336,39 @@ const watchSchema: FormSchema = {
 }
 
 // 为字段添加 watch 监听
-watchSchema.fields[0].watch = [
-  {
-    field: 'price',
-    handler: (value, formData, methods) => {
-      const total = (value || 0) * (formData.quantity || 1) * (1 - (formData.discount || 0) / 100)
-      methods.setFieldValue('total', Math.round(total * 100) / 100)
+if (watchSchema.fields[0]) {
+  watchSchema.fields[0].watch = [
+    {
+      field: 'price',
+      handler: (value, formData, methods) => {
+        const total = (value || 0) * (formData.quantity || 1) * (1 - (formData.discount || 0) / 100)
+        methods.setFieldValue('total', Math.round(total * 100) / 100)
+      }
     }
-  }
-]
-watchSchema.fields[1].watch = [
-  {
-    field: 'quantity',
-    handler: (value, formData, methods) => {
-      const total = (formData.price || 0) * (value || 1) * (1 - (formData.discount || 0) / 100)
-      methods.setFieldValue('total', Math.round(total * 100) / 100)
+  ]
+}
+if (watchSchema.fields[1]) {
+  watchSchema.fields[1].watch = [
+    {
+      field: 'quantity',
+      handler: (value, formData, methods) => {
+        const total = (formData.price || 0) * (value || 1) * (1 - (formData.discount || 0) / 100)
+        methods.setFieldValue('total', Math.round(total * 100) / 100)
+      }
     }
-  }
-]
-watchSchema.fields[2].watch = [
-  {
-    field: 'discount',
-    handler: (value, formData, methods) => {
-      const total = (formData.price || 0) * (formData.quantity || 1) * (1 - (value || 0) / 100)
-      methods.setFieldValue('total', Math.round(total * 100) / 100)
+  ]
+}
+if (watchSchema.fields[2]) {
+  watchSchema.fields[2].watch = [
+    {
+      field: 'discount',
+      handler: (value, formData, methods) => {
+        const total = (formData.price || 0) * (formData.quantity || 1) * (1 - (value || 0) / 100)
+        methods.setFieldValue('total', Math.round(total * 100) / 100)
+      }
     }
-  }
-]
+  ]
+}
 
 /**
  * 处理 Watch 监听表单提交

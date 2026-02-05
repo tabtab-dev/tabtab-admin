@@ -15,9 +15,7 @@ import {
   Warehouse,
   Package,
   AlertTriangle,
-  CheckCircle,
-  Search,
-  MapPin
+  CheckCircle
 } from 'lucide-vue-next'
 
 const inventoryStore = useInventoryStore()
@@ -80,7 +78,6 @@ const searchSchema: FormSchema = {
 }
 
 // 表格配置
-const tableRef = ref<TTableExpose>()
 
 const tableSchema = computed<TableSchema>(() => ({
   columns: [

@@ -18,18 +18,10 @@ import {
   Settings, 
   FileText, 
   AlertCircle, 
-  CheckCircle, 
-  Package, 
-  Clock,
-  Calendar,
-  Bell,
-  Sparkles,
   ArrowUpRight,
-  Zap,
   Download,
   Plus
 } from 'lucide-vue-next';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { ActivityItem, QuickAction } from '@/types/bento';

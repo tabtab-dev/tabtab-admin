@@ -15,12 +15,8 @@ import {
   Plus,
   Truck,
   Package,
-  MapPin,
-  Phone,
   CheckCircle,
-  XCircle,
-  Star,
-  Search
+  Star
 } from 'lucide-vue-next'
 
 // 物流公司数据
@@ -379,7 +375,7 @@ function handleAddSubmit(values: Record<string, any>) {
     status: values.status,
     rating: 5.0,
     deliveryCount: 0,
-    createdAt: new Date().toISOString().split('T')[0]
+    createdAt: new Date().toISOString().split('T')[0] || ''
   }
   logisticsCompanies.value.push(newCompany)
   isAddOpen.value = false
@@ -404,8 +400,9 @@ function handleEditSubmit(values: Record<string, any>) {
   if (editingItem.value) {
     const index = logisticsCompanies.value.findIndex(c => c.id === editingItem.value!.id)
     if (index !== -1) {
+      const current = logisticsCompanies.value[index]!
       logisticsCompanies.value[index] = {
-        ...logisticsCompanies.value[index],
+        ...current,
         name: values.name,
         contact: values.contact,
         phone: values.phone,

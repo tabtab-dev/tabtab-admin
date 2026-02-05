@@ -5,7 +5,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { TTable } from '@/components/data/TTable'
 import { TForm } from '@/components/data/TForm'
-import type { TableSchema, TTableExpose } from '@/components/data/TTable'
+import type { TableSchema } from '@/components/data/TTable'
 import type { FormSchema } from '@/components/data/TForm'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -41,7 +41,7 @@ const searchSchema: FormSchema = {
   searchConfig: { enabled: true, collapsed: false, showCollapseButton: false, searchText: '搜索', resetText: '重置', showReset: true }
 }
 
-const tableRef = ref<TTableExpose>()
+
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
     { title: '商品信息', dataIndex: 'productName', width: 200, slot: 'product' },

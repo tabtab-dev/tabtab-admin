@@ -48,6 +48,8 @@ export interface FormOption {
   disabled?: boolean
   /** 子选项（用于 cascader） */
   children?: FormOption[]
+  /** 唯一标识 */
+  key?: string
 }
 
 /**
@@ -201,7 +203,7 @@ export interface FormField<T extends Record<string, any> = Record<string, any>> 
   /** 标签文本 */
   label?: string
   /** 占位提示 */
-  placeholder?: string
+  placeholder?: string | string[]
   /** 验证规则 */
   rules?: FormRule[]
   /** 选项（用于 select/radio/checkbox/cascader/tree-select） */
@@ -256,6 +258,8 @@ export interface FormField<T extends Record<string, any> = Record<string, any>> 
   optionsDebounce?: number
   /** 异步选项缓存字段 */
   cacheFields?: string[]
+  /** 自定义类名 */
+  className?: string
 }
 
 /**
@@ -273,6 +277,8 @@ export interface FormActions {
   showSubmit?: boolean
   /** 按钮对齐方式 */
   align?: 'left' | 'center' | 'right'
+  /** 重置回调 */
+  onReset?: () => void
 }
 
 /**

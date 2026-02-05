@@ -6,13 +6,13 @@ import { ref, computed, onMounted } from 'vue'
 import { TTable } from '@/components/data/TTable'
 import { TForm } from '@/components/data/TForm'
 import { TModal } from '@/components/data/TModal'
-import type { TableSchema, TTableExpose } from '@/components/data/TTable'
+import type { TableSchema } from '@/components/data/TTable'
 import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useCategoriesStore, type Category } from '@/stores/categories'
-import { Plus, Layers, CheckCircle, XCircle, Package, FolderTree } from 'lucide-vue-next'
+import { Plus, Layers, CheckCircle, XCircle, Package } from 'lucide-vue-next'
 
 const categoriesStore = useCategoriesStore()
 
@@ -40,7 +40,7 @@ const searchSchema: FormSchema = {
   searchConfig: { enabled: true, collapsed: false, showCollapseButton: false, searchText: '搜索', resetText: '重置', showReset: true }
 }
 
-const tableRef = ref<TTableExpose>()
+
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
     { title: '分类名称', dataIndex: 'name', width: 180, slot: 'name' },
@@ -69,7 +69,7 @@ const addSchema: FormSchema = {
   fields: [
     { name: 'name', type: 'input', label: '分类名称', placeholder: '请输入分类名称', rules: [{ required: true, message: '分类名称不能为空' }] },
     { name: 'code', type: 'input', label: '分类编码', placeholder: '请输入分类编码', rules: [{ required: true, message: '分类编码不能为空' }] },
-    { name: 'parentId', type: 'select', label: '上级分类', placeholder: '请选择上级分类', options: computed(() => categoriesStore.level1Categories.map(c => ({ label: c.name, value: c.id }))), rules: [{ required: true, message: '请选择上级分类' }] },
+    { name: 'parentId', type: 'select', label: '上级分类', placeholder: '请选择上级分类', options: () => categoriesStore.level1Categories.map(c => ({ label: c.name, value: c.id })), rules: [{ required: true, message: '请选择上级分类' }] },
     { name: 'sort', type: 'number', label: '排序', placeholder: '请输入排序号' },
     { name: 'status', type: 'select', label: '状态', placeholder: '请选择状态', options: [{ label: '启用', value: 'active' }, { label: '禁用', value: 'inactive' }] },
     { name: 'description', type: 'textarea', label: '描述', placeholder: '请输入描述（可选）' }

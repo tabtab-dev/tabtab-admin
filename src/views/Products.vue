@@ -9,8 +9,7 @@ import { TTable } from '@/components/data/TTable'
 import { TForm } from '@/components/data/TForm'
 import { TModal } from '@/components/data/TModal'
 import type { TableSchema, TTableExpose } from '@/components/data/TTable'
-import type { FormSchema, TFormExpose } from '@/components/data/TForm'
-import type { TModalExpose } from '@/components/data/TModal'
+import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -22,11 +21,9 @@ import {
   AlertTriangle,
   XCircle,
   TrendingUp,
-  Search,
-  Edit,
   Layers
 } from 'lucide-vue-next'
-import { Tag, Space, Avatar } from 'antdv-next'
+import { Space, Avatar } from 'antdv-next'
 
 // ==================== Store ====================
 const productsStore = useProductsStore()
@@ -234,9 +231,7 @@ const isAddDialogOpen = ref(false)
 const isEditDialogOpen = ref(false)
 const editingProduct = ref<Product | null>(null)
 
-const formRef = ref<TFormExpose>()
-const addModalRef = ref<TModalExpose>()
-const editModalRef = ref<TModalExpose>()
+
 
 // 新增表单数据
 const addFormData = ref({

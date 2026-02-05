@@ -4,9 +4,9 @@
  *
  * @description 展示 TTable 表格组件的各种使用场景和配置方式
  */
-import { ref, reactive, h, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { TTable } from '@/components/data/TTable'
-import type { TableSchema, TTableExpose, TableColumn } from '@/components/data/TTable'
+import type { TableSchema, TTableExpose } from '@/components/data/TTable'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
@@ -243,7 +243,7 @@ function handleChange(
   console.log('表格变化:', { pagination, filters, sorter })
 }
 
-function handleRowClick(record: any, index: number, event: MouseEvent) {
+function handleRowClick(record: any, index: number, _event: MouseEvent) {
   console.log('行点击:', record, index)
 }
 
@@ -392,26 +392,26 @@ function handleTreeSelectChange(keys: (string | number)[], rows: any[]) {
               @select-change="handleSelectChange"
             >
               <!-- 自定义用户列 -->
-              <template #user="{ text, record }">
+              <template #user="slotProps">
                 <Space>
-                  <Avatar :style="{ backgroundColor: record.status === 'active' ? '#87d068' : '#ccc' }">
-                    {{ text.charAt(0) }}
+                  <Avatar :style="{ backgroundColor: (slotProps as any).record.status === 'active' ? '#87d068' : '#ccc' }">
+                    {{ (slotProps as any).text.charAt(0) }}
                   </Avatar>
-                  <span>{{ text }}</span>
+                  <span>{{ (slotProps as any).text }}</span>
                 </Space>
               </template>
 
               <!-- 自定义状态列 -->
-              <template #status="{ text }">
-                <Badge :variant="text === 'active' ? 'default' : 'secondary'">
-                  {{ text === 'active' ? '启用' : '禁用' }}
+              <template #status="slotProps">
+                <Badge :variant="(slotProps as any).text === 'active' ? 'default' : 'secondary'">
+                  {{ (slotProps as any).text === 'active' ? '启用' : '禁用' }}
                 </Badge>
               </template>
 
               <!-- 自定义标签列 -->
-              <template #tags="{ text }">
+              <template #tags="slotProps">
                 <Space>
-                  <Tag v-for="tag in text" :key="tag" color="blue">{{ tag }}</Tag>
+                  <Tag v-for="tag in (slotProps as any).text" :key="tag" color="blue">{{ tag }}</Tag>
                 </Space>
               </template>
             </TTable>
@@ -480,9 +480,9 @@ function handleTreeSelectChange(keys: (string | number)[], rows: any[]) {
               @expand="handleExpand"
             >
               <!-- 自定义订单状态 -->
-              <template #orderStatus="{ text }">
-                <Tag :color="text === 'completed' ? 'success' : 'warning'">
-                  {{ text === 'completed' ? '已完成' : '待处理' }}
+              <template #orderStatus="slotProps">
+                <Tag :color="(slotProps as any).text === 'completed' ? 'success' : 'warning'">
+                  {{ (slotProps as any).text === 'completed' ? '已完成' : '待处理' }}
                 </Tag>
               </template>
 

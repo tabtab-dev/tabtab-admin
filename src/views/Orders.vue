@@ -9,11 +9,10 @@ import { TTable } from '@/components/data/TTable'
 import { TForm } from '@/components/data/TForm'
 import { TModal } from '@/components/data/TModal'
 import type { TableSchema, TTableExpose } from '@/components/data/TTable'
-import type { FormSchema, TFormExpose } from '@/components/data/TForm'
-import type { TModalExpose } from '@/components/data/TModal'
+import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+
 import { useOrdersStore, type Order } from '@/stores/orders'
 import {
   Plus,
@@ -22,9 +21,7 @@ import {
   Package,
   CheckCircle,
   XCircle,
-  DollarSign,
-  Search,
-  Eye
+  DollarSign
 } from 'lucide-vue-next'
 import { Tag, Space } from 'antdv-next'
 
@@ -222,9 +219,7 @@ const isAddDialogOpen = ref(false)
 const isViewDialogOpen = ref(false)
 const viewingOrder = ref<Order | null>(null)
 
-const formRef = ref<TFormExpose>()
-const addModalRef = ref<TModalExpose>()
-const viewModalRef = ref<TModalExpose>()
+
 
 // 新增表单数据
 const addFormData = ref({
