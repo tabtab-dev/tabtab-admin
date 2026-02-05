@@ -152,7 +152,7 @@ export const useProductsStore = defineStore('products', () => {
       ...product,
       id: Date.now().toString(),
       sku: `SKU-${String(products.value.length + 1).padStart(3, '0')}`,
-      createdAt: new Date().toISOString().split('T')[0]
+      createdAt: new Date().toISOString().split('T')[0] || ''
     };
     products.value.unshift(newProduct);
   };
@@ -161,7 +161,7 @@ export const useProductsStore = defineStore('products', () => {
   const updateProduct = (id: string, updates: Partial<Product>) => {
     const index = products.value.findIndex(p => p.id === id);
     if (index !== -1) {
-      products.value[index] = { ...products.value[index], ...updates };
+      products.value[index] = { ...products.value[index]!, ...updates } as Product;
     }
   };
 

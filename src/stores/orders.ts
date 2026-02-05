@@ -156,7 +156,7 @@ export const useOrdersStore = defineStore('orders', () => {
   const updateOrder = (id: string, updates: Partial<Order>) => {
     const index = orders.value.findIndex(o => o.id === id);
     if (index !== -1) {
-      orders.value[index] = { ...orders.value[index], ...updates };
+      orders.value[index] = { ...orders.value[index]!, ...updates } as Order;
     }
   };
 

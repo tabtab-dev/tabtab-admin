@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
   TrendingUp,
-  TrendingDown,
   Users,
   ShoppingCart,
   DollarSign,
@@ -25,7 +24,7 @@ import {
 } from 'lucide-vue-next'
 
 // 时间范围
-const timeRange = ref('7d')
+const _timeRange = ref('7d')
 
 // 核心指标
 const metrics = computed(() => [

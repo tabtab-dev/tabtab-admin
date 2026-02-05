@@ -674,7 +674,7 @@ export const useThemeStore = defineStore('theme', () => {
   /** 当前主题颜色 */
   const currentColors = computed(() => {
     const theme = presetThemes[currentTheme.value];
-    return theme?.colors[currentMode.value] || presetThemes.default.colors.light;
+    return theme?.colors[currentMode.value] || presetThemes.default?.colors.light;
   });
 
   /** 所有可用主题 */

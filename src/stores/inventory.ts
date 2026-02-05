@@ -178,7 +178,7 @@ export const useInventoryStore = defineStore('inventory', () => {
   const updateWarehouse = (id: string, updates: Partial<Warehouse>) => {
     const index = warehouses.value.findIndex(w => w.id === id);
     if (index !== -1) {
-      warehouses.value[index] = { ...warehouses.value[index], ...updates };
+      warehouses.value[index] = { ...warehouses.value[index]!, ...updates } as Warehouse;
     }
   };
 

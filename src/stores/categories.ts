@@ -198,7 +198,7 @@ export const useCategoriesStore = defineStore('categories', () => {
     const newCategory: Category = {
       ...category,
       id: Date.now().toString(),
-      createdAt: new Date().toISOString().split('T')[0]
+      createdAt: new Date().toISOString().split('T')[0] || ''
     };
     categories.value.push(newCategory);
   };
@@ -235,7 +235,7 @@ export const useCategoriesStore = defineStore('categories', () => {
   const updateTag = (id: string, updates: Partial<Tag>) => {
     const index = tags.value.findIndex(t => t.id === id);
     if (index !== -1) {
-      tags.value[index] = { ...tags.value[index], ...updates };
+      tags.value[index] = { ...tags.value[index]!, ...updates } as Tag;
     }
   };
 

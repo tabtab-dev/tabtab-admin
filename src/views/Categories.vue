@@ -18,12 +18,9 @@ import {
   FolderTree,
   Layers,
   CheckCircle,
-  XCircle,
   Package,
-  Search,
   Tag
 } from 'lucide-vue-next'
-import { Space } from 'antdv-next'
 
 const categoriesStore = useCategoriesStore()
 
@@ -240,7 +237,7 @@ const addSchema: FormSchema = {
       type: 'select',
       label: '上级分类',
       placeholder: '请选择上级分类',
-      options: computed(() => categoriesStore.level1Categories.map(c => ({ label: c.name, value: c.id }))),
+      options: () => categoriesStore.level1Categories.map(c => ({ label: c.name, value: c.id })),
       show: computed(() => addFormData.value.level === 2)
     },
     {

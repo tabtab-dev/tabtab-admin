@@ -71,7 +71,7 @@ export const useUsersStore = defineStore('users', () => {
     const newUser: User = {
       ...user,
       id: Date.now().toString(),
-      createdAt: new Date().toISOString().split('T')[0]
+      createdAt: new Date().toISOString().split('T')[0] || ''
     };
     users.value.unshift(newUser);
   };
@@ -79,7 +79,7 @@ export const useUsersStore = defineStore('users', () => {
   const updateUser = (id: string, updates: Partial<User>) => {
     const index = users.value.findIndex(u => u.id === id);
     if (index !== -1) {
-      users.value[index] = { ...users.value[index], ...updates };
+      users.value[index] = { ...users.value[index]!, ...updates } as User;
     }
   };
 
