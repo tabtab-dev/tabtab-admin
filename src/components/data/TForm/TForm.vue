@@ -23,12 +23,15 @@
  */
 import { computed, reactive, ref, watch, useSlots, nextTick } from 'vue'
 import { ConfigProvider } from 'antdv-next'
+import zhCN from 'antdv-next/locale/zh_CN'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ChevronDown, ChevronUp, Search, RotateCcw } from 'lucide-vue-next'
 import TFormItem from './TFormItem.vue'
 import { useTFormTheme } from './theme'
-import { useSearchForm } from './composables'
+import { useSearchForm, useFormMeta } from './composables'
 import type { FormSchema, TFormProps, TFormEmits, TFormExpose, FormField, NamePath, FieldWatch, FormInstance, FormValidateErrorInfo } from './types'
 
 /**
@@ -61,6 +64,12 @@ const emit = defineEmits<TFormEmits>()
  * @description 组件级主题配置，不影响全局 antdv-next 主题
  */
 const tformTheme = useTFormTheme()
+
+/**
+ * 设置 dayjs 语言为中文
+ * @description 日期类组件需要 dayjs 语言设置才能显示中文
+ */
+dayjs.locale('zh-cn')
 
 /**
  * 插槽
@@ -105,25 +114,18 @@ const {
 })
 
 /**
- * 表单状态管理
+ * 使用 useFormMeta 管理表单状态
  */
-const formMeta = reactive({
-  /** 是否修改过 */
-  dirty: false,
-  /** 是否触碰过 */
-  touched: false,
-  /** 是否验证通过 */
-  valid: true,
-  /** 是否提交中 */
-  submitting: false,
-  /** 是否验证中 */
-  validating: false
-})
-
-/**
- * 原始表单数据（用于比较 dirty 状态）
- */
-const initialFormData = ref<Record<string, any>>({})
+const {
+  meta: formMeta,
+  setInitialData,
+  updateMeta,
+  markTouched,
+  setValid,
+  setSubmitting,
+  setValidating,
+  getMetaSnapshot
+} = useFormMeta()
 
 /**
  * 获取字段名的字符串表示
@@ -185,22 +187,7 @@ function initFormData(): void {
     }
   })
   // 保存初始数据用于比较 dirty 状态
-  initialFormData.value = JSON.parse(JSON.stringify(formData))
-}
-
-/**
- * 更新表单状态
- */
-function updateFormMeta(): void {
-  // 检查 dirty 状态
-  formMeta.dirty = JSON.stringify(formData) !== JSON.stringify(initialFormData.value)
-}
-
-/**
- * 标记表单为已触碰
- */
-function markTouched(): void {
-  formMeta.touched = true
+  setInitialData(formData)
 }
 
 /**
@@ -301,7 +288,7 @@ function handleValuesChangeWithWatch(changedValues: Record<string, any>): void {
 
   // 更新表单状态
   markTouched()
-  updateFormMeta()
+  updateMeta(formData)
 
   // 触发字段 watch
   nextTick(() => {
@@ -403,7 +390,7 @@ defineExpose<TFormExpose>({
   /**
    * 获取表单状态
    */
-  getMeta: () => ({ ...formMeta }),
+  getMeta: getMetaSnapshot,
 
   /**
    * 检查表单是否修改过
@@ -459,7 +446,7 @@ initFormData()
 </script>
 
 <template>
-  <ConfigProvider :theme="tformTheme">
+  <ConfigProvider :theme="tformTheme" :locale="zhCN">
     <a-form
       ref="formRef"
       :model="formData"
@@ -470,6 +457,12 @@ initFormData()
       :size="schema.size"
       :disabled="schema.disabled || loading"
       :colon="schema.colon"
+      :variant="schema.variant"
+      :validate-trigger="schema.validateTrigger"
+      :validate-messages="schema.validateMessages"
+      :preserve="schema.preserve"
+      :clear-on-destroy="schema.clearOnDestroy"
+      :scroll-to-first-error="schema.scrollToFirstError"
       :class="cn(
         't-form',
         {

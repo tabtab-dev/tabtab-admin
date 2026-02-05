@@ -1130,6 +1130,154 @@ function handleNewComponentsSubmit(values: Record<string, any>): void {
   alert(`表单提交成功！\n${JSON.stringify(values, null, 2)}`)
 }
 
+// ==================== antdv-next 新特性示例 ====================
+
+/**
+ * 表单数据 - 新特性示例
+ */
+const newFeaturesFormData = ref({
+  username: '',
+  email: '',
+  role: '',
+  status: true,
+  category: '',
+  product: '',
+  description: ''
+})
+
+/**
+ * 模拟大量选项数据
+ */
+const generateLargeOptions = (prefix: string, count: number) => {
+  return Array.from({ length: count }, (_, i) => ({
+    label: `${prefix}选项 ${i + 1}`,
+    value: `${prefix.toLowerCase()}_${i + 1}`
+  }))
+}
+
+/**
+ * 异步加载大量选项
+ */
+async function loadLargeOptions(formData: Record<string, any>): Promise<Array<{ label: string; value: string }>> {
+  await new Promise(resolve => setTimeout(resolve, 300))
+  return generateLargeOptions('商品', 1000)
+}
+
+/**
+ * 新特性表单 Schema
+ */
+const newFeaturesSchema: FormSchema = {
+  layout: 'horizontal',
+  labelCol: { span: 6 },
+  wrapperCol: { span: 18 },
+  // antdv-next 新特性
+  variant: 'filled',
+  scrollToFirstError: true,
+  validateDebounce: 500,
+  validateFirst: true,
+  fields: [
+    {
+      name: 'username',
+      type: 'input',
+      label: '用户名',
+      placeholder: '请输入用户名',
+      tooltip: '用户名用于登录系统，创建后不可修改',
+      hasFeedback: true,
+      validateStatus: undefined,
+      rules: [
+        { required: true, message: '用户名不能为空' },
+        { min: 3, message: '用户名至少3个字符' }
+      ],
+      // 字段级校验配置
+      validateTrigger: 'blur',
+      validateDebounce: 300
+    },
+    {
+      name: 'email',
+      type: 'input',
+      label: '邮箱',
+      placeholder: '请输入邮箱',
+      tooltip: {
+        title: '邮箱格式要求',
+        content: '请输入有效的邮箱地址，如 example@domain.com'
+      },
+      hasFeedback: true,
+      rules: [
+        { required: true, message: '邮箱不能为空' },
+        { type: 'email', message: '邮箱格式不正确' }
+      ]
+    },
+    {
+      name: 'role',
+      type: 'select',
+      label: '角色',
+      placeholder: '请选择角色',
+      required: true,
+      help: '选择用户角色后将决定其权限范围',
+      extra: '管理员拥有所有权限，普通用户仅有查看权限',
+      options: [
+        { label: '管理员', value: 'admin' },
+        { label: '编辑', value: 'editor' },
+        { label: '查看者', value: 'viewer' }
+      ]
+    },
+    {
+      name: 'status',
+      type: 'switch',
+      label: '启用状态',
+      defaultValue: true,
+      help: '关闭后用户将无法登录系统'
+    },
+    {
+      name: 'category',
+      type: 'select',
+      label: '商品分类（虚拟滚动）',
+      placeholder: '请选择分类',
+      help: '此选择器启用了虚拟滚动，支持大量选项',
+      // 虚拟滚动配置
+      virtualScroll: {
+        enabled: true,
+        itemHeight: 32,
+        overscan: 5
+      },
+      options: generateLargeOptions('分类', 1000)
+    },
+    {
+      name: 'product',
+      type: 'select',
+      label: '商品（异步+虚拟滚动）',
+      placeholder: '请先选择分类',
+      help: '异步加载大量选项，带防抖和缓存',
+      virtualScroll: true,
+      optionsDebounce: 500,
+      cacheFields: ['category'],
+      options: loadLargeOptions
+    },
+    {
+      name: 'description',
+      type: 'textarea',
+      label: '描述',
+      placeholder: '请输入描述',
+      props: { rows: 4 }
+    }
+  ],
+  actions: {
+    submitText: '提交',
+    resetText: '重置',
+    showReset: true,
+    align: 'right'
+  }
+}
+
+/**
+ * 处理新特性表单提交
+ * @param values - 表单值
+ */
+function handleNewFeaturesSubmit(values: Record<string, any>): void {
+  console.log('新特性表单提交:', values)
+  alert(`表单提交成功！\n${JSON.stringify(values, null, 2)}`)
+}
+
 // ==================== Watch 监听示例 ====================
 
 /**
@@ -1249,11 +1397,12 @@ function handleWatchSubmit(values: Record<string, any>): void {
 
     <!-- 标签页切换不同示例 -->
     <Tabs default-value="basic" class="w-full">
-      <TabsList class="grid w-full grid-cols-11">
+      <TabsList class="grid w-full grid-cols-12">
         <TabsTrigger value="basic">基础用法</TabsTrigger>
         <TabsTrigger value="advanced">高级组件</TabsTrigger>
         <TabsTrigger value="more">更多组件</TabsTrigger>
         <TabsTrigger value="new">新组件</TabsTrigger>
+        <TabsTrigger value="features" class="bg-primary/10">新特性</TabsTrigger>
         <TabsTrigger value="search">搜索表单</TabsTrigger>
         <TabsTrigger value="dependency">字段联动</TabsTrigger>
         <TabsTrigger value="async">异步选项</TabsTrigger>
@@ -1417,6 +1566,122 @@ function handleWatchSubmit(values: Record<string, any>): void {
             </div>
           </CardContent>
         </Card>
+      </TabsContent>
+
+      <!-- antdv-next 新特性 -->
+      <TabsContent value="features">
+        <div class="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>antdv-next 新特性</CardTitle>
+              <CardDescription>
+                展示新增的表单特性：variant 变体、tooltip 提示、虚拟滚动、防抖校验等
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div class="max-w-2xl">
+                <TForm
+                  v-model="newFeaturesFormData"
+                  :schema="newFeaturesSchema"
+                  @submit="handleNewFeaturesSubmit"
+                  @change="handleFormChange"
+                />
+              </div>
+
+              <!-- 当前数据展示 -->
+              <div class="mt-6 p-4 bg-muted rounded-lg">
+                <h4 class="text-sm font-medium mb-2">当前表单数据：</h4>
+                <pre class="text-xs text-muted-foreground">{{ JSON.stringify(newFeaturesFormData, null, 2) }}</pre>
+              </div>
+            </CardContent>
+          </Card>
+
+          <!-- 特性说明 -->
+          <Card>
+            <CardHeader>
+              <CardTitle>新增特性说明</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 border rounded-lg">
+                  <h4 class="font-medium mb-2 text-primary">variant 变体</h4>
+                  <p class="text-sm text-muted-foreground mb-2">
+                    支持 outlined、filled、borderless 三种变体
+                  </p>
+                  <pre class="text-xs bg-muted p-2 rounded">variant: 'filled'</pre>
+                </div>
+                <div class="p-4 border rounded-lg">
+                  <h4 class="font-medium mb-2 text-primary">tooltip 提示</h4>
+                  <p class="text-sm text-muted-foreground mb-2">
+                    为标签添加提示信息，支持字符串或对象配置
+                  </p>
+                  <pre class="text-xs bg-muted p-2 rounded">tooltip: '提示内容'
+// 或
+tooltip: { title: '标题', content: '内容' }</pre>
+                </div>
+                <div class="p-4 border rounded-lg">
+                  <h4 class="font-medium mb-2 text-primary">hasFeedback 反馈</h4>
+                  <p class="text-sm text-muted-foreground mb-2">
+                    显示校验状态图标，提升用户体验
+                  </p>
+                  <pre class="text-xs bg-muted p-2 rounded">hasFeedback: true</pre>
+                </div>
+                <div class="p-4 border rounded-lg">
+                  <h4 class="font-medium mb-2 text-primary">help / extra 提示</h4>
+                  <p class="text-sm text-muted-foreground mb-2">
+                    添加字段说明和额外信息
+                  </p>
+                  <pre class="text-xs bg-muted p-2 rounded">help: '提示信息'
+extra: '额外说明'</pre>
+                </div>
+                <div class="p-4 border rounded-lg">
+                  <h4 class="font-medium mb-2 text-primary">虚拟滚动</h4>
+                  <p class="text-sm text-muted-foreground mb-2">
+                    大数据量选项启用虚拟滚动，提升性能
+                  </p>
+                  <pre class="text-xs bg-muted p-2 rounded">virtualScroll: true
+// 或详细配置
+virtualScroll: {
+  enabled: true,
+  itemHeight: 32,
+  overscan: 5
+}</pre>
+                </div>
+                <div class="p-4 border rounded-lg">
+                  <h4 class="font-medium mb-2 text-primary">防抖配置</h4>
+                  <p class="text-sm text-muted-foreground mb-2">
+                    异步选项加载和校验支持防抖
+                  </p>
+                  <pre class="text-xs bg-muted p-2 rounded">// 表单级
+validateDebounce: 500
+// 字段级
+optionsDebounce: 300</pre>
+                </div>
+                <div class="p-4 border rounded-lg">
+                  <h4 class="font-medium mb-2 text-primary">scrollToFirstError</h4>
+                  <p class="text-sm text-muted-foreground mb-2">
+                    提交失败自动滚动到第一个错误字段
+                  </p>
+                  <pre class="text-xs bg-muted p-2 rounded">scrollToFirstError: true
+// 或详细配置
+scrollToFirstError: {
+  behavior: 'smooth',
+  block: 'center'
+}</pre>
+                </div>
+                <div class="p-4 border rounded-lg">
+                  <h4 class="font-medium mb-2 text-primary">validateFirst</h4>
+                  <p class="text-sm text-muted-foreground mb-2">
+                    第一个规则失败后停止校验
+                  </p>
+                  <pre class="text-xs bg-muted p-2 rounded">validateFirst: true
+// 或并行校验
+validateFirst: 'parallel'</pre>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </TabsContent>
 
       <!-- 搜索表单 -->
@@ -1817,6 +2082,30 @@ function handleWatchSubmit(values: Record<string, any>): void {
             <h4 class="font-medium mb-2">Composables</h4>
             <p class="text-sm text-muted-foreground">
               提供 useFieldState、useFormMeta 等可复用逻辑
+            </p>
+          </div>
+          <div class="p-4 border rounded-lg border-primary/50 bg-primary/5">
+            <h4 class="font-medium mb-2 text-primary">variant 变体</h4>
+            <p class="text-sm text-muted-foreground">
+              支持 outlined、filled、borderless 三种表单控件变体
+            </p>
+          </div>
+          <div class="p-4 border rounded-lg border-primary/50 bg-primary/5">
+            <h4 class="font-medium mb-2 text-primary">tooltip 提示</h4>
+            <p class="text-sm text-muted-foreground">
+              为标签添加提示信息，支持字符串或对象配置
+            </p>
+          </div>
+          <div class="p-4 border rounded-lg border-primary/50 bg-primary/5">
+            <h4 class="font-medium mb-2 text-primary">虚拟滚动</h4>
+            <p class="text-sm text-muted-foreground">
+              大数据量选项启用虚拟滚动，提升性能
+            </p>
+          </div>
+          <div class="p-4 border rounded-lg border-primary/50 bg-primary/5">
+            <h4 class="font-medium mb-2 text-primary">防抖校验</h4>
+            <p class="text-sm text-muted-foreground">
+              支持 validateDebounce、validateFirst 等校验优化
             </p>
           </div>
         </div>

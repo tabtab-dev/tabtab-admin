@@ -45,6 +45,26 @@ const optionsCache = new Map<string, FormOption[]>()
 const debounceTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 /**
+ * 虚拟滚动配置
+ */
+const virtualScrollConfig = computed(() => {
+  if (!props.field.virtualScroll) return null
+  if (props.field.virtualScroll === true) {
+    return { enabled: true, itemHeight: 32, overscan: 5 }
+  }
+  return {
+    enabled: props.field.virtualScroll.enabled ?? true,
+    itemHeight: props.field.virtualScroll.itemHeight ?? 32,
+    overscan: props.field.virtualScroll.overscan ?? 5
+  }
+})
+
+/**
+ * 获取异步选项防抖时间
+ */
+const optionsDebounceTime = computed(() => props.field.optionsDebounce ?? 300)
+
+/**
  * 计算字段是否禁用
  * @returns 是否禁用
  */
@@ -144,7 +164,7 @@ async function loadAsyncOptions(): Promise<void> {
     } finally {
       isLoadingOptions.value = false
     }
-  }, 300) // 300ms 防抖
+  }, optionsDebounceTime.value)
 }
 
 /**
@@ -264,6 +284,17 @@ defineExpose({
     :rules="processedRules"
     :label-col="field.labelCol"
     :wrapper-col="field.wrapperCol"
+    :tooltip="field.tooltip"
+    :has-feedback="field.hasFeedback"
+    :validate-status="field.validateStatus"
+    :help="field.help"
+    :extra="field.extra"
+    :required="field.required"
+    :validate-trigger="field.validateTrigger"
+    :validate-debounce="field.validateDebounce"
+    :validate-first="field.validateFirst"
+    :hidden="field.hiddenItem"
+    :layout="field.layout"
   >
     <!-- Input 输入框 -->
     <a-input
@@ -310,6 +341,8 @@ defineExpose({
       :disabled="isDisabled"
       :options="finalOptions"
       :loading="isLoadingOptions"
+      :virtual="virtualScrollConfig?.enabled"
+      :list-height="virtualScrollConfig ? virtualScrollConfig.itemHeight * 10 : undefined"
       style="width: 100%"
       v-bind="field.props"
     />
@@ -510,6 +543,7 @@ defineExpose({
       :placeholder="field.placeholder"
       :disabled="isDisabled"
       :options="finalOptions"
+      :virtual="virtualScrollConfig?.enabled"
       style="width: 100%"
       v-bind="field.props"
     />
@@ -521,6 +555,7 @@ defineExpose({
       :placeholder="field.placeholder"
       :disabled="isDisabled"
       :tree-data="finalOptions"
+      :virtual="virtualScrollConfig?.enabled"
       style="width: 100%"
       v-bind="field.props"
     />

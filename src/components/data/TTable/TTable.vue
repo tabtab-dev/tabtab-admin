@@ -6,6 +6,7 @@
  */
 import { computed, ref, watch, useSlots, h } from 'vue'
 import { ConfigProvider, Popconfirm, Button } from 'antdv-next'
+import zhCN from 'antdv-next/locale/zh_CN'
 import { cn } from '@/lib/utils'
 import { useTTableTheme } from './theme'
 import type {
@@ -543,7 +544,7 @@ watch(
 </script>
 
 <template>
-  <ConfigProvider :theme="ttableTheme">
+  <ConfigProvider :theme="ttableTheme" :locale="zhCN">
     <a-table
       ref="tableRef"
       :data-source="tableData"

@@ -103,5 +103,10 @@ export type {
   FormInstance,
   FormValidateError,
   FormValidateErrorInfo,
-  FieldChangeInfo
+  FieldChangeInfo,
+  // antdv-next 新特性类型
+  FormVariant,
+  ScrollToFirstErrorOptions,
+  FieldTooltip,
+  VirtualScrollConfig
 } from './types'

@@ -165,6 +165,30 @@ export interface GroupFieldConfig<T extends Record<string, any> = Record<string,
 }
 
 /**
+ * Tooltip 配置
+ */
+export interface FieldTooltip {
+  /** 提示图标 */
+  icon?: any
+  /** 提示标题 */
+  title?: string
+  /** 提示内容 */
+  content?: string
+}
+
+/**
+ * 虚拟滚动配置
+ */
+export interface VirtualScrollConfig {
+  /** 是否启用虚拟滚动 */
+  enabled?: boolean
+  /** 每项高度 */
+  itemHeight?: number
+  /** 可视区域外额外渲染的项数 */
+  overscan?: number
+}
+
+/**
  * 表单字段配置
  * @description 单个表单字段的完整配置
  * @template T - 表单数据类型
@@ -204,6 +228,34 @@ export interface FormField<T extends Record<string, any> = Record<string, any>> 
   listConfig?: ListFieldConfig<T>
   /** 分组配置（type='group' 时使用） */
   groupConfig?: GroupFieldConfig<T>
+  /** 标签提示信息 */
+  tooltip?: string | FieldTooltip
+  /** 是否显示校验状态图标 */
+  hasFeedback?: boolean
+  /** 校验状态 */
+  validateStatus?: 'success' | 'warning' | 'error' | 'validating'
+  /** 自定义提示信息 */
+  help?: string
+  /** 额外提示信息 */
+  extra?: string
+  /** 是否显示必填样式 */
+  required?: boolean
+  /** 校验触发时机 */
+  validateTrigger?: string | string[] | false
+  /** 延迟校验时间（毫秒） */
+  validateDebounce?: number
+  /** 是否在第一个规则失败后停止 */
+  validateFirst?: boolean | 'parallel'
+  /** 隐藏但仍收集与校验 */
+  hiddenItem?: boolean
+  /** 表单项布局 */
+  layout?: 'horizontal' | 'vertical'
+  /** 虚拟滚动配置（用于 Select/Cascader/TreeSelect） */
+  virtualScroll?: VirtualScrollConfig | boolean
+  /** 异步选项防抖时间（毫秒） */
+  optionsDebounce?: number
+  /** 异步选项缓存字段 */
+  cacheFields?: string[]
 }
 
 /**
@@ -273,6 +325,25 @@ export type LabelAlign = 'left' | 'right'
 export type FormSize = 'small' | 'middle' | 'large'
 
 /**
+ * 表单控件变体类型
+ */
+export type FormVariant = 'outlined' | 'filled' | 'borderless'
+
+/**
+ * 滚动到错误字段配置
+ */
+export interface ScrollToFirstErrorOptions {
+  /** 滚动行为 */
+  behavior?: ScrollBehavior
+  /** 垂直对齐方式 */
+  block?: ScrollLogicalPosition
+  /** 水平对齐方式 */
+  inline?: ScrollLogicalPosition
+  /** 偏移量 */
+  offset?: { top?: number; left?: number }
+}
+
+/**
  * 表单 Schema 配置
  * @description 表单的整体配置结构
  * @template T - 表单数据类型
@@ -298,6 +369,22 @@ export interface FormSchema<T extends Record<string, any> = Record<string, any>>
   actions?: FormActions
   /** 搜索表单配置 */
   searchConfig?: SearchConfig<T>
+  /** 表单控件变体 */
+  variant?: FormVariant
+  /** 校验触发时机 */
+  validateTrigger?: string | string[] | false
+  /** 延迟校验时间（毫秒） */
+  validateDebounce?: number
+  /** 是否在第一个规则失败后停止校验 */
+  validateFirst?: boolean | 'parallel'
+  /** 提交失败自动滚动到第一个错误字段 */
+  scrollToFirstError?: boolean | ScrollToFirstErrorOptions
+  /** 当字段被删除时保留字段值 */
+  preserve?: boolean
+  /** 当表单被卸载时清空表单值 */
+  clearOnDestroy?: boolean
+  /** 校验提示模板 */
+  validateMessages?: Record<string, string>
 }
 
 /**
