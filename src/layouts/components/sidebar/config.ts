@@ -20,13 +20,6 @@ import {
   Archive,
   MapPin,
   Building,
-  FlaskConical,
-  FormInput,
-  Table2,
-  MousePointerClick,
-  RefreshCw,
-  Paintbrush,
-  LayoutTemplate,
 } from 'lucide-vue-next';
 
 /**
@@ -216,61 +209,6 @@ export const defaultSidebarConfig: SidebarConfig = {
       icon: Settings,
       group: 'system',
     },
-    {
-      key: 'demo',
-      title: '功能演示',
-      path: '/demo',
-      icon: FlaskConical,
-      group: 'demo',
-      defaultExpanded: true,
-      children: [
-        {
-          key: 'smart-form-demo',
-          title: 'SmartForm 表单',
-          path: '/demo/smart-form',
-          icon: FormInput,
-        },
-        {
-          key: 'smart-table-demo',
-          title: 'SmartTable 表格',
-          path: '/demo/smart-table',
-          icon: Table2,
-          defaultExpanded: true,
-          children: [
-            {
-              key: 'smart-table-basic',
-              title: '基础示例',
-              path: '/demo/smart-table/basic',
-              icon: Table2,
-            },
-            {
-              key: 'smart-table-actions',
-              title: '操作菜单',
-              path: '/demo/smart-table/actions',
-              icon: MousePointerClick,
-            },
-            {
-              key: 'smart-table-async',
-              title: '异步加载',
-              path: '/demo/smart-table/async',
-              icon: RefreshCw,
-            },
-            {
-              key: 'smart-table-custom',
-              title: '自定义渲染',
-              path: '/demo/smart-table/custom',
-              icon: Paintbrush,
-            },
-            {
-              key: 'smart-table-slot',
-              title: '插槽渲染',
-              path: '/demo/smart-table/slot',
-              icon: LayoutTemplate,
-            },
-          ],
-        },
-      ],
-    },
   ],
 };
 
@@ -298,14 +236,6 @@ export const routeTitleMap: Record<string, string> = {
   '/analytics/sales': '销售分析',
   '/analytics/users': '用户分析',
   '/settings': '系统设置',
-  '/demo': '功能演示',
-  '/demo/smart-form': 'SmartForm 表单',
-  '/demo/smart-table': 'SmartTable 表格',
-  '/demo/smart-table/basic': '基础示例',
-  '/demo/smart-table/actions': '操作菜单',
-  '/demo/smart-table/async': '异步加载',
-  '/demo/smart-table/custom': '自定义渲染',
-  '/demo/smart-table/slot': '插槽渲染',
 };
 
 /**
@@ -336,5 +266,4 @@ export const menuGroups = [
   { key: 'main', title: '主要菜单' },
   { key: 'analytics', title: '数据分析' },
   { key: 'system', title: '系统' },
-  { key: 'demo', title: '功能演示' },
 ];
