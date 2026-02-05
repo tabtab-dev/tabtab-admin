@@ -57,11 +57,114 @@ const hasChildren = computed(() => {
 });
 
 /**
- * 缩进样式
+ * 缩进样式 - 增加深层级缩进距离以增强层级感
  */
 const indentStyle = computed(() => ({
-  paddingLeft: `${props.level * 12 + 12}px`,
+  paddingLeft: `${props.level * 16 + 12}px`,
 }));
+
+/**
+ * 是否为深层级（二级及以上）- 现在包含二级菜单
+ */
+const isDeepLevel = computed(() => props.level >= 1);
+
+/**
+ * 获取按钮样式类 - 根据层级和激活状态返回不同的样式
+ */
+const buttonClasses = computed(() => {
+  const baseClasses = 'w-full justify-between h-9 px-3 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden';
+  
+  if (props.item.disabled) {
+    return `${baseClasses} opacity-50 cursor-not-allowed`;
+  }
+  
+  // 根级菜单（level=0）使用主色调选中样式
+  if (!isDeepLevel.value) {
+    if (active.value || isChildActive.value) {
+      return `${baseClasses} bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90`;
+    }
+    return `${baseClasses} hover:bg-primary/10 hover:text-primary`;
+  }
+  
+  // 深层级菜单（level>=1，即二级及以上）使用次级选中样式
+  if (active.value) {
+    return `${baseClasses} bg-primary/10 text-primary border-l-2 border-primary/40 hover:bg-primary/15`;
+  }
+  if (isChildActive.value) {
+    return `${baseClasses} bg-muted/50 text-foreground border-l-2 border-primary/20 hover:bg-primary/5 hover:text-primary`;
+  }
+  return `${baseClasses} hover:bg-primary/5 hover:text-primary`;
+});
+
+/**
+ * 获取左侧指示器样式 - 根据层级返回不同的指示器样式
+ */
+const indicatorClasses = computed(() => {
+  // 深层级使用小圆点指示器
+  if (isDeepLevel.value) {
+    if (active.value) {
+      return 'absolute left-1 top-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full bg-primary/70';
+    }
+    if (isChildActive.value) {
+      return 'absolute left-1 top-1/2 -translate-y-1/2 h-1 w-1 rounded-full bg-primary/40';
+    }
+    return null;
+  }
+  
+  // 根级菜单使用渐变条指示器
+  if (active.value || isChildActive.value) {
+    const gradientClass = active.value 
+      ? 'from-primary-foreground/40 via-primary-foreground/60 to-primary-foreground/40'
+      : 'from-primary/30 via-primary/50 to-primary/30';
+    return `absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-gradient-to-b ${gradientClass}`;
+  }
+  return null;
+});
+
+/**
+ * 获取图标样式类
+ */
+const iconClasses = computed(() => {
+  const baseClasses = 'h-[18px] w-[18px] flex-shrink-0 transition-colors duration-200';
+  
+  // 深层级菜单样式
+  if (isDeepLevel.value) {
+    if (active.value) {
+      return `${baseClasses} text-primary`;
+    }
+    if (isChildActive.value) {
+      return `${baseClasses} text-primary/70 group-hover:text-primary`;
+    }
+    return `${baseClasses} text-muted-foreground group-hover:text-foreground`;
+  }
+  
+  // 根级菜单样式
+  if (active.value || isChildActive.value) {
+    return `${baseClasses} text-primary-foreground`;
+  }
+  return `${baseClasses} text-muted-foreground group-hover:text-foreground`;
+});
+
+/**
+ * 获取展开/收起图标样式类
+ */
+const expandIconClasses = computed(() => {
+  const baseClasses = 'h-3.5 w-3.5 transition-transform duration-200';
+
+  // 深层级菜单样式（level>=1）
+  if (props.level >= 1) {
+    if (active.value || isChildActive.value) {
+      return `${baseClasses} text-primary/70`;
+    }
+    return `${baseClasses} text-muted-foreground group-hover:text-foreground`;
+  }
+
+  // 根级菜单样式（level=0）
+  if (active.value || isChildActive.value) {
+    return `${baseClasses} text-primary-foreground/70`;
+  }
+  return `${baseClasses} text-muted-foreground group-hover:text-foreground`;
+});
 
 /**
  * 处理点击
@@ -92,27 +195,20 @@ const handleChildNavigate = (path: string): void => {
       :aria-haspopup="hasChildren ? true : undefined"
       :aria-current="getAriaCurrent(item.path)"
       :disabled="item.disabled"
-      class="w-full justify-between h-9 px-3 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden"
-      :class="[
-        (active || isChildActive)
-          ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90'
-          : 'hover:bg-primary/10 hover:text-primary',
-        item.disabled && 'opacity-50 cursor-not-allowed'
-      ]"
+      :class="buttonClasses"
       :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }"
       @click="handleClick"
     >
-      <!-- 激活状态左侧指示器 -->
+      <!-- 激活状态左侧指示器 - 根据层级显示不同样式 -->
       <span
-        v-if="active || isChildActive"
-        class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-gradient-to-b"
-        :class="active ? 'from-primary-foreground/40 via-primary-foreground/60 to-primary-foreground/40' : 'from-primary/30 via-primary/50 to-primary/30'"
+        v-if="indicatorClasses"
+        :class="indicatorClasses"
         aria-hidden="true"
       />
 
-      <!-- 悬停时的背景光效 -->
+      <!-- 悬停时的背景光效 - 仅非激活状态显示 -->
       <span
-        v-if="!(active || isChildActive)"
+        v-if="!active && !isChildActive"
         class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"
         aria-hidden="true"
       />
@@ -120,10 +216,7 @@ const handleChildNavigate = (path: string): void => {
       <div class="flex items-center gap-2.5 relative z-10 flex-1 min-w-0">
         <component
           :is="item.icon"
-          :class="[
-            'h-[18px] w-[18px] flex-shrink-0 transition-colors duration-200',
-            (active || isChildActive) ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-foreground'
-          ]"
+          :class="iconClasses"
           aria-hidden="true"
         />
         <span class="truncate font-medium text-sm">{{ item.title }}</span>
@@ -143,18 +236,12 @@ const handleChildNavigate = (path: string): void => {
         <template v-if="hasChildren && !collapsed">
           <ChevronDown
             v-if="isExpanded"
-            :class="[
-              'h-3.5 w-3.5 transition-transform duration-200',
-              (active || isChildActive) ? 'text-primary-foreground/70' : 'text-muted-foreground group-hover:text-foreground'
-            ]"
+            :class="expandIconClasses"
             aria-hidden="true"
           />
           <ChevronRight
             v-else
-            :class="[
-              'h-3.5 w-3.5 transition-transform duration-200',
-              (active || isChildActive) ? 'text-primary-foreground/70' : 'text-muted-foreground group-hover:text-foreground'
-            ]"
+            :class="expandIconClasses"
             aria-hidden="true"
           />
         </template>
@@ -175,12 +262,13 @@ const handleChildNavigate = (path: string): void => {
         role="menu"
         :aria-label="`${item.title} 子菜单`"
         class="space-y-0.5 overflow-hidden relative py-0.5"
+        :class="level >= 1 ? 'bg-muted/20 rounded-lg my-1' : ''"
         :style="indentStyle"
       >
-        <!-- 连接线装饰 -->
+        <!-- 连接线装饰 - 所有层级都显示，深层级使用更淡的颜色 -->
         <div
-          v-if="level < 2"
-          class="absolute left-2 top-1.5 bottom-1.5 w-px bg-gradient-to-b from-border/60 via-border/40 to-transparent rounded-full"
+          class="absolute top-1.5 bottom-1.5 w-px bg-gradient-to-b rounded-full"
+          :class="level >= 1 ? 'left-2 from-border/40 via-border/20 to-transparent' : 'left-2 from-border/60 via-border/40 to-transparent'"
         />
 
         <!-- 递归渲染子菜单项 -->

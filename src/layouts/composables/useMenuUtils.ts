@@ -10,11 +10,26 @@ export function useMenuUtils(expandedKeys?: Ref<Set<string>>) {
 
   /**
    * 判断是否激活
+   * 使用精确匹配策略，避免同级菜单的误判
    * @param path 菜单路径
    * @returns 是否激活
    */
   const isActive = (path: string): boolean => {
-    return route.path === path || (path !== '/' && route.path.startsWith(path));
+    // 1. 完全匹配
+    if (route.path === path) return true;
+
+    // 2. 根路径特殊处理
+    if (path === '/') return false;
+
+    // 3. 子路由匹配 - 只匹配直接子级，不匹配其他分支的子路由
+    // 例如：/products 匹配 /products/123，但不匹配 /products/categories/xxx
+    const pathWithSlash = path.endsWith('/') ? path : `${path}/`;
+    if (!route.path.startsWith(pathWithSlash)) return false;
+
+    // 获取剩余路径部分
+    const remainingPath = route.path.slice(pathWithSlash.length);
+    // 如果剩余部分不包含 /，说明是直接子级；否则是更深层的子路由
+    return !remainingPath.includes('/');
   };
 
   /**

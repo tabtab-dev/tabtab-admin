@@ -50,6 +50,30 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '库存管理' }
       },
       {
+        path: 'products/categories/tags',
+        name: 'Tags',
+        component: () => import('@/views/Tags.vue'),
+        meta: { title: '标签管理' }
+      },
+      {
+        path: 'products/inventory/warehouse',
+        name: 'Warehouse',
+        component: () => import('@/views/Warehouse.vue'),
+        meta: { title: '仓库管理' }
+      },
+      {
+        path: 'products/inventory/stock',
+        name: 'Stock',
+        component: () => import('@/views/Stock.vue'),
+        meta: { title: '库存盘点' }
+      },
+      {
+        path: 'products/inventory/logistics',
+        name: 'Logistics',
+        component: () => import('@/views/Logistics.vue'),
+        meta: { title: '物流管理' }
+      },
+      {
         path: 'analytics',
         name: 'Analytics',
         component: () => import('@/views/Analytics.vue'),

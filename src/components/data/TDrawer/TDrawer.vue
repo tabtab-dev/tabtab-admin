@@ -80,20 +80,18 @@ const emit = defineEmits<TDrawerEmits>()
 const internalOpen = ref(props.open)
 
 /**
- * 使用 VueUse 的 useScrollLock 锁定 html 和 body 滚动
+ * 使用 VueUse 的 useScrollLock 锁定 body 滚动
  * 抽屉打开时自动锁定外层滚动，关闭时恢复
  */
-const isHtmlLocked = useScrollLock(document.documentElement)
-const isBodyLocked = useScrollLock(document.body)
+const isLocked = useScrollLock(document.body)
 
 /**
- * 监听抽屉状态，自动锁定/解锁 html 和 body 滚动
+ * 监听抽屉状态，自动锁定/解锁 body 滚动
  */
 watch(
   () => internalOpen.value,
   (open) => {
-    isHtmlLocked.value = open
-    isBodyLocked.value = open
+    isLocked.value = open
   },
   { immediate: true }
 )
