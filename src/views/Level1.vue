@@ -297,4 +297,161 @@ function handleAddSubmit(values: Record<string, any>) {
     description: values.description
   })
   isAddOpen.value = false
-  addFormData.value = { name: '', code: '', sort: 0
+  addFormData.value = { name: '', code: '', sort: 0, status: 'active', description: '' }
+}
+
+function handleEdit(item: Category) {
+  editingItem.value = item
+  editFormData.value = {
+    id: item.id,
+    name: item.name,
+    code: item.code,
+    sort: item.sort,
+    status: item.status,
+    description: item.description || ''
+  }
+  isEditOpen.value = true
+}
+
+function handleEditSubmit(values: Record<string, any>) {
+  if (editingItem.value) {
+    categoriesStore.updateCategory(editingItem.value.id, {
+      name: values.name,
+      code: values.code,
+      sort: Number(values.sort),
+      status: values.status,
+      description: values.description
+    })
+    isEditOpen.value = false
+    editingItem.value = null
+  }
+}
+
+function handleDelete(id: string) {
+  categoriesStore.deleteCategory(id)
+}
+
+const selectedRowKeys = ref<(string | number)[]>([])
+function handleSelectChange(keys: (string | number)[]) {
+  selectedRowKeys.value = keys
+}
+</script>
+
+<template>
+  <div class="space-y-6">
+    <!-- 页面标题 -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">一级分类</h1>
+        <p class="text-muted-foreground mt-1.5 text-sm">管理商品一级分类</p>
+      </div>
+      <Button class="gap-2" @click="isAddOpen = true">
+        <Plus class="h-4 w-4" />
+        添加一级分类
+      </Button>
+    </div>
+
+    <!-- 新增弹窗 -->
+    <TModal v-model:open="isAddOpen" title="添加一级分类" width="560" :footer="null">
+      <TForm v-model="addFormData" :schema="addSchema" @submit="handleAddSubmit" />
+    </TModal>
+
+    <!-- 编辑弹窗 -->
+    <TModal v-model:open="isEditOpen" title="编辑一级分类" width="560" :footer="null">
+      <TForm v-if="editingItem" v-model="editFormData" :schema="editSchema" @submit="handleEditSubmit" />
+    </TModal>
+
+    <!-- 统计标签 -->
+    <div class="flex flex-wrap gap-3">
+      <div
+        v-for="stat in statistics"
+        :key="stat.title"
+        class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
+      >
+        <component :is="stat.icon" :class="['h-4 w-4', stat.color]" />
+        <div class="flex items-baseline gap-2">
+          <span class="text-lg font-semibold">{{ stat.value }}</span>
+          <span class="text-xs text-muted-foreground">{{ stat.title }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 搜索表单 -->
+    <div class="bg-muted/30 rounded-lg p-4">
+      <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+        <div class="flex-1">
+          <TForm v-model="searchFormData" :schema="searchSchema" />
+        </div>
+        <div v-if="selectedRowKeys.length > 0" class="flex items-center gap-2 lg:border-l lg:pl-4">
+          <span class="text-sm text-muted-foreground">已选 {{ selectedRowKeys.length }} 项</span>
+          <Button
+            variant="outline"
+            size="sm"
+            class="h-8 text-xs text-destructive hover:text-destructive"
+            @click="categoriesStore.batchDeleteCategories(selectedRowKeys.map(String))"
+          >
+            批量删除
+          </Button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 数据表格 -->
+    <Card class="border-0 shadow-sm">
+      <CardHeader class="pb-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <CardTitle class="text-base font-semibold">一级分类列表</CardTitle>
+            <span class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+              共 {{ tableData.length }} 个
+            </span>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent class="pt-0">
+        <TTable
+          ref="tableRef"
+          v-model:data="tableData"
+          :schema="tableSchema"
+          @select-change="handleSelectChange"
+        >
+          <!-- 名称列 -->
+          <template #name="slotProps">
+            <div class="flex items-center gap-2">
+              <FolderTree class="h-4 w-4 text-blue-500" />
+              <span class="font-medium">{{ (slotProps as any).text }}</span>
+            </div>
+          </template>
+
+          <!-- 状态列 -->
+          <template #status="slotProps">
+            <Badge
+              :class="{
+                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as any).text === 'active',
+                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as any).text === 'inactive'
+              }"
+              variant="outline"
+            >
+              {{ (slotProps as any).text === 'active' ? '启用' : '禁用' }}
+            </Badge>
+          </template>
+
+          <!-- 空状态 -->
+          <template #emptyText>
+            <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
+              <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                <FolderTree class="w-8 h-8 text-muted-foreground/50" />
+              </div>
+              <p class="text-base font-medium mb-1">暂无一级分类</p>
+              <p class="text-sm text-muted-foreground mb-4">开始添加您的第一个一级分类吧</p>
+              <Button size="sm" @click="isAddOpen = true">
+                <Plus class="h-4 w-4 mr-1" />
+                添加分类
+              </Button>
+            </div>
+          </template>
+        </TTable>
+      </CardContent>
+    </Card>
+  </div>
+</template>

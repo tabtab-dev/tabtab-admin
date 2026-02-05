@@ -74,10 +74,52 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '物流管理' }
       },
       {
+        path: 'products/categories/level1',
+        name: 'Level1',
+        component: () => import('@/views/Level1.vue'),
+        meta: { title: '一级分类' }
+      },
+      {
+        path: 'products/categories/level2',
+        name: 'Level2',
+        component: () => import('@/views/Level2.vue'),
+        meta: { title: '二级分类' }
+      },
+      {
+        path: 'products/inventory/warehouse/beijing',
+        name: 'Beijing',
+        component: () => import('@/views/Beijing.vue'),
+        meta: { title: '北京仓库' }
+      },
+      {
+        path: 'products/inventory/warehouse/shanghai',
+        name: 'Shanghai',
+        component: () => import('@/views/Shanghai.vue'),
+        meta: { title: '上海仓库' }
+      },
+      {
         path: 'analytics',
         name: 'Analytics',
         component: () => import('@/views/Analytics.vue'),
         meta: { title: '数据分析' }
+      },
+      {
+        path: 'analytics/traffic',
+        name: 'Traffic',
+        component: () => import('@/views/Traffic.vue'),
+        meta: { title: '流量分析' }
+      },
+      {
+        path: 'analytics/sales',
+        name: 'Sales',
+        component: () => import('@/views/Sales.vue'),
+        meta: { title: '销售分析' }
+      },
+      {
+        path: 'analytics/users',
+        name: 'UsersAnalysis',
+        component: () => import('@/views/UsersAnalysis.vue'),
+        meta: { title: '用户分析' }
       },
       {
         path: 'settings',
