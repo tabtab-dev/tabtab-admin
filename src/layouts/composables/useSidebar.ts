@@ -1,7 +1,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useWindowSize } from '@vueuse/core';
-import { defaultSidebarConfig, type SidebarConfig } from '@/layouts/components/sidebar/config';
+import { defaultSidebarConfig, type SidebarConfig } from '@/components/layout/sidebar/config';
 
 /**
  * 存储键名
