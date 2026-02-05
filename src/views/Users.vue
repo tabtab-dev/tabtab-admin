@@ -15,11 +15,31 @@ import { Badge } from '@/components/ui/badge'
 import { TModal } from '@/components/data/TModal'
 import type { TModalExpose } from '@/components/data/TModal'
 import { useUsersStore, type User } from '@/stores/users'
-import { Plus } from 'lucide-vue-next'
-import { Avatar, Space, Tag } from 'antdv-next'
+import { Plus, Users, UserCheck, UserCog, TrendingUp, Search } from 'lucide-vue-next'
+import { Avatar, Space, Tag, Statistic } from 'antdv-next'
 
 // ==================== Store ====================
 const usersStore = useUsersStore()
+
+// ==================== 统计数据 ====================
+const statistics = computed(() => {
+  const users = usersStore.users
+  const total = users.length
+  const active = users.filter(u => u.status === 'active').length
+  const admins = users.filter(u => u.role === 'admin').length
+  const today = users.filter(u => {
+    const created = new Date(u.createdAt)
+    const now = new Date()
+    return created.toDateString() === now.toDateString()
+  }).length
+
+  return [
+    { title: '总用户', value: total, icon: Users, color: 'text-blue-500', bgColor: 'bg-blue-50' },
+    { title: '活跃用户', value: active, icon: UserCheck, color: 'text-green-500', bgColor: 'bg-green-50' },
+    { title: '管理员', value: admins, icon: UserCog, color: 'text-purple-500', bgColor: 'bg-purple-50' },
+    { title: '今日新增', value: today, icon: TrendingUp, color: 'text-orange-500', bgColor: 'bg-orange-50' }
+  ]
+})
 
 // ==================== 搜索表单 ====================
 const searchFormData = ref({
@@ -34,32 +54,35 @@ const searchSchema: FormSchema = {
     {
       name: 'keyword',
       type: 'input',
-      label: '用户名',
-      placeholder: '请输入用户名'
+      label: '',
+      placeholder: '搜索用户名或邮箱...',
+      className: 'w-[200px]'
     },
     {
       name: 'role',
       type: 'select',
-      label: '角色',
-      placeholder: '请选择角色',
+      label: '',
+      placeholder: '全部角色',
       options: [
-        { label: '全部', value: '' },
+        { label: '全部角色', value: '' },
         { label: '管理员', value: 'admin' },
         { label: '编辑', value: 'editor' },
         { label: '查看者', value: 'viewer' }
-      ]
+      ],
+      className: 'w-[140px]'
     },
     {
       name: 'status',
       type: 'select',
-      label: '状态',
-      placeholder: '请选择状态',
+      label: '',
+      placeholder: '全部状态',
       options: [
-        { label: '全部', value: '' },
+        { label: '全部状态', value: '' },
         { label: '活跃', value: 'active' },
         { label: '非活跃', value: 'inactive' },
         { label: '已暂停', value: 'suspended' }
-      ]
+      ],
+      className: 'w-[140px]'
     }
   ],
   searchConfig: {
@@ -71,14 +94,10 @@ const searchSchema: FormSchema = {
     resetText: '重置',
     showReset: true,
     onSearch: (values) => {
-      // 更新搜索条件，触发表格数据过滤
       usersStore.searchQuery = values.keyword || ''
-      // 这里可以添加更多过滤逻辑
-      console.log('搜索条件:', values)
     },
     onReset: () => {
       usersStore.searchQuery = ''
-      console.log('重置搜索')
     }
   }
 }
@@ -368,7 +387,6 @@ function handleAddSubmit(values: Record<string, any>): void {
     status: values.status
   })
   isAddDialogOpen.value = false
-  // 重置表单
   addFormData.value = {
     name: '',
     email: '',
@@ -484,33 +502,56 @@ function handleBatchDelete(): void {
       />
     </TModal>
 
+    <!-- 统计卡片 -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <Card
+        v-for="stat in statistics"
+        :key="stat.title"
+        class="border-0 shadow-sm hover:shadow-md transition-shadow"
+      >
+        <CardContent class="p-4">
+          <div class="flex items-center gap-4">
+            <div :class="['p-3 rounded-xl', stat.bgColor]">
+              <component :is="stat.icon" :class="['h-5 w-5', stat.color]" />
+            </div>
+            <div>
+              <p class="text-sm text-muted-foreground">{{ stat.title }}</p>
+              <p class="text-2xl font-bold">{{ stat.value }}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+
     <!-- 搜索表单 -->
-    <Card class="border-dashed">
-      <CardContent>
-        <TForm v-model="searchFormData" :schema="searchSchema" />
-      </CardContent>
-    </Card>
+    <div class="bg-muted/30 rounded-lg p-4">
+      <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+        <div class="flex-1">
+          <TForm v-model="searchFormData" :schema="searchSchema" />
+        </div>
+        <div v-if="selectedRowKeys.length > 0" class="flex items-center gap-2 lg:border-l lg:pl-4">
+          <span class="text-sm text-muted-foreground">已选 {{ selectedRowKeys.length }} 项</span>
+          <Button
+            variant="outline"
+            size="sm"
+            class="h-8 text-xs text-destructive hover:text-destructive"
+            @click="handleBatchDelete"
+          >
+            批量删除
+          </Button>
+        </div>
+      </div>
+    </div>
 
     <!-- 用户表格 -->
-    <Card>
+    <Card class="border-0 shadow-sm">
       <CardHeader class="pb-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <CardTitle class="text-lg">用户列表</CardTitle>
+            <CardTitle class="text-base font-semibold">用户列表</CardTitle>
             <span class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
               共 {{ tableData.length }} 人
             </span>
-          </div>
-          <div class="flex items-center gap-2">
-            <Button
-              v-if="selectedRowKeys.length > 0"
-              variant="outline"
-              size="sm"
-              class="h-8 text-xs"
-              @click="handleBatchDelete"
-            >
-              批量删除 ({{ selectedRowKeys.length }})
-            </Button>
           </div>
         </div>
       </CardHeader>
@@ -558,6 +599,21 @@ function handleBatchDelete(): void {
             >
               {{ statusConfig[(slotProps as any).text]?.text || (slotProps as any).text }}
             </Badge>
+          </template>
+
+          <!-- 空状态 -->
+          <template #emptyText>
+            <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
+              <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                <Search class="w-8 h-8 text-muted-foreground/50" />
+              </div>
+              <p class="text-base font-medium mb-1">暂无用户数据</p>
+              <p class="text-sm text-muted-foreground mb-4">开始添加您的第一个用户吧</p>
+              <Button size="sm" @click="isAddDialogOpen = true">
+                <Plus class="h-4 w-4 mr-1" />
+                添加用户
+              </Button>
+            </div>
           </template>
         </TTable>
       </CardContent>

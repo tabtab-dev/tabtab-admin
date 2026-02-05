@@ -197,6 +197,8 @@ const open = ref(false)
 - [x] 用户管理
 - [x] TTable 组件
 - [x] TForm 组件
+- [x] TModal 组件
+- [x] TDrawer 组件
 - [ ] 权限控制
 - [ ] 更多数据可视化组件
 
