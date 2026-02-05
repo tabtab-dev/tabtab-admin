@@ -2,16 +2,16 @@
  * TForm 组件样式
  *
  * @description TForm 组件的样式定义，与 shadcn-vue 主题对齐
- * @note Dark 模式通过 antdv-next 的 theme.darkAlgorithm 自动处理，无需额外 CSS
+ * @note 大部分样式通过 antdv-next 的 theme token 配置，此处仅保留布局和特殊样式
  */
 
 @reference "@/assets/css/app.css";
 
-/* ==================== 基础表单样式 ==================== */
+/* ==================== 表单基础样式 ==================== */
 
-/* 表单标签样式 - 对齐 shadcn-vue */
+/* 表单标签样式 */
 .t-form :deep(.ant-form-item-label) {
-  @apply font-medium text-foreground;
+  @apply font-medium;
 }
 
 /* 错误提示样式 */
@@ -19,364 +19,12 @@
   @apply text-sm text-destructive mt-1;
 }
 
-/* 输入框样式对齐 */
-.t-form :deep(.ant-input),
-.t-form :deep(.ant-input-password),
-.t-form :deep(.ant-input-number-input) {
-  @apply rounded-md border-border bg-background text-foreground;
-  @apply placeholder:text-muted-foreground;
-  @apply focus:border-ring focus:ring-2 focus:ring-ring/50;
-}
-
-/* 输入框聚焦状态 */
-.t-form :deep(.ant-input:focus),
-.t-form :deep(.ant-input-focused),
-.t-form :deep(.ant-input-password:focus),
-.t-form :deep(.ant-input-number:focus),
-.t-form :deep(.ant-input-number-focused) {
-  @apply border-ring ring-2 ring-ring/50;
-}
-
-/* 选择器样式 */
-.t-form :deep(.ant-select-selector) {
-  @apply rounded-md border-border bg-background text-foreground;
-  @apply focus:border-ring focus:ring-2 focus:ring-ring/50;
-}
-
-/* 选择器聚焦状态 */
-.t-form :deep(.ant-select-focused .ant-select-selector) {
-  @apply border-ring ring-2 ring-ring/50;
-}
-
-/* 文本域样式 */
-.t-form :deep(.ant-input-textarea) textarea {
-  @apply rounded-md border-border bg-background text-foreground;
-}
-
-/* 单选框和复选框样式 */
-.t-form :deep(.ant-radio-wrapper),
-.t-form :deep(.ant-checkbox-wrapper) {
-  @apply text-foreground;
-}
-
-/* 开关样式 */
-.t-form :deep(.ant-switch) {
-  @apply bg-muted;
-}
-
-.t-form :deep(.ant-switch-checked) {
-  @apply bg-primary;
-}
-
-/* 日期选择器样式 */
-.t-form :deep(.ant-picker) {
-  @apply rounded-md border-border bg-background text-foreground;
-}
-
-.t-form :deep(.ant-picker-focused) {
-  @apply border-ring ring-2 ring-ring/50;
-}
-
-/* 级联选择器样式 */
-.t-form :deep(.ant-cascader-picker) {
-  @apply rounded-md border-border bg-background text-foreground;
-}
-
-/* 树形选择器样式 */
-.t-form :deep(.ant-tree-select) .ant-select-selector {
-  @apply rounded-md border-border bg-background text-foreground;
-}
-
-/* 禁用状态 */
-.t-form :deep(.ant-input-disabled),
-.t-form :deep(.ant-select-disabled .ant-select-selector),
-.t-form :deep(.ant-picker-disabled) {
-  @apply bg-muted text-muted-foreground;
-}
-
-/* 上传组件样式 */
-.t-form :deep(.ant-upload) {
-  @apply text-foreground;
-}
-
-.t-form :deep(.ant-upload-list-item) {
-  @apply text-foreground;
-}
-
-.t-form :deep(.ant-upload-list-item-name) {
-  @apply text-foreground;
-}
-
-/* 穿梭框样式 */
-.t-form :deep(.ant-transfer) {
-  @apply text-foreground;
-}
-
-.t-form :deep(.ant-transfer-list) {
-  @apply border-border bg-background;
-}
-
-.t-form :deep(.ant-transfer-list-header) {
-  @apply bg-muted/50 text-foreground border-border;
-}
-
-.t-form :deep(.ant-transfer-list-body) {
-  @apply bg-background;
-}
-
-.t-form :deep(.ant-transfer-list-content-item) {
-  @apply text-foreground;
-}
-
-.t-form :deep(.ant-transfer-list-content-item:hover) {
-  @apply bg-muted/50;
-}
-
-/* 分段控制器样式 */
-.t-form :deep(.ant-segmented) {
-  @apply bg-muted text-foreground;
-}
-
-.t-form :deep(.ant-segmented-item-selected) {
-  @apply bg-background text-foreground shadow-sm;
-}
-
-.t-form :deep(.ant-segmented-item:hover:not(.ant-segmented-item-selected)) {
-  @apply text-foreground;
-}
-
-/* 颜色选择器样式 */
-.t-form input[type="color"] {
-  @apply border-border bg-background;
-}
-
-.t-form input[type="color"]:disabled {
-  @apply opacity-50 cursor-not-allowed;
-}
-
-/* 时间范围选择器样式 */
-.t-form :deep(.ant-picker-range) {
-  @apply rounded-md border-border bg-background text-foreground;
-}
-
-.t-form :deep(.ant-picker-range-focused) {
-  @apply border-ring ring-2 ring-ring/50;
-}
-
-/* 滑块样式 */
-.t-form :deep(.ant-slider) {
-  @apply text-foreground;
-}
-
-.t-form :deep(.ant-slider-rail) {
-  @apply bg-muted;
-}
-
-.t-form :deep(.ant-slider-track) {
-  @apply bg-primary;
-}
-
-.t-form :deep(.ant-slider-handle) {
-  @apply border-primary bg-background;
-}
-
-/* 评分样式 */
-.t-form :deep(.ant-rate) {
-  @apply text-foreground;
-}
-
-.t-form :deep(.ant-rate-star) {
-  @apply text-muted-foreground;
-}
-
-.t-form :deep(.ant-rate-star-full) {
-  @apply text-primary;
-}
-
-/* 数字输入框样式 */
-.t-form :deep(.ant-input-number) {
-  @apply rounded-md border-border bg-background text-foreground;
-}
-
-.t-form :deep(.ant-input-number-handler-wrap) {
-  @apply border-border bg-muted;
-}
-
-.t-form :deep(.ant-input-number-handler) {
-  @apply border-border;
-}
-
-.t-form :deep(.ant-input-number-handler-up-inner),
-.t-form :deep(.ant-input-number-handler-down-inner) {
-  @apply text-muted-foreground;
-}
-
-/* 自动完成样式 */
-.t-form :deep(.ant-select-dropdown) {
-  @apply bg-popover border-border;
-}
-
-.t-form :deep(.ant-select-item) {
-  @apply text-foreground;
-}
-
-.t-form :deep(.ant-select-item-option-active) {
-  @apply bg-muted;
-}
-
-.t-form :deep(.ant-select-item-option-selected) {
-  @apply bg-primary/10;
-}
-
-/* 提及样式 */
-.t-form :deep(.ant-mentions) {
-  @apply rounded-md border-border bg-background text-foreground;
-}
-
-.t-form :deep(.ant-mentions-focused) {
-  @apply border-ring ring-2 ring-ring/50;
-}
-
-/* 下拉菜单样式 */
-.t-form :deep(.ant-dropdown-menu) {
-  @apply bg-popover border-border;
-}
-
-.t-form :deep(.ant-dropdown-menu-item) {
-  @apply text-foreground;
-}
-
-.t-form :deep(.ant-dropdown-menu-item:hover) {
-  @apply bg-muted;
-}
-
-/* 日期选择器面板样式 */
-.t-form :deep(.ant-picker-panel) {
-  @apply bg-popover border-border;
-}
-
-.t-form :deep(.ant-picker-header) {
-  @apply border-border text-foreground;
-}
-
-.t-form :deep(.ant-picker-header-view) {
-  @apply text-foreground;
-}
-
-.t-form :deep(.ant-picker-cell) {
-  @apply text-foreground;
-}
-
-.t-form :deep(.ant-picker-cell-in-view) {
-  @apply text-foreground;
-}
-
-.t-form :deep(.ant-picker-cell-selected .ant-picker-cell-inner) {
-  @apply bg-primary text-primary-foreground;
-}
-
-.t-form :deep(.ant-picker-cell-today .ant-picker-cell-inner::before) {
-  @apply border-primary;
-}
-
-.t-form :deep(.ant-picker-time-panel-column) {
-  @apply bg-popover;
-}
-
-.t-form :deep(.ant-picker-time-panel-cell-inner) {
-  @apply text-foreground;
-}
-
-.t-form :deep(.ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner) {
-  @apply bg-primary text-primary-foreground;
-}
-
-/* 级联选择器下拉样式 */
-.t-form :deep(.ant-cascader-menus) {
-  @apply bg-popover border-border;
-}
-
-.t-form :deep(.ant-cascader-menu) {
-  @apply border-border;
-}
-
-.t-form :deep(.ant-cascader-menu-item) {
-  @apply text-foreground;
-}
-
-.t-form :deep(.ant-cascader-menu-item:hover) {
-  @apply bg-muted;
-}
-
-.t-form :deep(.ant-cascader-menu-item-active) {
-  @apply bg-primary/10;
-}
-
-/* 树形选择器下拉样式 */
-.t-form :deep(.ant-select-tree) {
-  @apply bg-popover;
-}
-
-.t-form :deep(.ant-select-tree-node-content-wrapper) {
-  @apply text-foreground;
-}
-
-.t-form :deep(.ant-select-tree-node-content-wrapper:hover) {
-  @apply bg-muted;
-}
-
-.t-form :deep(.ant-select-tree-node-selected) {
-  @apply bg-primary/10;
-}
-
-/* 表单验证错误样式 */
-.t-form :deep(.ant-form-item-has-error .ant-input),
-.t-form :deep(.ant-form-item-has-error .ant-input-number),
-.t-form :deep(.ant-form-item-has-error .ant-picker),
-.t-form :deep(.ant-form-item-has-error .ant-select-selector) {
-  @apply border-destructive;
-}
-
-/* 表单验证成功样式 */
-.t-form :deep(.ant-form-item-has-success .ant-input),
-.t-form :deep(.ant-form-item-has-success .ant-input-number),
-.t-form :deep(.ant-form-item-has-success .ant-picker),
-.t-form :deep(.ant-form-item-has-success .ant-select-selector) {
-  @apply border-primary;
-}
-
-/* 加载状态样式 */
-.t-form :deep(.ant-select-loading .ant-select-selector) {
-  @apply bg-muted;
-}
-
-/* 占位符样式 */
-.t-form :deep(.ant-input::placeholder),
-.t-form :deep(.ant-input-number-input::placeholder) {
-  @apply text-muted-foreground;
-}
-
-/* 清除按钮样式 */
-.t-form :deep(.ant-input-clear-icon),
-.t-form :deep(.ant-select-clear) {
-  @apply text-muted-foreground hover:text-foreground;
-}
-
-/* 后缀图标样式 */
-.t-form :deep(.ant-picker-suffix),
-.t-form :deep(.ant-select-arrow),
-.t-form :deep(.ant-cascader-picker-arrow) {
-  @apply text-muted-foreground;
-}
-
-/* ==================== 搜索表单样式 ==================== */
+/* ==================== 搜索表单布局样式 ==================== */
 
 /* 搜索表单容器 */
 .t-form-search {
   @apply w-full;
 }
-
-/* ========== 同行布局样式 ========== */
 
 /* 同行布局容器 */
 .t-form-search .search-form-inline {
@@ -410,14 +58,12 @@
   @apply flex items-center gap-2 flex-shrink-0 pb-[1px];
 }
 
-/* ========== 网格布局样式 ========== */
-
-/* 搜索表单网格容器 */
+/* 网格布局容器 */
 .t-form-search .search-form-container {
   @apply w-full;
 }
 
-/* 搜索表单字段项 */
+/* 网格布局字段项 */
 .t-form-search .search-form-item {
   @apply mb-0;
 }
@@ -440,14 +86,16 @@
   @apply overflow-hidden;
 }
 
-/* 响应式布局 - 移动端 */
+/* ==================== 响应式布局 ==================== */
+
+/* 移动端 */
 @media (max-width: 640px) {
   .t-form-search .search-form-container {
     grid-template-columns: 1fr !important;
   }
 }
 
-/* 响应式布局 - 平板 */
+/* 平板 */
 @media (min-width: 641px) and (max-width: 1024px) {
   .t-form-search .search-form-container {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
