@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 /**
  * 库存管理页
  */
@@ -10,7 +10,9 @@ import type { FormSchema } from '@/components/data/TForm'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useInventoryStore } from '@/stores/business/inventory'
+import type { StockItem } from '@/types/models'
+import { inventoryApi } from '@/api'
+import { useTableData } from '@/composables'
 import {
   Warehouse,
   Package,
@@ -18,16 +20,68 @@ import {
   CheckCircle
 } from 'lucide-vue-next'
 
-const inventoryStore = useInventoryStore()
+const {
+  data: stockItems,
+  loading,
+  searchQuery,
+  filters,
+  filteredData,
+  paginatedData,
+  total,
+  statistics,
+  fetchData,
+} = useTableData<StockItem>({
+  apiCall: () => inventoryApi.getStockItems(),
+  filterFn: (items, query, filterValues) => {
+    let result = items
+
+    if (query) {
+      const lowerQuery = query.toLowerCase()
+      result = result.filter(
+        item =>
+          item.productName.toLowerCase().includes(lowerQuery) ||
+          item.sku.toLowerCase().includes(lowerQuery)
+      )
+    }
+
+    if (filterValues.warehouseId) {
+      result = result.filter(item => item.warehouseId === filterValues.warehouseId)
+    }
+
+    return result
+  },
+  statisticsFn: (items) => {
+    const warehouseIds = new Set(items.map(item => item.warehouseId))
+    const totalWarehouses = warehouseIds.size
+    const totalProducts = items.reduce((sum, item) => sum + item.quantity, 0)
+    const lowStockItems = items.filter(item => item.available < item.minStock).length
+
+    return {
+      totalWarehouses,
+      activeWarehouses: totalWarehouses,
+      totalProducts,
+      lowStockItems,
+    }
+  },
+})
+
+// 仓库列表（用于筛选）
+const warehouses = computed(() => {
+  const warehouseIds = new Set(stockItems.value.map(item => item.warehouseId))
+  return Array.from(warehouseIds).map(id => ({
+    id,
+    name: stockItems.value.find(item => item.warehouseId === id)?.warehouseName || `仓库 ${id}`
+  }))
+})
 
 // 统计标签
-const statistics = computed(() => {
-  const stats = inventoryStore.statistics
+const statisticsCards = computed(() => {
+  const stats = statistics.value || {}
   return [
-    { title: '仓库总数', value: stats.totalWarehouses, icon: Warehouse, color: 'text-blue-500' },
-    { title: '运营中', value: stats.activeWarehouses, icon: CheckCircle, color: 'text-green-500' },
-    { title: '库存总量', value: stats.totalProducts, icon: Package, color: 'text-purple-500' },
-    { title: '库存预警', value: stats.lowStockItems, icon: AlertTriangle, color: 'text-red-500' }
+    { title: '仓库总数', value: stats.totalWarehouses || 0, icon: Warehouse, color: 'text-blue-500' },
+    { title: '运营中', value: stats.activeWarehouses || 0, icon: CheckCircle, color: 'text-green-500' },
+    { title: '库存总量', value: stats.totalProducts || 0, icon: Package, color: 'text-purple-500' },
+    { title: '库存预警', value: stats.lowStockItems || 0, icon: AlertTriangle, color: 'text-red-500' }
   ]
 })
 
@@ -54,7 +108,7 @@ const searchSchema: FormSchema = {
       placeholder: '全部仓库',
       options: [
         { label: '全部仓库', value: '' },
-        ...inventoryStore.warehouses.map(w => ({ label: w.name, value: w.id }))
+        ...warehouses.value.map(w => ({ label: w.name, value: w.id }))
       ],
       className: 'w-[140px]'
     }
@@ -67,12 +121,14 @@ const searchSchema: FormSchema = {
     resetText: '重置',
     showReset: true,
     onSearch: (values) => {
-      inventoryStore.searchQuery = values.keyword || ''
-      inventoryStore.warehouseFilter = values.warehouse || ''
+      searchQuery.value = values.keyword || ''
+      filters.value = {
+        warehouseId: values.warehouse,
+      }
     },
     onReset: () => {
-      inventoryStore.searchQuery = ''
-      inventoryStore.warehouseFilter = ''
+      searchQuery.value = ''
+      filters.value = {}
     }
   }
 }
@@ -132,9 +188,9 @@ const tableSchema = computed<TableSchema>(() => ({
   },
   showTotalBadge: true
 }))
-
+// 表格数据
 const tableData = computed(() => {
-  return inventoryStore.filteredStock.map(item => ({ ...item, key: item.id }))
+  return paginatedData.value.map(item => ({ ...item, key: item.id }))
 })
 
 const selectedRowKeys = ref<(string | number)[]>([])

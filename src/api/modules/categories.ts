@@ -3,7 +3,7 @@
  * @description 分类和标签的增删改查等接口
  */
 import { request } from '../client';
-import type { Category, Tag } from '@/stores/business/categories';
+import type { Category, Tag } from '@/types/models';
 import type { PaginationData } from '../types';
 
 /**

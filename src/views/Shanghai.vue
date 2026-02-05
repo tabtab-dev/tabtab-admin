@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 /**
  * 上海仓库页
  */
@@ -9,17 +9,37 @@ import type { TableSchema } from '@/components/data/TTable'
 import type { FormSchema } from '@/components/data/TForm'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useInventoryStore } from '@/stores/business/inventory'
+import type { StockItem } from '@/types/models'
+import { inventoryApi } from '@/api'
+import { useTableData } from '@/composables'
 import { Building, Package, AlertTriangle, CheckCircle, MapPin } from 'lucide-vue-next'
 
-const inventoryStore = useInventoryStore()
-const shanghaiWarehouseId = '2'
+const {
+  data: stockItems,
+  loading,
+  searchQuery,
+  filteredData,
+  paginatedData,
+  fetchData,
+} = useTableData<StockItem>({
+  apiCall: () => inventoryApi.getStockItems(),
+  filterFn: (items, query) => {
+    let result = items.filter(item => item.warehouseId === '2')
 
-onMounted(() => {
-  inventoryStore.warehouseFilter = shanghaiWarehouseId
+    if (query) {
+      const lowerQuery = query.toLowerCase()
+      result = result.filter(
+        item =>
+          item.productName.toLowerCase().includes(lowerQuery) ||
+          item.sku.toLowerCase().includes(lowerQuery)
+      )
+    }
+
+    return result
+  },
 })
 
-const shanghaiStock = computed(() => inventoryStore.stockItems.filter(item => item.warehouseId === shanghaiWarehouseId))
+const shanghaiStock = computed(() => filteredData.value.filter(item => item.warehouseId === '2'))
 
 const statistics = computed(() => {
   const totalProducts = shanghaiStock.value.length
@@ -38,7 +58,7 @@ const searchFormData = ref({ keyword: '' })
 const searchSchema: FormSchema = {
   layout: 'inline',
   fields: [{ name: 'keyword', type: 'input', label: '', placeholder: '搜索商品名称、SKU...', className: 'w-[280px]' }],
-  searchConfig: { enabled: true, collapsed: false, showCollapseButton: false, searchText: '搜索', resetText: '重置', showReset: true }
+  searchConfig: { enabled: true, collapsed: false, showCollapseButton: false, searchText: '搜索', resetText: '重置', showReset: true, onSearch: (values) => { searchQuery.value = values.keyword || '' }, onReset: () => { searchQuery.value = '' } }
 }
 
 

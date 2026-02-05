@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 /**
  * 库存盘点页
  */
@@ -11,7 +11,9 @@ import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useInventoryStore } from '@/stores/business/inventory'
+import type { StockItem } from '@/types/models'
+import { inventoryApi } from '@/api'
+import { useTableData } from '@/composables'
 import {
   Plus,
   ClipboardList,
@@ -20,7 +22,41 @@ import {
   History
 } from 'lucide-vue-next'
 
-const inventoryStore = useInventoryStore()
+const {
+  data: stockItems,
+  loading,
+  filteredData,
+  paginatedData,
+  fetchData,
+} = useTableData<StockItem>({
+  apiCall: () => inventoryApi.getStockItems(),
+  filterFn: (items, query, filterValues) => {
+    let result = items
+
+    if (query) {
+      const lowerQuery = query.toLowerCase()
+      result = result.filter(
+        item =>
+          item.productName.toLowerCase().includes(lowerQuery) ||
+          item.sku.toLowerCase().includes(lowerQuery)
+      )
+    }
+
+    if (filterValues.warehouseId) {
+      result = result.filter(item => item.warehouseId === filterValues.warehouseId)
+    }
+
+    return result
+  },
+})
+
+const warehouses = computed(() => {
+  const warehouseIds = new Set(stockItems.value.map(item => item.warehouseId))
+  return Array.from(warehouseIds).map(id => ({
+    id,
+    name: stockItems.value.find(item => item.warehouseId === id)?.warehouseName || `仓库 ${id}`
+  }))
+})
 
 // 盘点记录
 interface StockCheck {
@@ -116,7 +152,7 @@ const searchSchema: FormSchema = {
       placeholder: '全部仓库',
       options: [
         { label: '全部仓库', value: '' },
-        ...inventoryStore.warehouses.map(w => ({ label: w.name, value: w.id }))
+        ...warehouses.value.map(w => ({ label: w.name, value: w.id }))
       ],
       className: 'w-[140px]'
     }
@@ -132,7 +168,6 @@ const searchSchema: FormSchema = {
 }
 
 // 表格配置
-
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
     {
@@ -210,7 +245,7 @@ const addSchema: FormSchema = {
       type: 'select',
       label: '商品',
       placeholder: '请选择商品',
-      options: inventoryStore.stockItems.map(item => ({ label: item.productName, value: item.id })),
+      options: stockItems.value.map(item => ({ label: item.productName, value: item.id })),
       rules: [{ required: true, message: '请选择商品' }]
     },
     {
@@ -218,7 +253,7 @@ const addSchema: FormSchema = {
       type: 'select',
       label: '仓库',
       placeholder: '请选择仓库',
-      options: inventoryStore.warehouses.map(w => ({ label: w.name, value: w.id })),
+      options: warehouses.value.map(w => ({ label: w.name, value: w.id })),
       rules: [{ required: true, message: '请选择仓库' }]
     },
     {
@@ -246,7 +281,6 @@ const addSchema: FormSchema = {
 }
 
 function handleAddSubmit(_values: Record<string, any>) {
-  // 实际应用中这里会提交到后端
   isAddOpen.value = false
   addFormData.value = { productId: '', warehouseId: '', actualStock: 0, reason: '' }
 }
@@ -259,7 +293,6 @@ function handleSelectChange(keys: (string | number)[]) {
 
 <template>
   <div class="space-y-6">
-    <!-- 页面标题 -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
         <h1 class="text-3xl font-bold tracking-tight">库存盘点</h1>
@@ -271,12 +304,10 @@ function handleSelectChange(keys: (string | number)[]) {
       </Button>
     </div>
 
-    <!-- 新增盘点弹窗 -->
     <TModal v-model:open="isAddOpen" title="新增盘点" width="560" :footer="null">
       <TForm v-model="addFormData" :schema="addSchema" @submit="handleAddSubmit" />
     </TModal>
 
-    <!-- 统计标签 -->
     <div class="flex flex-wrap gap-3">
       <div
         v-for="stat in statistics"
@@ -291,7 +322,6 @@ function handleSelectChange(keys: (string | number)[]) {
       </div>
     </div>
 
-    <!-- 搜索表单 -->
     <div class="bg-muted/30 rounded-lg p-4">
       <div class="flex flex-col lg:flex-row lg:items-center gap-4">
         <div class="flex-1">
@@ -300,7 +330,6 @@ function handleSelectChange(keys: (string | number)[]) {
       </div>
     </div>
 
-    <!-- 数据表格 -->
     <Card class="border-0 shadow-sm">
       <CardContent class="pt-6">
         <TTable
@@ -309,7 +338,6 @@ function handleSelectChange(keys: (string | number)[]) {
           :schema="tableSchema"
           @select-change="handleSelectChange"
         >
-          <!-- 商品列 -->
           <template #product="slotProps">
             <div>
               <div class="font-medium">{{ (slotProps as any).text }}</div>
@@ -317,7 +345,6 @@ function handleSelectChange(keys: (string | number)[]) {
             </div>
           </template>
 
-          <!-- 差异列 -->
           <template #difference="slotProps">
             <span :class="[
               'font-medium',
@@ -328,7 +355,6 @@ function handleSelectChange(keys: (string | number)[]) {
             </span>
           </template>
 
-          <!-- 状态列 -->
           <template #status="slotProps">
             <Badge
               :class="{
@@ -343,7 +369,6 @@ function handleSelectChange(keys: (string | number)[]) {
             </Badge>
           </template>
 
-          <!-- 空状态 -->
           <template #emptyText>
             <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
               <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">

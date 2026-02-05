@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 /**
  * 商品管理页 - 使用 TTable + TForm 重构
  *
@@ -13,7 +13,9 @@ import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useProductsStore, type Product } from '@/stores/business/products'
+import type { Product } from '@/types/models'
+import { productsApi } from '@/api'
+import { useTableData } from '@/composables'
 import {
   Plus,
   Package,
@@ -25,38 +27,335 @@ import {
 } from 'lucide-vue-next'
 import { Space, Avatar } from 'antdv-next'
 
-// ==================== Store ====================
-const productsStore = useProductsStore()
+// ==================== 数据管理 ====================
+const {
+  data: products,
+  loading,
+  searchQuery,
+  filters,
+  filteredData,
+  paginatedData,
+  total,
+  statistics,
+  fetchData,
+  addData,
+  updateData,
+  removeData,
+  batchRemoveData,
+} = useTableData<Product>({
+  apiCall: () => productsApi.getProducts(),
+  filterFn: (items, query, filterValues) => {
+    let result = items
+
+    if (query) {
+      const lowerQuery = query.toLowerCase()
+      result = result.filter(
+        product =>
+          product.name.toLowerCase().includes(lowerQuery) ||
+          product.sku.toLowerCase().includes(lowerQuery)
+      )
+    }
+
+    if (filterValues.category) {
+      result = result.filter(product => product.category === filterValues.category)
+    }
+
+    if (filterValues.status) {
+      result = result.filter(product => product.status === filterValues.status)
+    }
+
+    return result
+  },
+  statisticsFn: (items) => {
+    const total = items.length
+    const active = items.filter(p => p.status === 'active').length
+    const lowStock = items.filter(p => p.status === 'low-stock').length
+    const outOfStock = items.filter(p => p.status === 'out-of-stock').length
+    const totalSales = items.reduce((sum, p) => sum + p.sales, 0)
+    const totalStock = items.reduce((sum, p) => sum + p.stock, 0)
+
+    return {
+      total,
+      active,
+      lowStock,
+      outOfStock,
+      totalSales,
+      totalStock,
+    }
+  },
+})
 
 // ==================== 统计数据 ====================
-const statistics = computed(() => {
-  const stats = productsStore.statistics
+const statisticsCards = computed(() => {
+  const stats = statistics.value || {}
   return [
     {
       title: '总商品',
-      value: stats.total,
+      value: stats.total || 0,
       icon: Package,
       color: 'text-blue-500',
       bgColor: 'bg-blue-50'
     },
     {
       title: '在售',
-      value: stats.active,
+      value: stats.active || 0,
       icon: CheckCircle,
       color: 'text-green-500',
       bgColor: 'bg-green-50'
     },
     {
       title: '库存不足',
-      value: stats.lowStock,
+      value: stats.lowStock || 0,
       icon: AlertTriangle,
       color: 'text-yellow-500',
       bgColor: 'bg-yellow-50'
     },
     {
       title: '缺货',
-      value: stats.outOfStock,
-      icon: XCircle,
+      value: stats.outOfStock || 0,
+      icon: XCircle,<Suspense> is an experimental feature and its API will likely change.
+useApi.ts:46   GET http://localhost:5173/mock-api/products?page=1&pageSize=10 404 (Not Found)
+dispatchXhrRequest @ xhr.js:198
+xhr @ xhr.js:15
+dispatchRequest @ dispatchRequest.js:49
+_request @ Axios.js:185
+request @ Axios.js:40
+wrap @ bind.js:12
+adapter$1 @ alova-adapter-axios.esm.js:63
+response @ alova.esm.js:487
+await in response
+send @ alova.esm.js:654
+guardNext @ index.esm.js:748
+defaultMiddleware @ index.esm.js:643
+(匿名) @ index.esm.js:780
+await in (匿名)
+useHookToSendRequest @ index.esm.js:842
+handleRequest @ index.esm.js:915
+(匿名) @ index.esm.js:931
+setTimeout
+setTimeoutFn @ alova-shared.esm.js:25
+(匿名) @ alova-shared.esm.js:247
+wrapEffectRequest @ index.esm.js:925
+effectRequest.handler @ index.esm.js:957
+effectRequest @ vue.esm.js:24
+effectRequest @ index.esm.js:354
+createRequestState @ index.esm.js:952
+useRequest @ index.esm.js:1035
+useApi @ useApi.ts:46
+useTableData @ useTableData.ts:83
+setup @ Products.vue:45
+callWithErrorHandling @ runtime-core.esm-bundler.js:199
+setupStatefulComponent @ runtime-core.esm-bundler.js:8040
+setupComponent @ runtime-core.esm-bundler.js:8002
+mountComponent @ runtime-core.esm-bundler.js:5939
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+mountSuspense @ runtime-core.esm-bundler.js:6945
+process @ runtime-core.esm-bundler.js:6886
+patch @ runtime-core.esm-bundler.js:5428
+componentUpdateFn @ runtime-core.esm-bundler.js:6051
+run @ reactivity.esm-bundler.js:237
+setupRenderEffect @ runtime-core.esm-bundler.js:6179
+mountComponent @ runtime-core.esm-bundler.js:5953
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+componentUpdateFn @ runtime-core.esm-bundler.js:6051
+run @ reactivity.esm-bundler.js:237
+setupRenderEffect @ runtime-core.esm-bundler.js:6179
+mountComponent @ runtime-core.esm-bundler.js:5953
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+componentUpdateFn @ runtime-core.esm-bundler.js:6051
+run @ reactivity.esm-bundler.js:237
+setupRenderEffect @ runtime-core.esm-bundler.js:6179
+mountComponent @ runtime-core.esm-bundler.js:5953
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+mountChildren @ runtime-core.esm-bundler.js:5655
+processFragment @ runtime-core.esm-bundler.js:5835
+patch @ runtime-core.esm-bundler.js:5377
+mountChildren @ runtime-core.esm-bundler.js:5655
+processFragment @ runtime-core.esm-bundler.js:5835
+patch @ runtime-core.esm-bundler.js:5377
+mountChildren @ runtime-core.esm-bundler.js:5655
+mountElement @ runtime-core.esm-bundler.js:5578
+processElement @ runtime-core.esm-bundler.js:5533
+patch @ runtime-core.esm-bundler.js:5391
+componentUpdateFn @ runtime-core.esm-bundler.js:6051
+run @ reactivity.esm-bundler.js:237
+setupRenderEffect @ runtime-core.esm-bundler.js:6179
+mountComponent @ runtime-core.esm-bundler.js:5953
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+mountChildren @ runtime-core.esm-bundler.js:5655
+mountElement @ runtime-core.esm-bundler.js:5578
+processElement @ runtime-core.esm-bundler.js:5533
+patch @ runtime-core.esm-bundler.js:5391
+mountChildren @ runtime-core.esm-bundler.js:5655
+processFragment @ runtime-core.esm-bundler.js:5835
+patch @ runtime-core.esm-bundler.js:5377
+mountChildren @ runtime-core.esm-bundler.js:5655
+processFragment @ runtime-core.esm-bundler.js:5835
+patch @ runtime-core.esm-bundler.js:5377
+mountChildren @ runtime-core.esm-bundler.js:5655
+mountElement @ runtime-core.esm-bundler.js:5578
+processElement @ runtime-core.esm-bundler.js:5533
+patch @ runtime-core.esm-bundler.js:5391
+componentUpdateFn @ runtime-core.esm-bundler.js:6051
+run @ reactivity.esm-bundler.js:237
+setupRenderEffect @ runtime-core.esm-bundler.js:6179
+mountComponent @ runtime-core.esm-bundler.js:5953
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+mountChildren @ runtime-core.esm-bundler.js:5655
+mountElement @ runtime-core.esm-bundler.js:5578
+processElement @ runtime-core.esm-bundler.js:5533
+patch @ runtime-core.esm-bundler.js:5391
+mountChildren @ runtime-core.esm-bundler.js:5655
+processFragment @ runtime-core.esm-bundler.js:5835
+patch @ runtime-core.esm-bundler.js:5377
+componentUpdateFn @ runtime-core.esm-bundler.js:6051
+run @ reactivity.esm-bundler.js:237
+setupRenderEffect @ runtime-core.esm-bundler.js:6179
+mountComponent @ runtime-core.esm-bundler.js:5953
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+mountChildren @ runtime-core.esm-bundler.js:5655
+processFragment @ runtime-core.esm-bundler.js:5835
+patch @ runtime-core.esm-bundler.js:5377
+mountChildren @ runtime-core.esm-bundler.js:5655
+mountElement @ runtime-core.esm-bundler.js:5578
+processElement @ runtime-core.esm-bundler.js:5533
+patch @ runtime-core.esm-bundler.js:5391
+componentUpdateFn @ runtime-core.esm-bundler.js:6051
+run @ reactivity.esm-bundler.js:237
+setupRenderEffect @ runtime-core.esm-bundler.js:6179
+mountComponent @ runtime-core.esm-bundler.js:5953
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+componentUpdateFn @ runtime-core.esm-bundler.js:6051
+run @ reactivity.esm-bundler.js:237
+setupRenderEffect @ runtime-core.esm-bundler.js:6179
+mountComponent @ runtime-core.esm-bundler.js:5953
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+componentUpdateFn @ runtime-core.esm-bundler.js:6051
+run @ reactivity.esm-bundler.js:237
+setupRenderEffect @ runtime-core.esm-bundler.js:6179
+mountComponent @ runtime-core.esm-bundler.js:5953
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+mountChildren @ runtime-core.esm-bundler.js:5655
+processFragment @ runtime-core.esm-bundler.js:5835
+patch @ runtime-core.esm-bundler.js:5377
+mountChildren @ runtime-core.esm-bundler.js:5655
+processFragment @ runtime-core.esm-bundler.js:5835
+patch @ runtime-core.esm-bundler.js:5377
+mountChildren @ runtime-core.esm-bundler.js:5655
+mountElement @ runtime-core.esm-bundler.js:5578
+processElement @ runtime-core.esm-bundler.js:5533
+patch @ runtime-core.esm-bundler.js:5391
+mountChildren @ runtime-core.esm-bundler.js:5655
+processFragment @ runtime-core.esm-bundler.js:5835
+patch @ runtime-core.esm-bundler.js:5377
+mountChildren @ runtime-core.esm-bundler.js:5655
+processFragment @ runtime-core.esm-bundler.js:5835
+patch @ runtime-core.esm-bundler.js:5377
+mountChildren @ runtime-core.esm-bundler.js:5655
+mountElement @ runtime-core.esm-bundler.js:5578
+processElement @ runtime-core.esm-bundler.js:5533
+patch @ runtime-core.esm-bundler.js:5391
+componentUpdateFn @ runtime-core.esm-bundler.js:6051
+run @ reactivity.esm-bundler.js:237
+setupRenderEffect @ runtime-core.esm-bundler.js:6179
+mountComponent @ runtime-core.esm-bundler.js:5953
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+componentUpdateFn @ runtime-core.esm-bundler.js:6051
+run @ reactivity.esm-bundler.js:237
+setupRenderEffect @ runtime-core.esm-bundler.js:6179
+mountComponent @ runtime-core.esm-bundler.js:5953
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+componentUpdateFn @ runtime-core.esm-bundler.js:6051
+run @ reactivity.esm-bundler.js:237
+setupRenderEffect @ runtime-core.esm-bundler.js:6179
+mountComponent @ runtime-core.esm-bundler.js:5953
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+mountChildren @ runtime-core.esm-bundler.js:5655
+processFragment @ runtime-core.esm-bundler.js:5835
+patch @ runtime-core.esm-bundler.js:5377
+mountChildren @ runtime-core.esm-bundler.js:5655
+processFragment @ runtime-core.esm-bundler.js:5835
+patch @ runtime-core.esm-bundler.js:5377
+mountChildren @ runtime-core.esm-bundler.js:5655
+mountElement @ runtime-core.esm-bundler.js:5578
+processElement @ runtime-core.esm-bundler.js:5533
+patch @ runtime-core.esm-bundler.js:5391
+componentUpdateFn @ runtime-core.esm-bundler.js:6051
+run @ reactivity.esm-bundler.js:237
+setupRenderEffect @ runtime-core.esm-bundler.js:6179
+mountComponent @ runtime-core.esm-bundler.js:5953
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+componentUpdateFn @ runtime-core.esm-bundler.js:6051
+run @ reactivity.esm-bundler.js:237
+setupRenderEffect @ runtime-core.esm-bundler.js:6179
+mountComponent @ runtime-core.esm-bundler.js:5953
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+componentUpdateFn @ runtime-core.esm-bundler.js:6051
+run @ reactivity.esm-bundler.js:237
+setupRenderEffect @ runtime-core.esm-bundler.js:6179
+mountComponent @ runtime-core.esm-bundler.js:5953
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+componentUpdateFn @ runtime-core.esm-bundler.js:6051
+run @ reactivity.esm-bundler.js:237
+setupRenderEffect @ runtime-core.esm-bundler.js:6179
+mountComponent @ runtime-core.esm-bundler.js:5953
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+mountChildren @ runtime-core.esm-bundler.js:5655
+mountElement @ runtime-core.esm-bundler.js:5578
+processElement @ runtime-core.esm-bundler.js:5533
+patch @ runtime-core.esm-bundler.js:5391
+componentUpdateFn @ runtime-core.esm-bundler.js:6051
+run @ reactivity.esm-bundler.js:237
+setupRenderEffect @ runtime-core.esm-bundler.js:6179
+mountComponent @ runtime-core.esm-bundler.js:5953
+processComponent @ runtime-core.esm-bundler.js:5905
+patch @ runtime-core.esm-bundler.js:5403
+mountChildren @ runtime-core.esm-bundler.js:5655
+mountElement @ runtime-core.esm-bundler.js:5578
+processElement @ runtime-core.esm-bundler.js:5533
+patch @ runtime-core.esm-bundler.js:5391
+mountChildren @ runtime-core.esm-bundler.js:5655
+mountElement @ runtime-core.esm-bundler.js:5578
+Promise.then
+queueFlush @ runtime-core.esm-bundler.js:322
+queuePostFlushCb @ runtime-core.esm-bundler.js:336
+queueEffectWithSuspense @ runtime-core.esm-bundler.js:7454
+baseWatchOptions.scheduler @ runtime-core.esm-bundler.js:884
+effect$1.scheduler @ reactivity.esm-bundler.js:1915
+trigger @ reactivity.esm-bundler.js:265
+endBatch @ reactivity.esm-bundler.js:323
+notify @ reactivity.esm-bundler.js:614
+trigger @ reactivity.esm-bundler.js:588
+set value @ reactivity.esm-bundler.js:1512
+finalizeNavigation @ vue-router.mjs:1388
+(匿名) @ vue-router.mjs:1316
+Promise.then
+pushWithRedirect @ vue-router.mjs:1304
+(匿名) @ vue-router.mjs:1311
+Promise.then
+pushWithRedirect @ vue-router.mjs:1304
+push @ vue-router.mjs:1257
+install @ vue-router.mjs:1504
+use @ runtime-core.esm-bundler.js:4103
+(匿名) @ main.ts:16
+interceptors.ts:57  请求的资源不存在
       color: 'text-red-500',
       bgColor: 'bg-red-50'
     }
@@ -116,14 +415,15 @@ const searchSchema: FormSchema = {
     resetText: '重置',
     showReset: true,
     onSearch: (values) => {
-      productsStore.searchQuery = values.keyword || ''
-      productsStore.categoryFilter = values.category || ''
-      productsStore.statusFilter = values.status || ''
+      searchQuery.value = values.keyword || ''
+      filters.value = {
+        category: values.category,
+        status: values.status,
+      }
     },
     onReset: () => {
-      productsStore.searchQuery = ''
-      productsStore.categoryFilter = ''
-      productsStore.statusFilter = ''
+      searchQuery.value = ''
+      filters.value = {}
     }
   }
 }
@@ -219,7 +519,7 @@ const tableSchema = computed<TableSchema>(() => ({
 
 // 表格数据
 const tableData = computed(() => {
-  return productsStore.filteredProducts.map(product => ({
+  return paginatedData.value.map(product => ({
     ...product,
     key: product.id
   }))
@@ -390,8 +690,8 @@ const editSchema: FormSchema = {
 /**
  * 处理新增商品提交
  */
-function handleAddSubmit(values: Record<string, any>): void {
-  productsStore.addProduct({
+async function handleAddSubmit(values: Record<string, any>): Promise<void> {
+  await productsApi.createProduct({
     name: values.name,
     category: values.category,
     price: Number(values.price),
@@ -408,6 +708,7 @@ function handleAddSubmit(values: Record<string, any>): void {
     stock: 0,
     description: ''
   }
+  await fetchData()
 }
 
 /**
@@ -429,27 +730,27 @@ function handleEditProduct(product: Product): void {
 /**
  * 处理编辑提交
  */
-function handleEditSubmit(values: Record<string, any>): void {
+async function handleEditSubmit(values: Record<string, any>): Promise<void> {
   if (editingProduct.value) {
-    productsStore.updateProduct(editingProduct.value.id, {
+    await productsApi.updateProduct(editingProduct.value.id, {
       name: values.name,
       category: values.category,
       price: Number(values.price),
       stock: Number(values.stock),
       description: values.description
     })
-    // 更新库存会自动更新状态
-    productsStore.updateStock(editingProduct.value.id, Number(values.stock))
     isEditDialogOpen.value = false
     editingProduct.value = null
+    await fetchData()
   }
 }
 
 /**
  * 处理删除商品
  */
-function handleDeleteProduct(id: string): void {
-  productsStore.deleteProduct(id)
+async function handleDeleteProduct(id: string): Promise<void> {
+  await productsApi.deleteProduct(id)
+  await fetchData()
 }
 
 /**
@@ -477,14 +778,15 @@ function handleSelectChange(keys: (string | number)[], rows: any[]): void {
 /**
  * 批量删除
  */
-function handleBatchDelete(): void {
+async function handleBatchDelete(): Promise<void> {
   if (selectedRowKeys.value.length === 0) {
     alert('请先选择要删除的商品')
     return
   }
   if (confirm(`确定要删除选中的 ${selectedRowKeys.value.length} 个商品吗？`)) {
-    productsStore.batchDeleteProducts(selectedRowKeys.value.map(String))
+    await productsApi.batchDeleteProducts(selectedRowKeys.value.map(String))
     tableRef.value?.clearSelection()
+    await fetchData()
   }
 }
 </script>
@@ -539,7 +841,7 @@ function handleBatchDelete(): void {
     <!-- 统计卡片 -->
     <div class="flex flex-wrap gap-3">
       <div
-        v-for="stat in statistics"
+        v-for="stat in statisticsCards"
         :key="stat.title"
         class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
       >
@@ -584,11 +886,11 @@ function handleBatchDelete(): void {
           <div class="flex items-center gap-4 text-sm text-muted-foreground">
             <div class="flex items-center gap-1">
               <TrendingUp class="h-4 w-4" />
-              <span>总销量: {{ productsStore.statistics.totalSales }}</span>
+              <span>总销量: {{ statistics.value?.totalSales || 0 }}</span>
             </div>
             <div class="flex items-center gap-1">
               <Layers class="h-4 w-4" />
-              <span>总库存: {{ productsStore.statistics.totalStock }}</span>
+              <span>总库存: {{ statistics.value?.totalStock || 0 }}</span>
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 /**
  * 仓库管理页
  */
@@ -11,7 +11,9 @@ import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useInventoryStore, type Warehouse } from '@/stores/business/inventory'
+import type { Warehouse } from '@/types/models'
+import { inventoryApi } from '@/api'
+import { useTableData } from '@/composables'
 import {
   Plus,
   Building,
@@ -22,22 +24,61 @@ import {
   TrendingUp
 } from 'lucide-vue-next'
 
-const inventoryStore = useInventoryStore()
+const {
+  data: warehouses,
+  loading,
+  searchQuery,
+  filters,
+  filteredData,
+  paginatedData,
+  total,
+  statistics,
+  fetchData,
+} = useTableData<Warehouse>({
+  apiCall: () => inventoryApi.getWarehouses(),
+  filterFn: (items, query, filterValues) => {
+    let result = items
+
+    if (query) {
+      const lowerQuery = query.toLowerCase()
+      result = result.filter(
+        warehouse =>
+          warehouse.name.toLowerCase().includes(lowerQuery) ||
+          warehouse.code.toLowerCase().includes(lowerQuery)
+      )
+    }
+
+    if (filterValues.status) {
+      result = result.filter(warehouse => warehouse.status === filterValues.status)
+    }
+
+    return result
+  },
+  statisticsFn: (items) => {
+    const total = items.length
+    const active = items.filter(w => w.status === 'active').length
+    const totalCapacity = items.reduce((sum, w) => sum + w.capacity, 0)
+    const usedCapacity = items.reduce((sum, w) => sum + w.usedCapacity, 0)
+    const utilizationRate = totalCapacity > 0 ? Math.round((usedCapacity / totalCapacity) * 100) : 0
+
+    return {
+      total,
+      active,
+      totalCapacity,
+      usedCapacity,
+      utilizationRate,
+    }
+  },
+})
 
 // 统计标签
-const statistics = computed(() => {
-  const warehouses = inventoryStore.warehouses
-  const total = warehouses.length
-  const active = warehouses.filter(w => w.status === 'active').length
-  const totalCapacity = warehouses.reduce((sum, w) => sum + w.capacity, 0)
-  const usedCapacity = warehouses.reduce((sum, w) => sum + w.usedCapacity, 0)
-  const utilizationRate = totalCapacity > 0 ? Math.round((usedCapacity / totalCapacity) * 100) : 0
-
+const statisticsCards = computed(() => {
+  const stats = statistics.value || {}
   return [
-    { title: '仓库总数', value: total, icon: Building, color: 'text-blue-500' },
-    { title: '运营中', value: active, icon: CheckCircle, color: 'text-green-500' },
-    { title: '总容量', value: totalCapacity.toLocaleString(), icon: Package, color: 'text-purple-500' },
-    { title: '使用率', value: utilizationRate + '%', icon: TrendingUp, color: 'text-orange-500' }
+    { title: '仓库总数', value: stats.total || 0, icon: Building, color: 'text-blue-500' },
+    { title: '运营中', value: stats.active || 0, icon: CheckCircle, color: 'text-green-500' },
+    { title: '总容量', value: (stats.totalCapacity || 0).toLocaleString(), icon: Package, color: 'text-purple-500' },
+    { title: '使用率', value: (stats.utilizationRate || 0) + '%', icon: TrendingUp, color: 'text-orange-500' }
   ]
 })
 
@@ -78,18 +119,19 @@ const searchSchema: FormSchema = {
     resetText: '重置',
     showReset: true,
     onSearch: (values) => {
-      inventoryStore.searchQuery = values.keyword || ''
-      inventoryStore.statusFilter = values.status || ''
+      searchQuery.value = values.keyword || ''
+      filters.value = {
+        status: values.status,
+      }
     },
     onReset: () => {
-      inventoryStore.searchQuery = ''
-      inventoryStore.statusFilter = ''
+      searchQuery.value = ''
+      filters.value = {}
     }
   }
 }
 
 // 表格配置
-
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
     {
@@ -162,7 +204,7 @@ const tableSchema = computed<TableSchema>(() => ({
 }))
 
 const tableData = computed(() => {
-  return inventoryStore.filteredWarehouses.map(w => ({ ...w, key: w.id }))
+  return paginatedData.value.map(w => ({ ...w, key: w.id }))
 })
 
 // 新增/编辑
@@ -316,18 +358,21 @@ const editSchema: FormSchema = {
 }
 
 // 事件处理
-function handleAddSubmit(values: Record<string, any>) {
-  inventoryStore.addWarehouse({
+async function handleAddSubmit(values: Record<string, any>) {
+  await inventoryApi.createWarehouse({
     name: values.name,
     code: values.code,
     location: values.location,
     manager: values.manager,
     phone: values.phone,
     capacity: Number(values.capacity),
-    status: values.status
+    status: values.status,
+    productCount: 0,
+    usedCapacity: 0,
   })
   isAddOpen.value = false
   addFormData.value = { name: '', code: '', location: '', manager: '', phone: '', capacity: 1000, status: 'active' }
+  await fetchData()
 }
 
 function handleEdit(item: Warehouse) {
@@ -345,9 +390,9 @@ function handleEdit(item: Warehouse) {
   isEditOpen.value = true
 }
 
-function handleEditSubmit(values: Record<string, any>) {
+async function handleEditSubmit(values: Record<string, any>) {
   if (editingItem.value) {
-    inventoryStore.updateWarehouse(editingItem.value.id, {
+    await inventoryApi.updateWarehouse(editingItem.value.id, {
       name: values.name,
       location: values.location,
       manager: values.manager,
@@ -357,11 +402,13 @@ function handleEditSubmit(values: Record<string, any>) {
     })
     isEditOpen.value = false
     editingItem.value = null
+    await fetchData()
   }
 }
 
-function handleDelete(id: string) {
-  inventoryStore.deleteWarehouse(id)
+async function handleDelete(id: string) {
+  await inventoryApi.deleteWarehouse(id)
+  await fetchData()
 }
 
 const selectedRowKeys = ref<(string | number)[]>([])
@@ -372,7 +419,6 @@ function handleSelectChange(keys: (string | number)[]) {
 
 <template>
   <div class="space-y-6">
-    <!-- 页面标题 -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
         <h1 class="text-3xl font-bold tracking-tight">仓库管理</h1>
@@ -384,20 +430,17 @@ function handleSelectChange(keys: (string | number)[]) {
       </Button>
     </div>
 
-    <!-- 新增弹窗 -->
     <TModal v-model:open="isAddOpen" title="添加仓库" width="560" :footer="null">
       <TForm v-model="addFormData" :schema="addSchema" @submit="handleAddSubmit" />
     </TModal>
 
-    <!-- 编辑弹窗 -->
     <TModal v-model:open="isEditOpen" title="编辑仓库" width="560" :footer="null">
       <TForm v-if="editingItem" v-model="editFormData" :schema="editSchema" @submit="handleEditSubmit" />
     </TModal>
 
-    <!-- 统计标签 -->
     <div class="flex flex-wrap gap-3">
       <div
-        v-for="stat in statistics"
+        v-for="stat in statisticsCards"
         :key="stat.title"
         class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
       >
@@ -409,7 +452,6 @@ function handleSelectChange(keys: (string | number)[]) {
       </div>
     </div>
 
-    <!-- 搜索表单 -->
     <div class="bg-muted/30 rounded-lg p-4">
       <div class="flex flex-col lg:flex-row lg:items-center gap-4">
         <div class="flex-1">
@@ -418,7 +460,6 @@ function handleSelectChange(keys: (string | number)[]) {
       </div>
     </div>
 
-    <!-- 数据表格 -->
     <Card class="border-0 shadow-sm">
       <CardHeader class="pb-4">
         <div class="flex items-center gap-3">
@@ -435,7 +476,6 @@ function handleSelectChange(keys: (string | number)[]) {
           :schema="tableSchema"
           @select-change="handleSelectChange"
         >
-          <!-- 名称列 -->
           <template #name="slotProps">
             <div class="flex items-center gap-2">
               <Building class="h-4 w-4 text-blue-500" />
@@ -443,7 +483,6 @@ function handleSelectChange(keys: (string | number)[]) {
             </div>
           </template>
 
-          <!-- 位置列 -->
           <template #location="slotProps">
             <div class="flex items-center gap-1 text-sm">
               <MapPin class="h-3 w-3 text-muted-foreground" />
@@ -451,7 +490,6 @@ function handleSelectChange(keys: (string | number)[]) {
             </div>
           </template>
 
-          <!-- 负责人列 -->
           <template #manager="slotProps">
             <div class="flex items-center gap-1 text-sm">
               <User class="h-3 w-3 text-muted-foreground" />
@@ -459,7 +497,6 @@ function handleSelectChange(keys: (string | number)[]) {
             </div>
           </template>
 
-          <!-- 容量列 -->
           <template #capacity="slotProps">
             <div class="space-y-1">
               <div class="flex justify-between text-xs">
@@ -475,7 +512,6 @@ function handleSelectChange(keys: (string | number)[]) {
             </div>
           </template>
 
-          <!-- 状态列 -->
           <template #status="slotProps">
             <Badge
               :class="{
@@ -488,7 +524,6 @@ function handleSelectChange(keys: (string | number)[]) {
             </Badge>
           </template>
 
-          <!-- 空状态 -->
           <template #emptyText>
             <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
               <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">

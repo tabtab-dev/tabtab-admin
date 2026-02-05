@@ -177,7 +177,7 @@ const defaultFixedTabs: TabItem[] = [
     path: '/dashboard',
     title: '首页',
     titleKey: 'menu.dashboard',
-    icon: findIconFromMenu('/'),
+    icon: findIconFromMenu('/dashboard'),
     closable: false,
     affix: true,
   },
@@ -187,12 +187,23 @@ export const useTabBarStore = defineStore('tabbar', () => {
   // 加载存储的配置
   const storedConfig = loadFromStorage();
 
+  // 修复旧数据中的路径不一致问题
+  let restoredTabs: TabItem[];
+  if (storedConfig?.tabs) {
+    // 检查是否有旧的 / 路径，如果有则替换为 /dashboard
+    const fixedTabs = storedConfig.tabs.map(tab => ({
+      ...tab,
+      path: tab.path === '/' ? '/dashboard' : tab.path,
+    }));
+    restoredTabs = restoreIcons(fixedTabs);
+  } else {
+    restoredTabs = [...defaultFixedTabs];
+  }
+
   /** 标签列表 - 加载后恢复图标 */
-  const tabs = ref<TabItem[]>(
-    storedConfig?.tabs ? restoreIcons(storedConfig.tabs) : [...defaultFixedTabs]
-  );
+  const tabs = ref<TabItem[]>(restoredTabs);
   /** 当前激活的标签路径 */
-  const activeTab = ref<string>(storedConfig?.activeTab || '/');
+  const activeTab = ref<string>(storedConfig?.activeTab === '/' ? '/dashboard' : storedConfig?.activeTab || '/dashboard');
 
   /** 标签数量 */
   const tabCount = computed(() => tabs.value.length);
@@ -206,12 +217,20 @@ export const useTabBarStore = defineStore('tabbar', () => {
    * @param tab 标签项
    */
   const addTab = (tab: TabItem) => {
-    // 检查是否已存在
+    // 检查是否已存在（使用严格路径匹配）
     const existingTab = tabs.value.find(item => item.path === tab.path);
     if (!existingTab) {
       tabs.value.push({
         ...tab,
         closable: tab.closable !== false,
+      });
+      persistConfig();
+    } else {
+      // 如果标签已存在，更新其信息（如图标、标题等）
+      Object.assign(existingTab, {
+        title: tab.title,
+        titleKey: tab.titleKey,
+        icon: tab.icon,
       });
       persistConfig();
     }

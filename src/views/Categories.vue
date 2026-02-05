@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 /**
  * 分类管理页
  */
@@ -11,7 +11,9 @@ import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useCategoriesStore, type Category } from '@/stores/business/categories'
+import type { Category } from '@/types/models'
+import { categoriesApi } from '@/api'
+import { useTableData } from '@/composables'
 import {
   Plus,
   FolderTree,
@@ -21,16 +23,67 @@ import {
   Tag
 } from 'lucide-vue-next'
 
-const categoriesStore = useCategoriesStore()
+const {
+  data: categories,
+  loading,
+  searchQuery,
+  filters,
+  filteredData,
+  paginatedData,
+  total,
+  statistics,
+  fetchData,
+  addData,
+  updateData,
+  removeData,
+  batchRemoveData,
+} = useTableData<Category>({
+  apiCall: () => categoriesApi.getCategories(),
+  filterFn: (items, query, filterValues) => {
+    let result = items
+
+    if (query) {
+      const lowerQuery = query.toLowerCase()
+      result = result.filter(
+        category =>
+          category.name.toLowerCase().includes(lowerQuery) ||
+          category.code.toLowerCase().includes(lowerQuery)
+      )
+    }
+
+    if (filterValues.level) {
+      result = result.filter(category => category.level === Number(filterValues.level))
+    }
+
+    if (filterValues.status) {
+      result = result.filter(category => category.status === filterValues.status)
+    }
+
+    return result
+  },
+  statisticsFn: (items) => {
+    const total = items.length
+    const level1 = items.filter(c => c.level === 1).length
+    const level2 = items.filter(c => c.level === 2).length
+    const active = items.filter(c => c.status === 'active').length
+
+    return {
+      total,
+      level1,
+      level2,
+      active,
+    }
+  },
+})
 
 // 统计标签
-const statistics = computed(() => {
-  const stats = categoriesStore.statistics
+const statisticsCards = computed(() => {
+  const stats = statistics.value || {}
   return [
-    { title: '总分类', value: stats.total, icon: FolderTree, color: 'text-blue-500' },
-    { title: '一级分类', value: stats.level1, icon: Layers, color: 'text-purple-500' },
-    { title: '二级分类', value: stats.level2, icon: Tag, color: 'text-orange-500' },
-    { title: '已启用', value: stats.active, icon: CheckCircle, color: 'text-green-500' }
+    { title: '总分类', value: stats.total || 0, icon: FolderTree, color: 'text-blue-500' },
+    { title: '一级分类', value: stats.level1 || 0, icon: Layers, color: 'text-purple-500' },
+    { title: '二级分类', value: stats.level2 || 0, icon: Tag, color: 'text-orange-500' },
+    { title: '已启用', value: stats.active || 0, icon: CheckCircle, color: 'text-green-500' }
   ]
 })
 
@@ -84,14 +137,15 @@ const searchSchema: FormSchema = {
     resetText: '重置',
     showReset: true,
     onSearch: (values) => {
-      categoriesStore.searchQuery = values.keyword || ''
-      categoriesStore.levelFilter = values.level ? Number(values.level) : ''
-      categoriesStore.statusFilter = values.status || ''
+      searchQuery.value = values.keyword || ''
+      filters.value = {
+        level: values.level ? Number(values.level) : undefined,
+        status: values.status,
+      }
     },
     onReset: () => {
-      categoriesStore.searchQuery = ''
-      categoriesStore.levelFilter = ''
-      categoriesStore.statusFilter = ''
+      searchQuery.value = ''
+      filters.value = {}
     }
   }
 }
@@ -169,9 +223,14 @@ const tableSchema = computed<TableSchema>(() => ({
   actionWidth: 150,
   actionFixed: 'right'
 }))
+// 一级分类列表（用于上级分类选择）
+const level1Categories = computed(() => {
+  return categories.value.filter(c => c.level === 1)
+})
 
+// 表格数据
 const tableData = computed(() => {
-  return categoriesStore.filteredCategories.map(c => ({ ...c, key: c.id }))
+  return paginatedData.value.map(c => ({ ...c, key: c.id }))
 })
 
 // 新增/编辑
@@ -235,7 +294,7 @@ const addSchema: FormSchema = {
       type: 'select',
       label: '上级分类',
       placeholder: '请选择上级分类',
-      options: () => categoriesStore.level1Categories.map(c => ({ label: c.name, value: c.id })),
+      options: () => level1Categories.value.map(c => ({ label: c.name, value: c.id })),
       show: () => addFormData.value.level === 2
     },
     {
@@ -324,9 +383,9 @@ const editSchema: FormSchema = {
 }
 
 // 事件处理
-function handleAddSubmit(values: Record<string, any>) {
-  const parent = categoriesStore.level1Categories.find(c => c.id === values.parentId)
-  categoriesStore.addCategory({
+async function handleAddSubmit(values: Record<string, any>) {
+  const parent = level1Categories.value.find(c => c.id === values.parentId)
+  await categoriesApi.createCategory({
     name: values.name,
     code: values.code,
     level: values.level,
@@ -339,6 +398,7 @@ function handleAddSubmit(values: Record<string, any>) {
   })
   isAddOpen.value = false
   addFormData.value = { name: '', code: '', level: 1, parentId: '', sort: 0, status: 'active', description: '' }
+  await fetchData()
 }
 
 function handleEdit(item: Category) {
@@ -358,7 +418,7 @@ function handleEdit(item: Category) {
 
 function handleEditSubmit(values: Record<string, any>) {
   if (editingItem.value) {
-    categoriesStore.updateCategory(editingItem.value.id, {
+    categoriesApi.updateCategory(editingItem.value.id, {
       name: values.name,
       code: values.code,
       sort: Number(values.sort),
@@ -367,11 +427,13 @@ function handleEditSubmit(values: Record<string, any>) {
     })
     isEditOpen.value = false
     editingItem.value = null
+    fetchData()
   }
 }
 
-function handleDelete(id: string) {
-  categoriesStore.deleteCategory(id)
+async function handleDelete(id: string) {
+  await categoriesApi.deleteCategory(id)
+  await fetchData()
 }
 
 const selectedRowKeys = ref<(string | number)[]>([])
@@ -379,14 +441,15 @@ function handleSelectChange(keys: (string | number)[]) {
   selectedRowKeys.value = keys
 }
 
-function handleBatchDelete() {
+async function handleBatchDelete() {
   if (selectedRowKeys.value.length === 0) {
     alert('请先选择要删除的分类')
     return
   }
   if (confirm(`确定要删除选中的 ${selectedRowKeys.value.length} 个分类吗？`)) {
-    categoriesStore.batchDeleteCategories(selectedRowKeys.value.map(String))
+    await categoriesApi.batchDeleteCategories(selectedRowKeys.value.map(String))
     tableRef.value?.clearSelection()
+    await fetchData()
   }
 }
 </script>
@@ -418,7 +481,7 @@ function handleBatchDelete() {
     <!-- 统计标签 -->
     <div class="flex flex-wrap gap-3">
       <div
-        v-for="stat in statistics"
+        v-for="stat in statisticsCards"
         :key="stat.title"
         class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
       >
@@ -462,7 +525,7 @@ function handleBatchDelete() {
           </div>
           <div class="flex items-center gap-2 text-sm text-muted-foreground">
             <Package class="h-4 w-4" />
-            <span>关联商品: {{ categoriesStore.statistics.totalProducts }}</span>
+            <span>关联商品: {{ statistics.value.totalProducts || 0 }}</span>
           </div>
         </div>
       </CardHeader>

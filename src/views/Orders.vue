@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 /**
  * 订单管理页 - 使用 TTable + TForm 重构
  *
@@ -13,7 +13,9 @@ import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { useOrdersStore, type Order } from '@/stores/business/orders'
+import type { Order } from '@/types/models'
+import { ordersApi } from '@/api'
+import { useTableData } from '@/composables'
 import {
   Plus,
   ShoppingCart,
@@ -25,37 +27,89 @@ import {
 } from 'lucide-vue-next'
 import { Tag, Space } from 'antdv-next'
 
-// ==================== Store ====================
-const ordersStore = useOrdersStore()
+// ==================== 数据管理 ====================
+const {
+  data: orders,
+  loading,
+  searchQuery,
+  filters,
+  filteredData,
+  paginatedData,
+  total,
+  statistics,
+  fetchData,
+  addData,
+  updateData,
+  removeData,
+  batchRemoveData,
+} = useTableData<Order>({
+  apiCall: () => ordersApi.getOrders(),
+  filterFn: (items, query, filterValues) => {
+    let result = items
+
+    if (query) {
+      const lowerQuery = query.toLowerCase()
+      result = result.filter(
+        order =>
+          order.orderNo.toLowerCase().includes(lowerQuery) ||
+          order.customer.toLowerCase().includes(lowerQuery) ||
+          order.email.toLowerCase().includes(lowerQuery)
+      )
+    }
+
+    if (filterValues.status) {
+      result = result.filter(order => order.status === filterValues.status)
+    }
+
+    return result
+  },
+  statisticsFn: (items) => {
+    const total = items.length
+    const pending = items.filter(o => o.status === 'pending').length
+    const processing = items.filter(o => o.status === 'processing').length
+    const completed = items.filter(o => o.status === 'completed').length
+    const cancelled = items.filter(o => o.status === 'cancelled').length
+    const totalAmount = items.reduce((sum, o) => sum + o.total, 0)
+
+    return {
+      total,
+      pending,
+      processing,
+      completed,
+      cancelled,
+      totalAmount,
+    }
+  },
+})
 
 // ==================== 统计数据 ====================
-const statistics = computed(() => {
-  const stats = ordersStore.statistics
+const statisticsCards = computed(() => {
+  const stats = statistics.value || {}
   return [
     {
       title: '总订单',
-      value: stats.total,
+      value: stats.total || 0,
       icon: ShoppingCart,
       color: 'text-blue-500',
       bgColor: 'bg-blue-50'
     },
     {
       title: '待处理',
-      value: stats.pending,
+      value: stats.pending || 0,
       icon: Clock,
       color: 'text-yellow-500',
       bgColor: 'bg-yellow-50'
     },
     {
       title: '处理中',
-      value: stats.processing,
+      value: stats.processing || 0,
       icon: Package,
       color: 'text-purple-500',
       bgColor: 'bg-purple-50'
     },
     {
       title: '已完成',
-      value: stats.completed,
+      value: stats.completed || 0,
       icon: CheckCircle,
       color: 'text-green-500',
       bgColor: 'bg-green-50'
@@ -103,12 +157,14 @@ const searchSchema: FormSchema = {
     resetText: '重置',
     showReset: true,
     onSearch: (values) => {
-      ordersStore.searchQuery = values.keyword || ''
-      ordersStore.statusFilter = values.status || ''
+      searchQuery.value = values.keyword || ''
+      filters.value = {
+        status: values.status,
+      }
     },
     onReset: () => {
-      ordersStore.searchQuery = ''
-      ordersStore.statusFilter = ''
+      searchQuery.value = ''
+      filters.value = {}
     }
   }
 }
@@ -207,7 +263,7 @@ const tableSchema = computed<TableSchema>(() => ({
 
 // 表格数据
 const tableData = computed(() => {
-  return ordersStore.filteredOrders.map(order => ({
+  return paginatedData.value.map(order => ({
     ...order,
     key: order.id
   }))
@@ -320,8 +376,8 @@ const addSchema: FormSchema = {
 /**
  * 处理新增订单提交
  */
-function handleAddSubmit(values: Record<string, any>): void {
-  ordersStore.addOrder({
+async function handleAddSubmit(values: Record<string, any>): Promise<void> {
+  await ordersApi.createOrder({
     customer: values.customer,
     email: values.email,
     phone: values.phone,
@@ -342,6 +398,7 @@ function handleAddSubmit(values: Record<string, any>): void {
     status: 'pending',
     note: ''
   }
+  await fetchData()
 }
 
 /**
@@ -355,8 +412,9 @@ function handleViewOrder(order: Order): void {
 /**
  * 处理删除订单
  */
-function handleDeleteOrder(id: string): void {
-  ordersStore.deleteOrder(id)
+async function handleDeleteOrder(id: string): Promise<void> {
+  await ordersApi.deleteOrder(id)
+  await fetchData()
 }
 
 /**
@@ -384,14 +442,15 @@ function handleSelectChange(keys: (string | number)[], rows: any[]): void {
 /**
  * 批量删除
  */
-function handleBatchDelete(): void {
+async function handleBatchDelete(): Promise<void> {
   if (selectedRowKeys.value.length === 0) {
     alert('请先选择要删除的订单')
     return
   }
   if (confirm(`确定要删除选中的 ${selectedRowKeys.value.length} 个订单吗？`)) {
-    ordersStore.batchDeleteOrders(selectedRowKeys.value.map(String))
+    await ordersApi.batchDeleteOrders(selectedRowKeys.value.map(String))
     tableRef.value?.clearSelection()
+    await fetchData()
   }
 }
 </script>
@@ -429,7 +488,7 @@ function handleBatchDelete(): void {
     <!-- 统计卡片 -->
     <div class="flex flex-wrap gap-3">
       <div
-        v-for="stat in statistics"
+        v-for="stat in statisticsCards"
         :key="stat.title"
         class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
       >
@@ -473,7 +532,7 @@ function handleBatchDelete(): void {
           </div>
           <div class="flex items-center gap-2 text-sm text-muted-foreground">
             <DollarSign class="h-4 w-4" />
-            <span>总金额: ¥{{ ordersStore.statistics.totalAmount.toFixed(2) }}</span>
+            <span>总金额: ¥{{ (statistics.value?.totalAmount || 0).toFixed(2) }}</span>
           </div>
         </div>
       </CardHeader>

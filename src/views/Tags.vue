@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 /**
  * 标签管理页
  */
@@ -11,25 +11,58 @@ import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { useCategoriesStore, type Tag as TagType } from '@/stores/business/categories'
+import type { Tag } from '@/types/models'
+import { categoriesApi } from '@/api'
+import { useTableData } from '@/composables'
 import {
   Plus,
-  Tag,
+  Tag as TagIcon,
   Package
 } from 'lucide-vue-next'
 
-const categoriesStore = useCategoriesStore()
+const {
+  data: tags,
+  loading,
+  searchQuery,
+  filteredData,
+  paginatedData,
+  total,
+  statistics,
+  fetchData,
+} = useTableData<Tag>({
+  apiCall: async () => {
+    const categories = await categoriesApi.getCategories()
+    return categories.filter(c => c.id.startsWith('tag-')).map(c => ({
+      id: c.id,
+      name: c.name,
+      color: c.description || '#1890ff',
+      productCount: c.productCount,
+      createdAt: c.createdAt,
+    }))
+  },
+  filterFn: (items, query) => {
+    if (!query) return items
+    const lowerQuery = query.toLowerCase()
+    return items.filter(tag => tag.name.toLowerCase().includes(lowerQuery))
+  },
+  statisticsFn: (items) => {
+    const total = items.length
+    const totalProducts = items.reduce((sum, tag) => sum + tag.productCount, 0)
+    return {
+      total,
+      totalProducts,
+    }
+  },
+})
 
-// 统计标签
-const statistics = computed(() => {
-  const stats = categoriesStore.tagStatistics
+const statisticsCards = computed(() => {
+  const stats = statistics.value || {}
   return [
-    { title: '标签总数', value: stats.total, icon: Tag, color: 'text-blue-500' },
-    { title: '关联商品', value: stats.totalProducts, icon: Package, color: 'text-green-500' }
+    { title: '标签总数', value: stats.total || 0, icon: TagIcon, color: 'text-blue-500' },
+    { title: '关联商品', value: stats.totalProducts || 0, icon: Package, color: 'text-green-500' }
   ]
 })
 
-// 搜索表单
 const searchFormData = ref({
   keyword: ''
 })
@@ -53,15 +86,13 @@ const searchSchema: FormSchema = {
     resetText: '重置',
     showReset: true,
     onSearch: (values) => {
-      categoriesStore.searchQuery = values.keyword || ''
+      searchQuery.value = values.keyword || ''
     },
     onReset: () => {
-      categoriesStore.searchQuery = ''
+      searchQuery.value = ''
     }
   }
 }
-
-// 表格配置
 
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
@@ -102,14 +133,14 @@ const tableSchema = computed<TableSchema>(() => ({
     {
       text: '编辑',
       type: 'primary',
-      onClick: (record) => handleEdit(record as unknown as TagType)
+      onClick: (record) => handleEdit(record as unknown as Tag)
     },
     {
       text: '删除',
       type: 'danger',
       confirm: true,
       confirmText: '确定要删除该标签吗？',
-      onClick: (record) => handleDelete((record as unknown as TagType).id)
+      onClick: (record) => handleDelete((record as unknown as Tag).id)
     }
   ],
   actionWidth: 150,
@@ -117,13 +148,12 @@ const tableSchema = computed<TableSchema>(() => ({
 }))
 
 const tableData = computed(() => {
-  return categoriesStore.filteredTags.map(t => ({ ...t, key: t.id }))
+  return paginatedData.value.map(t => ({ ...t, key: t.id }))
 })
 
-// 新增/编辑
 const isAddOpen = ref(false)
 const isEditOpen = ref(false)
-const editingItem = ref<TagType | null>(null)
+const editingItem = ref<Tag | null>(null)
 
 const addFormData = ref({
   name: '',
@@ -194,18 +224,22 @@ const editSchema: FormSchema = {
   }
 }
 
-// 事件处理
-function handleAddSubmit(values: Record<string, any>) {
-  categoriesStore.addTag({
+async function handleAddSubmit(values: Record<string, any>) {
+  await categoriesApi.createCategory({
     name: values.name,
-    color: values.color,
-    productCount: 0
+    code: `tag-${Date.now()}`,
+    level: 1,
+    sort: 0,
+    status: 'active',
+    productCount: 0,
+    description: values.color
   })
   isAddOpen.value = false
   addFormData.value = { name: '', color: '#1890ff' }
+  await fetchData()
 }
 
-function handleEdit(item: TagType) {
+function handleEdit(item: Tag) {
   editingItem.value = item
   editFormData.value = {
     id: item.id,
@@ -215,19 +249,21 @@ function handleEdit(item: TagType) {
   isEditOpen.value = true
 }
 
-function handleEditSubmit(values: Record<string, any>) {
+async function handleEditSubmit(values: Record<string, any>) {
   if (editingItem.value) {
-    categoriesStore.updateTag(editingItem.value.id, {
+    await categoriesApi.updateCategory(editingItem.value.id, {
       name: values.name,
-      color: values.color
+      description: values.color
     })
     isEditOpen.value = false
     editingItem.value = null
+    await fetchData()
   }
 }
 
-function handleDelete(id: string) {
-  categoriesStore.deleteTag(id)
+async function handleDelete(id: string) {
+  await categoriesApi.deleteCategory(id)
+  await fetchData()
 }
 
 const selectedRowKeys = ref<(string | number)[]>([])
@@ -238,7 +274,6 @@ function handleSelectChange(keys: (string | number)[]) {
 
 <template>
   <div class="space-y-6">
-    <!-- 页面标题 -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
         <h1 class="text-3xl font-bold tracking-tight">标签管理</h1>
@@ -250,20 +285,17 @@ function handleSelectChange(keys: (string | number)[]) {
       </Button>
     </div>
 
-    <!-- 新增弹窗 -->
     <TModal v-model:open="isAddOpen" title="添加标签" width="480" :footer="null">
       <TForm v-model="addFormData" :schema="addSchema" @submit="handleAddSubmit" />
     </TModal>
 
-    <!-- 编辑弹窗 -->
     <TModal v-model:open="isEditOpen" title="编辑标签" width="480" :footer="null">
       <TForm v-if="editingItem" v-model="editFormData" :schema="editSchema" @submit="handleEditSubmit" />
     </TModal>
 
-    <!-- 统计标签 -->
     <div class="flex flex-wrap gap-3">
       <div
-        v-for="stat in statistics"
+        v-for="stat in statisticsCards"
         :key="stat.title"
         class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
       >
@@ -275,7 +307,6 @@ function handleSelectChange(keys: (string | number)[]) {
       </div>
     </div>
 
-    <!-- 搜索表单 -->
     <div class="bg-muted/30 rounded-lg p-4">
       <div class="flex flex-col lg:flex-row lg:items-center gap-4">
         <div class="flex-1">
@@ -284,7 +315,6 @@ function handleSelectChange(keys: (string | number)[]) {
       </div>
     </div>
 
-    <!-- 数据表格 -->
     <Card class="border-0 shadow-sm">
       <CardHeader class="pb-4">
         <div class="flex items-center gap-3">
@@ -301,15 +331,13 @@ function handleSelectChange(keys: (string | number)[]) {
           :schema="tableSchema"
           @select-change="handleSelectChange"
         >
-          <!-- 名称列 -->
           <template #name="slotProps">
             <div class="flex items-center gap-2">
-              <Tag class="h-4 w-4" :style="{ color: (slotProps as any).record.color }" />
+              <TagIcon class="h-4 w-4" />
               <span class="font-medium">{{ (slotProps as any).text }}</span>
             </div>
           </template>
 
-          <!-- 颜色列 -->
           <template #color="slotProps">
             <div class="flex items-center gap-2">
               <div 
@@ -320,11 +348,10 @@ function handleSelectChange(keys: (string | number)[]) {
             </div>
           </template>
 
-          <!-- 空状态 -->
           <template #emptyText>
             <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
               <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <Tag class="w-8 h-8 text-muted-foreground/50" />
+                <TagIcon class="w-8 h-8 text-muted-foreground/50" />
               </div>
               <p class="text-base font-medium mb-1">暂无标签数据</p>
               <p class="text-sm text-muted-foreground mb-4">开始添加您的第一个标签吧</p>

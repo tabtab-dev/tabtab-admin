@@ -64,3 +64,35 @@ export function createUnauthorizedResponse(message = '未授权'): MockResponse<
 export function createNotFoundResponse(message = '资源不存在'): MockResponse<null> {
   return createErrorResponse(message, 404);
 }
+
+/**
+ * 创建分页响应
+ * @param data - 分页数据
+ * @param total - 总记录数
+ * @param page - 当前页码
+ * @param pageSize - 每页数量
+ * @returns 分页响应对象
+ */
+export function paginatedResponse<T>(
+  data: T[],
+  total: number,
+  page: number,
+  pageSize: number
+): MockResponse<{ list: T[]; total: number; page: number; pageSize: number }> {
+  return {
+    code: 200,
+    data: {
+      list: data,
+      total,
+      page,
+      pageSize,
+    },
+    message: 'success',
+  };
+}
+
+/**
+ * 成功响应别名
+ * @deprecated 使用 createSuccessResponse 代替
+ */
+export const successResponse = createSuccessResponse;

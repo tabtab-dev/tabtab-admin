@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * 用户管理页 - 使用 TTable + TForm 重构
+ * 用户管理页 - 使用 API + useTableData 重构
  *
  * @description 基于 JSON 配置化的用户管理页面
  */
@@ -13,35 +13,81 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TModal } from '@/components/data/TModal'
-
-import { useUsersStore, type User } from '@/stores/business/users'
+import { usersApi } from '@/api'
+import { useTableData } from '@/composables'
+import type { User } from '@/types/models'
 import { Plus, Users, UserCheck, UserCog, TrendingUp, Search } from 'lucide-vue-next'
 import { Avatar, Space, Tag } from 'antdv-next'
 
-// ==================== Store ====================
-const usersStore = useUsersStore()
+const {
+  data: users,
+  loading,
+  searchQuery,
+  filters,
+  currentPage,
+  pageSize,
+  filteredData,
+  paginatedData,
+  total,
+  statistics,
+  fetchData,
+  addData,
+  updateData,
+  removeData,
+  batchRemoveData,
+} = useTableData<User>({
+  apiCall: () => usersApi.getUsers(),
+  filterFn: (items, query, filterValues) => {
+    let result = items
 
-// ==================== 统计数据 ====================
-const statistics = computed(() => {
-  const users = usersStore.users
-  const total = users.length
-  const active = users.filter(u => u.status === 'active').length
-  const admins = users.filter(u => u.role === 'admin').length
-  const today = users.filter(u => {
-    const created = new Date(u.createdAt)
-    const now = new Date()
-    return created.toDateString() === now.toDateString()
-  }).length
+    if (query) {
+      const lowerQuery = query.toLowerCase()
+      result = result.filter(
+        user =>
+          user.name.toLowerCase().includes(lowerQuery) ||
+          user.email.toLowerCase().includes(lowerQuery)
+      )
+    }
 
+    if (filterValues.role) {
+      result = result.filter(user => user.role === filterValues.role)
+    }
+
+    if (filterValues.status) {
+      result = result.filter(user => user.status === filterValues.status)
+    }
+
+    return result
+  },
+  statisticsFn: (items) => {
+    const total = items.length
+    const active = items.filter(u => u.status === 'active').length
+    const admins = items.filter(u => u.role === 'admin').length
+    const today = items.filter(u => {
+      const created = new Date(u.createdAt)
+      const now = new Date()
+      return created.toDateString() === now.toDateString()
+    }).length
+
+    return {
+      total,
+      active,
+      admins,
+      today,
+    }
+  },
+})
+
+const statisticsCards = computed(() => {
+  const stats = statistics.value || {}
   return [
-    { title: '总用户', value: total, icon: Users, color: 'text-blue-500', bgColor: 'bg-blue-50' },
-    { title: '活跃用户', value: active, icon: UserCheck, color: 'text-green-500', bgColor: 'bg-green-50' },
-    { title: '管理员', value: admins, icon: UserCog, color: 'text-purple-500', bgColor: 'bg-purple-50' },
-    { title: '今日新增', value: today, icon: TrendingUp, color: 'text-orange-500', bgColor: 'bg-orange-50' }
+    { title: '总用户', value: stats.total || 0, icon: Users, color: 'text-blue-500', bgColor: 'bg-blue-50' },
+    { title: '活跃用户', value: stats.active || 0, icon: UserCheck, color: 'text-green-500', bgColor: 'bg-green-50' },
+    { title: '管理员', value: stats.admins || 0, icon: UserCog, color: 'text-purple-500', bgColor: 'bg-purple-50' },
+    { title: '今日新增', value: stats.today || 0, icon: TrendingUp, color: 'text-orange-500', bgColor: 'bg-orange-50' }
   ]
 })
 
-// ==================== 搜索表单 ====================
 const searchFormData = ref({
   keyword: '',
   role: '',
@@ -94,32 +140,33 @@ const searchSchema: FormSchema = {
     resetText: '重置',
     showReset: true,
     onSearch: (values) => {
-      usersStore.searchQuery = values.keyword || ''
+      searchQuery.value = values.keyword || ''
+      filters.value = {
+        role: values.role,
+        status: values.status,
+      }
     },
     onReset: () => {
-      usersStore.searchQuery = ''
+      searchQuery.value = ''
+      filters.value = {}
     }
   }
 }
 
-// ==================== 表格配置 ====================
 const tableRef = ref<TTableExpose>()
 
-// 角色标签映射
 const roleLabels: Record<string, string> = {
   admin: '管理员',
   editor: '编辑',
   viewer: '查看者'
 }
 
-// 状态样式映射
 const statusConfig: Record<string, { color: string; text: string }> = {
   active: { color: 'success', text: '活跃' },
   inactive: { color: 'default', text: '非活跃' },
   suspended: { color: 'error', text: '已暂停' }
 }
 
-// 表格 Schema
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
     {
@@ -191,44 +238,10 @@ const tableSchema = computed<TableSchema>(() => ({
   actionFixed: 'right'
 }))
 
-// 表格数据
-const tableData = computed(() => {
-  let data = usersStore.users
-
-  // 关键词过滤
-  if (searchFormData.value.keyword) {
-    const query = searchFormData.value.keyword.toLowerCase()
-    data = data.filter(
-      user =>
-        user.name.toLowerCase().includes(query) ||
-        user.email.toLowerCase().includes(query)
-    )
-  }
-
-  // 角色过滤
-  if (searchFormData.value.role) {
-    data = data.filter(user => user.role === searchFormData.value.role)
-  }
-
-  // 状态过滤
-  if (searchFormData.value.status) {
-    data = data.filter(user => user.status === searchFormData.value.status)
-  }
-
-  return data.map(user => ({
-    ...user,
-    key: user.id
-  }))
-})
-
-// ==================== 新增/编辑表单 ====================
 const isAddDialogOpen = ref(false)
 const isEditDialogOpen = ref(false)
 const editingUser = ref<User | null>(null)
 
-
-
-// 新增表单数据
 const addFormData = ref({
   name: '',
   email: '',
@@ -236,7 +249,6 @@ const addFormData = ref({
   status: 'active'
 })
 
-// 编辑表单数据
 const editFormData = ref({
   id: '',
   name: '',
@@ -245,7 +257,6 @@ const editFormData = ref({
   status: 'active' as 'active' | 'inactive' | 'suspended'
 })
 
-// 新增表单 Schema
 const addSchema: FormSchema = {
   layout: 'horizontal',
   labelCol: { span: 6 },
@@ -308,7 +319,6 @@ const addSchema: FormSchema = {
   }
 }
 
-// 编辑表单 Schema
 const editSchema: FormSchema = {
   layout: 'horizontal',
   labelCol: { span: 6 },
@@ -371,13 +381,8 @@ const editSchema: FormSchema = {
   }
 }
 
-// ==================== 事件处理 ====================
-
-/**
- * 处理新增用户提交
- */
-function handleAddSubmit(values: Record<string, any>): void {
-  usersStore.addUser({
+async function handleAddSubmit(values: Record<string, any>): Promise<void> {
+  await usersApi.createUser({
     name: values.name,
     email: values.email,
     role: values.role,
@@ -390,11 +395,9 @@ function handleAddSubmit(values: Record<string, any>): void {
     role: 'viewer',
     status: 'active'
   }
+  await fetchData()
 }
 
-/**
- * 处理编辑用户
- */
 function handleEditUser(user: User): void {
   editingUser.value = user
   editFormData.value = {
@@ -407,12 +410,9 @@ function handleEditUser(user: User): void {
   isEditDialogOpen.value = true
 }
 
-/**
- * 处理编辑提交
- */
-function handleEditSubmit(values: Record<string, any>): void {
+async function handleEditSubmit(values: Record<string, any>): Promise<void> {
   if (editingUser.value) {
-    usersStore.updateUser(editingUser.value.id, {
+    await usersApi.updateUser(editingUser.value.id, {
       name: values.name,
       email: values.email,
       role: values.role,
@@ -420,19 +420,15 @@ function handleEditSubmit(values: Record<string, any>): void {
     })
     isEditDialogOpen.value = false
     editingUser.value = null
+    await fetchData()
   }
 }
 
-/**
- * 处理删除用户
- */
-function handleDeleteUser(id: string): void {
-  usersStore.deleteUser(id)
+async function handleDeleteUser(id: string): Promise<void> {
+  await usersApi.deleteUser(id)
+  await fetchData()
 }
 
-/**
- * 处理表格变化
- */
 function handleTableChange(
   pagination: { current: number; pageSize: number; total: number },
   filters: Record<string, (string | number | boolean)[] | null>,
@@ -441,9 +437,6 @@ function handleTableChange(
   console.log('表格变化:', { pagination, filters, sorter })
 }
 
-/**
- * 处理行选择变化
- */
 const selectedRowKeys = ref<(string | number)[]>([])
 const selectedRows = ref<User[]>([])
 
@@ -452,26 +445,21 @@ function handleSelectChange(keys: (string | number)[], rows: any[]): void {
   selectedRows.value = rows as User[]
 }
 
-/**
- * 批量删除
- */
-function handleBatchDelete(): void {
+async function handleBatchDelete(): Promise<void> {
   if (selectedRowKeys.value.length === 0) {
     alert('请先选择要删除的用户')
     return
   }
   if (confirm(`确定要删除选中的 ${selectedRowKeys.value.length} 个用户吗？`)) {
-    selectedRowKeys.value.forEach(id => {
-      usersStore.deleteUser(String(id))
-    })
+    await usersApi.batchDeleteUsers(selectedRowKeys.value as string[])
     tableRef.value?.clearSelection()
+    await fetchData()
   }
 }
 </script>
 
 <template>
   <div class="space-y-6">
-    <!-- 页面标题 -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
         <h1 class="text-3xl font-bold tracking-tight">用户管理</h1>
@@ -483,26 +471,22 @@ function handleBatchDelete(): void {
       </Button>
     </div>
 
-    <!-- 新增用户弹窗 -->
     <TModal
-      ref="addModalRef"
       v-model:open="isAddDialogOpen"
       title="添加新用户"
       width="480"
       :footer="null"
     >
       <TForm
-        ref="formRef"
         v-model="addFormData"
         :schema="addSchema"
         @submit="handleAddSubmit"
       />
     </TModal>
 
-    <!-- 统计卡片 -->
     <div class="flex flex-wrap gap-3">
       <div
-        v-for="stat in statistics"
+        v-for="stat in statisticsCards"
         :key="stat.title"
         class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
       >
@@ -514,7 +498,6 @@ function handleBatchDelete(): void {
       </div>
     </div>
 
-    <!-- 搜索表单 -->
     <div class="bg-muted/30 rounded-lg p-4">
       <div class="flex flex-col lg:flex-row lg:items-center gap-4">
         <div class="flex-1">
@@ -534,14 +517,13 @@ function handleBatchDelete(): void {
       </div>
     </div>
 
-    <!-- 用户表格 -->
     <Card class="border-0 shadow-sm">
       <CardHeader class="pb-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <CardTitle class="text-base font-semibold">用户列表</CardTitle>
             <span class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-              共 {{ tableData.length }} 人
+              共 {{ total }} 人
             </span>
           </div>
         </div>
@@ -549,12 +531,11 @@ function handleBatchDelete(): void {
       <CardContent class="pt-0">
         <TTable
           ref="tableRef"
-          v-model:data="tableData"
+          v-model:data="paginatedData"
           :schema="tableSchema"
           @change="handleTableChange"
           @select-change="handleSelectChange"
         >
-          <!-- 自定义用户列 -->
           <template #user="slotProps">
             <Space>
               <Avatar
@@ -571,14 +552,12 @@ function handleBatchDelete(): void {
             </Space>
           </template>
 
-          <!-- 自定义角色列 -->
           <template #role="slotProps">
             <Tag :color="(slotProps as any).text === 'admin' ? 'red' : (slotProps as any).text === 'editor' ? 'blue' : 'default'">
               {{ roleLabels[(slotProps as any).text] }}
             </Tag>
           </template>
 
-          <!-- 自定义状态列 -->
           <template #status="slotProps">
             <Badge
               :class="{
@@ -592,7 +571,6 @@ function handleBatchDelete(): void {
             </Badge>
           </template>
 
-          <!-- 空状态 -->
           <template #emptyText>
             <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
               <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
@@ -610,9 +588,7 @@ function handleBatchDelete(): void {
       </CardContent>
     </Card>
 
-    <!-- 编辑弹窗 -->
     <TModal
-      ref="editModalRef"
       v-model:open="isEditDialogOpen"
       title="编辑用户"
       width="480"
@@ -620,7 +596,6 @@ function handleBatchDelete(): void {
     >
       <TForm
         v-if="editingUser"
-        ref="formRef"
         v-model="editFormData"
         :schema="editSchema"
         @submit="handleEditSubmit"

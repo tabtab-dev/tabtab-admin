@@ -3,7 +3,7 @@
  * @description 用户的增删改查等接口
  */
 import { request } from '../client';
-import type { User } from '@/stores/business/users';
+import type { User } from '@/types/models';
 import type { PaginationData } from '../types';
 
 /**

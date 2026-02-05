@@ -7,6 +7,9 @@ import type { IncomingMessage, ServerResponse } from 'http';
 import { authRoutes } from './routes/auth';
 import { userRoutes } from './routes/users';
 import { menuRoutes } from './routes/menu';
+import { productsRoutes } from './routes/products';
+import { ordersRoutes } from './routes/orders';
+import { categoriesRoutes } from './routes/categories';
 
 /**
  * 合并所有模块路由
@@ -15,6 +18,9 @@ const allRoutes: Record<string, (req: IncomingMessage & { body?: any }, res: Ser
   ...authRoutes,
   ...userRoutes,
   ...menuRoutes,
+  ...productsRoutes,
+  ...ordersRoutes,
+  ...categoriesRoutes,
 };
 
 /**

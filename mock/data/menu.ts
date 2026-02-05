@@ -12,7 +12,7 @@ export const menuData: MenuItem[] = [
   {
     key: 'dashboard',
     title: 'Dashboard',
-    path: '/',
+    path: '/dashboard',
     icon: 'LayoutDashboard',
     group: 'main',
     i18nKey: 'menu.dashboard',
@@ -207,8 +207,8 @@ export const menuData: MenuItem[] = [
  * @returns component 格式（如 /categories）
  */
 function pathToComponent(path: string): string {
-  // 根路径特殊处理
-  if (path === '/') {
+  // Dashboard 路径特殊处理
+  if (path === '/dashboard') {
     return '/dashboard';
   }
 

@@ -3,7 +3,7 @@
  * @description 订单的增删改查等接口
  */
 import { request } from '../client';
-import type { Order } from '@/stores/business/orders';
+import type { Order } from '@/types/models';
 import type { PaginationData } from '../types';
 
 /**

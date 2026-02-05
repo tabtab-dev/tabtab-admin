@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 /**
  * 二级分类页
  */
@@ -11,22 +11,61 @@ import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useCategoriesStore, type Category } from '@/stores/business/categories'
+import type { Category } from '@/types/models'
+import { categoriesApi } from '@/api'
+import { useTableData } from '@/composables'
 import { Plus, Layers, CheckCircle, XCircle, Package } from 'lucide-vue-next'
 
-const categoriesStore = useCategoriesStore()
+const {
+  data: categories,
+  loading,
+  searchQuery,
+  filters,
+  filteredData,
+  paginatedData,
+  total,
+  statistics,
+  fetchData,
+} = useTableData<Category>({
+  apiCall: () => categoriesApi.getCategories(),
+  filterFn: (items, query, filterValues) => {
+    let result = items.filter(c => c.level === 2)
 
-onMounted(() => {
-  categoriesStore.levelFilter = 2
+    if (query) {
+      const lowerQuery = query.toLowerCase()
+      result = result.filter(
+        category =>
+          category.name.toLowerCase().includes(lowerQuery) ||
+          category.code.toLowerCase().includes(lowerQuery)
+      )
+    }
+
+    if (filterValues.status) {
+      result = result.filter(category => category.status === filterValues.status)
+    }
+
+    return result
+  },
+  statisticsFn: (items) => {
+    const level2Categories = items.filter(c => c.level === 2)
+    return {
+      total: level2Categories.length,
+      active: level2Categories.filter(c => c.status === 'active').length,
+      inactive: level2Categories.filter(c => c.status === 'inactive').length,
+      totalProducts: level2Categories.reduce((sum, c) => sum + c.productCount, 0)
+    }
+  },
 })
 
-const statistics = computed(() => {
-  const level2Categories = categoriesStore.categories.filter(c => c.level === 2)
+const level1Categories = computed(() => categories.value.filter(c => c.level === 1))
+
+const statisticsCards = computed(() => {
+  const stats = statistics.value || {}
   return [
-    { title: '二级分类', value: level2Categories.length, icon: Layers, color: 'text-orange-500' },
-    { title: '已启用', value: level2Categories.filter(c => c.status === 'active').length, icon: CheckCircle, color: 'text-green-500' },
-    { title: '已禁用', value: level2Categories.filter(c => c.status === 'inactive').length, icon: XCircle, color: 'text-red-500' },
-    { title: '关联商品', value: level2Categories.reduce((sum, c) => sum + c.productCount, 0), icon: Package, color: 'text-purple-500' }
+    { title: '二级分类', value: stats.total || 0, icon: Layers, color: 'text-orange-500' },
+    { title: '已启用', value: stats.active || 0, icon: CheckCircle, color: 'text-green-500' },
+    { title: '已禁用', value: stats.inactive || 0, icon: XCircle, color: 'text-red-500' },
+    { title: '关联商品', value: stats.totalProducts || 0, icon: Package, color: 'text-purple-500' }
   ]
 })
 
@@ -37,7 +76,7 @@ const searchSchema: FormSchema = {
     { name: 'keyword', type: 'input', label: '', placeholder: '搜索分类名称...', className: 'w-[200px]' },
     { name: 'status', type: 'select', label: '', placeholder: '全部状态', options: [{ label: '全部状态', value: '' }, { label: '启用', value: 'active' }, { label: '禁用', value: 'inactive' }], className: 'w-[140px]' }
   ],
-  searchConfig: { enabled: true, collapsed: false, showCollapseButton: false, searchText: '搜索', resetText: '重置', showReset: true }
+  searchConfig: { enabled: true, collapsed: false, showCollapseButton: false, searchText: '搜索', resetText: '重置', showReset: true, onSearch: (values) => { searchQuery.value = values.keyword || ''; filters.value = { status: values.status } }, onReset: () => { searchQuery.value = ''; filters.value = {} } }
 }
 
 
@@ -58,7 +97,7 @@ const tableSchema = computed<TableSchema>(() => ({
   actionWidth: 150, actionFixed: 'right'
 }))
 
-const tableData = computed(() => categoriesStore.filteredCategories.map(c => ({ ...c, key: c.id })))
+const tableData = computed(() => paginatedData.value.map(c => ({ ...c, key: c.id })))
 
 const isAddOpen = ref(false), isEditOpen = ref(false), editingItem = ref<Category | null>(null)
 const addFormData = ref({ name: '', code: '', parentId: '', sort: 0, status: 'active' as 'active' | 'inactive', description: '' })
@@ -69,7 +108,7 @@ const addSchema: FormSchema = {
   fields: [
     { name: 'name', type: 'input', label: '分类名称', placeholder: '请输入分类名称', rules: [{ required: true, message: '分类名称不能为空' }] },
     { name: 'code', type: 'input', label: '分类编码', placeholder: '请输入分类编码', rules: [{ required: true, message: '分类编码不能为空' }] },
-    { name: 'parentId', type: 'select', label: '上级分类', placeholder: '请选择上级分类', options: () => categoriesStore.level1Categories.map(c => ({ label: c.name, value: c.id })), rules: [{ required: true, message: '请选择上级分类' }] },
+    { name: 'parentId', type: 'select', label: '上级分类', placeholder: '请选择上级分类', options: () => level1Categories.value.map(c => ({ label: c.name, value: c.id })), rules: [{ required: true, message: '请选择上级分类' }] },
     { name: 'sort', type: 'number', label: '排序', placeholder: '请输入排序号' },
     { name: 'status', type: 'select', label: '状态', placeholder: '请选择状态', options: [{ label: '启用', value: 'active' }, { label: '禁用', value: 'inactive' }] },
     { name: 'description', type: 'textarea', label: '描述', placeholder: '请输入描述（可选）' }
@@ -88,11 +127,12 @@ const editSchema: FormSchema = {
   actions: { showSubmit: true, showReset: true, submitText: '保存修改', resetText: '取消', align: 'right', onReset: () => { isEditOpen.value = false } }
 }
 
-function handleAddSubmit(values: Record<string, any>) {
-  const parent = categoriesStore.level1Categories.find(c => c.id === values.parentId)
-  categoriesStore.addCategory({ name: values.name, code: values.code, level: 2, parentId: values.parentId, parentName: parent?.name, sort: Number(values.sort) || 0, status: values.status, productCount: 0, description: values.description })
+async function handleAddSubmit(values: Record<string, any>) {
+  const parent = level1Categories.value.find(c => c.id === values.parentId)
+  await categoriesApi.createCategory({ name: values.name, code: values.code, level: 2, parentId: values.parentId, parentName: parent?.name, sort: Number(values.sort) || 0, status: values.status, productCount: 0, description: values.description })
   isAddOpen.value = false
   addFormData.value = { name: '', code: '', parentId: '', sort: 0, status: 'active', description: '' }
+  await fetchData()
 }
 
 function handleEdit(item: Category) {
@@ -101,17 +141,33 @@ function handleEdit(item: Category) {
   isEditOpen.value = true
 }
 
-function handleEditSubmit(values: Record<string, any>) {
+async function handleEditSubmit(values: Record<string, any>) {
   if (editingItem.value) {
-    categoriesStore.updateCategory(editingItem.value.id, { name: values.name, sort: Number(values.sort), status: values.status, description: values.description })
+    await categoriesApi.updateCategory(editingItem.value.id, { name: values.name, sort: Number(values.sort), status: values.status, description: values.description })
     isEditOpen.value = false
     editingItem.value = null
+    await fetchData()
   }
 }
 
-function handleDelete(id: string) { categoriesStore.deleteCategory(id) }
+async function handleDelete(id: string) {
+  await categoriesApi.deleteCategory(id)
+  await fetchData()
+}
+
 const selectedRowKeys = ref<(string | number)[]>([])
 function handleSelectChange(keys: (string | number)[]) { selectedRowKeys.value = keys }
+
+async function handleBatchDelete() {
+  if (selectedRowKeys.value.length === 0) {
+    alert('请先选择要删除的分类')
+    return
+  }
+  if (confirm(`确定要删除选中的 ${selectedRowKeys.value.length} 个分类吗？`)) {
+    await categoriesApi.batchDeleteCategories(selectedRowKeys.value.map(String))
+    await fetchData()
+  }
+}
 </script>
 
 <template>
@@ -136,7 +192,7 @@ function handleSelectChange(keys: (string | number)[]) { selectedRowKeys.value =
     </TModal>
 
     <div class="flex flex-wrap gap-3">
-      <div v-for="stat in statistics" :key="stat.title" class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
+      <div v-for="stat in statisticsCards" :key="stat.title" class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
         <component :is="stat.icon" :class="['h-4 w-4', stat.color]" />
         <div class="flex items-baseline gap-2">
           <span class="text-lg font-semibold">{{ stat.value }}</span>
@@ -152,7 +208,7 @@ function handleSelectChange(keys: (string | number)[]) { selectedRowKeys.value =
         </div>
         <div v-if="selectedRowKeys.length > 0" class="flex items-center gap-2 lg:border-l lg:pl-4">
           <span class="text-sm text-muted-foreground">已选 {{ selectedRowKeys.length }} 项</span>
-          <Button variant="outline" size="sm" class="h-8 text-xs text-destructive hover:text-destructive" @click="categoriesStore.batchDeleteCategories(selectedRowKeys.map(String))">批量删除</Button>
+          <Button variant="outline" size="sm" class="h-8 text-xs text-destructive hover:text-destructive" @click="handleBatchDelete">批量删除</Button>
         </div>
       </div>
     </div>

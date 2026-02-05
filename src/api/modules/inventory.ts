@@ -3,7 +3,7 @@
  * @description 仓库和库存的增删改查等接口
  */
 import { request } from '../client';
-import type { Warehouse, StockItem } from '@/stores/business/inventory';
+import type { Warehouse, StockItem } from '@/types/models';
 import type { PaginationData } from '../types';
 
 /**

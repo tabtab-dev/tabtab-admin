@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 /**
  * 一级分类页
  */
@@ -11,7 +11,9 @@ import type { FormSchema } from '@/components/data/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useCategoriesStore, type Category } from '@/stores/business/categories'
+import type { Category } from '@/types/models'
+import { categoriesApi } from '@/api'
+import { useTableData } from '@/composables'
 import {
   Plus,
   FolderTree,
@@ -20,26 +22,60 @@ import {
   Package
 } from 'lucide-vue-next'
 
-const categoriesStore = useCategoriesStore()
+const {
+  data: categories,
+  loading,
+  searchQuery,
+  filters,
+  filteredData,
+  paginatedData,
+  total,
+  statistics,
+  fetchData,
+} = useTableData<Category>({
+  apiCall: () => categoriesApi.getCategories(),
+  filterFn: (items, query, filterValues) => {
+    let result = items.filter(c => c.level === 1)
 
-// 默认只显示一级分类
-onMounted(() => {
-  categoriesStore.levelFilter = 1
+    if (query) {
+      const lowerQuery = query.toLowerCase()
+      result = result.filter(
+        category =>
+          category.name.toLowerCase().includes(lowerQuery) ||
+          category.code.toLowerCase().includes(lowerQuery)
+      )
+    }
+
+    if (filterValues.status) {
+      result = result.filter(category => category.status === filterValues.status)
+    }
+
+    return result
+  },
+  statisticsFn: (items) => {
+    const level1Categories = items.filter(c => c.level === 1)
+    const total = level1Categories.length
+    const active = level1Categories.filter(c => c.status === 'active').length
+    const inactive = level1Categories.filter(c => c.status === 'inactive').length
+    const totalProducts = level1Categories.reduce((sum, c) => sum + c.productCount, 0)
+
+    return {
+      total,
+      active,
+      inactive,
+      totalProducts,
+    }
+  },
 })
 
 // 统计标签
-const statistics = computed(() => {
-  const level1Categories = categoriesStore.categories.filter(c => c.level === 1)
-  const total = level1Categories.length
-  const active = level1Categories.filter(c => c.status === 'active').length
-  const inactive = level1Categories.filter(c => c.status === 'inactive').length
-  const totalProducts = level1Categories.reduce((sum, c) => sum + c.productCount, 0)
-
+const statisticsCards = computed(() => {
+  const stats = statistics.value || {}
   return [
-    { title: '一级分类', value: total, icon: FolderTree, color: 'text-blue-500' },
-    { title: '已启用', value: active, icon: CheckCircle, color: 'text-green-500' },
-    { title: '已禁用', value: inactive, icon: XCircle, color: 'text-red-500' },
-    { title: '关联商品', value: totalProducts, icon: Package, color: 'text-purple-500' }
+    { title: '一级分类', value: stats.total || 0, icon: FolderTree, color: 'text-blue-500' },
+    { title: '已启用', value: stats.active || 0, icon: CheckCircle, color: 'text-green-500' },
+    { title: '已禁用', value: stats.inactive || 0, icon: XCircle, color: 'text-red-500' },
+    { title: '关联商品', value: stats.totalProducts || 0, icon: Package, color: 'text-purple-500' }
   ]
 })
 
@@ -80,12 +116,14 @@ const searchSchema: FormSchema = {
     resetText: '重置',
     showReset: true,
     onSearch: (values) => {
-      categoriesStore.searchQuery = values.keyword || ''
-      categoriesStore.statusFilter = values.status || ''
+      searchQuery.value = values.keyword || ''
+      filters.value = {
+        status: values.status,
+      }
     },
     onReset: () => {
-      categoriesStore.searchQuery = ''
-      categoriesStore.statusFilter = ''
+      searchQuery.value = ''
+      filters.value = {}
     }
   }
 }
@@ -152,7 +190,7 @@ const tableSchema = computed<TableSchema>(() => ({
 }))
 
 const tableData = computed(() => {
-  return categoriesStore.filteredCategories.map(c => ({ ...c, key: c.id }))
+  return paginatedData.value.map(c => ({ ...c, key: c.id }))
 })
 
 // 新增/编辑
@@ -282,8 +320,8 @@ const editSchema: FormSchema = {
 }
 
 // 事件处理
-function handleAddSubmit(values: Record<string, any>) {
-  categoriesStore.addCategory({
+async function handleAddSubmit(values: Record<string, any>) {
+  await categoriesApi.createCategory({
     name: values.name,
     code: values.code,
     level: 1,
@@ -294,6 +332,7 @@ function handleAddSubmit(values: Record<string, any>) {
   })
   isAddOpen.value = false
   addFormData.value = { name: '', code: '', sort: 0, status: 'active', description: '' }
+  await fetchData()
 }
 
 function handleEdit(item: Category) {
@@ -311,7 +350,7 @@ function handleEdit(item: Category) {
 
 function handleEditSubmit(values: Record<string, any>) {
   if (editingItem.value) {
-    categoriesStore.updateCategory(editingItem.value.id, {
+    categoriesApi.updateCategory(editingItem.value.id, {
       name: values.name,
       code: values.code,
       sort: Number(values.sort),
@@ -320,16 +359,29 @@ function handleEditSubmit(values: Record<string, any>) {
     })
     isEditOpen.value = false
     editingItem.value = null
+    fetchData()
   }
 }
 
-function handleDelete(id: string) {
-  categoriesStore.deleteCategory(id)
+async function handleDelete(id: string) {
+  await categoriesApi.deleteCategory(id)
+  await fetchData()
 }
 
 const selectedRowKeys = ref<(string | number)[]>([])
 function handleSelectChange(keys: (string | number)[]) {
   selectedRowKeys.value = keys
+}
+
+async function handleBatchDelete() {
+  if (selectedRowKeys.value.length === 0) {
+    alert('请先选择要删除的分类')
+    return
+  }
+  if (confirm(`确定要删除选中的 ${selectedRowKeys.value.length} 个分类吗？`)) {
+    await categoriesApi.batchDeleteCategories(selectedRowKeys.value.map(String))
+    await fetchData()
+  }
 }
 </script>
 
@@ -384,7 +436,7 @@ function handleSelectChange(keys: (string | number)[]) {
             variant="outline"
             size="sm"
             class="h-8 text-xs text-destructive hover:text-destructive"
-            @click="categoriesStore.batchDeleteCategories(selectedRowKeys.map(String))"
+            @click="handleBatchDelete"
           >
             批量删除
           </Button>
