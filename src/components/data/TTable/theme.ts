@@ -6,6 +6,7 @@
  */
 import { computed } from 'vue'
 import { useThemeStore } from '@/stores/theme'
+import { theme as antdTheme } from 'antdv-next'
 import type { ThemeConfig } from 'antdv-next'
 
 /**
@@ -51,6 +52,8 @@ const colorMap: Record<string, string> = {
   'oklch(1 0 0 / 15%)': 'rgba(255, 255, 255, 0.15)',
   // 红色变体（用于错误/危险状态）
   'oklch(0.704 0.191 22.216)': '#ef4444',
+  // Dark 主题 muted-foreground
+  'oklch(0.708 0 0)': '#a3a3a3',
 }
 
 /**
@@ -87,8 +90,11 @@ export function useTTableTheme(): ThemeConfig {
   return computed<ThemeConfig>(() => {
     const colors = themeStore.currentColors
     const radius = themeStore.layoutConfig.radius
+    const isDark = themeStore.currentMode === 'dark'
 
     return {
+      // 根据当前模式选择算法
+      algorithm: isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
       token: {
         // 核心颜色
         colorPrimary: oklchToHex(colors.primary),
@@ -212,8 +218,8 @@ export function useTTableTheme(): ThemeConfig {
         },
         // 工具提示
         Tooltip: {
-          colorBgSpotlight: oklchToHex(colors.foreground),
-          colorTextLightSolid: oklchToHex(colors.background),
+          colorBgSpotlight: oklchToHex(colors.popover),
+          colorTextLightSolid: oklchToHex(colors.foreground),
         },
       },
     }

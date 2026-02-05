@@ -2,6 +2,7 @@
  * TTable 组件样式
  *
  * @description TTable 组件的样式定义，与 shadcn-vue 主题对齐
+ * @note Dark 模式通过 antdv-next 的 theme.darkAlgorithm 自动处理，无需额外 CSS
  */
 
 @reference "@/assets/css/app.css";
@@ -87,6 +88,7 @@
 
 /* ==================== 展开行样式 ==================== */
 
+/* 展开行背景 */
 .t-table :deep(.ant-table-expanded-row) {
   @apply bg-muted/20;
 }
@@ -187,4 +189,16 @@
 
 .t-table :deep(.ant-table-virtual-list) {
   @apply overflow-auto;
+}
+
+/* ==================== 斑马纹样式 ==================== */
+
+/* 斑马纹 */
+.t-table.striped :deep(.ant-table-tbody > tr:nth-child(even) > td) {
+  @apply bg-muted/30;
+}
+
+/* 斑马纹悬停 */
+.t-table.striped :deep(.ant-table-tbody > tr:nth-child(even):hover > td) {
+  @apply bg-muted/50;
 }

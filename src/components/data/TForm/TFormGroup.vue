@@ -45,14 +45,14 @@ function toggleExpand(): void {
 </script>
 
 <template>
-  <div class="t-form-group border rounded-lg overflow-hidden">
+  <div class="t-form-group border border-border rounded-lg overflow-hidden bg-card">
     <!-- 分组标题 -->
     <div
-      class="t-form-group-header flex items-center justify-between px-4 py-3 bg-muted/50 cursor-pointer"
+      class="t-form-group-header flex items-center justify-between px-4 py-3 bg-muted cursor-pointer border-b border-border"
       :class="{ 'cursor-default': groupConfig.collapsible === false }"
       @click="toggleExpand"
     >
-      <h4 class="font-medium text-sm">
+      <h4 class="font-medium text-sm text-foreground">
         {{ groupConfig.title || field.label }}
       </h4>
       <ChevronDown
@@ -68,7 +68,7 @@ function toggleExpand(): void {
     <!-- 分组内容 -->
     <div
       v-show="isExpanded"
-      class="t-form-group-content p-4 space-y-4"
+      class="t-form-group-content p-4 space-y-4 bg-background"
     >
       <TFormItem
         v-for="childField in groupConfig.children"

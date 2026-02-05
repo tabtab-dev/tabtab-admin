@@ -6,6 +6,7 @@
  */
 import { computed } from 'vue'
 import { useThemeStore } from '@/stores/theme'
+import { theme as antdTheme } from 'antdv-next'
 import type { ThemeConfig } from 'antdv-next'
 
 /**
@@ -13,7 +14,7 @@ import type { ThemeConfig } from 'antdv-next'
  * @description 将 oklch 颜色值映射到 hex 格式（antdv-next 需要）
  */
 const colorMap: Record<string, string> = {
-  // 默认主题
+  // 默认主题 - 浅色模式
   'oklch(0.205 0 0)': '#171717',
   'oklch(0.985 0 0)': '#fafafa',
   'oklch(0.97 0 0)': '#f5f5f5',
@@ -51,6 +52,17 @@ const colorMap: Record<string, string> = {
   'oklch(1 0 0 / 15%)': 'rgba(255, 255, 255, 0.15)',
   // 红色变体（用于错误/危险状态）
   'oklch(0.704 0.191 22.216)': '#ef4444',
+  // Dark 模式背景色
+  'oklch(0.205 0 0)': '#262626',
+  'oklch(0.145 0 0)': '#171717',
+  // Dark 模式前景色
+  'oklch(0.985 0 0)': '#fafafa',
+  'oklch(0.922 0 0)': '#e5e5e5',
+  // Dark 模式次级背景
+  'oklch(0.269 0 0)': '#404040',
+  // Dark 模式边框（带透明度）
+  'oklch(1 0 0 / 10%)': 'rgba(255, 255, 255, 0.1)',
+  'oklch(1 0 0 / 15%)': 'rgba(255, 255, 255, 0.15)',
 }
 
 /**
@@ -87,8 +99,11 @@ export function useTFormTheme(): ThemeConfig {
   return computed<ThemeConfig>(() => {
     const colors = themeStore.currentColors
     const radius = themeStore.layoutConfig.radius
+    const isDark = themeStore.currentMode === 'dark'
 
     return {
+      // 根据当前模式选择算法
+      algorithm: isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
       token: {
         // 核心颜色
         colorPrimary: oklchToHex(colors.primary),

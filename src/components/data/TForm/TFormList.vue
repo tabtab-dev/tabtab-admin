@@ -150,7 +150,7 @@ initListData()
     <div
       v-for="(item, index) in listData"
       :key="getItemKey(index)"
-      class="t-form-list-item p-4 border rounded-lg bg-muted/30"
+      class="t-form-list-item p-4 border border-border rounded-lg bg-muted/50"
     >
       <div class="flex items-start gap-4">
         <!-- 字段列表 -->

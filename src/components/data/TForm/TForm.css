@@ -2,6 +2,7 @@
  * TForm 组件样式
  *
  * @description TForm 组件的样式定义，与 shadcn-vue 主题对齐
+ * @note Dark 模式通过 antdv-next 的 theme.darkAlgorithm 自动处理，无需额外 CSS
  */
 
 @reference "@/assets/css/app.css";
