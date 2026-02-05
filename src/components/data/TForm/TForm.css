@@ -117,7 +117,7 @@
   @apply pb-[1px];
 }
 
-/* 折叠状态下的搜索按钮 */
+/* 搜索按钮 - 折叠状态 */
 .t-form-search .search-btn-collapsed {
   @apply inline-flex items-center justify-center;
   @apply rounded-md bg-primary px-3 py-2;
@@ -130,19 +130,7 @@
   @apply whitespace-nowrap;
 }
 
-/* 折叠状态下的重置按钮 */
-.t-form-search .reset-btn-collapsed {
-  @apply inline-flex items-center justify-center;
-  @apply rounded-md border border-input bg-background px-3 py-2;
-  @apply text-sm font-medium text-foreground;
-  @apply shadow-sm;
-  @apply transition-all duration-200;
-  @apply hover:bg-accent hover:text-accent-foreground hover:border-accent;
-  @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
-  @apply whitespace-nowrap;
-}
-
-/* 展开状态下的搜索按钮 */
+/* 搜索按钮 - 展开状态 */
 .t-form-search .search-btn-expanded {
   @apply inline-flex items-center justify-center;
   @apply rounded-md bg-primary px-4 py-2;
@@ -155,7 +143,19 @@
   @apply whitespace-nowrap;
 }
 
-/* 展开状态下的重置按钮 */
+/* 重置按钮 - 折叠状态 */
+.t-form-search .reset-btn-collapsed {
+  @apply inline-flex items-center justify-center;
+  @apply rounded-md border border-input bg-background px-3 py-2;
+  @apply text-sm font-medium text-foreground;
+  @apply shadow-sm;
+  @apply transition-all duration-200;
+  @apply hover:bg-accent hover:text-accent-foreground hover:border-accent;
+  @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  @apply whitespace-nowrap;
+}
+
+/* 重置按钮 - 展开状态 */
 .t-form-search .reset-btn-expanded {
   @apply inline-flex items-center justify-center;
   @apply rounded-md border border-input bg-background px-4 py-2;
@@ -174,7 +174,7 @@
   @apply shadow-sm;
 }
 
-/* 搜索按钮 */
+/* 搜索按钮（actions容器内） */
 .t-form-search .search-form-actions button[type="submit"],
 .t-form-search .search-form-actions-inline button[type="submit"] {
   @apply inline-flex items-center justify-center;
@@ -187,7 +187,7 @@
   @apply disabled:pointer-events-none disabled:opacity-50;
 }
 
-/* 重置按钮 */
+/* 重置按钮（actions容器内） */
 .t-form-search .search-form-actions button[type="button"]:not(.collapse-btn),
 .t-form-search .search-form-actions-inline button[type="button"]:not(.collapse-btn) {
   @apply inline-flex items-center justify-center;

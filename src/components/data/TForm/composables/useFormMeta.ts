@@ -9,6 +9,71 @@ import { reactive, ref } from 'vue'
 import type { FormMeta } from '../types'
 
 /**
+ * 深拷贝对象 - 使用 JSON 方法，处理函数和特殊对象
+ * @param data - 需要拷贝的数据
+ * @returns 深拷贝后的数据
+ */
+function deepClone<T>(data: T): T {
+  try {
+    // 尝试使用 JSON 方法进行深拷贝
+    // 这样可以处理包含函数的情况（函数会被忽略）
+    return JSON.parse(JSON.stringify(data))
+  } catch (e) {
+    // 如果失败（如循环引用），返回原数据的浅拷贝
+    console.warn('[useFormMeta] 深拷贝失败，使用浅拷贝', e)
+    return Array.isArray(data) ? [...data] as T : { ...data }
+  }
+}
+
+/**
+ * 快速比较两个对象是否相等 - 用于 dirty 状态检查
+ * @param a - 对象A
+ * @param b - 对象B
+ * @returns 是否相等
+ */
+function isEqual(a: Record<string, any>, b: Record<string, any>): boolean {
+  const keysA = Object.keys(a)
+  const keysB = Object.keys(b)
+
+  if (keysA.length !== keysB.length) return false
+
+  for (const key of keysA) {
+    if (!keysB.includes(key)) return false
+    const valA = a[key]
+    const valB = b[key]
+
+    // 处理日期对象
+    if (valA instanceof Date && valB instanceof Date) {
+      if (valA.getTime() !== valB.getTime()) return false
+      continue
+    }
+
+    // 处理基本类型和数组
+    if (typeof valA !== typeof valB) return false
+
+    if (typeof valA === 'object' && valA !== null && valB !== null) {
+      if (Array.isArray(valA) && Array.isArray(valB)) {
+        if (valA.length !== valB.length) return false
+        for (let i = 0; i < valA.length; i++) {
+          if (typeof valA[i] === 'object' && valA[i] !== null) {
+            if (!isEqual(valA[i], valB[i])) return false
+          } else if (valA[i] !== valB[i]) {
+            return false
+          }
+        }
+        continue
+      }
+      if (!isEqual(valA, valB)) return false
+      continue
+    }
+
+    if (valA !== valB) return false
+  }
+
+  return true
+}
+
+/**
  * 表单状态管理
  * @returns 表单状态管理方法
  */
@@ -39,7 +104,7 @@ export function useFormMeta() {
    * @param data - 表单数据
    */
   function setInitialData(data: Record<string, any>): void {
-    initialFormData.value = JSON.parse(JSON.stringify(data))
+    initialFormData.value = deepClone(data)
   }
 
   /**
@@ -47,8 +112,8 @@ export function useFormMeta() {
    * @param formData - 当前表单数据
    */
   function updateMeta(formData: Record<string, any>): void {
-    // 检查 dirty 状态
-    meta.dirty = JSON.stringify(formData) !== JSON.stringify(initialFormData.value)
+    // 使用快速比较算法检查 dirty 状态，避免 JSON.stringify 的性能开销
+    meta.dirty = !isEqual(formData, initialFormData.value)
   }
 
   /**

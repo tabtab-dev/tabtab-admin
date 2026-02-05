@@ -6,7 +6,7 @@
  * @example
  *   <TFormItem :field="field" :form-data="formData" />
  */
-import { computed, ref, watch, onMounted, shallowRef } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted, shallowRef } from 'vue'
 import TFormList from './TFormList.vue'
 import TFormGroup from './TFormGroup.vue'
 import type { FormField, FormOption, AsyncOptionsLoader } from './types'
@@ -198,47 +198,16 @@ onMounted(() => {
 })
 
 /**
- * 组件映射表 - 用于动态渲染组件
+ * 组件卸载时清理资源
  */
-const componentMap: Record<string, string> = {
-  'input': 'a-input',
-  'password': 'a-input-password',
-  'textarea': 'a-textarea',
-  'number': 'a-input-number',
-  'select': 'a-select',
-  'radio': 'a-radio-group',
-  'radio-button': 'a-radio-group',
-  'checkbox': 'a-checkbox-group',
-  'checkbox-single': 'a-checkbox',
-  'switch': 'a-switch',
-  'slider': 'a-slider',
-  'rate': 'a-rate',
-  'auto-complete': 'a-auto-complete',
-  'mention': 'a-mentions',
-  'date-picker': 'a-date-picker',
-  'month-picker': 'a-date-picker',
-  'quarter-picker': 'a-date-picker',
-  'year-picker': 'a-date-picker',
-  'week-picker': 'a-date-picker',
-  'range-picker': 'a-range-picker',
-  'time-picker': 'a-time-picker',
-  'time-range-picker': 'a-time-range-picker',
-  'cascader': 'a-cascader',
-  'tree-select': 'a-tree-select',
-  'upload': 'a-upload',
-  'transfer': 'a-transfer',
-  'segmented': 'a-segmented'
-}
-
-/**
- * 日期选择器类型映射
- */
-const datePickerTypes: Record<string, string> = {
-  'month-picker': 'month',
-  'quarter-picker': 'quarter',
-  'year-picker': 'year',
-  'week-picker': 'week'
-}
+onUnmounted(() => {
+  // 清除防抖定时器
+  if (debounceTimer.value) {
+    clearTimeout(debounceTimer.value)
+  }
+  // 清理选项缓存
+  optionsCache.clear()
+})
 
 /**
  * 处理验证规则 - 为 checkbox-single 和 switch 类型的必填验证做特殊处理
@@ -267,6 +236,13 @@ const processedRules = computed(() => {
     }
     return rule
   })
+})
+
+/**
+ * 判断是否为特殊类型（需要自定义渲染）
+ */
+const isSpecialType = computed(() => {
+  return ['list', 'group', 'custom', 'color-picker'].includes(props.field.type)
 })
 
 /**
@@ -587,6 +563,15 @@ defineExpose({
       v-bind="field.props"
     />
 
+    <!-- Segmented 分段控制器 -->
+    <a-segmented
+      v-else-if="field.type === 'segmented'"
+      v-model:value="fieldValue"
+      :options="finalOptions"
+      :disabled="isDisabled"
+      v-bind="field.props"
+    />
+
     <!-- ColorPicker 颜色选择器 -->
     <div
       v-else-if="field.type === 'color-picker'"
@@ -607,15 +592,6 @@ defineExpose({
         v-bind="field.props?.inputProps"
       />
     </div>
-
-    <!-- Segmented 分段控制器 -->
-    <a-segmented
-      v-else-if="field.type === 'segmented'"
-      v-model:value="fieldValue"
-      :options="finalOptions"
-      :disabled="isDisabled"
-      v-bind="field.props"
-    />
 
     <!-- List 动态列表 -->
     <TFormList
