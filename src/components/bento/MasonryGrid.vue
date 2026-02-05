@@ -107,14 +107,14 @@ const columnStyles = computed(() => {
 }
 
 /* 子元素样式 - 防止被截断并添加底部间距 */
-.masonry-grid > :deep(*) {
+.masonry-grid > * {
   break-inside: avoid;
   page-break-inside: avoid;
   margin-bottom: var(--masonry-gap, 1rem);
 }
 
 /* 最后一个元素移除底部间距 */
-.masonry-grid > :deep(*:last-child) {
+.masonry-grid > *:last-child {
   margin-bottom: 0;
 }
 </style>

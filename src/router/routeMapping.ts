@@ -93,7 +93,7 @@ export function convertToRouteRecords(routes: RouteConfig[]): RouteRecordRaw[] {
     };
 
     if (route.children && route.children.length > 0) {
-      routeRecord.children = convertToRouteRecords(route.children);
+      (routeRecord as any).children = convertToRouteRecords(route.children);
     }
 
     return routeRecord;

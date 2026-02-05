@@ -7,45 +7,81 @@
 
 @reference "@/assets/css/app.css";
 
-/* TModal 组件样式 - 与 shadcn-vue 主题对齐 */
-.t-modal :deep(.ant-modal-content) {
-  @apply rounded-lg border bg-background shadow-lg;
+/* TModal 组件样式 - 与 shadcn-vue 主题对齐
+ * 注意：此文件不是 scoped CSS，所以可以直接选择 antdv-next 的内部类
+ */
+
+.t-modal .ant-modal-content {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  box-shadow: var(--shadow-lg);
 }
 
-.t-modal :deep(.ant-modal-header) {
-  @apply border-b border-border pb-4;
+.t-modal .ant-modal-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
 }
 
-.t-modal :deep(.ant-modal-title) {
-  @apply text-lg font-semibold text-foreground;
+.t-modal .ant-modal-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--foreground);
 }
 
-.t-modal :deep(.ant-modal-body) {
-  @apply text-foreground;
+.t-modal .ant-modal-body {
+  color: var(--foreground);
 }
 
-.t-modal :deep(.ant-modal-footer) {
-  @apply border-t border-border pt-4;
+.t-modal .ant-modal-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
 }
 
-.t-modal :deep(.ant-modal-close) {
-  @apply text-muted-foreground hover:text-foreground transition-colors;
+.t-modal .ant-modal-close {
+  color: var(--muted-foreground);
+  transition: color 0.15s ease;
 }
 
-.t-modal :deep(.ant-modal-close-x) {
-  @apply flex items-center justify-center w-10 h-10;
+.t-modal .ant-modal-close:hover {
+  color: var(--foreground);
+}
+
+.t-modal .ant-modal-close-x {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
 }
 
 /* 遮罩样式 */
-.t-modal :deep(.ant-modal-mask) {
-  @apply bg-black/50;
+.t-modal .ant-modal-mask {
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 /* 按钮样式微调 - 与 shadcn-vue 风格一致 */
-.t-modal :deep(.ant-btn-primary) {
-  @apply bg-primary text-primary-foreground hover:bg-primary/90 border-primary;
+.t-modal .ant-btn-primary {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
 }
 
-.t-modal :deep(.ant-btn-default) {
-  @apply bg-background text-foreground border-input hover:bg-accent hover:text-accent-foreground;
+@media (hover: hover) {
+  .t-modal .ant-btn-primary:hover {
+    background-color: color-mix(in oklab, var(--primary) 90%, transparent);
+  }
+}
+
+.t-modal .ant-btn-default {
+  background-color: var(--background);
+  color: var(--foreground);
+  border-color: var(--input);
+}
+
+@media (hover: hover) {
+  .t-modal .ant-btn-default:hover {
+    background-color: var(--accent);
+    color: var(--accent-foreground);
+  }
 }

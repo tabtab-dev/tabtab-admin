@@ -9,56 +9,56 @@
 
 /* ==================== 边框样式 ==================== */
 
-.t-table.bordered :deep(.ant-table) {
+.t-table.bordered .ant-table {
   @apply border border-border rounded-md;
 }
 
 /* ==================== 展开行样式 ==================== */
 
-.t-table :deep(.ant-table-expanded-row) {
+.t-table .ant-table-expanded-row {
   @apply bg-muted/20;
 }
 
 /* 展开按钮基础样式 */
-.t-table :deep(.ant-table-row-expand-icon) {
+.t-table .ant-table-row-expand-icon {
   @apply border-border bg-background text-foreground;
   @apply hover:border-primary hover:text-primary;
   @apply transition-colors duration-200;
 }
 
-.t-table :deep(.ant-table-row-expand-icon-expanded) {
+.t-table .ant-table-row-expand-icon-expanded {
   @apply border-primary text-primary bg-primary/5;
 }
 
-.t-table :deep(.ant-table-row-expand-icon-disabled) {
+.t-table .ant-table-row-expand-icon-disabled {
   @apply border-muted text-muted-foreground bg-muted/50 cursor-not-allowed;
 }
 
 /* ==================== 固定列样式 ==================== */
 
-.t-table :deep(.ant-table-cell-fix-left::after),
-.t-table :deep(.ant-table-cell-fix-right::after) {
+.t-table .ant-table-cell-fix-left::after,
+.t-table .ant-table-cell-fix-right::after {
   @apply shadow-none;
 }
 
 /* ==================== 操作列样式 ==================== */
 
-.t-table :deep(.ant-table-cell .ant-btn) {
+.t-table .ant-table-cell .ant-btn {
   @apply mx-1 first:ml-0 last:mr-0;
 }
 
 /* ==================== 虚拟列表样式 ==================== */
 
-.t-table :deep(.ant-table-virtual-list) {
+.t-table .ant-table-virtual-list {
   @apply overflow-auto;
 }
 
 /* ==================== 斑马纹样式 ==================== */
 
-.t-table.striped :deep(.ant-table-tbody > tr:nth-child(even) > td) {
+.t-table.striped .ant-table-tbody > tr:nth-child(even) > td {
   @apply bg-muted/30;
 }
 
-.t-table.striped :deep(.ant-table-tbody > tr:nth-child(even):hover > td) {
+.t-table.striped .ant-table-tbody > tr:nth-child(even):hover > td {
   @apply bg-muted/50;
 }

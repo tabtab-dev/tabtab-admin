@@ -306,7 +306,3 @@ defineExpose<TModalExpose>({
     </Modal>
   </ConfigProvider>
 </template>
-
-<style scoped>
-/* 样式已迁移到 TModal.css */
-</style>

@@ -274,9 +274,8 @@ function menuToRouteConfig(menu: MenuItem, parentPath: string = ''): RouteConfig
     name: generateRouteName(menu.path, menu.key),
     component: pathToComponent(menu.path),
     meta: {
-      title: menu.title,
+      titleKey: menu.i18nKey || menu.title,
       icon: menu.icon,
-      i18nKey: menu.i18nKey,
       requiresAuth: true,
     },
     children: menu.children?.map(child => menuToRouteConfig(child, menu.path)),
@@ -286,4 +285,4 @@ function menuToRouteConfig(menu: MenuItem, parentPath: string = ''): RouteConfig
 /**
  * 路由配置数据
  */
-export const routeData: RouteConfig[] = menuData.map(menuToRouteConfig);
+export const routeData: RouteConfig[] = menuData.map(menu => menuToRouteConfig(menu));

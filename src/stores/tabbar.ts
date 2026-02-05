@@ -1,7 +1,32 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
-import { ref, computed, type Component } from 'vue';
+import { ref, computed, markRaw, type Component } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { defaultSidebarConfig } from '@/layouts/components/sidebar/config';
+import { useMenuStore } from '@/stores/menu';
+import {
+  LayoutDashboard,
+  Users,
+  ShoppingCart,
+  Package,
+  BarChart3,
+  Settings,
+  FileText,
+  Tags,
+  Warehouse,
+  TrendingUp,
+  DollarSign,
+  UserCircle,
+  FolderTree,
+  Layers,
+  Box,
+  Truck,
+  ClipboardList,
+  MapPin,
+  Building,
+  FormInput,
+  Table,
+  MessageSquare,
+  PanelRight,
+} from 'lucide-vue-next';
 
 /**
  * 标签项接口
@@ -83,11 +108,15 @@ const restoreIcons = (tabs: SerializableTabItem[]): TabItem[] => {
  * @returns 图标组件
  */
 const findIconFromMenu = (path: string): Component | undefined => {
+  // 从 menuStore 中获取菜单数据
+  const menuStore = useMenuStore();
+  
   // 遍历所有菜单项查找匹配的图标
-  const findInMenus = (menus: typeof defaultSidebarConfig.menus): Component | undefined => {
+  const findInMenus = (menus: typeof menuStore.menus): Component | undefined => {
     for (const menu of menus) {
       if (menu.path === path) {
-        return menu.icon;
+        // 菜单项中的 icon 是字符串名称，需要通过 getIcon 函数转换为组件
+        return getIconComponent(menu.icon);
       }
       if (menu.children) {
         const found = findInMenus(menu.children);
@@ -97,18 +126,59 @@ const findIconFromMenu = (path: string): Component | undefined => {
     return undefined;
   };
 
-  return findInMenus(defaultSidebarConfig.menus);
+  return findInMenus(menuStore.menus);
+};
+
+/**
+ * 根据图标名称获取图标组件
+ * @param iconName 图标名称
+ * @returns 图标组件或 undefined
+ */
+const getIconComponent = (iconName?: string): Component | undefined => {
+  if (!iconName) return undefined;
+  
+  // 图标映射表
+  const iconMap: Record<string, Component> = {
+    LayoutDashboard,
+    Users,
+    ShoppingCart,
+    Package,
+    BarChart3,
+    Settings,
+    FileText,
+    Tags,
+    Warehouse,
+    TrendingUp,
+    DollarSign,
+    UserCircle,
+    FolderTree,
+    Layers,
+    Box,
+    Truck,
+    ClipboardList,
+    MapPin,
+    Building,
+    FormInput,
+    Table,
+    MessageSquare,
+    PanelRight,
+  };
+  
+  // 使用 markRaw 避免组件被 Vue 响应式系统处理，提高性能
+  const icon = iconMap[iconName];
+  return icon ? markRaw(icon) : undefined;
 };
 
 /**
  * 默认固定标签（首页）
+ * 直接使用图标组件，避免在菜单未加载时图标丢失
  */
 const defaultFixedTabs: TabItem[] = [
   {
     path: '/',
     title: '首页',
     titleKey: 'menu.dashboard',
-    icon: findIconFromMenu('/'),
+    icon: markRaw(LayoutDashboard),
     closable: false,
     affix: true,
   },

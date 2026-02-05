@@ -27,15 +27,15 @@
   @apply mb-0 flex-1 min-w-0;
 }
 
-.t-form-search .search-form-item-inline :deep(.ant-form-item) {
+.t-form-search .search-form-item-inline .ant-form-item {
   @apply mb-0;
 }
 
-.t-form-search .search-form-item-inline :deep(.ant-form-item-label) {
+.t-form-search .search-form-item-inline .ant-form-item-label {
   @apply pb-1;
 }
 
-.t-form-search .search-form-item-inline :deep(.ant-form-item-control) {
+.t-form-search .search-form-item-inline .ant-form-item-control {
   @apply min-w-0;
 }
 
@@ -58,41 +58,41 @@
 }
 
 /* 标签样式优化 */
-.t-form-search .search-form-item :deep(.ant-form-item-label) {
+.t-form-search .search-form-item .ant-form-item-label {
   @apply pb-1.5;
 }
 
-.t-form-search .search-form-item :deep(.ant-form-item-label > label) {
+.t-form-search .search-form-item .ant-form-item-label > label {
   @apply text-sm font-medium text-foreground/80;
 }
 
 /* 必填标记样式 */
-.t-form-search .search-form-item :deep(.ant-form-item-required::before) {
+.t-form-search .search-form-item .ant-form-item-required::before {
   @apply text-destructive mr-0.5;
 }
 
 /* 控件区域 */
-.t-form-search .search-form-item :deep(.ant-form-item-control) {
+.t-form-search .search-form-item .ant-form-item-control {
   @apply min-w-0;
 }
 
 /* 输入框样式优化 */
-.t-form-search .search-form-item :deep(.ant-input),
-.t-form-search .search-form-item :deep(.ant-select-selector),
-.t-form-search .search-form-item :deep(.ant-picker) {
+.t-form-search .search-form-item .ant-input,
+.t-form-search .search-form-item .ant-select-selector,
+.t-form-search .search-form-item .ant-picker {
   @apply rounded-md border-border/60;
   @apply transition-all duration-200;
 }
 
-.t-form-search .search-form-item :deep(.ant-input:hover),
-.t-form-search .search-form-item :deep(.ant-select-selector:hover),
-.t-form-search .search-form-item :deep(.ant-picker:hover) {
+.t-form-search .search-form-item .ant-input:hover,
+.t-form-search .search-form-item .ant-select-selector:hover,
+.t-form-search .search-form-item .ant-picker:hover {
   @apply border-primary/60;
 }
 
-.t-form-search .search-form-item :deep(.ant-input:focus),
-.t-form-search .search-form-item :deep(.ant-select-focused .ant-select-selector),
-.t-form-search .search-form-item :deep(.ant-picker-focused) {
+.t-form-search .search-form-item .ant-input:focus,
+.t-form-search .search-form-item .ant-select-focused .ant-select-selector,
+.t-form-search .search-form-item .ant-picker-focused {
   @apply border-primary ring-1 ring-primary/20;
 }
 
@@ -308,9 +308,9 @@
   @apply bg-muted/30 border-border/30;
 }
 
-.dark .t-form-search .search-form-item :deep(.ant-input),
-.dark .t-form-search .search-form-item :deep(.ant-select-selector),
-.dark .t-form-search .search-form-item :deep(.ant-picker) {
+.dark .t-form-search .search-form-item .ant-input,
+.dark .t-form-search .search-form-item .ant-select-selector,
+.dark .t-form-search .search-form-item .ant-picker {
   @apply bg-background/50 border-border/50;
 }
 
@@ -329,6 +329,6 @@
 
 /* ==================== 聚焦状态高亮 ==================== */
 
-.t-form-search .search-form-item:focus-within :deep(.ant-form-item-label > label) {
+.t-form-search .search-form-item:focus-within .ant-form-item-label > label {
   @apply text-primary;
 }

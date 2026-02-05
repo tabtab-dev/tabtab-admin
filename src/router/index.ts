@@ -20,8 +20,14 @@ const routes: RouteRecordRaw[] = [
     name: 'Root',
     component: () => import('@/layouts/AdminLayout.vue'),
     meta: { requiresAuth: true },
+    redirect: '/dashboard',
     children: [
-      // 动态路由将在登录后通过菜单 API 获取并添加
+      {
+        path: 'dashboard',
+        name: 'Dashboard',
+        component: () => import('@/views/Dashboard.vue'),
+        meta: { requiresAuth: true, titleKey: 'menu.dashboard' }
+      }
     ]
   },
   {
