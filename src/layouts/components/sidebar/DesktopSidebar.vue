@@ -14,7 +14,7 @@ import { pxToPercent } from '@/layouts/composables/useMenuUtils';
 import type { MenuItem, SidebarConfig } from './config';
 import SidebarItem from './SidebarItem.vue';
 import SidebarSubMenu from './SidebarSubMenu.vue';
-import Logo from '@/components/Logo.vue';
+import Logo from '../Logo.vue';
 
 const { t } = useI18n();
 

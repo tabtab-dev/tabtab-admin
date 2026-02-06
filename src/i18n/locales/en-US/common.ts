@@ -113,6 +113,7 @@ export default {
     sidebarWidth: 'Sidebar Width',
     radius: 'Border Radius',
     sidebarCollapsed: 'Collapse Sidebar by Default',
+    showTabBar: 'Show Tab Bar',
     fontSize: 'Font Size',
     small: 'Small',
     medium: 'Medium',
@@ -133,5 +134,13 @@ export default {
       cyan: 'Cyan',
       amber: 'Amber',
     },
+  },
+
+  // Tab Bar
+  tabbar: {
+    closeCurrent: 'Close Current',
+    closeOthers: 'Close Others',
+    closeAll: 'Close All',
+    refresh: 'Refresh',
   },
 } as const;

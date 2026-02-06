@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Sun, Moon, Monitor, Palette, Layout, Type, CircleDot, PanelLeft } from 'lucide-vue-next';
+import { Sun, Moon, Monitor, Palette, Layout, Type, CircleDot, PanelLeft, PanelTop } from 'lucide-vue-next';
 
 const { t } = useI18n();
 const themeStore = useThemeStore();
@@ -71,6 +71,13 @@ const updateAnimations = (value: boolean) => {
  */
 const updateSidebarCollapsed = (value: boolean) => {
   themeStore.updateLayoutConfig({ sidebarCollapsed: value });
+};
+
+/**
+ * 更新标签栏显示状态
+ */
+const updateShowTabBar = (value: boolean) => {
+  themeStore.updateLayoutConfig({ showTabBar: value });
 };
 </script>
 
@@ -170,6 +177,18 @@ const updateSidebarCollapsed = (value: boolean) => {
         <Switch
           :model-value="themeStore.layoutConfig.sidebarCollapsed"
           @update:model-value="updateSidebarCollapsed"
+        />
+      </div>
+
+      <!-- 标签栏显示 -->
+      <div class="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+        <div class="flex items-center gap-2 text-sm font-medium text-foreground">
+          <PanelTop class="h-4 w-4 text-muted-foreground" />
+          <span>{{ t('common.theme.showTabBar') }}</span>
+        </div>
+        <Switch
+          :model-value="themeStore.layoutConfig.showTabBar"
+          @update:model-value="updateShowTabBar"
         />
       </div>
     </div>

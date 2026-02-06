@@ -18,7 +18,7 @@ import { useThemeStore } from '@/stores/theme';
 import { useNotifications } from '@/layouts/composables/useNotifications';
 import { getRouteTitleKey } from './sidebar/config';
 import ThemeSettings from './ThemeSettings.vue';
-import LanguageSwitch from '@/components/LanguageSwitch.vue';
+import LanguageSwitch from './LanguageSwitch.vue';
 import {
   Sheet,
   SheetContent,

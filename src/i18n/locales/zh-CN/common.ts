@@ -113,6 +113,7 @@ export default {
     sidebarWidth: '侧边栏宽度',
     radius: '圆角大小',
     sidebarCollapsed: '默认折叠侧边栏',
+    showTabBar: '显示标签栏',
     fontSize: '字体大小',
     small: '小',
     medium: '中',
@@ -133,5 +134,13 @@ export default {
       cyan: '青色',
       amber: '琥珀金',
     },
+  },
+
+  // 标签栏
+  tabbar: {
+    closeCurrent: '关闭当前',
+    closeOthers: '关闭其他',
+    closeAll: '关闭全部',
+    refresh: '刷新页面',
   },
 } as const;

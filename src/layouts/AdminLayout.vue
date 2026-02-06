@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, watch } from 'vue';
 import Header from './components/Header.vue';
+import TabBar from './TabBar.vue';
 import Sidebar from './components/sidebar/Sidebar.vue';
 import PageHeader from './components/PageHeader.vue';
 import ErrorBoundary from './components/ErrorBoundary.vue';
@@ -50,6 +51,8 @@ watch(
       :sidebar-collapsed="sidebarCollapsed"
       @toggle-collapse="toggleSidebarCollapse"
     />
+    <!-- 标签栏 - 根据主题配置显示/隐藏 -->
+    <TabBar v-if="themeStore.layoutConfig.showTabBar" />
     <div class="flex-1 overflow-hidden">
       <Sidebar v-model:collapsed="sidebarCollapsed">
         <ScrollArea class="h-full flex flex-col">

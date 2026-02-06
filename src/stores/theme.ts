@@ -607,6 +607,8 @@ export interface LayoutConfig {
   fontSize: 'sm' | 'base' | 'lg';
   /** 动画开关 */
   animations: boolean;
+  /** 是否显示标签栏 */
+  showTabBar: boolean;
 }
 
 /**
@@ -620,6 +622,7 @@ export const defaultLayoutConfig: LayoutConfig = {
   radius: 0.625,
   fontSize: 'base',
   animations: true,
+  showTabBar: true,
 };
 
 /**
