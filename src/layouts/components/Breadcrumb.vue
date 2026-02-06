@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, h, type Component } from 'vue';
+import { computed, type Component } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { Button } from '@/components/ui/button';
 import {
   Home,
   Users,
@@ -20,7 +21,6 @@ import {
   Box,
   Truck,
   ClipboardList,
-  Archive,
   MapPin,
   Building,
   LayoutDashboard,
@@ -164,151 +164,50 @@ const handleClick = (item: BreadcrumbItem): void => {
 
 <template>
   <nav class="flex items-center" aria-label="breadcrumb">
-    <!-- 箭头路径风格面包屑 -->
-    <ol class="flex items-center">
+    <ol class="flex items-center gap-0.5">
       <template v-for="(item, index) in displayedBreadcrumbs" :key="item.path || index">
         <li class="flex items-center">
-          <!-- 箭头形状容器 -->
-          <div
-            class="breadcrumb-item relative flex items-center h-8 transition-all duration-300 ease-out group"
-            :class="[
-              // 当前页样式（最后一项）
-              index === displayedBreadcrumbs.length - 1
-                ? 'breadcrumb-active z-10'
-                : 'breadcrumb-inactive',
-              // 可点击样式
-              item.clickable ? 'cursor-pointer' : 'cursor-default',
-              // 第一项（首页）特殊样式
-              index === 0 ? 'breadcrumb-first' : '',
-            ]"
+          <!-- 可点击项使用 ghost 按钮 -->
+          <Button
+            v-if="item.clickable"
+            variant="ghost"
+            size="sm"
+            class="h-7 px-2 text-muted-foreground hover:text-foreground font-normal"
             @click="handleClick(item)"
           >
-            <!-- 背景形状 -->
-            <div
-              class="breadcrumb-bg absolute inset-0 transition-all duration-300"
-              :class="[
-                index === displayedBreadcrumbs.length - 1
-                  ? 'bg-primary/15'
-                  : 'bg-transparent group-hover:bg-muted/60',
-              ]"
+            <component
+              :is="item.icon"
+              class="h-3.5 w-3.5 mr-1.5"
             />
+            <span class="text-sm">{{ item.title }}</span>
+          </Button>
 
-            <!-- 内容区域 -->
-            <div
-              class="relative flex items-center gap-1.5 px-3 py-1.5"
-              :class="{ 'px-2': item.isEllipsis }"
-            >
-              <!-- 图标 -->
-              <component
-                :is="item.icon"
-                class="transition-colors duration-300"
-                :class="[
-                  item.isEllipsis ? 'h-4 w-4' : 'h-3.5 w-3.5',
-                  index === displayedBreadcrumbs.length - 1
-                    ? 'text-primary'
-                    : 'text-muted-foreground group-hover:text-foreground',
-                ]"
-              />
+          <!-- 省略号 -->
+          <span
+            v-else-if="item.isEllipsis"
+            class="flex items-center px-2 text-muted-foreground"
+          >
+            <MoreHorizontal class="h-4 w-4" />
+          </span>
 
-              <!-- 标题 -->
-              <span
-                v-if="!item.isEllipsis"
-                class="text-sm font-medium transition-colors duration-300 whitespace-nowrap"
-                :class="[
-                  index === displayedBreadcrumbs.length - 1
-                    ? 'text-primary'
-                    : 'text-muted-foreground group-hover:text-foreground',
-                ]"
-              >
-                {{ item.title }}
-              </span>
-            </div>
+          <!-- 当前页（最后一项）使用普通文本 -->
+          <span
+            v-else
+            class="flex items-center px-2 text-sm font-semibold text-foreground"
+          >
+            <component
+              :is="item.icon"
+              class="h-3.5 w-3.5 mr-1.5 text-primary"
+            />
+            {{ item.title }}
+          </span>
+        </li>
 
-            <!-- 箭头分隔符（除最后一项外） -->
-            <div
-              v-if="index < displayedBreadcrumbs.length - 1"
-              class="breadcrumb-arrow absolute -right-3 w-3 h-full flex items-center justify-center z-10"
-            >
-              <ChevronRight
-                class="h-3.5 w-3.5 text-muted-foreground/30 transition-all duration-300 group-hover:text-muted-foreground/50 group-hover:translate-x-0.5"
-              />
-            </div>
-          </div>
+        <!-- 分隔符（除最后一项外） -->
+        <li v-if="index < displayedBreadcrumbs.length - 1" class="flex items-center">
+          <ChevronRight class="h-4 w-4 text-muted-foreground/40 mx-0.5" />
         </li>
       </template>
     </ol>
   </nav>
 </template>
-
-<style scoped>
-/* 面包屑项基础样式 */
-.breadcrumb-item {
-  margin-right: 12px;
-}
-
-/* 背景圆角 - 使用主题设置的 --radius 变量（--radius 单位是 rem） */
-.breadcrumb-bg {
-  border-radius: calc(var(--radius) * 0.75);
-}
-
-/* 当前激活项样式 */
-.breadcrumb-active .breadcrumb-bg {
-  box-shadow:
-    0 1px 2px 0 rgb(0 0 0 / 0.05),
-    0 0 0 1px rgb(var(--primary) / 0.1);
-}
-
-/* 首页特殊样式 */
-.breadcrumb-first .breadcrumb-bg {
-  border-radius: calc(var(--radius) * 0.75);
-}
-
-/* 悬停效果 */
-.breadcrumb-inactive:hover .breadcrumb-bg {
-  transform: scale(1.02);
-}
-
-.breadcrumb-active {
-  animation: breadcrumb-in 0.3s ease-out;
-}
-
-/* 进入动画 */
-@keyframes breadcrumb-in {
-  from {
-    opacity: 0;
-    transform: translateX(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* 面包屑项依次进入动画 */
-.breadcrumb-item {
-  animation: breadcrumb-in 0.3s ease-out backwards;
-}
-
-.breadcrumb-item:nth-child(1) { animation-delay: 0ms; }
-.breadcrumb-item:nth-child(2) { animation-delay: 50ms; }
-.breadcrumb-item:nth-child(3) { animation-delay: 100ms; }
-.breadcrumb-item:nth-child(4) { animation-delay: 150ms; }
-.breadcrumb-item:nth-child(5) { animation-delay: 200ms; }
-.breadcrumb-item:nth-child(6) { animation-delay: 250ms; }
-
-/* 箭头分隔符微调 */
-.breadcrumb-arrow {
-  pointer-events: none;
-}
-
-/* 响应式：小屏幕隐藏文字，只显示图标 */
-@media (max-width: 640px) {
-  .breadcrumb-item:not(.breadcrumb-active) span {
-    display: none;
-  }
-
-  .breadcrumb-item {
-    margin-right: 8px;
-  }
-}
-</style>

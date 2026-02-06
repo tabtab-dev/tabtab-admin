@@ -49,6 +49,7 @@ import {
   CheckCircle,
   MessageSquare,
 } from 'lucide-vue-next';
+import Breadcrumb from './Breadcrumb.vue';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -249,8 +250,13 @@ onUnmounted(() => {
           <PanelRight v-else class="h-4 w-4" />
         </Button>
 
-        <!-- 页面标题 -->
-        <h1 class="text-sm font-semibold text-foreground truncate">
+        <!-- 面包屑导航 -->
+        <div class="hidden md:flex items-center min-w-0">
+          <Breadcrumb />
+        </div>
+
+        <!-- 移动端页面标题 -->
+        <h1 class="md:hidden text-sm font-semibold text-foreground truncate">
           {{ $t(currentRouteTitle) }}
         </h1>
       </div>
