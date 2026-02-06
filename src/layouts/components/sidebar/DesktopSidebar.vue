@@ -192,7 +192,7 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
       <!-- 侧边栏头部 Logo 区域 - 优化后的设计 -->
       <div
         class="flex items-center border-b border-border/40 bg-gradient-to-r from-background to-muted/20 transition-all duration-300 ease-in-out overflow-hidden"
-        :class="collapsed ? 'justify-center px-2 py-3.5' : 'gap-3 px-4 py-3.5'"
+        :class="collapsed ? 'justify-center px-2 py-2' : 'gap-3 px-4 py-3.5'"
       >
         <!-- Logo 图标 - 支持主题色切换 -->
         <Logo :size="36" :collapsed="collapsed" />
@@ -249,7 +249,7 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
             </div>
 
             <!-- 折叠状态：只渲染菜单项，不显示分组 -->
-            <div v-else-if="collapsed" class="space-y-2">
+            <div v-else-if="collapsed" class="space-y-2 flex flex-col items-center">
               <template v-for="item in items" :key="item.key">
                 <SidebarSubMenu
                   v-if="hasChildren(item)"

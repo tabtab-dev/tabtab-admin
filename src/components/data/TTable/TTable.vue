@@ -5,10 +5,12 @@
  * @description 支持通过 JSON Schema 配置生成表格，样式与 shadcn-vue 主题对齐
  */
 import { computed, ref, watch, useSlots, h } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ConfigProvider, Popconfirm, Button } from 'antdv-next'
-import zhCN from 'antdv-next/locale/zh_CN'
+import type { Locale } from 'antdv-next/lib/locale'
 import { cn } from '@/lib/utils'
 import { useTTableTheme } from './theme'
+import { getAntdvLocale } from '@/i18n/locales'
 import type {
   TableSchema,
   TableColumn,
@@ -55,10 +57,33 @@ const emit = defineEmits([
 ])
 
 /**
+ * i18n
+ */
+const { t, locale } = useI18n()
+
+/**
  * TTable 主题配置
  * @description 组件级主题配置，不影响全局 antdv-next 主题
  */
 const ttableTheme = useTTableTheme()
+
+/**
+ * antdv locale
+ */
+const antdvLocale = ref<Locale | null>(null)
+
+/**
+ * 加载 antdv locale
+ */
+async function loadAntdvLocale() {
+  const currentLocale = locale.value as 'zh-CN' | 'en-US'
+  antdvLocale.value = await getAntdvLocale(currentLocale)
+}
+
+/**
+ * 监听语言变化
+ */
+watch(locale, loadAntdvLocale, { immediate: true })
 
 /**
  * 插槽
@@ -213,7 +238,7 @@ const tableColumns = computed(() => {
   if (showActionColumn.value) {
     columns.push({
       key: 'action',
-      title: props.schema.actionTitle || '操作',
+      title: props.schema.actionTitle || t('common.actions'),
       width: props.schema.actionWidth || 150,
       fixed: props.schema.actionFixed || 'right',
       align: 'center',
@@ -545,7 +570,7 @@ watch(
 </script>
 
 <template>
-  <ConfigProvider :theme="ttableTheme" :locale="zhCN">
+  <ConfigProvider v-if="antdvLocale" :theme="ttableTheme" :locale="antdvLocale">
     <a-table
       ref="tableRef"
       :data-source="tableData"
@@ -617,7 +642,7 @@ watch(
               d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
             />
           </svg>
-          <p>{{ schema.emptyText || '暂无数据' }}</p>
+          <p>{{ schema.emptyText || t('common.noData') }}</p>
         </div>
       </slot>
     </template>

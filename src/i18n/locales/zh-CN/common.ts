@@ -31,6 +31,9 @@ export default {
   view: '查看',
   detail: '详情',
   actions: '操作',
+  expand: '展开',
+  collapse: '收起',
+  clear: '清空',
   status: '状态',
 
   // 提示
@@ -89,6 +92,7 @@ export default {
     switchToLight: '切换到浅色模式',
     switchToDark: '切换到深色模式',
     themeSettings: '主题设置',
+    themeSettingsDesc: '自定义您的界面外观和布局偏好',
   },
 
   // 面包屑

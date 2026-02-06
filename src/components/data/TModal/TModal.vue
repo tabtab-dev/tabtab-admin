@@ -27,9 +27,11 @@
  *   </TModal>
  */
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ConfigProvider, Modal } from 'antdv-next'
-import zhCN from 'antdv-next/locale/zh_CN'
+import type { Locale } from 'antdv-next/lib/locale'
 import { cn } from '@/lib/utils'
+import { getAntdvLocale } from '@/i18n/locales'
 import type { TModalProps, TModalEmits, TModalExpose } from './types'
 
 /**
@@ -50,6 +52,29 @@ defineOptions({
 })
 
 /**
+ * i18n
+ */
+const { locale } = useI18n()
+
+/**
+ * antdv locale
+ */
+const antdvLocale = ref<Locale | null>(null)
+
+/**
+ * 加载 antdv locale
+ */
+async function loadAntdvLocale() {
+  const currentLocale = locale.value as 'zh-CN' | 'en-US'
+  antdvLocale.value = await getAntdvLocale(currentLocale)
+}
+
+/**
+ * 监听语言变化
+ */
+watch(locale, loadAntdvLocale, { immediate: true })
+
+/**
  * Props 定义
  */
 const props = withDefaults(defineProps<TModalProps>(), {
@@ -60,8 +85,8 @@ const props = withDefaults(defineProps<TModalProps>(), {
   maskClosable: true,
   keyboard: true,
   destroyOnHidden: false,
-  okText: '确定',
-  cancelText: '取消',
+  okText: undefined,
+  cancelText: undefined,
   okType: 'primary',
   closable: true,
   confirmLoading: false,
@@ -208,7 +233,7 @@ defineExpose<TModalExpose>({
 </script>
 
 <template>
-  <ConfigProvider :locale="zhCN" :theme="themeConfig">
+  <ConfigProvider v-if="antdvLocale" :locale="antdvLocale" :theme="themeConfig">
     <Modal
       :open="internalOpen"
       :title="title"

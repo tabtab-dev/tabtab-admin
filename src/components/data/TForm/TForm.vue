@@ -22,16 +22,19 @@
  *   // <TForm ref="formRef" v-model="formData" :schema="schema" />
  */
 import { computed, reactive, ref, watch, useSlots, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ConfigProvider } from 'antdv-next'
-import zhCN from 'antdv-next/locale/zh_CN'
+import type { Locale } from 'antdv-next/lib/locale'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
+import 'dayjs/locale/en'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ChevronDown, ChevronUp, Search, RotateCcw } from 'lucide-vue-next'
 import TFormItem from './TFormItem.vue'
 import { useTFormTheme } from './theme'
 import { useSearchForm, useFormMeta } from './composables'
+import { getAntdvLocale } from '@/i18n/locales'
 import type { FormSchema, TFormProps, TFormEmits, TFormExpose, FormField, NamePath, FieldWatch, FormInstance, FormValidateErrorInfo } from './types'
 
 /**
@@ -60,16 +63,35 @@ const props = withDefaults(defineProps<TFormProps>(), {
 const emit = defineEmits<TFormEmits>()
 
 /**
+ * i18n
+ */
+const { t, locale } = useI18n()
+
+/**
  * TForm 主题配置
  * @description 组件级主题配置，不影响全局 antdv-next 主题
  */
 const tformTheme = useTFormTheme()
 
 /**
- * 设置 dayjs 语言为中文
- * @description 日期类组件需要 dayjs 语言设置才能显示中文
+ * antdv locale
  */
-dayjs.locale('zh-cn')
+const antdvLocale = ref<Locale | null>(null)
+
+/**
+ * 加载 antdv locale
+ */
+async function loadAntdvLocale() {
+  const currentLocale = locale.value as 'zh-CN' | 'en-US'
+  antdvLocale.value = await getAntdvLocale(currentLocale)
+  // 设置 dayjs 语言
+  dayjs.locale(currentLocale === 'zh-CN' ? 'zh-cn' : 'en')
+}
+
+/**
+ * 监听语言变化
+ */
+watch(locale, loadAntdvLocale, { immediate: true })
 
 /**
  * 插槽
@@ -97,6 +119,16 @@ const fieldDisabledMap = reactive<Map<string, boolean>>(new Map())
 const fieldHiddenMap = reactive<Map<string, boolean>>(new Map())
 
 /**
+ * 搜索表单国际化文本
+ */
+const searchFormLocale = computed(() => ({
+  searchText: t('common.search'),
+  resetText: t('common.reset'),
+  expandButtonText: t('common.expand'),
+  collapseButtonText: t('common.collapse'),
+}))
+
+/**
  * 使用搜索表单逻辑
  */
 const {
@@ -110,7 +142,8 @@ const {
   toggleCollapse
 } = useSearchForm({
   schema: props.schema,
-  formData
+  formData,
+  locale: searchFormLocale
 })
 
 /**
@@ -450,7 +483,7 @@ initFormData()
 </script>
 
 <template>
-  <ConfigProvider :theme="tformTheme" :locale="zhCN">
+  <ConfigProvider v-if="antdvLocale" :theme="tformTheme" :locale="antdvLocale">
     <a-form
       ref="formRef"
       :model="formData"
@@ -696,7 +729,7 @@ initFormData()
             type="submit"
             :loading="loading"
           >
-            {{ schema.actions?.submitText || '提交' }}
+            {{ schema.actions?.submitText || t('common.submit') }}
           </Button>
           <Button
             v-if="schema.actions?.showReset"
@@ -704,7 +737,7 @@ initFormData()
             variant="outline"
             @click="handleReset"
           >
-            {{ schema.actions?.resetText || '重置' }}
+            {{ schema.actions?.resetText || t('common.reset') }}
           </Button>
         </div>
       </a-form-item>

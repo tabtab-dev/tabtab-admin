@@ -29,6 +29,25 @@ export const messages = {
 };
 
 /**
+ * antdv-next 语言包映射
+ * 用于 ConfigProvider 的 locale 属性
+ */
+export const antdvLocales = {
+  'zh-CN': () => import('antdv-next/locale/zh_CN').then(m => m.default),
+  'en-US': () => import('antdv-next/locale/en_US').then(m => m.default),
+};
+
+/**
+ * 获取 antdv-next 语言包
+ * @param locale 语言代码
+ * @returns antdv locale 对象
+ */
+export async function getAntdvLocale(locale: SupportedLocale) {
+  const loader = antdvLocales[locale] || antdvLocales['en-US'];
+  return loader();
+}
+
+/**
  * 获取浏览器默认语言
  */
 export function getBrowserLocale(): SupportedLocale {

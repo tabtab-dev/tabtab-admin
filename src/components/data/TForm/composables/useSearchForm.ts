@@ -14,8 +14,22 @@
  *     toggleCollapse
  *   } = useSearchForm(schema, formData)
  */
-import { computed, ref, type Ref } from 'vue'
+import { computed, ref, type Ref, type ComputedRef } from 'vue'
 import type { FormSchema, FormField, SearchConfig } from '../types'
+
+/**
+ * 搜索表单文本配置
+ */
+export interface SearchFormLocale {
+  /** 搜索按钮文本 */
+  searchText: string
+  /** 重置按钮文本 */
+  resetText: string
+  /** 展开按钮文本 */
+  expandButtonText: string
+  /** 收起按钮文本 */
+  collapseButtonText: string
+}
 
 /**
  * 搜索表单 Composable 参数
@@ -27,6 +41,8 @@ interface UseSearchFormOptions {
   formData: Ref<Record<string, any>> | Record<string, any>
   /** 初始折叠状态 */
   initialCollapsed?: boolean
+  /** 国际化文本 - 支持 Ref 或 ComputedRef */
+  locale?: Ref<SearchFormLocale> | ComputedRef<SearchFormLocale>
 }
 
 /**
@@ -57,18 +73,19 @@ interface UseSearchFormReturn {
 
 /**
  * 默认搜索配置
+ * 使用英文作为默认值（antdv 默认语言）
  */
 const defaultSearchConfig: Required<SearchConfig> = {
   enabled: false,
   collapsed: false,
   collapseThreshold: 3,
   showCollapseButton: true,
-  collapseButtonText: '收起',
-  expandButtonText: '展开',
+  collapseButtonText: 'Collapse',
+  expandButtonText: 'Expand',
   columns: 3,
   gutter: 16,
-  searchText: '搜索',
-  resetText: '重置',
+  searchText: 'Search',
+  resetText: 'Reset',
   showReset: true,
   onSearch: undefined as any,
   onReset: undefined as any
@@ -80,7 +97,7 @@ const defaultSearchConfig: Required<SearchConfig> = {
  * @returns 搜索表单状态和方法
  */
 export function useSearchForm(options: UseSearchFormOptions): UseSearchFormReturn {
-  const { schema, formData, initialCollapsed } = options
+  const { schema, formData, initialCollapsed, locale } = options
 
   /**
    * 获取表单数据的响应式引用
@@ -103,11 +120,22 @@ export function useSearchForm(options: UseSearchFormOptions): UseSearchFormRetur
 
   /**
    * 合并后的搜索配置
+   * 优先使用传入的 locale，然后是 schema 配置，最后是默认值
    */
-  const searchConfig = computed<Required<SearchConfig>>(() => ({
-    ...defaultSearchConfig,
-    ...schema.searchConfig
-  }))
+  const searchConfig = computed<Required<SearchConfig>>(() => {
+    const localeConfig: Partial<SearchConfig> = locale ? {
+      searchText: locale.value.searchText,
+      resetText: locale.value.resetText,
+      expandButtonText: locale.value.expandButtonText,
+      collapseButtonText: locale.value.collapseButtonText,
+    } : {}
+
+    return {
+      ...defaultSearchConfig,
+      ...schema.searchConfig,
+      ...localeConfig
+    }
+  })
 
   /**
    * 获取字段是否隐藏

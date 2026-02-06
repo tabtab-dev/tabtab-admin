@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useThemeStore } from '@/stores/theme';
 
 /**
  * 组件属性
@@ -16,11 +17,26 @@ const props = withDefaults(defineProps<Props>(), {
   collapsed: false,
 });
 
+const themeStore = useThemeStore();
+
 /**
  * 实际尺寸
  */
 const actualSize = computed(() => {
-  return props.collapsed ? props.size * 0.9 : props.size;
+  // 折叠状态下与菜单按钮大小保持一致 (48px)
+  return props.collapsed ? 48 : props.size;
+});
+
+/**
+ * 计算圆角半径 - 与主题设置保持一致
+ * 将主题的 rem 半径转换为 SVG viewBox 坐标系中的值
+ * 主题 radius 范围 0-1.5rem，对应 SVG rx 范围 0-60 (相对于 200x200 viewBox)
+ */
+const borderRadius = computed(() => {
+  const maxRadius = 60; // 对应 1.5rem 的最大圆角
+  const themeRadius = themeStore.layoutConfig.radius;
+  // 按比例计算，最大 1.5rem 对应 60px 圆角
+  return Math.round((themeRadius / 1.5) * maxRadius);
 });
 </script>
 
@@ -50,8 +66,8 @@ const actualSize = computed(() => {
       </filter>
     </defs>
 
-    <!-- 背景圆角矩形 -->
-    <rect x="20" y="20" width="160" height="160" rx="40" fill="url(#logo-gradient-main)" />
+    <!-- 背景圆角矩形 - 使用主题设置的圆角 -->
+    <rect x="20" y="20" width="160" height="160" :rx="borderRadius" fill="url(#logo-gradient-main)" />
 
     <!-- 第一个 T - 主白色，带阴影 -->
     <g transform="translate(50, 65)" filter="url(#shadow)">
@@ -77,7 +93,7 @@ const actualSize = computed(() => {
 }
 
 .logo-collapsed {
-  transform: scale(0.9);
+  /* 折叠状态下不再缩放，保持与菜单按钮一致的大小 */
 }
 
 /* 使用 CSS 变量控制渐变色 */

@@ -31,6 +31,9 @@ export default {
   view: 'View',
   detail: 'Detail',
   actions: 'Actions',
+  expand: 'Expand',
+  collapse: 'Collapse',
+  clear: 'Clear',
   status: 'Status',
 
   // Messages
@@ -89,6 +92,7 @@ export default {
     switchToLight: 'Light mode',
     switchToDark: 'Dark mode',
     themeSettings: 'Theme',
+    themeSettingsDesc: 'Customize your interface appearance and layout preferences',
   },
 
   // Breadcrumb

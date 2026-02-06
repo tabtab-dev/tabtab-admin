@@ -27,10 +27,12 @@
  *   </TDrawer>
  */
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ConfigProvider, Drawer } from 'antdv-next'
 import { useScrollLock } from '@vueuse/core'
-import zhCN from 'antdv-next/locale/zh_CN'
+import type { Locale } from 'antdv-next/lib/locale'
 import { cn } from '@/lib/utils'
+import { getAntdvLocale } from '@/i18n/locales'
 import type { TDrawerProps, TDrawerEmits, TDrawerExpose } from './types'
 
 /**
@@ -49,6 +51,29 @@ import './TDrawer.css'
 defineOptions({
   name: 'TDrawer'
 })
+
+/**
+ * i18n
+ */
+const { locale } = useI18n()
+
+/**
+ * antdv locale
+ */
+const antdvLocale = ref<Locale | null>(null)
+
+/**
+ * 加载 antdv locale
+ */
+async function loadAntdvLocale() {
+  const currentLocale = locale.value as 'zh-CN' | 'en-US'
+  antdvLocale.value = await getAntdvLocale(currentLocale)
+}
+
+/**
+ * 监听语言变化
+ */
+watch(locale, loadAntdvLocale, { immediate: true })
 
 /**
  * Props 定义
@@ -227,7 +252,7 @@ defineExpose<TDrawerExpose>({
 </script>
 
 <template>
-  <ConfigProvider :locale="zhCN" :theme="themeConfig">
+  <ConfigProvider v-if="antdvLocale" :locale="antdvLocale" :theme="themeConfig">
     <Drawer
       :open="internalOpen"
       :title="title"

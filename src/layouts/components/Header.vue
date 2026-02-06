@@ -24,6 +24,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
   SheetTrigger,
 } from '@/components/ui/sheet';
 import {
@@ -373,6 +374,9 @@ onUnmounted(() => {
                 <Palette class="h-5 w-5 text-primary" />
                 {{ t('common.header.themeSettings') }}
               </SheetTitle>
+              <SheetDescription class="sr-only">
+                {{ t('common.header.themeSettingsDesc') }}
+              </SheetDescription>
             </SheetHeader>
             <div class="p-6 overflow-y-auto h-[calc(100vh-80px)]">
               <ThemeSettings />

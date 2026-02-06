@@ -5,6 +5,7 @@
  * @description 展示 TForm 表单组件的各种使用场景和配置方式
  */
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { TForm } from '@/components/data/TForm'
 import type { FormSchema } from '@/components/data/TForm'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -13,6 +14,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useThemeStore } from '@/stores/theme'
 import { Moon, Sun } from 'lucide-vue-next'
+
+/**
+ * i18n
+ */
+const { t } = useI18n()
 
 /**
  * 表单引用
@@ -74,8 +80,8 @@ const basicSchema: FormSchema = {
     }
   ],
   actions: {
-    submitText: '提交',
-    resetText: '重置',
+    submitText: t('common.submit'),
+    resetText: t('common.reset'),
     showReset: true,
     align: 'right'
   }
@@ -156,8 +162,8 @@ const advancedSchema: FormSchema = {
     }
   ],
   actions: {
-    submitText: '保存',
-    resetText: '清空',
+    submitText: t('common.save'),
+    resetText: t('common.clear'),
     showReset: true,
     align: 'right'
   }
@@ -214,7 +220,7 @@ const dependencySchema: FormSchema = {
     }
   ],
   actions: {
-    submitText: '提交',
+    submitText: t('common.submit'),
     showReset: false,
     align: 'right'
   }
@@ -266,8 +272,8 @@ const inlineSchema: FormSchema = {
     }
   ],
   actions: {
-    submitText: '搜索',
-    resetText: '重置',
+    submitText: t('common.search'),
+    resetText: t('common.reset'),
     showReset: true,
     align: 'left'
   }
@@ -434,8 +440,8 @@ const moreComponentsSchema: FormSchema = {
     }
   ],
   actions: {
-    submitText: '提交',
-    resetText: '重置',
+    submitText: t('common.submit'),
+    resetText: t('common.reset'),
     showReset: true,
     align: 'right'
   }
@@ -490,8 +496,8 @@ const listSchema: FormSchema = {
     }
   ],
   actions: {
-    submitText: '保存',
-    resetText: '重置',
+    submitText: t('common.save'),
+    resetText: t('common.reset'),
     showReset: true,
     align: 'right'
   }
@@ -571,8 +577,8 @@ const groupSchema: FormSchema = {
     }
   ],
   actions: {
-    submitText: '提交',
-    resetText: '重置',
+    submitText: t('common.submit'),
+    resetText: t('common.reset'),
     showReset: true,
     align: 'right'
   }
@@ -726,8 +732,8 @@ const asyncSchema: FormSchema = {
     }
   ],
   actions: {
-    submitText: '提交',
-    resetText: '重置',
+    submitText: t('common.submit'),
+    resetText: t('common.reset'),
     showReset: true,
     align: 'right'
   }
@@ -859,8 +865,8 @@ const searchSchema: FormSchema = {
     showCollapseButton: true,
     columns: 3,
     gutter: 20,
-    searchText: '查询',
-    resetText: '重置',
+    searchText: t('common.search'),
+    resetText: t('common.reset'),
     showReset: true,
     onSearch: (values) => {
       console.log('搜索条件:', values)
@@ -913,8 +919,8 @@ const searchInlineSchema: FormSchema = {
     collapsed: false,
     collapseThreshold: 3,
     showCollapseButton: false,
-    searchText: '搜索',
-    resetText: '重置',
+    searchText: t('common.search'),
+    resetText: t('common.reset'),
     showReset: true,
     onSearch: (values) => {
       alert(`同行布局搜索：\n${JSON.stringify(values, null, 2)}`)
@@ -974,8 +980,8 @@ const searchCustomInlineSchema: FormSchema = {
     // 设置 collapseThreshold = 4，则 4 个条件 <= 4+1，使用同行布局
     collapseThreshold: 3,
     showCollapseButton: false,
-    searchText: '搜索',
-    resetText: '重置',
+    searchText: t('common.search'),
+    resetText: t('common.reset'),
     showReset: true,
     onSearch: (values) => {
       alert(`自定义布局搜索：\n${JSON.stringify(values, null, 2)}`)
@@ -1114,8 +1120,8 @@ const newComponentsSchema: FormSchema = {
     }
   ],
   actions: {
-    submitText: '提交',
-    resetText: '重置',
+    submitText: t('common.submit'),
+    resetText: t('common.reset'),
     showReset: true,
     align: 'right'
   }
@@ -1262,15 +1268,15 @@ const newFeaturesSchema: FormSchema = {
     }
   ],
   actions: {
-    submitText: '提交',
-    resetText: '重置',
+    submitText: t('common.submit'),
+    resetText: t('common.reset'),
     showReset: true,
     align: 'right'
   }
 }
 
 /**
- * 处理新特性表单提交
+ * 处理高级表单提交
  * @param values - 表单值
  */
 function handleNewFeaturesSubmit(values: Record<string, any>): void {
@@ -1328,8 +1334,8 @@ const watchSchema: FormSchema = {
     }
   ],
   actions: {
-    submitText: '提交',
-    resetText: '重置',
+    submitText: t('common.submit'),
+    resetText: t('common.reset'),
     showReset: true,
     align: 'right'
   }
@@ -1769,8 +1775,8 @@ validateFirst: 'parallel'</pre>
   collapseThreshold: 3,       // 阈值：决定同行/网格布局切换
   showCollapseButton: true,   // 显示展开/收起按钮
   columns: 3,                 // 网格布局每行列数
-  searchText: '搜索',         // 搜索按钮文本
-  resetText: '重置',          // 重置按钮文本
+  searchText: t('common.search'),  // 搜索按钮文本
+  resetText: t('common.reset'),    // 重置按钮文本
   showReset: true,            // 显示重置按钮
   onSearch: (values) => {     // 搜索回调
     // 触发 TTable 刷新
