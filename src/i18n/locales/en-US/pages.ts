@@ -1,0 +1,85 @@
+/**
+ * English - Page Level Translations
+ */
+export default {
+  dashboard: {
+    title: 'Dashboard',
+    greeting: 'Welcome back',
+    today: 'Today is',
+    morning: 'Good morning',
+    afternoon: 'Good afternoon',
+    evening: 'Good evening',
+    exportReport: 'Export Report',
+    quickAction: 'Quick Action',
+
+    // Metrics
+    totalUsers: 'Total Users',
+    totalRevenue: 'Total Revenue',
+    totalOrders: 'Total Orders',
+    conversionRate: 'Conversion Rate',
+    activeUsers: 'Active user ratio',
+    targetCompletion: 'Monthly target completion',
+    pendingOrders: 'Pending orders',
+    aboveAverage: 'Above industry average',
+
+    // Charts
+    weeklyTrend: 'Weekly Trend',
+    past7Days: 'Past 7 days data changes',
+    systemStatus: 'System Status',
+    running: 'Running',
+    availability: 'Availability',
+    orderStatus: 'Order Status',
+    newOrders: 'New Orders',
+    processing: 'Processing',
+    shipping: 'Shipping',
+    completed: 'Completed',
+    pendingTasks: 'Pending Tasks',
+    avgProcessingTime: 'Avg Processing Time',
+    paymentProcessing: 'Payment Processing',
+    orderConfirmation: 'Order Confirmation',
+    shippingProcessing: 'Shipping Processing',
+    customerResponse: 'Customer Response',
+    recentActivity: 'Recent Activity',
+    quickAccess: 'Quick Access',
+    monthlyPerformance: 'Monthly Performance',
+    performanceDesc: 'Real-time monitoring of business data',
+    viewReport: 'View Detailed Report',
+    weeklyRevenue: 'Weekly Revenue',
+    weeklyOrders: 'Weekly Orders',
+    newCustomers: 'New Customers',
+  },
+
+  login: {
+    title: 'Sign In',
+    subtitle: 'Enter your account information',
+    username: 'Username',
+    password: 'Password',
+    rememberMe: 'Remember me',
+    forgotPassword: 'Forgot password?',
+    signIn: 'Sign In',
+    signInWith: 'Or sign in with',
+    noAccount: "Don't have an account?",
+    register: 'Register now',
+    welcomeBack: 'Welcome back',
+    loginSuccess: 'Login successful',
+    loginError: 'Login failed, please check your credentials',
+  },
+
+  settings: {
+    title: 'System Settings',
+    appearance: 'Appearance',
+    language: 'Language',
+    theme: 'Theme',
+    notifications: 'Notifications',
+    security: 'Security',
+    selectLanguage: 'Select Language',
+    languageChanged: 'Language changed',
+  },
+
+  notFound: {
+    title: '404',
+    heading: 'Page Not Found',
+    description: 'Sorry, the page you are looking for does not exist or has been removed',
+    backHome: 'Back to Home',
+  },
+} as const;

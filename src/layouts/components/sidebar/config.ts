@@ -31,7 +31,7 @@ import {
 export interface MenuItem {
   /** 唯一标识 */
   key: string;
-  /** 菜单标题 */
+  /** 菜单标题（显示用，实际使用 i18nKey 翻译） */
   title: string;
   /** 路由路径 */
   path: string;
@@ -47,6 +47,8 @@ export interface MenuItem {
   disabled?: boolean;
   /** 是否默认展开 */
   defaultExpanded?: boolean;
+  /** i18n 翻译 key */
+  i18nKey: string;
 }
 
 /**
@@ -67,6 +69,7 @@ export interface SidebarConfig {
 
 /**
  * 默认侧栏配置
+ * 使用 i18nKey 而不是直接翻译，确保响应式更新
  */
 export const defaultSidebarConfig: SidebarConfig = {
   collapsedWidth: 64,
@@ -76,103 +79,118 @@ export const defaultSidebarConfig: SidebarConfig = {
   menus: [
     {
       key: 'dashboard',
-      title: '仪表板',
+      title: 'Dashboard',
       path: '/',
       icon: LayoutDashboard,
       group: 'main',
+      i18nKey: 'menu.dashboard',
     },
     {
       key: 'users',
-      title: '用户管理',
+      title: 'Users',
       path: '/users',
       icon: Users,
       group: 'main',
+      i18nKey: 'menu.users',
     },
     {
       key: 'orders',
-      title: '订单管理',
+      title: 'Orders',
       path: '/orders',
       icon: ShoppingCart,
       badge: 30,
       group: 'main',
+      i18nKey: 'menu.orders',
     },
     {
       key: 'products',
-      title: '商品管理',
+      title: 'Products',
       path: '/products',
       icon: Package,
       group: 'main',
       defaultExpanded: true,
+      i18nKey: 'menu.products',
       children: [
         {
           key: 'product-list',
-          title: '商品列表',
+          title: 'Product List',
           path: '/products',
           icon: FileText,
+          i18nKey: 'menu.productList',
         },
         {
           key: 'product-categories',
-          title: '分类管理',
+          title: 'Categories',
           path: '/products/categories',
           icon: Tags,
+          i18nKey: 'menu.categories',
           children: [
             {
               key: 'category-level1',
-              title: '一级分类',
+              title: 'Level 1',
               path: '/products/categories/level1',
               icon: FolderTree,
+              i18nKey: 'menu.categoryLevel1',
             },
             {
               key: 'category-level2',
-              title: '二级分类',
+              title: 'Level 2',
               path: '/products/categories/level2',
               icon: Layers,
+              i18nKey: 'menu.categoryLevel2',
             },
             {
               key: 'category-tags',
-              title: '标签管理',
+              title: 'Tags',
               path: '/products/categories/tags',
               icon: Box,
+              i18nKey: 'menu.tags',
             },
           ],
         },
         {
           key: 'product-inventory',
-          title: '库存管理',
+          title: 'Inventory',
           path: '/products/inventory',
           icon: Warehouse,
+          i18nKey: 'menu.inventory',
           children: [
             {
               key: 'inventory-stock',
-              title: '库存盘点',
+              title: 'Stock',
               path: '/products/inventory/stock',
               icon: ClipboardList,
+              i18nKey: 'menu.stock',
             },
             {
               key: 'inventory-warehouse',
-              title: '仓库管理',
+              title: 'Warehouse',
               path: '/products/inventory/warehouse',
               icon: Building,
+              i18nKey: 'menu.warehouse',
               children: [
                 {
                   key: 'warehouse-beijing',
-                  title: '北京仓库',
+                  title: 'Beijing',
                   path: '/products/inventory/warehouse/beijing',
                   icon: MapPin,
+                  i18nKey: 'menu.warehouseBeijing',
                 },
                 {
                   key: 'warehouse-shanghai',
-                  title: '上海仓库',
+                  title: 'Shanghai',
                   path: '/products/inventory/warehouse/shanghai',
                   icon: MapPin,
+                  i18nKey: 'menu.warehouseShanghai',
                 },
               ],
             },
             {
               key: 'inventory-logistics',
-              title: '物流管理',
+              title: 'Logistics',
               path: '/products/inventory/logistics',
               icon: Truck,
+              i18nKey: 'menu.logistics',
             },
           ],
         },
@@ -180,125 +198,133 @@ export const defaultSidebarConfig: SidebarConfig = {
     },
     {
       key: 'analytics',
-      title: '数据分析',
+      title: 'Analytics',
       path: '/analytics',
       icon: BarChart3,
       group: 'analytics',
+      i18nKey: 'menu.analytics',
       children: [
         {
           key: 'analytics-traffic',
-          title: '流量分析',
+          title: 'Traffic',
           path: '/analytics/traffic',
           icon: TrendingUp,
+          i18nKey: 'menu.traffic',
         },
         {
           key: 'analytics-sales',
-          title: '销售分析',
+          title: 'Sales',
           path: '/analytics/sales',
           icon: DollarSign,
+          i18nKey: 'menu.sales',
         },
         {
           key: 'analytics-users',
-          title: '用户分析',
+          title: 'Users Analysis',
           path: '/analytics/users',
           icon: UserCircle,
+          i18nKey: 'menu.usersAnalysis',
         },
       ],
     },
     {
       key: 'settings',
-      title: '系统设置',
+      title: 'Settings',
       path: '/settings',
       icon: Settings,
       group: 'system',
+      i18nKey: 'menu.settings',
     },
     {
       key: 'tform-demo',
-      title: 'TForm 演示',
+      title: 'TForm Demo',
       path: '/tform-demo',
       icon: FormInput,
       group: 'system',
+      i18nKey: 'menu.tformDemo',
     },
     {
       key: 'ttable-demo',
-      title: 'TTable 演示',
+      title: 'TTable Demo',
       path: '/ttable-demo',
       icon: Table,
       group: 'system',
+      i18nKey: 'menu.ttableDemo',
     },
     {
       key: 'tmodal-demo',
-      title: 'TModal 演示',
+      title: 'TModal Demo',
       path: '/tmodal-demo',
       icon: MessageSquare,
       group: 'system',
+      i18nKey: 'menu.tmodalDemo',
     },
     {
       key: 'tdrawer-demo',
-      title: 'TDrawer 演示',
+      title: 'TDrawer Demo',
       path: '/tdrawer-demo',
       icon: PanelRight,
       group: 'system',
+      i18nKey: 'menu.tdrawerDemo',
     },
   ],
 };
 
 /**
- * 路由标题映射
- * 用于面包屑和页面标题显示
+ * 路由标题映射 - 使用 i18nKey 而不是直接翻译
  */
 export const routeTitleMap: Record<string, string> = {
-  '/': '仪表板',
-  '/users': '用户管理',
-  '/orders': '订单管理',
-  '/products': '商品管理',
-  '/products/categories': '分类管理',
-  '/products/categories/level1': '一级分类',
-  '/products/categories/level2': '二级分类',
-  '/products/categories/tags': '标签管理',
-  '/products/inventory': '库存管理',
-  '/products/inventory/stock': '库存盘点',
-  '/products/inventory/warehouse': '仓库管理',
-  '/products/inventory/warehouse/beijing': '北京仓库',
-  '/products/inventory/warehouse/shanghai': '上海仓库',
-  '/products/inventory/logistics': '物流管理',
-  '/analytics': '数据分析',
-  '/analytics/traffic': '流量分析',
-  '/analytics/sales': '销售分析',
-  '/analytics/users': '用户分析',
-  '/settings': '系统设置',
-  '/tform-demo': 'TForm 演示',
-  '/ttable-demo': 'TTable 演示',
-  '/tmodal-demo': 'TModal 演示',
-  '/tdrawer-demo': 'TDrawer 演示',
+  '/': 'menu.dashboard',
+  '/users': 'menu.users',
+  '/orders': 'menu.orders',
+  '/products': 'menu.products',
+  '/products/categories': 'menu.categories',
+  '/products/categories/level1': 'menu.categoryLevel1',
+  '/products/categories/level2': 'menu.categoryLevel2',
+  '/products/categories/tags': 'menu.tags',
+  '/products/inventory': 'menu.inventory',
+  '/products/inventory/stock': 'menu.stock',
+  '/products/inventory/warehouse': 'menu.warehouse',
+  '/products/inventory/warehouse/beijing': 'menu.warehouseBeijing',
+  '/products/inventory/warehouse/shanghai': 'menu.warehouseShanghai',
+  '/products/inventory/logistics': 'menu.logistics',
+  '/analytics': 'menu.analytics',
+  '/analytics/traffic': 'menu.traffic',
+  '/analytics/sales': 'menu.sales',
+  '/analytics/users': 'menu.usersAnalysis',
+  '/settings': 'menu.settings',
+  '/tform-demo': 'menu.tformDemo',
+  '/ttable-demo': 'menu.ttableDemo',
+  '/tmodal-demo': 'menu.tmodalDemo',
+  '/tdrawer-demo': 'menu.tdrawerDemo',
 };
 
 /**
- * 获取路由标题
+ * 获取路由标题的 i18n key
  * @param path 路由路径
- * @returns 标题
+ * @returns i18n key
  */
-export function getRouteTitle(path: string): string {
+export function getRouteTitleKey(path: string): string {
   return routeTitleMap[path] || path;
 }
 
 /**
- * 导航项（用于 Header 显示）
+ * 导航项（用于 Header 显示）- 使用 i18nKey
  */
 export const navigationItems = [
-  { title: '仪表板', path: '/' },
-  { title: '用户管理', path: '/users' },
-  { title: '订单管理', path: '/orders' },
-  { title: '商品管理', path: '/products' },
-  { title: '数据分析', path: '/analytics' },
-  { title: '系统设置', path: '/settings' },
+  { titleKey: 'menu.dashboard', path: '/' },
+  { titleKey: 'menu.users', path: '/users' },
+  { titleKey: 'menu.orders', path: '/orders' },
+  { titleKey: 'menu.products', path: '/products' },
+  { titleKey: 'menu.analytics', path: '/analytics' },
+  { titleKey: 'menu.settings', path: '/settings' },
 ];
 
 /**
- * 菜单分组配置
+ * 菜单分组配置 - 使用 i18nKey
  */
 export const menuGroups = [
-  { key: 'main', title: '主要菜单' },
-  { key: 'analytics', title: '数据分析' },
-  { key: 'system', title: '系统' },
+  { key: 'main', titleKey: 'menu.groupMain' },
+  { key: 'analytics', titleKey: 'menu.groupAnalytics' },
+  { key: 'system', titleKey: 'menu.groupSystem' },
 ];

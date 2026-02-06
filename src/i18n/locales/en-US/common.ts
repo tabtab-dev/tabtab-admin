@@ -1,0 +1,131 @@
+/**
+ * English - Common Translations
+ * Buttons, labels, messages, etc.
+ */
+export default {
+  // Buttons
+  confirm: 'Confirm',
+  cancel: 'Cancel',
+  save: 'Save',
+  submit: 'Submit',
+  delete: 'Delete',
+  edit: 'Edit',
+  create: 'Create',
+  add: 'Add',
+  search: 'Search',
+  reset: 'Reset',
+  close: 'Close',
+  back: 'Back',
+  next: 'Next',
+  previous: 'Previous',
+  loading: 'Loading...',
+  refresh: 'Refresh',
+  export: 'Export',
+  import: 'Import',
+  download: 'Download',
+  upload: 'Upload',
+  print: 'Print',
+  filter: 'Filter',
+  sort: 'Sort',
+  more: 'More',
+  view: 'View',
+  detail: 'Detail',
+  actions: 'Actions',
+  status: 'Status',
+
+  // Messages
+  success: 'Operation successful',
+  error: 'Operation failed',
+  warning: 'Warning',
+  info: 'Info',
+  confirmTitle: 'Confirm Action',
+  confirmContent: 'Are you sure you want to perform this action?',
+  deleteConfirm: 'Are you sure you want to delete? This action cannot be undone.',
+  saveSuccess: 'Saved successfully',
+  saveError: 'Failed to save',
+  deleteSuccess: 'Deleted successfully',
+  deleteError: 'Failed to delete',
+
+  // Form
+  required: 'Required',
+  optional: 'Optional',
+  pleaseSelect: 'Please select',
+  pleaseInput: 'Please input',
+  noData: 'No data',
+  noResult: 'No results found',
+
+  // Time
+  today: 'Today',
+  yesterday: 'Yesterday',
+  tomorrow: 'Tomorrow',
+  thisWeek: 'This Week',
+  thisMonth: 'This Month',
+  thisYear: 'This Year',
+
+  // Pagination
+  total: 'Total {total} items',
+  pageSize: 'items/page',
+  jumpTo: 'Go to',
+  page: 'Page',
+
+  // Other
+  items: 'items',
+
+  // Header
+  header: {
+    search: 'Search...',
+    searchShortcut: 'Search shortcut',
+    notifications: 'Notifications',
+    markAllRead: 'Mark all as read',
+    viewAll: 'View all notifications',
+    noNotifications: 'No notifications',
+    profile: 'Profile',
+    profileDesc: 'View and edit personal info',
+    settings: 'Settings',
+    settingsDesc: 'Configure system preferences',
+    logout: 'Logout',
+    admin: 'Admin',
+    user: 'User',
+    switchToLight: 'Switch to light mode',
+    switchToDark: 'Switch to dark mode',
+    themeSettings: 'Theme Settings',
+  },
+
+  // Breadcrumb
+  breadcrumb: {
+    home: 'Home',
+    ellipsis: '...',
+  },
+
+  // Theme
+  theme: {
+    appearance: 'Appearance',
+    light: 'Light',
+    dark: 'Dark',
+    color: 'Theme Color',
+    layout: 'Layout Settings',
+    sidebarWidth: 'Sidebar Width',
+    radius: 'Border Radius',
+    sidebarCollapsed: 'Collapse Sidebar by Default',
+    fontSize: 'Font Size',
+    small: 'Small',
+    medium: 'Medium',
+    large: 'Large',
+    animations: 'Animations',
+    reset: 'Reset to Default',
+    colors: {
+      default: 'Default',
+      blue: 'Blue',
+      green: 'Green',
+      purple: 'Purple',
+      orange: 'Orange',
+      red: 'Red',
+      pink: 'Pink',
+      teal: 'Teal',
+      indigo: 'Indigo',
+      yellow: 'Yellow',
+      cyan: 'Cyan',
+      amber: 'Amber',
+    },
+  },
+} as const;

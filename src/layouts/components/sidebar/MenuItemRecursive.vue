@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, ChevronRight } from 'lucide-vue-next';
 import { useMenuUtils, formatBadge } from '@/layouts/composables/useMenuUtils';
 import type { MenuItem } from './config';
+
+const { t } = useI18n();
 
 /**
  * 组件属性
@@ -183,6 +186,13 @@ const handleClick = (): void => {
 const handleChildNavigate = (path: string): void => {
   emit('navigate', path);
 };
+
+/**
+ * 菜单标题（翻译后）
+ */
+const menuTitle = computed(() => {
+  return t(props.item.i18nKey);
+});
 </script>
 
 <template>
@@ -219,7 +229,7 @@ const handleChildNavigate = (path: string): void => {
           :class="iconClasses"
           aria-hidden="true"
         />
-        <span class="truncate font-medium text-sm">{{ item.title }}</span>
+        <span class="truncate font-medium text-sm">{{ menuTitle }}</span>
       </div>
 
       <div class="flex items-center gap-1.5 relative z-10 flex-shrink-0">
@@ -260,7 +270,7 @@ const handleChildNavigate = (path: string): void => {
       <div
         v-if="hasChildren && isExpanded && !collapsed"
         role="menu"
-        :aria-label="`${item.title} 子菜单`"
+        :aria-label="`${menuTitle} 子菜单`"
         class="space-y-0.5 overflow-hidden relative py-0.5"
         :class="level >= 1 ? 'bg-muted/20 rounded-lg my-1' : ''"
         :style="indentStyle"

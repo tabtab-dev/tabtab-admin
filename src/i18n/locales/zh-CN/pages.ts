@@ -1,0 +1,85 @@
+/**
+ * 中文 - 页面级翻译
+ */
+export default {
+  dashboard: {
+    title: '仪表盘',
+    greeting: '欢迎回来',
+    today: '今天是',
+    morning: '早上好',
+    afternoon: '下午好',
+    evening: '晚上好',
+    exportReport: '导出报表',
+    quickAction: '快速操作',
+
+    // 指标卡片
+    totalUsers: '总用户数',
+    totalRevenue: '总收入',
+    totalOrders: '订单数',
+    conversionRate: '转化率',
+    activeUsers: '活跃用户占比',
+    targetCompletion: '本月目标完成率',
+    pendingOrders: '待处理订单',
+    aboveAverage: '高于行业平均',
+
+    // 图表和统计
+    weeklyTrend: '本周趋势',
+    past7Days: '过去 7 天数据变化',
+    systemStatus: '系统状态',
+    running: '正常运行',
+    availability: '可用率',
+    orderStatus: '订单状态',
+    newOrders: '新订单',
+    processing: '处理中',
+    shipping: '配送中',
+    completed: '已完成',
+    pendingTasks: '待处理事项',
+    avgProcessingTime: '平均处理时间',
+    paymentProcessing: '支付处理',
+    orderConfirmation: '订单确认',
+    shippingProcessing: '发货处理',
+    customerResponse: '客户响应',
+    recentActivity: '最近动态',
+    quickAccess: '快捷入口',
+    monthlyPerformance: '本月业绩',
+    performanceDesc: '实时监控业务数据和核心指标',
+    viewReport: '查看详细报告',
+    weeklyRevenue: '本周收入',
+    weeklyOrders: '本周订单',
+    newCustomers: '新客户',
+  },
+
+  login: {
+    title: '登录',
+    subtitle: '请输入您的账号信息',
+    username: '用户名',
+    password: '密码',
+    rememberMe: '记住我',
+    forgotPassword: '忘记密码？',
+    signIn: '登录',
+    signInWith: '或使用以下方式登录',
+    noAccount: '还没有账号？',
+    register: '立即注册',
+    welcomeBack: '欢迎回来',
+    loginSuccess: '登录成功',
+    loginError: '登录失败，请检查账号密码',
+  },
+
+  settings: {
+    title: '系统设置',
+    appearance: '外观设置',
+    language: '语言设置',
+    theme: '主题设置',
+    notifications: '通知设置',
+    security: '安全设置',
+    selectLanguage: '选择语言',
+    languageChanged: '语言已切换',
+  },
+
+  notFound: {
+    title: '404',
+    heading: '页面未找到',
+    description: '抱歉，您访问的页面不存在或已被移除',
+    backHome: '返回首页',
+  },
+} as const;

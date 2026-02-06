@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useTimeoutFn, useElementBounding, useWindowScroll } from '@vueuse/core';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +14,8 @@ import { ChevronDown, ChevronRight } from 'lucide-vue-next';
 import { useMenuUtils, formatBadge, getButtonVariant, getIconClass } from '@/layouts/composables/useMenuUtils';
 import MenuItemRecursive from './MenuItemRecursive.vue';
 import type { MenuItem } from './config';
+
+const { t } = useI18n();
 
 /**
  * 弹窗位置信息
@@ -162,14 +165,29 @@ const variant = computed(() => {
 const iconClass = computed(() => getIconClass(props.active || isChildActive.value));
 
 /**
+ * 菜单标题（翻译后）
+ */
+const menuTitle = computed(() => {
+  return t(props.item.i18nKey);
+});
+
+/**
  * ARIA 标签（折叠状态下使用）
  */
 const ariaLabel = computed(() => {
   if (!props.collapsed) return undefined;
   const childCount = props.item.children?.length ?? 0;
   return props.item.badge 
-    ? `${props.item.title} (${props.item.badge} 条通知, ${childCount} 个子菜单)` 
-    : `${props.item.title} (${childCount} 个子菜单)`;
+    ? `${menuTitle.value} (${props.item.badge} 条通知, ${childCount} 个子菜单)` 
+    : `${menuTitle.value} (${childCount} 个子菜单)`;
+});
+
+/**
+ * 子菜单数量文本
+ */
+const childCountText = computed(() => {
+  const count = props.item.children?.length ?? 0;
+  return t('common.total', { total: count });
 });
 </script>
 
@@ -242,7 +260,7 @@ const ariaLabel = computed(() => {
         <div
           v-if="showPopover"
           role="menu"
-          :aria-label="`${item.title} 子菜单`"
+          :aria-label="`${menuTitle} 子菜单`"
           class="fixed w-56 bg-popover/95 backdrop-blur-sm border border-border/50 shadow-2xl shadow-primary/10 z-[9999] overflow-hidden"
           :style="{ 
             top: `${popoverPosition.top}px`, 
@@ -273,14 +291,14 @@ const ariaLabel = computed(() => {
                 />
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-foreground truncate">{{ item.title }}</p>
-                <p class="text-[10px] text-muted-foreground">{{ item.children?.length }} 个子菜单</p>
+                <p class="text-sm font-semibold text-foreground truncate">{{ menuTitle }}</p>
+                <p class="text-[10px] text-muted-foreground">{{ item.children?.length }} {{ t('common.items') }}</p>
               </div>
             </div>
           </div>
 
           <!-- 子菜单列表 - 多级递归渲染 -->
-          <div class="p-2 space-y-0.5" role="group" :aria-label="`${item.title} 子菜单项`">
+          <div class="p-2 space-y-0.5" role="group" :aria-label="`${menuTitle} 子菜单项`">
             <MenuItemRecursive
               v-for="child in item.children"
               :key="child.key"
@@ -338,7 +356,7 @@ const ariaLabel = computed(() => {
           ]"
           aria-hidden="true"
         />
-        <span class="truncate font-medium text-sm">{{ item.title }}</span>
+        <span class="truncate font-medium text-sm">{{ menuTitle }}</span>
       </div>
       
       <div class="flex items-center gap-1.5 relative z-10">
@@ -382,7 +400,7 @@ const ariaLabel = computed(() => {
       <div
         v-if="expanded"
         role="menu"
-        :aria-label="`${item.title} 子菜单`"
+        :aria-label="`${menuTitle} 子菜单`"
         class="ml-3.5 space-y-0.5 overflow-hidden relative py-0.5"
       >
         <!-- 连接线装饰 - 优化后的样式 -->

@@ -1,12 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import type { RouteRecordRaw, RouteLocationNormalized } from 'vue-router';
+import { updateDocumentTitle } from '@/i18n';
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'Login',
     component: () => import('@/views/Login.vue'),
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: false, titleKey: 'login.title' }
   },
   {
     path: '/',
@@ -17,139 +18,139 @@ const routes: RouteRecordRaw[] = [
         path: '',
         name: 'Dashboard',
         component: () => import('@/views/Dashboard.vue'),
-        meta: { title: '仪表板' }
+        meta: { titleKey: 'menu.dashboard' }
       },
       {
         path: 'users',
         name: 'Users',
         component: () => import('@/views/Users.vue'),
-        meta: { title: '用户管理' }
+        meta: { titleKey: 'menu.users' }
       },
       {
         path: 'orders',
         name: 'Orders',
         component: () => import('@/views/Orders.vue'),
-        meta: { title: '订单管理' }
+        meta: { titleKey: 'menu.orders' }
       },
       {
         path: 'products',
         name: 'Products',
         component: () => import('@/views/Products.vue'),
-        meta: { title: '商品管理' }
+        meta: { titleKey: 'menu.products' }
       },
       {
         path: 'products/categories',
         name: 'Categories',
         component: () => import('@/views/Categories.vue'),
-        meta: { title: '分类管理' }
+        meta: { titleKey: 'menu.categories' }
       },
       {
         path: 'products/inventory',
         name: 'Inventory',
         component: () => import('@/views/Inventory.vue'),
-        meta: { title: '库存管理' }
+        meta: { titleKey: 'menu.inventory' }
       },
       {
         path: 'products/categories/tags',
         name: 'Tags',
         component: () => import('@/views/Tags.vue'),
-        meta: { title: '标签管理' }
+        meta: { titleKey: 'menu.tags' }
       },
       {
         path: 'products/inventory/warehouse',
         name: 'Warehouse',
         component: () => import('@/views/Warehouse.vue'),
-        meta: { title: '仓库管理' }
+        meta: { titleKey: 'menu.warehouse' }
       },
       {
         path: 'products/inventory/stock',
         name: 'Stock',
         component: () => import('@/views/Stock.vue'),
-        meta: { title: '库存盘点' }
+        meta: { titleKey: 'menu.stock' }
       },
       {
         path: 'products/inventory/logistics',
         name: 'Logistics',
         component: () => import('@/views/Logistics.vue'),
-        meta: { title: '物流管理' }
+        meta: { titleKey: 'menu.logistics' }
       },
       {
         path: 'products/categories/level1',
         name: 'Level1',
         component: () => import('@/views/Level1.vue'),
-        meta: { title: '一级分类' }
+        meta: { titleKey: 'menu.categoryLevel1' }
       },
       {
         path: 'products/categories/level2',
         name: 'Level2',
         component: () => import('@/views/Level2.vue'),
-        meta: { title: '二级分类' }
+        meta: { titleKey: 'menu.categoryLevel2' }
       },
       {
         path: 'products/inventory/warehouse/beijing',
         name: 'Beijing',
         component: () => import('@/views/Beijing.vue'),
-        meta: { title: '北京仓库' }
+        meta: { titleKey: 'menu.warehouseBeijing' }
       },
       {
         path: 'products/inventory/warehouse/shanghai',
         name: 'Shanghai',
         component: () => import('@/views/Shanghai.vue'),
-        meta: { title: '上海仓库' }
+        meta: { titleKey: 'menu.warehouseShanghai' }
       },
       {
         path: 'analytics',
         name: 'Analytics',
         component: () => import('@/views/Analytics.vue'),
-        meta: { title: '数据分析' }
+        meta: { titleKey: 'menu.analytics' }
       },
       {
         path: 'analytics/traffic',
         name: 'Traffic',
         component: () => import('@/views/Traffic.vue'),
-        meta: { title: '流量分析' }
+        meta: { titleKey: 'menu.traffic' }
       },
       {
         path: 'analytics/sales',
         name: 'Sales',
         component: () => import('@/views/Sales.vue'),
-        meta: { title: '销售分析' }
+        meta: { titleKey: 'menu.sales' }
       },
       {
         path: 'analytics/users',
         name: 'UsersAnalysis',
         component: () => import('@/views/UsersAnalysis.vue'),
-        meta: { title: '用户分析' }
+        meta: { titleKey: 'menu.usersAnalysis' }
       },
       {
         path: 'settings',
         name: 'Settings',
         component: () => import('@/views/Settings.vue'),
-        meta: { title: '系统设置' }
+        meta: { titleKey: 'menu.settings' }
       },
       {
         path: 'tform-demo',
         name: 'TFormDemo',
         component: () => import('@/views/TFormDemo.vue'),
-        meta: { title: 'TForm 演示' }
+        meta: { titleKey: 'menu.tformDemo' }
       },
       {
         path: 'ttable-demo',
         name: 'TTableDemo',
         component: () => import('@/views/TTableDemo.vue'),
-        meta: { title: 'TTable 演示' }
+        meta: { titleKey: 'menu.ttableDemo' }
       },
       {
         path: 'tmodal-demo',
         name: 'TModalDemo',
         component: () => import('@/views/TModalDemo.vue'),
-        meta: { title: 'TModal 演示' }
+        meta: { titleKey: 'menu.tmodalDemo' }
       },
       {
         path: 'tdrawer-demo',
         name: 'TDrawerDemo',
         component: () => import('@/views/TDrawerDemo.vue'),
-        meta: { title: 'TDrawer 演示' }
+        meta: { titleKey: 'menu.tdrawerDemo' }
       }
     ]
   },
@@ -157,7 +158,7 @@ const routes: RouteRecordRaw[] = [
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/views/NotFound.vue'),
-    meta: { title: '404' }
+    meta: { titleKey: 'pages.notFound.title' }
   }
 ];
 
@@ -166,27 +167,11 @@ const router = createRouter({
   routes
 });
 
-/**
- * 更新页面标题
- * 组合页面标题和网站标题
- * @param to 目标路由
- */
-const updatePageTitle = (to: RouteLocationNormalized): void => {
-  const appTitle = import.meta.env.VITE_APP_TITLE || 'TabTab Admin';
-  const pageTitle = to.meta?.title as string | undefined;
-
-  if (pageTitle) {
-    document.title = `${pageTitle} - ${appTitle}`;
-  } else {
-    document.title = appTitle;
-  }
-};
-
 router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('token');
 
   // 更新页面标题
-  updatePageTitle(to);
+  updateDocumentTitle(to);
 
   if (to.meta.requiresAuth !== false && !isAuthenticated) {
     next({ name: 'Login' });

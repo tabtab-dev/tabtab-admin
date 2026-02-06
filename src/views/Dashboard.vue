@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { 
   HeroCard, 
   StatCard, 
@@ -26,6 +27,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { ActivityItem, QuickAction } from '@/types/bento';
 
+const { t, locale } = useI18n();
+
 /**
  * 当前日期格式化
  */
@@ -37,7 +40,7 @@ const currentDate = computed(() => {
     day: 'numeric', 
     weekday: 'long' 
   };
-  return date.toLocaleDateString('zh-CN', options);
+  return date.toLocaleDateString(locale.value, options);
 });
 
 /**
@@ -45,9 +48,9 @@ const currentDate = computed(() => {
  */
 const greeting = computed(() => {
   const hour = new Date().getHours();
-  if (hour < 12) return '早上好';
-  if (hour < 18) return '下午好';
-  return '晚上好';
+  if (hour < 12) return t('pages.dashboard.morning');
+  if (hour < 18) return t('pages.dashboard.afternoon');
+  return t('pages.dashboard.evening');
 });
 
 /**
@@ -140,17 +143,17 @@ const pendingTasks = ref([
     <!-- 页面标题区域 -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">仪表盘</h1>
-        <p class="text-muted-foreground mt-1">欢迎回来，{{ greeting }}！今天是 {{ currentDate }}</p>
+        <h1 class="text-3xl font-bold tracking-tight">{{ $t('pages.dashboard.title') }}</h1>
+        <p class="text-muted-foreground mt-1">{{ $t('pages.dashboard.greeting') }}，{{ greeting }}！{{ $t('pages.dashboard.today') }} {{ currentDate }}</p>
       </div>
       <div class="flex items-center gap-2">
         <Button variant="outline" size="sm" class="gap-2">
           <Download class="h-4 w-4" />
-          <span class="hidden sm:inline">导出报表</span>
+          <span class="hidden sm:inline">{{ $t('pages.dashboard.exportReport') }}</span>
         </Button>
         <Button size="sm" class="gap-2">
           <Plus class="h-4 w-4" />
-          <span class="hidden sm:inline">快速操作</span>
+          <span class="hidden sm:inline">{{ $t('pages.dashboard.quickAction') }}</span>
         </Button>
       </div>
     </div>

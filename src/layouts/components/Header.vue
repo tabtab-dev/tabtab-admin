@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -15,8 +16,9 @@ import { useAuthStore } from '@/stores/auth';
 import { useAppStore } from '@/stores/app';
 import { useThemeStore } from '@/stores/theme';
 import { useNotifications } from '@/layouts/composables/useNotifications';
-import { getRouteTitle } from './sidebar/config';
+import { getRouteTitleKey } from './sidebar/config';
 import ThemeSettings from './ThemeSettings.vue';
+import LanguageSwitch from '@/components/LanguageSwitch.vue';
 import {
   Sheet,
   SheetContent,
@@ -47,6 +49,7 @@ import {
   MessageSquare,
 } from 'lucide-vue-next';
 
+const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
@@ -121,7 +124,7 @@ const {
  * 当前路由标题
  */
 const currentRouteTitle = computed(() => {
-  return getRouteTitle(route.path);
+  return getRouteTitleKey(route.path);
 });
 
 /**
@@ -247,7 +250,7 @@ onUnmounted(() => {
 
         <!-- 页面标题 -->
         <h1 class="text-sm font-semibold text-foreground truncate">
-          {{ currentRouteTitle }}
+          {{ $t(currentRouteTitle) }}
         </h1>
       </div>
 
@@ -266,7 +269,7 @@ onUnmounted(() => {
             ref="searchInputRef"
             v-model="searchQuery"
             type="text"
-            placeholder="搜索..."
+            :placeholder="t('common.header.search')"
             class="bg-transparent border-none outline-none text-sm w-full placeholder:text-muted-foreground"
             @focus="isSearchFocused = true"
             @blur="isSearchFocused = false"
@@ -306,7 +309,7 @@ onUnmounted(() => {
               ref="searchInputRef"
               v-model="searchQuery"
               type="text"
-              placeholder="搜索..."
+              :placeholder="t('common.header.search')"
               class="bg-transparent border-none outline-none text-sm w-full placeholder:text-muted-foreground"
               @keyup.enter="handleSearch"
             />
@@ -337,13 +340,16 @@ onUnmounted(() => {
           />
         </Transition>
 
+        <!-- 语言切换 -->
+        <LanguageSwitch mode="dropdown" size="icon" variant="ghost" />
+
         <!-- 主题切换 -->
         <Button
           variant="ghost"
           size="icon"
           @click="themeStore.toggleMode"
           class="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
-          :title="themeStore.currentMode === 'dark' ? '切换到浅色模式' : '切换到深色模式'"
+          :title="themeStore.currentMode === 'dark' ? t('common.header.switchToLight') : t('common.header.switchToDark')"
         >
           <Sun v-if="themeStore.currentMode === 'dark'" class="h-4 w-4" />
           <Moon v-else class="h-4 w-4" />
@@ -356,7 +362,7 @@ onUnmounted(() => {
               variant="ghost"
               size="icon"
               class="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors hidden sm:flex"
-              title="主题设置"
+              :title="t('common.header.themeSettings')"
             >
               <Palette class="h-4 w-4" />
             </Button>
@@ -365,7 +371,7 @@ onUnmounted(() => {
             <SheetHeader class="px-6 py-4 border-b border-border/50">
               <SheetTitle class="flex items-center gap-2">
                 <Palette class="h-5 w-5 text-primary" />
-                主题设置
+                {{ t('common.header.themeSettings') }}
               </SheetTitle>
             </SheetHeader>
             <div class="p-6 overflow-y-auto h-[calc(100vh-80px)]">
@@ -381,7 +387,7 @@ onUnmounted(() => {
               variant="ghost"
               size="icon"
               class="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary relative transition-all duration-200"
-              title="通知"
+              :title="t('common.header.notifications')"
             >
               <Bell class="h-4 w-4" />
               <!-- 徽标指示 - 优化为更精致的脉冲效果 -->
@@ -396,7 +402,7 @@ onUnmounted(() => {
             <div class="flex items-center justify-between px-4 py-3 border-b border-border/50">
               <div class="flex items-center gap-2">
                 <Bell class="h-4 w-4 text-muted-foreground" />
-                <span class="font-semibold text-sm">消息通知</span>
+                <span class="font-semibold text-sm">{{ t('common.header.notifications') }}</span>
                 <span
                   v-if="unreadCount > 0"
                   class="bg-primary text-primary-foreground text-[10px] font-medium px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
@@ -413,7 +419,7 @@ onUnmounted(() => {
                   @click="markAllAsRead"
                 >
                   <CheckCheck class="h-3.5 w-3.5 mr-1" />
-                  全部已读
+                  {{ t('common.header.markAllRead') }}
                 </Button>
                 <Button
                   v-if="notifications.length > 0"
@@ -433,7 +439,7 @@ onUnmounted(() => {
                 <div class="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-3">
                   <Bell class="h-5 w-5 text-muted-foreground" />
                 </div>
-                <p class="text-sm text-muted-foreground">暂无通知</p>
+                <p class="text-sm text-muted-foreground">{{ t('common.header.noNotifications') }}</p>
               </div>
 
               <div
@@ -520,7 +526,7 @@ onUnmounted(() => {
                 class="w-full text-xs text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-200 rounded-lg"
                 @click="router.push('/notifications')"
               >
-                查看全部通知
+                {{ t('common.header.viewAll') }}
               </Button>
             </div>
           </DropdownMenuContent>
@@ -538,9 +544,9 @@ onUnmounted(() => {
               </Avatar>
               <div class="hidden md:flex flex-col items-start min-w-0">
                 <span class="text-sm font-medium leading-tight truncate max-w-[100px]">
-                  {{ authStore.user?.name || '用户' }}
+                  {{ authStore.user?.name || t('common.header.user') }}
                 </span>
-                <span class="text-[10px] text-muted-foreground leading-tight">管理员</span>
+                <span class="text-[10px] text-muted-foreground leading-tight">{{ t('common.header.admin') }}</span>
               </div>
               <ChevronDown class="h-3.5 w-3.5 text-muted-foreground/70 hidden md:block" />
             </Button>
@@ -556,7 +562,7 @@ onUnmounted(() => {
                   </AvatarFallback>
                 </Avatar>
                 <div class="flex flex-col min-w-0">
-                  <p class="text-sm font-semibold truncate">{{ authStore.user?.name || '用户' }}</p>
+                  <p class="text-sm font-semibold truncate">{{ authStore.user?.name || t('common.header.user') }}</p>
                   <p class="text-xs text-muted-foreground truncate">{{ authStore.user?.email || 'user@example.com' }}</p>
                 </div>
               </div>
@@ -573,8 +579,8 @@ onUnmounted(() => {
                 <User class="h-4 w-4 text-primary group-focus:text-primary-foreground" />
               </div>
               <div>
-                <p class="text-sm font-medium">个人资料</p>
-                <p class="text-xs text-muted-foreground group-focus:text-primary-foreground/70">查看和编辑个人信息</p>
+                <p class="text-sm font-medium">{{ t('common.header.profile') }}</p>
+                <p class="text-xs text-muted-foreground group-focus:text-primary-foreground/70">{{ t('common.header.profileDesc') }}</p>
               </div>
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -589,8 +595,8 @@ onUnmounted(() => {
                 <Settings class="h-4 w-4 text-muted-foreground group-focus:text-primary-foreground" />
               </div>
               <div>
-                <p class="text-sm font-medium">系统设置</p>
-                <p class="text-xs text-muted-foreground group-focus:text-primary-foreground/70">配置系统偏好</p>
+                <p class="text-sm font-medium">{{ t('common.header.settings') }}</p>
+                <p class="text-xs text-muted-foreground group-focus:text-primary-foreground/70">{{ t('common.header.settingsDesc') }}</p>
               </div>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -605,7 +611,7 @@ onUnmounted(() => {
               >
                 <LogOut class="h-4 w-4 text-red-500 group-focus:text-white" />
               </div>
-              <span class="font-medium text-red-500 group-focus:text-white">退出登录</span>
+              <span class="font-medium text-red-500 group-focus:text-white">{{ t('common.header.logout') }}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

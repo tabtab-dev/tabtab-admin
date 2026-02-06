@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, watch, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import type { SplitterPanel } from 'reka-ui';
 import {
   ResizablePanelGroup,
@@ -14,6 +15,8 @@ import type { MenuItem, SidebarConfig } from './config';
 import SidebarItem from './SidebarItem.vue';
 import SidebarSubMenu from './SidebarSubMenu.vue';
 import Logo from '@/components/Logo.vue';
+
+const { t } = useI18n();
 
 /**
  * 组件属性
@@ -102,13 +105,22 @@ const groupedMenus = computed(() => {
 });
 
 /**
- * 分组标题映射
+ * 分组标题映射 - 使用 i18nKey
  */
-const groupTitles: Record<string, string> = {
-  main: '主要菜单',
-  analytics: '数据分析',
-  system: '系统',
-  default: '菜单',
+const groupTitleKeys: Record<string, string> = {
+  main: 'menu.groupMain',
+  analytics: 'menu.groupAnalytics',
+  system: 'menu.groupSystem',
+  default: 'menu.groupMain',
+};
+
+/**
+ * 获取分组标题
+ * @param groupKey 分组 key
+ * @returns 翻译后的标题
+ */
+const getGroupTitle = (groupKey: string): string => {
+  return t(groupTitleKeys[groupKey] || groupTitleKeys.default);
 };
 
 /**
@@ -208,7 +220,7 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
               <div class="px-2.5 py-1.5 flex items-center gap-2">
                 <div class="h-1.5 w-1.5 rounded-full bg-primary/70"></div>
                 <span class="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                  {{ groupTitles[groupKey] || groupKey }}
+                  {{ getGroupTitle(groupKey) }}
                 </span>
               </div>
 

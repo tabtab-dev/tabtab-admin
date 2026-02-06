@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, h, type Component } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import {
   Home,
   Users,
@@ -27,6 +28,8 @@ import {
   MoreHorizontal,
 } from 'lucide-vue-next';
 import { routeTitleMap } from './sidebar/config';
+
+const { t } = useI18n();
 
 /**
  * 面包屑项
@@ -102,7 +105,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
 
   // 首页
   items.push({
-    title: '首页',
+    title: t('common.breadcrumb.home'),
     path: '/',
     clickable: path !== '/',
     icon: Home,
@@ -115,7 +118,8 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
   segments.forEach((segment, index) => {
     currentPath += `/${segment}`;
     const isLast = index === segments.length - 1;
-    const title = routeTitleMap[currentPath] || segment;
+    const titleKey = routeTitleMap[currentPath];
+    const title = titleKey ? t(titleKey) : segment;
 
     items.push({
       title,
@@ -143,7 +147,7 @@ const displayedBreadcrumbs = computed(() => {
   const items = breadcrumbs.value;
   return [
     items[0], // 首页
-    { title: '...', path: '', clickable: false, icon: MoreHorizontal, isEllipsis: true }, // 省略号
+    { title: t('common.breadcrumb.ellipsis'), path: '', clickable: false, icon: MoreHorizontal, isEllipsis: true }, // 省略号
     ...items.slice(-3), // 最后三项
   ];
 });

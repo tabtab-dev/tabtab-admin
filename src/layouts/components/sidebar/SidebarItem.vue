@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -9,6 +10,8 @@ import {
 } from '@/components/ui/tooltip';
 import { useMenuUtils, formatBadge, getButtonVariant, getIconClass } from '@/layouts/composables/useMenuUtils';
 import type { MenuItem } from './config';
+
+const { t } = useI18n();
 
 /**
  * 组件属性
@@ -57,13 +60,20 @@ const variant = computed(() => getButtonVariant(props.active));
 const iconClass = computed(() => getIconClass(props.active));
 
 /**
+ * 菜单标题（翻译后）
+ */
+const menuTitle = computed(() => {
+  return t(props.item.i18nKey);
+});
+
+/**
  * ARIA 标签（折叠状态下使用）
  */
 const ariaLabel = computed(() => {
   if (!props.collapsed) return undefined;
   return props.item.badge 
-    ? `${props.item.title} (${props.item.badge} 条通知)` 
-    : props.item.title;
+    ? `${menuTitle.value} (${props.item.badge} 条通知)` 
+    : menuTitle.value;
 });
 </script>
 
@@ -113,7 +123,7 @@ const ariaLabel = computed(() => {
     <TooltipContent side="right" :side-offset="10" class="bg-background border border-border/50 shadow-xl rounded-lg px-3 py-2">
       <div class="flex items-center gap-2.5">
         <component :is="item.icon" class="h-4 w-4 text-muted-foreground" />
-        <span class="font-medium text-sm text-foreground">{{ item.title }}</span>
+        <span class="font-medium text-sm text-foreground">{{ menuTitle }}</span>
         <Badge
           v-if="item.badge"
           variant="destructive"
@@ -161,7 +171,7 @@ const ariaLabel = computed(() => {
       aria-hidden="true"
     />
 
-    <span class="flex-1 text-left truncate font-medium text-sm">{{ item.title }}</span>
+    <span class="flex-1 text-left truncate font-medium text-sm">{{ menuTitle }}</span>
 
     <!-- 徽标 - 展开状态下显示为 Badge - 优化后的动画 -->
     <Badge
