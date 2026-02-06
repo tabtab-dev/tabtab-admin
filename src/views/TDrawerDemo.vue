@@ -119,6 +119,15 @@ const currentSize = ref<'default' | 'large' | number>('default')
  * 可调整大小抽屉状态
  */
 const resizableOpen = ref(false)
+const resizableSize = ref(378)
+
+/**
+ * 处理抽屉大小调整
+ * @param size - 新的尺寸
+ */
+function handleResize(size: number) {
+  resizableSize.value = size
+}
 
 /**
  * 自定义底部抽屉状态
@@ -406,12 +415,18 @@ function closeDrawerByRef() {
             <TDrawer
               v-model:open="resizableOpen"
               title="可调整大小"
-              resizable
+              :size="resizableSize"
+              :resizable="{
+                onResize: handleResize,
+              }"
               @close="resizableOpen = false"
             >
               <p>这个抽屉可以通过拖拽边缘调整大小。</p>
               <p class="text-muted-foreground mt-2">
                 适用于内容长度不确定的场景。
+              </p>
+              <p class="text-muted-foreground mt-2">
+                当前宽度: {{ resizableSize }}px
               </p>
             </TDrawer>
           </CardContent>

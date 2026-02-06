@@ -174,6 +174,12 @@ export interface RowSelectionConfig {
    * @default false
    */
   checkStrictly?: boolean
+  /**
+   * 是否在数据更新时保留已选中的 key
+   * @description 设置为 true 时，即使在数据更新后，也会保留之前选中的行 key
+   * @default false
+   */
+  preserveSelectedRowKeys?: boolean
 }
 
 /**

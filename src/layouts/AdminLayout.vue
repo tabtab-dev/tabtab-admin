@@ -4,6 +4,7 @@ import Header from './components/Header.vue';
 import Sidebar from './components/sidebar/Sidebar.vue';
 import PageHeader from './components/PageHeader.vue';
 import ErrorBoundary from './components/ErrorBoundary.vue';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useThemeStore } from '@/stores/theme';
 
 /**
@@ -51,7 +52,7 @@ watch(
     />
     <div class="flex-1 overflow-hidden">
       <Sidebar v-model:collapsed="sidebarCollapsed">
-        <div class="h-full flex flex-col overflow-y-auto">
+        <ScrollArea class="h-full flex flex-col">
           <!-- 页面标题栏 -->
           <PageHeader />
 
@@ -76,7 +77,7 @@ watch(
               </router-view>
             </ErrorBoundary>
           </div>
-        </div>
+        </ScrollArea>
       </Sidebar>
     </div>
   </div>

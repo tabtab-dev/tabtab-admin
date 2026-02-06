@@ -166,7 +166,7 @@ initListData()
             :key="String(subField.name)"
             :field="{
               ...subField,
-              name: [field.name, index, subField.name]
+              name: [field.name, index, subField.name] as any
             }"
             :form-data="formData"
           />

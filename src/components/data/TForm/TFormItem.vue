@@ -405,6 +405,7 @@ defineExpose({
       v-else-if="field.type === 'slider'"
       v-model:value="fieldValue"
       :disabled="isDisabled"
+      :tooltip="field.props?.tooltip !== undefined ? field.props?.tooltip : { formatter: null }"
       v-bind="field.props"
     />
 

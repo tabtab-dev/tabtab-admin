@@ -21,7 +21,8 @@ import type {
   TableSorter,
   TableRecord,
   TableFilters,
-  TablePagination
+  TablePagination,
+  SortOrder
 } from './types'
 
 /**
@@ -92,7 +93,7 @@ const slots = useSlots()
 /**
  * Table 实例引用
  */
-const tableRef = ref<InstanceType<typeof ConfigProvider> | null>(null)
+const tableRef = ref<any>(null)
 
 /**
  * 表格状态
@@ -527,7 +528,10 @@ watch(
  * 监听 schema 中的 pagination.total 变化
  */
 watch(
-  () => props.schema.pagination?.total,
+  () => {
+    const pagination = props.schema.pagination
+    return typeof pagination === 'object' ? pagination.total : undefined
+  },
   (newTotal) => {
     if (newTotal !== undefined) {
       state.value.pagination.total = newTotal
