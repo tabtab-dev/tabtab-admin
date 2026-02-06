@@ -20,8 +20,9 @@ const authStore = useAuthStore();
 const themeStore = useThemeStore();
 const localeStore = useLocaleStore();
 
-authStore.initialize();
-themeStore.init();
-localeStore.init();
+authStore.initialize().then(() => {
+  themeStore.init();
+  localeStore.init();
 
-app.mount('#app');
+  app.mount('#app');
+});

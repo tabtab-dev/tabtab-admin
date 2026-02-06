@@ -21,6 +21,10 @@ export {
   type UpdateUserParams,
   type GetUsersParams,
 } from './modules/users';
+export {
+  menuApi,
+  menuApiMock,
+} from './modules/menu';
 
 // 导出 API 模块（Mock 接口）
 export { authApiMock } from './modules/auth';

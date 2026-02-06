@@ -15,8 +15,8 @@ import {
 import { useAuthStore } from '@/stores/auth';
 import { useAppStore } from '@/stores/app';
 import { useThemeStore } from '@/stores/theme';
+import { useMenuStore } from '@/stores/menu';
 import { useNotifications } from '@/layouts/composables/useNotifications';
-import { getRouteTitleKey } from './sidebar/config';
 import ThemeSettings from './ThemeSettings.vue';
 import LanguageSwitch from './LanguageSwitch.vue';
 import {
@@ -57,6 +57,7 @@ const route = useRoute();
 const authStore = useAuthStore();
 const appStore = useAppStore();
 const themeStore = useThemeStore();
+const menuStore = useMenuStore();
 
 const searchQuery = ref('');
 const isSearchFocused = ref(false);
@@ -126,7 +127,7 @@ const {
  * 当前路由标题
  */
 const currentRouteTitle = computed(() => {
-  return getRouteTitleKey(route.path);
+  return menuStore.getRouteTitleKey(route.path);
 });
 
 /**

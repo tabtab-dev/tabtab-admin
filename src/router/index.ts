@@ -1,7 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import type { RouteRecordRaw, RouteLocationNormalized } from 'vue-router';
 import { updateDocumentTitle } from '@/i18n';
+import { useMenuStore } from '@/stores/menu';
 
+/**
+ * 基础路由配置
+ * 包含登录页和 404 页面（固定路由）
+ * 其他路由通过动态方式从后端获取
+ */
 const routes: RouteRecordRaw[] = [
   {
     path: '/login',
@@ -11,147 +17,11 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/',
+    name: 'Root',
     component: () => import('@/layouts/AdminLayout.vue'),
     meta: { requiresAuth: true },
     children: [
-      {
-        path: '',
-        name: 'Dashboard',
-        component: () => import('@/views/Dashboard.vue'),
-        meta: { titleKey: 'menu.dashboard' }
-      },
-      {
-        path: 'users',
-        name: 'Users',
-        component: () => import('@/views/Users.vue'),
-        meta: { titleKey: 'menu.users' }
-      },
-      {
-        path: 'orders',
-        name: 'Orders',
-        component: () => import('@/views/Orders.vue'),
-        meta: { titleKey: 'menu.orders' }
-      },
-      {
-        path: 'products',
-        name: 'Products',
-        component: () => import('@/views/Products.vue'),
-        meta: { titleKey: 'menu.products' }
-      },
-      {
-        path: 'products/categories',
-        name: 'Categories',
-        component: () => import('@/views/Categories.vue'),
-        meta: { titleKey: 'menu.categories' }
-      },
-      {
-        path: 'products/inventory',
-        name: 'Inventory',
-        component: () => import('@/views/Inventory.vue'),
-        meta: { titleKey: 'menu.inventory' }
-      },
-      {
-        path: 'products/categories/tags',
-        name: 'Tags',
-        component: () => import('@/views/Tags.vue'),
-        meta: { titleKey: 'menu.tags' }
-      },
-      {
-        path: 'products/inventory/warehouse',
-        name: 'Warehouse',
-        component: () => import('@/views/Warehouse.vue'),
-        meta: { titleKey: 'menu.warehouse' }
-      },
-      {
-        path: 'products/inventory/stock',
-        name: 'Stock',
-        component: () => import('@/views/Stock.vue'),
-        meta: { titleKey: 'menu.stock' }
-      },
-      {
-        path: 'products/inventory/logistics',
-        name: 'Logistics',
-        component: () => import('@/views/Logistics.vue'),
-        meta: { titleKey: 'menu.logistics' }
-      },
-      {
-        path: 'products/categories/level1',
-        name: 'Level1',
-        component: () => import('@/views/Level1.vue'),
-        meta: { titleKey: 'menu.categoryLevel1' }
-      },
-      {
-        path: 'products/categories/level2',
-        name: 'Level2',
-        component: () => import('@/views/Level2.vue'),
-        meta: { titleKey: 'menu.categoryLevel2' }
-      },
-      {
-        path: 'products/inventory/warehouse/beijing',
-        name: 'Beijing',
-        component: () => import('@/views/Beijing.vue'),
-        meta: { titleKey: 'menu.warehouseBeijing' }
-      },
-      {
-        path: 'products/inventory/warehouse/shanghai',
-        name: 'Shanghai',
-        component: () => import('@/views/Shanghai.vue'),
-        meta: { titleKey: 'menu.warehouseShanghai' }
-      },
-      {
-        path: 'analytics',
-        name: 'Analytics',
-        component: () => import('@/views/Analytics.vue'),
-        meta: { titleKey: 'menu.analytics' }
-      },
-      {
-        path: 'analytics/traffic',
-        name: 'Traffic',
-        component: () => import('@/views/Traffic.vue'),
-        meta: { titleKey: 'menu.traffic' }
-      },
-      {
-        path: 'analytics/sales',
-        name: 'Sales',
-        component: () => import('@/views/Sales.vue'),
-        meta: { titleKey: 'menu.sales' }
-      },
-      {
-        path: 'analytics/users',
-        name: 'UsersAnalysis',
-        component: () => import('@/views/UsersAnalysis.vue'),
-        meta: { titleKey: 'menu.usersAnalysis' }
-      },
-      {
-        path: 'settings',
-        name: 'Settings',
-        component: () => import('@/views/Settings.vue'),
-        meta: { titleKey: 'menu.settings' }
-      },
-      {
-        path: 'tform-demo',
-        name: 'TFormDemo',
-        component: () => import('@/views/TFormDemo.vue'),
-        meta: { titleKey: 'menu.tformDemo' }
-      },
-      {
-        path: 'ttable-demo',
-        name: 'TTableDemo',
-        component: () => import('@/views/TTableDemo.vue'),
-        meta: { titleKey: 'menu.ttableDemo' }
-      },
-      {
-        path: 'tmodal-demo',
-        name: 'TModalDemo',
-        component: () => import('@/views/TModalDemo.vue'),
-        meta: { titleKey: 'menu.tmodalDemo' }
-      },
-      {
-        path: 'tdrawer-demo',
-        name: 'TDrawerDemo',
-        component: () => import('@/views/TDrawerDemo.vue'),
-        meta: { titleKey: 'menu.tdrawerDemo' }
-      }
+      // 动态路由将在登录后通过菜单 API 获取并添加
     ]
   },
   {
@@ -167,16 +37,44 @@ const router = createRouter({
   routes
 });
 
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem('token');
+/**
+ * 全局前置守卫
+ * 处理认证和动态菜单加载
+ */
+router.beforeEach(async (to, from, next) => {
+  const token = localStorage.getItem('token');
+  const userStr = localStorage.getItem('user');
+  // 同时检查 token 和 user 是否存在，确保登录状态完整
+  const isAuthenticated = !!(token && userStr);
+  const menuStore = useMenuStore();
 
   // 更新页面标题
   updateDocumentTitle(to);
 
+  // 如果已登录但菜单未加载，先加载菜单
+  if (isAuthenticated && !menuStore.isLoaded && to.path !== '/login') {
+    const success = await menuStore.fetchMenus();
+    if (!success) {
+      // 加载菜单失败，可能是 token 过期
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      next({ name: 'Login' });
+      return;
+    }
+
+    // 关键修复：动态路由加载完成后，如果当前目标路由匹配到了404，
+    // 说明动态路由刚刚被添加，需要重新导航以触发正确的路由匹配
+    if (to.name === 'NotFound') {
+      next({ path: to.fullPath, replace: true, query: to.query, hash: to.hash });
+      return;
+    }
+  }
+
+  // 认证检查
   if (to.meta.requiresAuth !== false && !isAuthenticated) {
     next({ name: 'Login' });
   } else if (to.name === 'Login' && isAuthenticated) {
-    next({ name: 'Dashboard' });
+    next({ name: 'Root' });
   } else {
     next();
   }

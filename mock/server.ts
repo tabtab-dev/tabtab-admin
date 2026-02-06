@@ -6,6 +6,7 @@ import type { ViteDevServer } from 'vite';
 import type { IncomingMessage, ServerResponse } from 'http';
 import { authRoutes } from './routes/auth';
 import { userRoutes } from './routes/users';
+import { menuRoutes } from './routes/menu';
 
 /**
  * 合并所有模块路由
@@ -13,6 +14,7 @@ import { userRoutes } from './routes/users';
 const allRoutes: Record<string, (req: IncomingMessage & { body?: any }, res: ServerResponse) => void> = {
   ...authRoutes,
   ...userRoutes,
+  ...menuRoutes,
 };
 
 /**

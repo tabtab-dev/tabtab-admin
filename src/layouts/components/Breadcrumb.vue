@@ -27,9 +27,10 @@ import {
   ChevronRight,
   MoreHorizontal,
 } from 'lucide-vue-next';
-import { routeTitleMap } from './sidebar/config';
+import { useMenuStore } from '@/stores/menu';
 
 const { t } = useI18n();
+const menuStore = useMenuStore();
 
 /**
  * 面包屑项
@@ -118,8 +119,8 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
   segments.forEach((segment, index) => {
     currentPath += `/${segment}`;
     const isLast = index === segments.length - 1;
-    const titleKey = routeTitleMap[currentPath];
-    const title = titleKey ? t(titleKey) : segment;
+    const titleKey = menuStore.getRouteTitleKey(currentPath);
+    const title = titleKey !== currentPath ? t(titleKey) : segment;
 
     items.push({
       title,

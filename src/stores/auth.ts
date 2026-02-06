@@ -1,6 +1,7 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
 import { authApi, authApiMock } from '@/api';
+import { useMenuStore } from './menu';
 
 export interface User {
   id: string;
@@ -49,6 +50,10 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
 
+      // 登录成功后获取菜单
+      const menuStore = useMenuStore();
+      await menuStore.fetchMenus();
+
       return true;
     } catch (error) {
       console.error('Login failed:', error);
@@ -73,6 +78,10 @@ export const useAuthStore = defineStore('auth', () => {
       token.value = null;
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+
+      // 重置菜单状态
+      const menuStore = useMenuStore();
+      menuStore.reset();
     }
   };
 

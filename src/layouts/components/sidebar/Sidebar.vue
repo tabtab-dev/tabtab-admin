@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMediaQuery } from '@vueuse/core';
 import { useSidebar } from '@/layouts/composables/useSidebar';
 import { useThemeStore } from '@/stores/theme';
-import { defaultSidebarConfig } from './config';
+import { useMenuStore } from '@/stores/menu';
+import { defaultSidebarConfig, convertMenuItem } from './config';
 import DesktopSidebar from './DesktopSidebar.vue';
 import MobileSidebar from './MobileSidebar.vue';
 
 const router = useRouter();
 const themeStore = useThemeStore();
+const menuStore = useMenuStore();
 
 /**
  * 是否为桌面端
@@ -33,9 +35,35 @@ const emit = defineEmits<{
 }>();
 
 /**
+ * 将 API 菜单数据转换为 Sidebar 配置
+ */
+const sidebarMenus = computed(() => {
+  return menuStore.menus.map(menu => convertMenuItem(menu));
+});
+
+/**
+ * 动态侧栏配置
+ */
+const dynamicSidebarConfig = computed(() => ({
+  ...defaultSidebarConfig,
+  menus: sidebarMenus.value,
+}));
+
+/**
  * 使用侧栏逻辑
  */
-const sidebarState = useSidebar(defaultSidebarConfig);
+const sidebarState = useSidebar(dynamicSidebarConfig.value);
+
+/**
+ * 监听菜单变化，更新 sidebar 配置
+ */
+watch(
+  () => menuStore.menus,
+  () => {
+    sidebarState.config.menus = sidebarMenus.value;
+  },
+  { deep: true }
+);
 
 /**
  * 折叠状态 - 优先使用外部传入的值
