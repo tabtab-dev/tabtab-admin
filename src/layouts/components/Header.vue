@@ -399,33 +399,33 @@ onUnmounted(() => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" class="w-80 p-0" :side-offset="8">
             <!-- 通知头部 -->
-            <div class="flex items-center justify-between px-4 py-3 border-b border-border/50">
-              <div class="flex items-center gap-2">
-                <Bell class="h-4 w-4 text-muted-foreground" />
-                <span class="font-semibold text-sm">{{ t('common.header.notifications') }}</span>
+            <div class="flex items-center justify-between px-3 py-2.5 border-b border-border/50 gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <Bell class="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <span class="font-semibold text-sm truncate">{{ t('common.header.notifications') }}</span>
                 <span
                   v-if="unreadCount > 0"
-                  class="bg-primary text-primary-foreground text-[10px] font-medium px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
+                  class="bg-primary text-primary-foreground text-[10px] font-medium px-1.5 py-0.5 rounded-full min-w-[18px] text-center flex-shrink-0"
                 >
                   {{ unreadCount }}
                 </span>
               </div>
-              <div class="flex items-center gap-1">
+              <div class="flex items-center gap-0.5 flex-shrink-0">
                 <Button
                   v-if="hasUnread"
                   variant="ghost"
                   size="sm"
-                  class="h-7 px-2 text-xs hover:bg-primary/10 hover:text-primary"
+                  class="h-7 px-1.5 text-xs hover:bg-primary/10 hover:text-primary whitespace-nowrap"
                   @click="markAllAsRead"
                 >
-                  <CheckCheck class="h-3.5 w-3.5 mr-1" />
-                  {{ t('common.header.markAllRead') }}
+                  <CheckCheck class="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                  <span class="truncate">{{ t('common.header.markAllRead') }}</span>
                 </Button>
                 <Button
                   v-if="notifications.length > 0"
                   variant="ghost"
                   size="icon"
-                  class="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  class="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
                   @click="clearAllNotifications"
                 >
                   <Trash2 class="h-3.5 w-3.5" />

@@ -76,8 +76,8 @@ export default {
     search: 'Search...',
     searchShortcut: 'Search shortcut',
     notifications: 'Notifications',
-    markAllRead: 'Mark all as read',
-    viewAll: 'View all notifications',
+    markAllRead: 'Mark all read',
+    viewAll: 'View all',
     noNotifications: 'No notifications',
     profile: 'Profile',
     profileDesc: 'View and edit personal info',
@@ -86,9 +86,9 @@ export default {
     logout: 'Logout',
     admin: 'Admin',
     user: 'User',
-    switchToLight: 'Switch to light mode',
-    switchToDark: 'Switch to dark mode',
-    themeSettings: 'Theme Settings',
+    switchToLight: 'Light mode',
+    switchToDark: 'Dark mode',
+    themeSettings: 'Theme',
   },
 
   // Breadcrumb
