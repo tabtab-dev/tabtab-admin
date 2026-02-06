@@ -1,1 +1,0 @@
-﻿src/views/Categories.vue(241,7): error TS2353: Object literal may only specify known properties, and 'show' does not exist in type 'FormField<Record<string, any>>'.
