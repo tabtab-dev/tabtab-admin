@@ -51,11 +51,12 @@ watch(
       :sidebar-collapsed="sidebarCollapsed"
       @toggle-collapse="toggleSidebarCollapse"
     />
-    <!-- 标签栏 - 根据主题配置显示/隐藏 -->
-    <TabBar v-if="themeStore.layoutConfig.showTabBar" />
     <div class="flex-1 overflow-hidden">
       <Sidebar v-model:collapsed="sidebarCollapsed">
         <ScrollArea class="h-full flex flex-col">
+          <!-- 标签栏 - 根据主题配置显示/隐藏 -->
+          <TabBar v-if="themeStore.layoutConfig.showTabBar" />
+          
           <!-- 页面标题栏 -->
           <PageHeader />
 

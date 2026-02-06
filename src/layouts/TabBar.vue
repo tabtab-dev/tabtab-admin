@@ -1,16 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useTabBarStore } from '@/stores/tabbar';
 import { Button } from '@/components/ui/button';
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from '@/components/ui/context-menu';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,7 +32,9 @@ const tabListRef = ref<HTMLDivElement | null>(null);
 const canScrollLeft = ref(false);
 /** 是否可以向右滚动 */
 const canScrollRight = ref(false);
-/** 右键菜单选中的标签路径 */
+/** 右键菜单状态 */
+const contextMenuVisible = ref(false);
+const contextMenuPosition = ref({ x: 0, y: 0 });
 const contextMenuTabPath = ref<string>('');
 
 /**
@@ -65,7 +60,7 @@ const checkScrollStatus = () => {
 /**
  * 向左滚动
  */
-const scrollLeft = () => {
+const scrollLeftFn = () => {
   if (!tabListRef.value) return;
   tabListRef.value.scrollBy({ left: -200, behavior: 'smooth' });
 };
@@ -73,7 +68,7 @@ const scrollLeft = () => {
 /**
  * 向右滚动
  */
-const scrollRight = () => {
+const scrollRightFn = () => {
   if (!tabListRef.value) return;
   tabListRef.value.scrollBy({ left: 200, behavior: 'smooth' });
 };
@@ -100,11 +95,22 @@ const handleTabClose = (path: string, event?: MouseEvent) => {
 };
 
 /**
- * 处理右键菜单打开
+ * 处理右键菜单
+ * @param event 鼠标事件
  * @param path 标签路径
  */
-const handleContextMenu = (path: string) => {
+const handleContextMenu = (event: MouseEvent, path: string) => {
+  event.preventDefault();
   contextMenuTabPath.value = path;
+  contextMenuPosition.value = { x: event.clientX, y: event.clientY };
+  contextMenuVisible.value = true;
+};
+
+/**
+ * 关闭右键菜单
+ */
+const closeContextMenu = () => {
+  contextMenuVisible.value = false;
 };
 
 /**
@@ -114,6 +120,7 @@ const handleCloseCurrent = () => {
   if (contextMenuTabPath.value) {
     tabBarStore.closeTab(contextMenuTabPath.value, router, route.path);
   }
+  closeContextMenu();
 };
 
 /**
@@ -126,6 +133,7 @@ const handleCloseOthers = () => {
       router.push(contextMenuTabPath.value);
     }
   }
+  closeContextMenu();
 };
 
 /**
@@ -133,6 +141,7 @@ const handleCloseOthers = () => {
  */
 const handleCloseAll = () => {
   tabBarStore.closeAll(router);
+  closeContextMenu();
 };
 
 /**
@@ -142,6 +151,7 @@ const handleRefresh = () => {
   if (contextMenuTabPath.value) {
     tabBarStore.refreshTab(contextMenuTabPath.value);
   }
+  closeContextMenu();
 };
 
 /**
@@ -160,7 +170,6 @@ const getTabTitle = (tab: typeof tabs.value[0]) => {
  * @param icon 图标名称
  */
 const getTabIcon = (icon?: string) => {
-  // 目前只支持 Home 图标，可以根据需要扩展
   if (icon === 'Home') {
     return Home;
   }
@@ -201,7 +210,7 @@ const scrollToActiveTab = () => {
 /**
  * 监听标签列表变化
  */
-const stopWatchTabs = watch(
+watch(
   () => tabs.value.length,
   () => {
     nextTick(() => {
@@ -210,9 +219,13 @@ const stopWatchTabs = watch(
   }
 );
 
-// 监听滚动事件
-type UnwatchFn = () => void;
-let stopWatchTabsFn: UnwatchFn | null = null;
+// 点击外部关闭右键菜单
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement;
+  if (!target.closest('.context-menu')) {
+    closeContextMenu();
+  }
+};
 
 onMounted(() => {
   // 初始化当前路由标签
@@ -227,8 +240,8 @@ onMounted(() => {
   // 监听窗口大小变化
   window.addEventListener('resize', checkScrollStatus);
   
-  // 保存 watch 停止函数
-  stopWatchTabsFn = stopWatchTabs;
+  // 监听点击事件关闭右键菜单
+  document.addEventListener('click', handleClickOutside);
 });
 
 onUnmounted(() => {
@@ -238,19 +251,14 @@ onUnmounted(() => {
   // 移除事件监听
   tabListRef.value?.removeEventListener('scroll', checkScrollStatus);
   window.removeEventListener('resize', checkScrollStatus);
-  
-  // 停止 watch
-  stopWatchTabsFn?.();
+  document.removeEventListener('click', handleClickOutside);
 });
-
-// 导入 watch
-import { watch } from 'vue';
 </script>
 
 <template>
   <div
     ref="tabBarRef"
-    class="h-10 bg-background border-b border-border/60 flex items-center px-2 gap-1"
+    class="h-10 bg-background border-b border-border/60 flex items-center px-2 gap-1 flex-shrink-0"
   >
     <!-- 向左滚动按钮 -->
     <Button
@@ -258,7 +266,7 @@ import { watch } from 'vue';
       variant="ghost"
       size="icon"
       class="h-6 w-6 flex-shrink-0"
-      @click="scrollLeft"
+      @click="scrollLeftFn"
     >
       <ChevronLeft class="h-4 w-4" />
     </Button>
@@ -269,88 +277,46 @@ import { watch } from 'vue';
       class="flex-1 flex items-center gap-1 overflow-x-auto scrollbar-hide"
       style="scrollbar-width: none; -ms-overflow-style: none;"
     >
-      <ContextMenu>
-        <ContextMenuTrigger
-          v-for="tab in tabs"
-          :key="tab.path"
-          as-child
-          @contextmenu="handleContextMenu(tab.path)"
-        >
-          <div
-            class="group relative flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md cursor-pointer transition-all duration-200 whitespace-nowrap select-none"
-            :class="[
-              activeTabPath === tab.path
-                ? 'bg-primary/10 text-primary font-medium'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50',
-            ]"
-            :data-active="activeTabPath === tab.path"
-            @click="handleTabClick(tab.path)"
-          >
-            <!-- 图标 -->
-            <component
-              :is="getTabIcon(tab.icon)"
-              v-if="tab.icon && getTabIcon(tab.icon)"
-              class="h-3.5 w-3.5"
-            />
-            
-            <!-- 标题 -->
-            <span class="max-w-[120px] truncate">{{ getTabTitle(tab) }}</span>
-            
-            <!-- 关闭按钮 -->
-            <Button
-              v-if="tab.closable"
-              variant="ghost"
-              size="icon"
-              class="h-4 w-4 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-              @click.stop="handleTabClose(tab.path, $event)"
-            >
-              <X class="h-3 w-3" />
-            </Button>
-            
-            <!-- 激活指示器 -->
-            <div
-              v-if="activeTabPath === tab.path"
-              class="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full"
-            />
-          </div>
-        </ContextMenuTrigger>
+      <div
+        v-for="tab in tabs"
+        :key="tab.path"
+        class="group relative flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md cursor-pointer transition-all duration-200 whitespace-nowrap select-none"
+        :class="[
+          activeTabPath === tab.path
+            ? 'bg-primary/10 text-primary font-medium'
+            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50',
+        ]"
+        :data-active="activeTabPath === tab.path"
+        @click="handleTabClick(tab.path)"
+        @contextmenu="handleContextMenu($event, tab.path)"
+      >
+        <!-- 图标 -->
+        <component
+          :is="getTabIcon(tab.icon)"
+          v-if="tab.icon && getTabIcon(tab.icon)"
+          class="h-3.5 w-3.5"
+        />
         
-        <!-- 右键菜单内容 -->
-        <ContextMenuContent class="w-40">
-          <ContextMenuItem
-            class="cursor-pointer"
-            :disabled="!contextMenuTabPath || tabs.find(t => t.path === contextMenuTabPath)?.affix"
-            @click="handleCloseCurrent"
-          >
-            <X class="h-4 w-4 mr-2" />
-            {{ t('common.tabbar.closeCurrent') }}
-          </ContextMenuItem>
-          <ContextMenuItem
-            class="cursor-pointer"
-            :disabled="!tabBarStore.canCloseOthers"
-            @click="handleCloseOthers"
-          >
-            <MoreHorizontal class="h-4 w-4 mr-2" />
-            {{ t('common.tabbar.closeOthers') }}
-          </ContextMenuItem>
-          <ContextMenuItem
-            class="cursor-pointer"
-            :disabled="!tabBarStore.canCloseAll"
-            @click="handleCloseAll"
-          >
-            <X class="h-4 w-4 mr-2" />
-            {{ t('common.tabbar.closeAll') }}
-          </ContextMenuItem>
-          <ContextMenuSeparator />
-          <ContextMenuItem
-            class="cursor-pointer"
-            @click="handleRefresh"
-          >
-            <RotateCcw class="h-4 w-4 mr-2" />
-            {{ t('common.tabbar.refresh') }}
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
+        <!-- 标题 -->
+        <span class="max-w-[120px] truncate">{{ getTabTitle(tab) }}</span>
+        
+        <!-- 关闭按钮 -->
+        <Button
+          v-if="tab.closable"
+          variant="ghost"
+          size="icon"
+          class="h-4 w-4 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+          @click.stop="handleTabClose(tab.path, $event)"
+        >
+          <X class="h-3 w-3" />
+        </Button>
+        
+        <!-- 激活指示器 -->
+        <div
+          v-if="activeTabPath === tab.path"
+          class="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full"
+        />
+      </div>
     </div>
 
     <!-- 向右滚动按钮 -->
@@ -359,7 +325,7 @@ import { watch } from 'vue';
       variant="ghost"
       size="icon"
       class="h-6 w-6 flex-shrink-0"
-      @click="scrollRight"
+      @click="scrollRightFn"
     >
       <ChevronRight class="h-4 w-4" />
     </Button>
@@ -401,6 +367,51 @@ import { watch } from 'vue';
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+
+    <!-- 自定义右键菜单 -->
+    <Teleport to="body">
+      <div
+        v-if="contextMenuVisible"
+        class="context-menu fixed z-50 min-w-[160px] bg-popover border border-border rounded-md shadow-lg py-1"
+        :style="{
+          left: `${contextMenuPosition.x}px`,
+          top: `${contextMenuPosition.y}px`,
+        }"
+      >
+        <button
+          class="w-full px-3 py-2 text-sm text-left hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          :disabled="!contextMenuTabPath || tabs.find(t => t.path === contextMenuTabPath)?.affix"
+          @click="handleCloseCurrent"
+        >
+          <X class="h-4 w-4 mr-2" />
+          {{ t('common.tabbar.closeCurrent') }}
+        </button>
+        <button
+          class="w-full px-3 py-2 text-sm text-left hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          :disabled="!tabBarStore.canCloseOthers"
+          @click="handleCloseOthers"
+        >
+          <MoreHorizontal class="h-4 w-4 mr-2" />
+          {{ t('common.tabbar.closeOthers') }}
+        </button>
+        <button
+          class="w-full px-3 py-2 text-sm text-left hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          :disabled="!tabBarStore.canCloseAll"
+          @click="handleCloseAll"
+        >
+          <X class="h-4 w-4 mr-2" />
+          {{ t('common.tabbar.closeAll') }}
+        </button>
+        <div class="h-px bg-border my-1" />
+        <button
+          class="w-full px-3 py-2 text-sm text-left hover:bg-accent hover:text-accent-foreground flex items-center"
+          @click="handleRefresh"
+        >
+          <RotateCcw class="h-4 w-4 mr-2" />
+          {{ t('common.tabbar.refresh') }}
+        </button>
+      </div>
+    </Teleport>
   </div>
 </template>
 
