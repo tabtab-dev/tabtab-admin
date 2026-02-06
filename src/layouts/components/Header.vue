@@ -132,8 +132,8 @@ const currentRouteTitle = computed(() => {
 /**
  * 处理登出
  */
-const handleLogout = () => {
-  authStore.logout();
+const handleLogout = async () => {
+  await authStore.logout();
   router.push('/login');
 };
 
@@ -611,7 +611,7 @@ onUnmounted(() => {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              @click="handleLogout"
+              @click.stop="handleLogout"
               class="cursor-pointer py-2.5 focus:bg-red-500 focus:text-white group"
             >
               <div
