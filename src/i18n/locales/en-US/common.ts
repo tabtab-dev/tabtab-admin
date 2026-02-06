@@ -114,6 +114,7 @@ export default {
     radius: 'Border Radius',
     sidebarCollapsed: 'Collapse Sidebar by Default',
     showTabBar: 'Show Tab Bar',
+    showBreadcrumb: 'Show Breadcrumb',
     fontSize: 'Font Size',
     small: 'Small',
     medium: 'Medium',

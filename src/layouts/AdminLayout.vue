@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, watch } from 'vue';
+import { ref, defineAsyncComponent, watch, onMounted, onUnmounted } from 'vue';
 import Header from './components/Header.vue';
 import TabBar from './TabBar.vue';
 import Sidebar from './components/sidebar/Sidebar.vue';
@@ -43,6 +43,27 @@ watch(
     }
   }
 );
+
+/**
+ * 处理标签栏刷新事件
+ */
+const handleTabRefresh = (event: CustomEvent<{ path: string }>) => {
+  const { path } = event.detail;
+  // 如果刷新的是当前页面，则重新加载
+  if (path === window.location.pathname) {
+    window.location.reload();
+  }
+};
+
+onMounted(() => {
+  // 监听标签栏刷新事件
+  window.addEventListener('tab-refresh', handleTabRefresh as EventListener);
+});
+
+onUnmounted(() => {
+  // 移除事件监听
+  window.removeEventListener('tab-refresh', handleTabRefresh as EventListener);
+});
 </script>
 
 <template>

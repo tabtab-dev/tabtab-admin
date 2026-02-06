@@ -609,6 +609,8 @@ export interface LayoutConfig {
   animations: boolean;
   /** 是否显示标签栏 */
   showTabBar: boolean;
+  /** 是否显示面包屑 */
+  showBreadcrumb: boolean;
 }
 
 /**
@@ -623,6 +625,7 @@ export const defaultLayoutConfig: LayoutConfig = {
   fontSize: 'base',
   animations: true,
   showTabBar: true,
+  showBreadcrumb: true,
 };
 
 /**

@@ -251,7 +251,7 @@ onUnmounted(() => {
         </Button>
 
         <!-- 面包屑导航 -->
-        <div class="hidden md:flex items-center min-w-0">
+        <div v-if="themeStore.layoutConfig.showBreadcrumb" class="hidden md:flex items-center min-w-0">
           <Breadcrumb />
         </div>
 

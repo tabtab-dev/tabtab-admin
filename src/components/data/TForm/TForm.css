@@ -120,7 +120,7 @@
 /* 搜索按钮 - 折叠状态 */
 .t-form-search .search-btn-collapsed {
   @apply inline-flex items-center justify-center;
-  @apply rounded-md bg-primary px-3 py-2;
+  @apply rounded-md bg-primary px-3 py-1.5;
   @apply text-sm font-medium text-primary-foreground;
   @apply shadow-sm;
   @apply transition-all duration-200;
@@ -133,7 +133,7 @@
 /* 搜索按钮 - 展开状态 */
 .t-form-search .search-btn-expanded {
   @apply inline-flex items-center justify-center;
-  @apply rounded-md bg-primary px-4 py-2;
+  @apply rounded-md bg-primary px-4 py-1.5;
   @apply text-sm font-medium text-primary-foreground;
   @apply shadow-sm;
   @apply transition-all duration-200;
@@ -146,7 +146,7 @@
 /* 重置按钮 - 折叠状态 */
 .t-form-search .reset-btn-collapsed {
   @apply inline-flex items-center justify-center;
-  @apply rounded-md border border-input bg-background px-3 py-2;
+  @apply rounded-md border border-input bg-background px-3 py-1.5;
   @apply text-sm font-medium text-foreground;
   @apply shadow-sm;
   @apply transition-all duration-200;
@@ -158,7 +158,7 @@
 /* 重置按钮 - 展开状态 */
 .t-form-search .reset-btn-expanded {
   @apply inline-flex items-center justify-center;
-  @apply rounded-md border border-input bg-background px-4 py-2;
+  @apply rounded-md border border-input bg-background px-4 py-1.5;
   @apply text-sm font-medium text-foreground;
   @apply shadow-sm;
   @apply transition-all duration-200;
@@ -178,7 +178,7 @@
 .t-form-search .search-form-actions button[type="submit"],
 .t-form-search .search-form-actions-inline button[type="submit"] {
   @apply inline-flex items-center justify-center;
-  @apply rounded-md bg-primary px-4 py-2;
+  @apply rounded-md bg-primary px-4 py-1.5;
   @apply text-sm font-medium text-primary-foreground;
   @apply shadow-sm;
   @apply transition-all duration-200;
@@ -191,7 +191,7 @@
 .t-form-search .search-form-actions button[type="button"]:not(.collapse-btn),
 .t-form-search .search-form-actions-inline button[type="button"]:not(.collapse-btn) {
   @apply inline-flex items-center justify-center;
-  @apply rounded-md border border-input bg-background px-4 py-2;
+  @apply rounded-md border border-input bg-background px-4 py-1.5;
   @apply text-sm font-medium text-foreground;
   @apply shadow-sm;
   @apply transition-all duration-200;
@@ -203,7 +203,7 @@
 .t-form-search .search-form-actions .collapse-btn,
 .t-form-search .search-form-actions-inline .collapse-btn {
   @apply inline-flex items-center justify-center;
-  @apply rounded-md px-3 py-2;
+  @apply rounded-md px-3 py-1.5;
   @apply text-sm font-medium text-muted-foreground;
   @apply transition-all duration-200;
   @apply hover:bg-muted hover:text-foreground;
@@ -219,7 +219,7 @@
 /* 行内折叠按钮 */
 .t-form-search .collapse-btn-inline {
   @apply inline-flex items-center justify-center;
-  @apply h-9 px-3 rounded-md;
+  @apply h-8 px-3 rounded-md;
   @apply text-sm font-medium text-muted-foreground;
   @apply transition-all duration-200;
   @apply hover:bg-muted hover:text-foreground;

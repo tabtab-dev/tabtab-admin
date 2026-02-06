@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick, watch, type Component } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useTabBarStore } from '@/stores/tabbar';
@@ -15,7 +15,6 @@ import {
   RotateCcw,
   ChevronLeft,
   ChevronRight,
-  Home,
   MoreHorizontal,
 } from 'lucide-vue-next';
 
@@ -145,13 +144,20 @@ const handleCloseAll = () => {
 };
 
 /**
- * 刷新当前标签
+ * 刷新当前标签（右键菜单使用）
  */
 const handleRefresh = () => {
   if (contextMenuTabPath.value) {
     tabBarStore.refreshTab(contextMenuTabPath.value);
   }
   closeContextMenu();
+};
+
+/**
+ * 刷新当前激活标签（下拉菜单使用）
+ */
+const handleRefreshCurrent = () => {
+  tabBarStore.refreshTab(activeTabPath.value);
 };
 
 /**
@@ -163,17 +169,6 @@ const getTabTitle = (tab: typeof tabs.value[0]) => {
     return t(tab.titleKey);
   }
   return tab.title;
-};
-
-/**
- * 获取标签图标组件
- * @param icon 图标名称
- */
-const getTabIcon = (icon?: string) => {
-  if (icon === 'Home') {
-    return Home;
-  }
-  return null;
 };
 
 /**
@@ -258,14 +253,14 @@ onUnmounted(() => {
 <template>
   <div
     ref="tabBarRef"
-    class="h-10 bg-background border-b border-border/60 flex items-center px-2 gap-1 flex-shrink-0"
+    class="h-10 bg-background border-b border-border/60 flex items-center px-3 gap-1 flex-shrink-0"
   >
     <!-- 向左滚动按钮 -->
     <Button
       v-show="canScrollLeft"
       variant="ghost"
       size="icon"
-      class="h-6 w-6 flex-shrink-0"
+      class="h-7 w-7 flex-shrink-0 rounded-md hover:bg-muted"
       @click="scrollLeftFn"
     >
       <ChevronLeft class="h-4 w-4" />
@@ -274,16 +269,16 @@ onUnmounted(() => {
     <!-- 标签列表 -->
     <div
       ref="tabListRef"
-      class="flex-1 flex items-center gap-1 overflow-x-auto scrollbar-hide"
+      class="flex-1 flex items-center gap-0.5 overflow-x-auto scrollbar-hide"
       style="scrollbar-width: none; -ms-overflow-style: none;"
     >
       <div
         v-for="tab in tabs"
         :key="tab.path"
-        class="group relative flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md cursor-pointer transition-all duration-200 whitespace-nowrap select-none"
+        class="group relative flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md cursor-pointer transition-colors whitespace-nowrap select-none"
         :class="[
           activeTabPath === tab.path
-            ? 'bg-primary/10 text-primary font-medium'
+            ? 'bg-muted text-foreground font-medium'
             : 'text-muted-foreground hover:text-foreground hover:bg-muted/50',
         ]"
         :data-active="activeTabPath === tab.path"
@@ -292,8 +287,8 @@ onUnmounted(() => {
       >
         <!-- 图标 -->
         <component
-          :is="getTabIcon(tab.icon)"
-          v-if="tab.icon && getTabIcon(tab.icon)"
+          :is="tab.icon"
+          v-if="tab.icon"
           class="h-3.5 w-3.5"
         />
         
@@ -305,17 +300,11 @@ onUnmounted(() => {
           v-if="tab.closable"
           variant="ghost"
           size="icon"
-          class="h-4 w-4 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+          class="h-5 w-5 p-0 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted-foreground/10"
           @click.stop="handleTabClose(tab.path, $event)"
         >
           <X class="h-3 w-3" />
         </Button>
-        
-        <!-- 激活指示器 -->
-        <div
-          v-if="activeTabPath === tab.path"
-          class="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full"
-        />
       </div>
     </div>
 
@@ -324,7 +313,7 @@ onUnmounted(() => {
       v-show="canScrollRight"
       variant="ghost"
       size="icon"
-      class="h-6 w-6 flex-shrink-0"
+      class="h-7 w-7 flex-shrink-0 rounded-md hover:bg-muted"
       @click="scrollRightFn"
     >
       <ChevronRight class="h-4 w-4" />
@@ -336,7 +325,7 @@ onUnmounted(() => {
         <Button
           variant="ghost"
           size="icon"
-          class="h-6 w-6 flex-shrink-0"
+          class="h-7 w-7 flex-shrink-0 rounded-md hover:bg-muted"
         >
           <MoreHorizontal class="h-4 w-4" />
         </Button>
@@ -360,7 +349,7 @@ onUnmounted(() => {
         </DropdownMenuItem>
         <DropdownMenuItem
           class="cursor-pointer"
-          @click="handleRefresh"
+          @click="handleRefreshCurrent"
         >
           <RotateCcw class="h-4 w-4 mr-2" />
           {{ t('common.tabbar.refresh') }}
@@ -372,42 +361,42 @@ onUnmounted(() => {
     <Teleport to="body">
       <div
         v-if="contextMenuVisible"
-        class="context-menu fixed z-50 min-w-[160px] bg-popover border border-border rounded-md shadow-lg py-1"
+        class="context-menu fixed z-50 min-w-[140px] bg-popover border rounded-lg shadow-lg py-0.5 animate-in fade-in-0 zoom-in-95 duration-150"
         :style="{
           left: `${contextMenuPosition.x}px`,
           top: `${contextMenuPosition.y}px`,
         }"
       >
         <button
-          class="w-full px-3 py-2 text-sm text-left hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          class="w-full px-2 py-1.5 text-sm text-left hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed flex items-center rounded-sm mx-1 w-[calc(100%-8px)]"
           :disabled="!contextMenuTabPath || tabs.find(t => t.path === contextMenuTabPath)?.affix"
           @click="handleCloseCurrent"
         >
-          <X class="h-4 w-4 mr-2" />
+          <X class="h-3.5 w-3.5 mr-1.5" />
           {{ t('common.tabbar.closeCurrent') }}
         </button>
         <button
-          class="w-full px-3 py-2 text-sm text-left hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          class="w-full px-2 py-1.5 text-sm text-left hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed flex items-center rounded-sm mx-1 w-[calc(100%-8px)]"
           :disabled="!tabBarStore.canCloseOthers"
           @click="handleCloseOthers"
         >
-          <MoreHorizontal class="h-4 w-4 mr-2" />
+          <MoreHorizontal class="h-3.5 w-3.5 mr-1.5" />
           {{ t('common.tabbar.closeOthers') }}
         </button>
         <button
-          class="w-full px-3 py-2 text-sm text-left hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          class="w-full px-2 py-1.5 text-sm text-left hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed flex items-center rounded-sm mx-1 w-[calc(100%-8px)]"
           :disabled="!tabBarStore.canCloseAll"
           @click="handleCloseAll"
         >
-          <X class="h-4 w-4 mr-2" />
+          <X class="h-3.5 w-3.5 mr-1.5" />
           {{ t('common.tabbar.closeAll') }}
         </button>
-        <div class="h-px bg-border my-1" />
+        <div class="h-px bg-border my-0.5 mx-1" />
         <button
-          class="w-full px-3 py-2 text-sm text-left hover:bg-accent hover:text-accent-foreground flex items-center"
+          class="w-full px-2 py-1.5 text-sm text-left hover:bg-accent hover:text-accent-foreground flex items-center rounded-sm mx-1 w-[calc(100%-8px)]"
           @click="handleRefresh"
         >
-          <RotateCcw class="h-4 w-4 mr-2" />
+          <RotateCcw class="h-3.5 w-3.5 mr-1.5" />
           {{ t('common.tabbar.refresh') }}
         </button>
       </div>
@@ -419,17 +408,5 @@ onUnmounted(() => {
 /* 隐藏滚动条 */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
-}
-
-/* 标签项动画 */
-.tab-item-enter-active,
-.tab-item-leave-active {
-  transition: all 0.2s ease;
-}
-
-.tab-item-enter-from,
-.tab-item-leave-to {
-  opacity: 0;
-  transform: translateX(-10px);
 }
 </style>

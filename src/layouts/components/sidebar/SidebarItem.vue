@@ -120,14 +120,13 @@ const ariaLabel = computed(() => {
       </Button>
     </TooltipTrigger>
     
-    <TooltipContent side="right" :side-offset="10" class="bg-background border border-border/50 shadow-xl rounded-lg px-3 py-2">
-      <div class="flex items-center gap-2.5">
-        <component :is="item.icon" class="h-4 w-4 text-muted-foreground" />
-        <span class="font-medium text-sm text-foreground">{{ menuTitle }}</span>
+    <TooltipContent side="right" :side-offset="10">
+      <div class="flex items-center gap-2">
+        <span>{{ menuTitle }}</span>
         <Badge
           v-if="item.badge"
           variant="destructive"
-          class="h-5 px-1.5 text-[10px] font-medium"
+          class="h-4 px-1 text-[10px]"
         >
           {{ item.badge }}
         </Badge>

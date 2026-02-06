@@ -1,6 +1,7 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, type Component } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { defaultSidebarConfig } from '@/layouts/components/sidebar/config';
 
 /**
  * 标签项接口
@@ -12,8 +13,8 @@ export interface TabItem {
   title: string;
   /** 标题国际化键名 */
   titleKey?: string;
-  /** 图标 */
-  icon?: string;
+  /** 图标组件 */
+  icon?: Component;
   /** 是否可关闭 */
   closable?: boolean;
   /** 是否固定（首页等） */
@@ -26,9 +27,20 @@ export interface TabItem {
 const STORAGE_KEY = 'app-tabbar-config';
 
 /**
+ * 可序列化的标签项（不包含 icon 组件）
+ */
+interface SerializableTabItem {
+  path: string;
+  title: string;
+  titleKey?: string;
+  closable?: boolean;
+  affix?: boolean;
+}
+
+/**
  * 从本地存储加载配置
  */
-const loadFromStorage = () => {
+const loadFromStorage = (): { tabs: SerializableTabItem[]; activeTab: string } | null => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
@@ -41,14 +53,51 @@ const loadFromStorage = () => {
 };
 
 /**
- * 保存到本地存储
+ * 保存到本地存储（排除 icon 字段）
  */
 const saveToStorage = (tabs: TabItem[], activeTab: string) => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ tabs, activeTab }));
+    // 排除 icon 字段，只保存可序列化的数据
+    const serializableTabs: SerializableTabItem[] = tabs.map(({ icon, ...rest }) => rest);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ tabs: serializableTabs, activeTab }));
   } catch {
     // 忽略存储错误
   }
+};
+
+/**
+ * 为标签项恢复图标
+ * @param tabs 标签列表
+ * @returns 恢复图标后的标签列表
+ */
+const restoreIcons = (tabs: SerializableTabItem[]): TabItem[] => {
+  return tabs.map(tab => ({
+    ...tab,
+    icon: findIconFromMenu(tab.path),
+  }));
+};
+
+/**
+ * 从菜单配置中查找图标
+ * @param path 路由路径
+ * @returns 图标组件
+ */
+const findIconFromMenu = (path: string): Component | undefined => {
+  // 遍历所有菜单项查找匹配的图标
+  const findInMenus = (menus: typeof defaultSidebarConfig.menus): Component | undefined => {
+    for (const menu of menus) {
+      if (menu.path === path) {
+        return menu.icon;
+      }
+      if (menu.children) {
+        const found = findInMenus(menu.children);
+        if (found) return found;
+      }
+    }
+    return undefined;
+  };
+
+  return findInMenus(defaultSidebarConfig.menus);
 };
 
 /**
@@ -59,7 +108,7 @@ const defaultFixedTabs: TabItem[] = [
     path: '/',
     title: '首页',
     titleKey: 'menu.dashboard',
-    icon: 'Home',
+    icon: findIconFromMenu('/'),
     closable: false,
     affix: true,
   },
@@ -69,8 +118,10 @@ export const useTabBarStore = defineStore('tabbar', () => {
   // 加载存储的配置
   const storedConfig = loadFromStorage();
 
-  /** 标签列表 */
-  const tabs = ref<TabItem[]>(storedConfig?.tabs || [...defaultFixedTabs]);
+  /** 标签列表 - 加载后恢复图标 */
+  const tabs = ref<TabItem[]>(
+    storedConfig?.tabs ? restoreIcons(storedConfig.tabs) : [...defaultFixedTabs]
+  );
   /** 当前激活的标签路径 */
   const activeTab = ref<string>(storedConfig?.activeTab || '/');
 
@@ -184,15 +235,18 @@ export const useTabBarStore = defineStore('tabbar', () => {
   const addTabFromRoute = (route: ReturnType<typeof useRoute>) => {
     // 只处理有 meta 信息的路由
     if (!route.meta?.title && !route.meta?.titleKey) return;
-    
+
     // 跳过登录页等特殊页面
     if (route.path === '/login' || route.path === '/404') return;
+
+    // 从菜单配置中查找图标
+    const icon = findIconFromMenu(route.path);
 
     const tab: TabItem = {
       path: route.path,
       title: (route.meta.title as string) || route.name as string || '未命名',
       titleKey: route.meta.titleKey as string,
-      icon: route.meta.icon as string,
+      icon: icon,
       closable: route.meta.affix !== true,
       affix: route.meta.affix === true,
     };

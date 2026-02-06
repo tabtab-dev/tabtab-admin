@@ -5,13 +5,8 @@ import { useI18n } from 'vue-i18n';
 import { useTimeoutFn, useElementBounding, useWindowScroll } from '@vueuse/core';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { ChevronDown, ChevronRight } from 'lucide-vue-next';
-import { useMenuUtils, formatBadge, getButtonVariant, getIconClass } from '@/layouts/composables/useMenuUtils';
+import { useMenuUtils, formatBadge } from '@/layouts/composables/useMenuUtils';
 import MenuItemRecursive from './MenuItemRecursive.vue';
 import type { MenuItem } from './config';
 
@@ -160,11 +155,6 @@ const variant = computed(() => {
 });
 
 /**
- * 图标类名
- */
-const iconClass = computed(() => getIconClass(props.active || isChildActive.value));
-
-/**
  * 菜单标题（翻译后）
  */
 const menuTitle = computed(() => {
@@ -177,8 +167,8 @@ const menuTitle = computed(() => {
 const ariaLabel = computed(() => {
   if (!props.collapsed) return undefined;
   const childCount = props.item.children?.length ?? 0;
-  return props.item.badge 
-    ? `${menuTitle.value} (${props.item.badge} 条通知, ${childCount} 个子菜单)` 
+  return props.item.badge
+    ? `${menuTitle.value} (${props.item.badge} 条通知, ${childCount} 个子菜单)`
     : `${menuTitle.value} (${childCount} 个子菜单)`;
 });
 
@@ -192,7 +182,7 @@ const childCountText = computed(() => {
 </script>
 
 <template>
-  <!-- 折叠状态：悬停显示子菜单弹窗 - 优化后的设计 -->
+  <!-- 折叠状态：悬停显示子菜单弹窗 -->
   <div
     v-if="collapsed"
     ref="buttonRef"
@@ -200,6 +190,7 @@ const childCountText = computed(() => {
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
   >
+    <!-- 有子菜单时不显示 Tooltip，避免与子菜单弹框重叠 -->
     <Button
       :variant="variant"
       size="icon"
@@ -247,7 +238,7 @@ const childCountText = computed(() => {
       />
     </Button>
 
-    <!-- 子菜单弹窗 - 优化后的设计 -->
+    <!-- 子菜单弹窗 - 保持原有逻辑 -->
     <Teleport to="body">
       <Transition
         enter-active-class="transition-all duration-250 ease-out"
@@ -262,9 +253,9 @@ const childCountText = computed(() => {
           role="menu"
           :aria-label="`${menuTitle} 子菜单`"
           class="fixed w-56 bg-popover/95 backdrop-blur-sm border border-border/50 shadow-2xl shadow-primary/10 z-[9999] overflow-hidden"
-          :style="{ 
-            top: `${popoverPosition.top}px`, 
-            left: `${popoverPosition.left}px`, 
+          :style="{
+            top: `${popoverPosition.top}px`,
+            left: `${popoverPosition.left}px`,
             borderRadius: 'calc(var(--radius) * 0.9)',
             boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(var(--primary), 0.05)'
           }"
@@ -272,7 +263,7 @@ const childCountText = computed(() => {
           @mouseleave="startHidePopover()"
         >
           <!-- 箭头指示器 -->
-          <div 
+          <div
             class="absolute left-0 top-4 w-2 h-2 bg-popover border-l border-b border-border/50 transform -translate-x-1 rotate-45"
             style="box-shadow: -2px 2px 2px rgba(0,0,0,0.02)"
           />
@@ -280,7 +271,7 @@ const childCountText = computed(() => {
           <!-- 标题区域 - 优化后的设计 -->
           <div class="relative px-4 py-3 border-b border-border/40 bg-gradient-to-r from-muted/30 to-transparent">
             <div class="flex items-center gap-2.5">
-              <div 
+              <div
                 class="h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0"
                 :class="(active || isChildActive) ? 'bg-primary/15' : 'bg-muted'"
               >
@@ -339,14 +330,14 @@ const childCountText = computed(() => {
         :class="active ? 'from-primary-foreground/40 via-primary-foreground/60 to-primary-foreground/40' : 'from-primary/30 via-primary/50 to-primary/30'"
         aria-hidden="true"
       />
-      
+
       <!-- 悬停时的背景光效 -->
       <span
         v-if="!(active || isChildActive)"
         class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"
         aria-hidden="true"
       />
-      
+
       <div class="flex items-center gap-2.5 relative z-10">
         <component
           :is="item.icon"
@@ -358,7 +349,7 @@ const childCountText = computed(() => {
         />
         <span class="truncate font-medium text-sm">{{ menuTitle }}</span>
       </div>
-      
+
       <div class="flex items-center gap-1.5 relative z-10">
         <Badge
           v-if="item.badge"
@@ -387,7 +378,7 @@ const childCountText = computed(() => {
         />
       </div>
     </Button>
-    
+
     <!-- 子菜单 - 优化后的展开动画 -->
     <Transition
       enter-active-class="transition-all duration-250 ease-out"

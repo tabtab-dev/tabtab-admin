@@ -114,6 +114,7 @@ export default {
     radius: '圆角大小',
     sidebarCollapsed: '默认折叠侧边栏',
     showTabBar: '显示标签栏',
+    showBreadcrumb: '显示面包屑',
     fontSize: '字体大小',
     small: '小',
     medium: '中',
