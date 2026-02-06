@@ -182,13 +182,13 @@ const tableSchema = computed<TableSchema>(() => ({
   pagination: {
     pageSize: 10,
     show: true,
-    showSizeChanger: true,
-    showTotal: (total: number) => `共 ${total} 条`
+    showSizeChanger: true
   },
   rowSelection: {
     type: 'checkbox',
     show: true
-  }
+  },
+  showTotalBadge: true
 }))
 
 // 新增盘点
@@ -302,15 +302,7 @@ function handleSelectChange(keys: (string | number)[]) {
 
     <!-- 数据表格 -->
     <Card class="border-0 shadow-sm">
-      <CardHeader class="pb-4">
-        <div class="flex items-center gap-3">
-          <CardTitle class="text-base font-semibold">盘点记录</CardTitle>
-          <span class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-            共 {{ stockChecks.length }} 条
-          </span>
-        </div>
-      </CardHeader>
-      <CardContent class="pt-0">
+      <CardContent class="pt-6">
         <TTable
           ref="tableRef"
           v-model:data="stockChecks"

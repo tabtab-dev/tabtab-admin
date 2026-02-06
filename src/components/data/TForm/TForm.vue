@@ -24,7 +24,6 @@
 import { computed, reactive, ref, watch, useSlots, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ConfigProvider } from 'antdv-next'
-import type { Locale } from 'antdv-next/lib/locale'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import 'dayjs/locale/en'
@@ -76,7 +75,7 @@ const tformTheme = useTFormTheme()
 /**
  * antdv locale
  */
-const antdvLocale = ref<Locale | null>(null)
+const antdvLocale = ref<any>(null)
 
 /**
  * 加载 antdv locale

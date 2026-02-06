@@ -11,10 +11,16 @@
  *   />
  */
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
 import { Plus, Trash2 } from 'lucide-vue-next'
 import TFormItem from './TFormItem.vue'
 import type { FormField, ListFieldConfig } from './types'
+
+/**
+ * i18n
+ */
+const { t } = useI18n()
 
 /**
  * 组件 Props 定义
@@ -189,7 +195,7 @@ initListData()
       @click="addItem"
     >
       <Plus class="h-4 w-4 mr-2" />
-      {{ listConfig.addText || '添加' }}
+      {{ listConfig.addText || t('common.add') }}
     </Button>
   </div>
 </template>

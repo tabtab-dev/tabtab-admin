@@ -54,6 +54,8 @@ export default {
   optional: 'Optional',
   pleaseSelect: 'Please select',
   pleaseInput: 'Please input',
+  pleaseCheckThis: 'Please check this item',
+  clickToUpload: 'Click to upload',
   noData: 'No data',
   noResult: 'No results found',
 

@@ -167,8 +167,7 @@ const tableSchema = computed<TableSchema>(() => ({
     pageSize: 10,
     show: true,
     showSizeChanger: true,
-    showQuickJumper: true,
-    showTotal: (total: number) => `共 ${total} 条`
+    showQuickJumper: true
   },
   rowSelection: {
     type: 'checkbox',

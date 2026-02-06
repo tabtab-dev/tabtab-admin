@@ -92,8 +92,7 @@ const tableSchema = computed<TableSchema>(() => ({
   pagination: {
     pageSize: 10,
     show: true,
-    showSizeChanger: true,
-    showTotal: (total: number) => `共 ${total} 条`
+    showSizeChanger: true
   },
   rowSelection: {
     type: 'checkbox',

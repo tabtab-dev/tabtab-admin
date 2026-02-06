@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, h } from 'vue';
 import { useRouter } from 'vue-router';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { TForm } from '@/components/data/TForm';
+import type { FormSchema, TFormExpose } from '@/components/data/TForm';
 import { useAuthStore } from '@/stores/auth';
 import { useThemeStore } from '@/stores/theme';
 import {
   Shield,
-  Mail,
-  Lock,
   ArrowRight,
   Zap,
   BarChart3,
@@ -19,37 +17,91 @@ import {
   Sparkles,
   CheckCircle2,
   Sun,
-  Moon
+  Moon,
+  Mail,
+  Lock
 } from 'lucide-vue-next';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const themeStore = useThemeStore();
 
-const email = ref('');
-const password = ref('');
-const rememberMe = ref(false);
+/**
+ * 表单引用
+ */
+const formRef = ref<TFormExpose>();
+
+/**
+ * 表单数据
+ */
+const formData = ref({
+  email: '',
+  password: '',
+  rememberMe: false
+});
+
+/**
+ * 登录加载状态
+ */
 const isLoading = ref(false);
+
+/**
+ * 错误提示信息
+ */
 const errorMessage = ref('');
 
 /**
- * 处理登录表单提交
+ * 登录表单 Schema 配置
  */
-const handleLogin = async () => {
+const loginSchema: FormSchema = {
+  layout: 'vertical',
+  fields: [
+    {
+      name: 'email',
+      type: 'input',
+      label: '邮箱地址',
+      placeholder: 'admin@example.com',
+      rules: [
+        { required: true, message: '请输入邮箱地址' },
+        { type: 'email', message: '请输入有效的邮箱地址' }
+      ],
+      props: {
+        size: 'large',
+        prefix: h(Mail, { class: 'w-4 h-4 text-muted-foreground' }),
+        autocomplete: 'username'
+      }
+    },
+    {
+      name: 'password',
+      type: 'password',
+      label: '密码',
+      placeholder: '••••••••',
+      rules: [
+        { required: true, message: '请输入密码' }
+      ],
+      props: {
+        size: 'large',
+        prefix: h(Lock, { class: 'w-4 h-4 text-muted-foreground' }),
+        autocomplete: 'current-password'
+      }
+    }
+  ],
+  actions: {
+    showSubmit: false,
+    showReset: false
+  }
+};
+
+/**
+ * 处理登录表单提交
+ * @param values - 表单值
+ */
+const handleLogin = async (values: Record<string, any>) => {
   errorMessage.value = '';
-
-  if (!email.value.trim()) {
-    errorMessage.value = '请输入邮箱地址';
-    return;
-  }
-  if (!password.value) {
-    errorMessage.value = '请输入密码';
-    return;
-  }
-
   isLoading.value = true;
+
   try {
-    const success = await authStore.login(email.value, password.value);
+    const success = await authStore.login(values.email, values.password);
     if (success) {
       router.push('/');
     } else {
@@ -63,12 +115,23 @@ const handleLogin = async () => {
 };
 
 /**
- * 处理键盘回车事件
+ * 处理表单提交失败
+ * @param errorInfo - 错误信息
  */
-const handleKeydown = (e: KeyboardEvent) => {
-  if (e.key === 'Enter') {
-    handleLogin();
+const handleFinishFailed = (errorInfo: any) => {
+  if (errorInfo?.errorFields?.length > 0) {
+    errorMessage.value = errorInfo.errorFields[0].errors[0] || '请检查表单填写是否正确';
   }
+};
+
+/**
+ * 处理登录按钮点击
+ * @description 触发表单验证，验证通过后自动触发 submit 事件
+ */
+const handleLoginClick = async () => {
+  errorMessage.value = '';
+  await formRef.value?.validate();
+  await handleLogin(formData.value);
 };
 
 /**
@@ -179,7 +242,7 @@ const features = [
           <span class="text-xl font-bold text-foreground">TABTAB Admin</span>
         </div>
 
-        <!-- 登录表单 -->
+        <!-- 登录表单标题 -->
         <div class="space-y-2">
           <h2 class="text-2xl font-bold text-foreground">欢迎回来</h2>
           <p class="text-muted-foreground">请输入您的账户信息以继续</p>
@@ -194,103 +257,74 @@ const features = [
           {{ errorMessage }}
         </div>
 
-        <!-- 表单 -->
-        <div class="space-y-5">
-          <!-- 邮箱输入 -->
-          <div class="space-y-2">
-            <Label for="email" class="text-sm font-medium text-foreground">邮箱地址</Label>
-            <div class="relative group">
-              <Mail class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-              <Input
-                id="email"
-                v-model="email"
-                type="email"
-                placeholder="admin@example.com"
-                :disabled="isLoading"
-                class="pl-10 h-12 bg-background border-input/60 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                @keydown="handleKeydown"
-              />
-            </div>
-          </div>
+        <!-- TForm 登录表单 -->
+        <TForm
+          ref="formRef"
+          v-model="formData"
+          :schema="loginSchema"
+          :loading="isLoading"
+          @submit="handleLogin"
+          @finish-failed="handleFinishFailed"
+        />
 
-          <!-- 密码输入 -->
-          <div class="space-y-2">
-            <div class="flex items-center justify-between">
-              <Label for="password" class="text-sm font-medium text-foreground">密码</Label>
-              <a
-                href="#"
-                class="text-xs text-muted-foreground hover:text-primary transition-colors"
-                @click.prevent
-              >
-                忘记密码？
-              </a>
-            </div>
-            <div class="relative group">
-              <Lock class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-              <Input
-                id="password"
-                v-model="password"
-                type="password"
-                placeholder="••••••••"
-                :disabled="isLoading"
-                class="pl-10 h-12 bg-background border-input/60 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                @keydown="handleKeydown"
-              />
-            </div>
+        <!-- 记住我和忘记密码 -->
+        <div class="flex items-center justify-between -mt-2">
+          <div class="flex items-center space-x-2">
+            <Checkbox
+              id="remember"
+              v-model:checked="formData.rememberMe"
+              :disabled="isLoading"
+            />
+            <label
+              for="remember"
+              class="text-sm text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors"
+            >
+              记住我
+            </label>
           </div>
-
-          <!-- 记住我 -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <Checkbox
-                id="remember"
-                v-model:checked="rememberMe"
-                :disabled="isLoading"
-              />
-              <label
-                for="remember"
-                class="text-sm text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors"
-              >
-                记住我
-              </label>
-            </div>
-          </div>
-
-          <!-- 登录按钮 -->
-          <Button
-            class="w-full h-12 font-medium text-base transition-all duration-200 hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5"
-            :disabled="isLoading"
-            @click="handleLogin"
+          <a
+            href="#"
+            class="text-xs text-muted-foreground hover:text-primary transition-colors"
+            @click.prevent
           >
-            <span v-if="isLoading" class="flex items-center gap-2">
-              <svg
-                class="animate-spin h-4 w-4"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                />
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-              登录中...
-            </span>
-            <span v-else class="flex items-center gap-2">
-              立即登录
-              <ArrowRight class="w-4 h-4" />
-            </span>
-          </Button>
+            忘记密码？
+          </a>
         </div>
+
+        <!-- 登录按钮 -->
+        <Button
+          class="w-full h-12 font-medium text-base transition-all duration-200 hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5"
+          :disabled="isLoading"
+          @click="handleLoginClick"
+        >
+          <span v-if="isLoading" class="flex items-center gap-2">
+            <svg
+              class="animate-spin h-4 w-4"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              />
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+            登录中...
+          </span>
+          <span v-else class="flex items-center gap-2">
+            立即登录
+            <ArrowRight class="w-4 h-4" />
+          </span>
+        </Button>
 
         <!-- 演示账户 -->
         <div class="p-4 rounded-xl bg-muted/50 border border-border/50">

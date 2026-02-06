@@ -320,7 +320,13 @@ export interface TableSchema {
   emptySlot?: string
   /** 汇总行配置 */
   summary?: SummaryConfig
-  /** 
+  /**
+   * 是否在标题旁显示总数徽章
+   * @description 启用后会在表格标题旁边显示 "共 X 条" 样式的徽章
+   * @default false
+   */
+  showTotalBadge?: boolean
+  /**
    * 树形数据子节点字段名
    * @description 指定数据中作为子节点的字段名，默认为 'children'
    * @default 'children'

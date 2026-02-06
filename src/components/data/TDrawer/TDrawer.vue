@@ -30,7 +30,6 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ConfigProvider, Drawer } from 'antdv-next'
 import { useScrollLock } from '@vueuse/core'
-import type { Locale } from 'antdv-next/lib/locale'
 import { cn } from '@/lib/utils'
 import { getAntdvLocale } from '@/i18n/locales'
 import type { TDrawerProps, TDrawerEmits, TDrawerExpose } from './types'
@@ -60,7 +59,7 @@ const { locale } = useI18n()
 /**
  * antdv locale
  */
-const antdvLocale = ref<Locale | null>(null)
+const antdvLocale = ref<any>(null)
 
 /**
  * 加载 antdv locale

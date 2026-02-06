@@ -49,7 +49,7 @@ const tableSchema = computed<TableSchema>(() => ({
     { title: '排序', dataIndex: 'sort', width: 80, sorter: true },
     { title: '状态', dataIndex: 'status', width: 100, slot: 'status' }
   ],
-  pagination: { pageSize: 10, show: true, showSizeChanger: true, showTotal: (total: number) => `共 ${total} 条` },
+  pagination: { pageSize: 10, show: true, showSizeChanger: true },
   rowSelection: { type: 'checkbox', show: true },
   actions: [
     { text: '编辑', type: 'primary', onClick: (record) => handleEdit(record as unknown as Category) },

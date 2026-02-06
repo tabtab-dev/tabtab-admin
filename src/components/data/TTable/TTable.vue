@@ -7,7 +7,6 @@
 import { computed, ref, watch, useSlots, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ConfigProvider, Popconfirm, Button } from 'antdv-next'
-import type { Locale } from 'antdv-next/lib/locale'
 import { cn } from '@/lib/utils'
 import { useTTableTheme } from './theme'
 import { getAntdvLocale } from '@/i18n/locales'
@@ -70,7 +69,7 @@ const ttableTheme = useTTableTheme()
 /**
  * antdv locale
  */
-const antdvLocale = ref<Locale | null>(null)
+const antdvLocale = ref<any>(null)
 
 /**
  * 加载 antdv locale
@@ -350,7 +349,7 @@ const pagination = computed(() => {
     showQuickJumper: config.showQuickJumper ?? true,
     showSizeChanger: config.showSizeChanger ?? true,
     showTotal: config.showTotal !== false ? (total: number) =>
-      `共 ${total} 条` : undefined,
+      t('common.total', { total }) : undefined,
     simple: config.simple,
     ...config
   }
@@ -593,14 +592,23 @@ watch(
       @change="handleChange"
     >
     <!-- 标题插槽 -->
-    <template v-if="schema.title || slots.title" #title>
+    <template v-if="schema.title || slots.title || schema.showTotalBadge" #title>
       <slot name="title" :data="tableData">
-        <template v-if="typeof schema.title === 'function'">
-          {{ schema.title(tableData) }}
-        </template>
-        <template v-else>
-          {{ schema.title }}
-        </template>
+        <div class="flex items-center gap-3">
+          <template v-if="typeof schema.title === 'function'">
+            {{ schema.title(tableData) }}
+          </template>
+          <template v-else>
+            {{ schema.title }}
+          </template>
+          <!-- 总数徽章 -->
+          <span
+            v-if="schema.showTotalBadge"
+            class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full"
+          >
+            {{ t('common.total', { total: tableData.length }) }}
+          </span>
+        </div>
       </slot>
     </template>
 

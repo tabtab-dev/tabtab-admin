@@ -7,9 +7,15 @@
  *   <TFormItem :field="field" :form-data="formData" />
  */
 import { computed, ref, watch, onMounted, onUnmounted, shallowRef } from 'vue'
+import { useI18n } from 'vue-i18n'
 import TFormList from './TFormList.vue'
 import TFormGroup from './TFormGroup.vue'
 import type { FormField, FormOption, AsyncOptionsLoader } from './types'
+
+/**
+ * i18n
+ */
+const { t } = useI18n()
 
 /**
  * 组件 Props 定义
@@ -97,11 +103,11 @@ const isAsyncOptions = computed(() => typeof props.field.options === 'function')
  * 获取最终使用的选项列表
  * @returns 选项列表
  */
-const finalOptions = computed<FormOption[]>(() => {
+const finalOptions = computed(() => {
   if (isAsyncOptions.value) {
     return loadedOptions.value
   }
-  return props.field.options || []
+  return (props.field.options as FormOption[]) || []
 })
 
 /**
@@ -228,7 +234,7 @@ const processedRules = computed(() => {
         ...rule,
         validator: (_: any, value: boolean) => {
           if (value !== true) {
-            return Promise.reject(new Error(rule.message || '请勾选此项'))
+            return Promise.reject(new Error(rule.message || t('common.pleaseCheckThis')))
           }
           return Promise.resolve()
         }
@@ -278,6 +284,7 @@ defineExpose({
       v-model:value="fieldValue"
       :placeholder="field.placeholder"
       :disabled="isDisabled"
+      :autocomplete="field.props?.autocomplete"
       v-bind="field.props"
     />
 
@@ -287,6 +294,7 @@ defineExpose({
       v-model:value="fieldValue"
       :placeholder="field.placeholder"
       :disabled="isDisabled"
+      :autocomplete="field.props?.autocomplete || 'current-password'"
       v-bind="field.props"
     />
 
@@ -549,7 +557,7 @@ defineExpose({
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
           </svg>
         </template>
-        {{ field.props?.uploadText || '点击上传' }}
+        {{ field.props?.uploadText || t('common.clickToUpload') }}
       </a-button>
     </a-upload>
 

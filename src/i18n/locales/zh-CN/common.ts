@@ -54,6 +54,8 @@ export default {
   optional: '选填',
   pleaseSelect: '请选择',
   pleaseInput: '请输入',
+  pleaseCheckThis: '请勾选此项',
+  clickToUpload: '点击上传',
   noData: '暂无数据',
   noResult: '无搜索结果',
 

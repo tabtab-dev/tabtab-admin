@@ -4,7 +4,7 @@
  *
  * @description 展示 TForm 表单组件的各种使用场景和配置方式
  */
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { TForm } from '@/components/data/TForm'
 import type { FormSchema } from '@/components/data/TForm'
@@ -43,7 +43,7 @@ const basicFormData = ref({
 /**
  * 基础表单 Schema
  */
-const basicSchema: FormSchema = {
+const basicSchema = computed<FormSchema>(() => ({
   layout: 'horizontal',
   labelCol: { span: 6 },
   wrapperCol: { span: 18 },
@@ -85,7 +85,7 @@ const basicSchema: FormSchema = {
     showReset: true,
     align: 'right'
   }
-}
+}))
 
 /**
  * 表单数据 - 高级示例
@@ -102,7 +102,7 @@ const advancedFormData = ref({
 /**
  * 高级表单 Schema
  */
-const advancedSchema: FormSchema = {
+const advancedSchema = computed<FormSchema>(() => ({
   layout: 'horizontal',
   labelCol: { span: 6 },
   wrapperCol: { span: 18 },
@@ -167,7 +167,7 @@ const advancedSchema: FormSchema = {
     showReset: true,
     align: 'right'
   }
-}
+}))
 
 /**
  * 表单数据 - 字段联动示例
@@ -181,7 +181,7 @@ const dependencyFormData = ref({
 /**
  * 字段联动表单 Schema
  */
-const dependencySchema: FormSchema = {
+const dependencySchema = computed<FormSchema>(() => ({
   layout: 'horizontal',
   labelCol: { span: 6 },
   wrapperCol: { span: 18 },
@@ -224,7 +224,7 @@ const dependencySchema: FormSchema = {
     showReset: false,
     align: 'right'
   }
-}
+}))
 
 /**
  * 表单数据 - 内联布局示例
@@ -238,7 +238,7 @@ const inlineFormData = ref({
 /**
  * 内联布局表单 Schema
  */
-const inlineSchema: FormSchema = {
+const inlineSchema = computed<FormSchema>(() => ({
   layout: 'inline',
   fields: [
     {
@@ -277,7 +277,7 @@ const inlineSchema: FormSchema = {
     showReset: true,
     align: 'left'
   }
-}
+}))
 
 /**
  * 表单数据 - 更多组件示例
@@ -298,7 +298,7 @@ const moreComponentsFormData = ref({
 /**
  * 更多组件表单 Schema
  */
-const moreComponentsSchema: FormSchema = {
+const moreComponentsSchema = computed<FormSchema>(() => ({
   layout: 'horizontal',
   labelCol: { span: 6 },
   wrapperCol: { span: 18 },
@@ -445,7 +445,7 @@ const moreComponentsSchema: FormSchema = {
     showReset: true,
     align: 'right'
   }
-}
+}))
 
 /**
  * 表单数据 - 动态列表示例
@@ -457,7 +457,7 @@ const listFormData = ref({
 /**
  * 动态列表表单 Schema
  */
-const listSchema: FormSchema = {
+const listSchema = computed<FormSchema>(() => ({
   layout: 'horizontal',
   labelCol: { span: 4 },
   wrapperCol: { span: 20 },
@@ -501,7 +501,7 @@ const listSchema: FormSchema = {
     showReset: true,
     align: 'right'
   }
-}
+}))
 
 /**
  * 表单数据 - 分组示例
@@ -516,7 +516,7 @@ const groupFormData = ref({
 /**
  * 分组表单 Schema
  */
-const groupSchema: FormSchema = {
+const groupSchema = computed<FormSchema>(() => ({
   layout: 'horizontal',
   labelCol: { span: 6 },
   wrapperCol: { span: 18 },
@@ -582,7 +582,7 @@ const groupSchema: FormSchema = {
     showReset: true,
     align: 'right'
   }
-}
+}))
 
 /**
  * 处理基础表单提交
@@ -704,7 +704,7 @@ async function loadProducts(formData: Record<string, any>): Promise<Array<{ labe
 /**
  * 异步选项表单 Schema
  */
-const asyncSchema: FormSchema = {
+const asyncSchema = computed<FormSchema>(() => ({
   layout: 'horizontal',
   labelCol: { span: 6 },
   wrapperCol: { span: 18 },
@@ -737,7 +737,7 @@ const asyncSchema: FormSchema = {
     showReset: true,
     align: 'right'
   }
-}
+}))
 
 /**
  * 处理异步选项表单提交
@@ -785,7 +785,7 @@ const searchCustomInlineFormData = ref({
 /**
  * 搜索表单 Schema - 网格布局（7个条件 + 折叠）
  */
-const searchSchema: FormSchema = {
+const searchSchema = computed<FormSchema>(() => ({
   layout: 'inline',
   fields: [
     {
@@ -876,13 +876,13 @@ const searchSchema: FormSchema = {
       console.log('重置搜索条件')
     }
   }
-}
+}))
 
 /**
  * 搜索表单 Schema - 少条件（同行布局）
  * @description 3个条件，默认使用同行布局（<= collapseThreshold+1）
  */
-const searchInlineSchema: FormSchema = {
+const searchInlineSchema = computed<FormSchema>(() => ({
   layout: 'inline',
   fields: [
     {
@@ -929,13 +929,13 @@ const searchInlineSchema: FormSchema = {
       console.log('重置')
     }
   }
-}
+}))
 
 /**
  * 搜索表单 Schema - 自定义同行数量
  * @description 4个条件，通过调整 collapseThreshold 控制同行/网格布局
  */
-const searchCustomInlineSchema: FormSchema = {
+const searchCustomInlineSchema = computed<FormSchema>(() => ({
   layout: 'inline',
   fields: [
     {
@@ -990,7 +990,7 @@ const searchCustomInlineSchema: FormSchema = {
       console.log('重置')
     }
   }
-}
+}))
 
 /**
  * 处理搜索表单提交
@@ -1037,7 +1037,7 @@ const newComponentsFormData = ref({
 /**
  * 新组件表单 Schema
  */
-const newComponentsSchema: FormSchema = {
+const newComponentsSchema = computed<FormSchema>(() => ({
   layout: 'horizontal',
   labelCol: { span: 6 },
   wrapperCol: { span: 18 },
@@ -1125,7 +1125,7 @@ const newComponentsSchema: FormSchema = {
     showReset: true,
     align: 'right'
   }
-}
+}))
 
 /**
  * 处理新组件表单提交
@@ -1172,7 +1172,7 @@ async function loadLargeOptions(_formData: Record<string, any>): Promise<Array<{
 /**
  * 新特性表单 Schema
  */
-const newFeaturesSchema: FormSchema = {
+const newFeaturesSchema = computed<FormSchema>(() => ({
   layout: 'horizontal',
   labelCol: { span: 6 },
   wrapperCol: { span: 18 },
@@ -1273,7 +1273,7 @@ const newFeaturesSchema: FormSchema = {
     showReset: true,
     align: 'right'
   }
-}
+}))
 
 /**
  * 处理高级表单提交
@@ -1299,7 +1299,7 @@ const watchFormData = ref({
 /**
  * Watch 监听表单 Schema
  */
-const watchSchema: FormSchema = {
+const watchSchema = computed<FormSchema>(() => ({
   layout: 'horizontal',
   labelCol: { span: 6 },
   wrapperCol: { span: 18 },
@@ -1339,11 +1339,11 @@ const watchSchema: FormSchema = {
     showReset: true,
     align: 'right'
   }
-}
+}))
 
 // 为字段添加 watch 监听
-if (watchSchema.fields[0]) {
-  watchSchema.fields[0].watch = [
+if (watchSchema.value.fields[0]) {
+  watchSchema.value.fields[0].watch = [
     {
       field: 'price',
       handler: (value, formData, methods) => {
@@ -1353,8 +1353,8 @@ if (watchSchema.fields[0]) {
     }
   ]
 }
-if (watchSchema.fields[1]) {
-  watchSchema.fields[1].watch = [
+if (watchSchema.value.fields[1]) {
+  watchSchema.value.fields[1].watch = [
     {
       field: 'quantity',
       handler: (value, formData, methods) => {
@@ -1364,8 +1364,8 @@ if (watchSchema.fields[1]) {
     }
   ]
 }
-if (watchSchema.fields[2]) {
-  watchSchema.fields[2].watch = [
+if (watchSchema.value.fields[2]) {
+  watchSchema.value.fields[2].watch = [
     {
       field: 'discount',
       handler: (value, formData, methods) => {

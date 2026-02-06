@@ -51,8 +51,9 @@ const tableSchema = computed<TableSchema>(() => ({
     { title: '库存状态', dataIndex: 'available', width: 120, slot: 'status' },
     { title: '更新时间', dataIndex: 'lastUpdated', width: 120 }
   ],
-  pagination: { pageSize: 10, show: true, showSizeChanger: true, showTotal: (total: number) => `共 ${total} 条` },
-  rowSelection: { type: 'checkbox', show: true }
+  pagination: { pageSize: 10, show: true, showSizeChanger: true },
+  rowSelection: { type: 'checkbox', show: true },
+  showTotalBadge: true
 }))
 
 const tableData = computed(() => beijingStock.value.map(item => ({ ...item, key: item.id })))
@@ -84,14 +85,7 @@ function handleSelectChange(keys: (string | number)[]) { selectedRowKeys.value =
     </div>
 
     <Card class="border-0 shadow-sm">
-      <CardHeader class="pb-4">
-        <div class="flex items-center gap-2">
-          <MapPin class="h-4 w-4 text-blue-500" />
-          <CardTitle class="text-base font-semibold">北京仓库库存</CardTitle>
-          <span class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">共 {{ tableData.length }} 条</span>
-        </div>
-      </CardHeader>
-      <CardContent class="pt-0">
+      <CardContent class="pt-6">
         <TTable ref="tableRef" v-model:data="tableData" :schema="tableSchema" @select-change="handleSelectChange">
           <template #product="slotProps">
             <div>
