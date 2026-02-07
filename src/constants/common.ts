@@ -7,8 +7,9 @@
 export const STORAGE_KEYS = {
   TOKEN: 'token',
   USER: 'user',
-  THEME: 'theme',
-  LOCALE: 'locale',
+  AUTH: 'app-auth',
+  THEME: 'app-theme-config',
+  LOCALE: 'app-locale',
   LAYOUT_CONFIG: 'layoutConfig',
   SIDEBAR_COLLAPSED: 'sidebarCollapsed',
 } as const;

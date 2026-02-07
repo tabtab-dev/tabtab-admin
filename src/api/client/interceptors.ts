@@ -7,6 +7,7 @@ import type { AxiosResponse, AxiosError } from 'axios';
 import { toast } from 'vue-sonner';
 import router from '@/router';
 import { requestCache } from './requestManager';
+import { STORAGE_KEYS } from '@/constants/common';
 
 /**
  * 自定义错误类
@@ -54,7 +55,7 @@ function onTokenRefreshed(newToken: string): void {
 function getTokenFromStorage(): string | null {
   // 首先尝试从 Pinia 持久化存储读取
   try {
-    const authData = localStorage.getItem('app-auth');
+    const authData = localStorage.getItem(STORAGE_KEYS.AUTH);
     if (authData) {
       const parsed = JSON.parse(authData);
       if (parsed?.token) {
@@ -66,7 +67,7 @@ function getTokenFromStorage(): string | null {
   }
 
   // 降级：尝试旧的 key（兼容性）
-  const oldToken = localStorage.getItem('token');
+  const oldToken = localStorage.getItem(STORAGE_KEYS.TOKEN);
   if (oldToken) {
     return oldToken;
   }
@@ -185,9 +186,9 @@ export const responseErrorInterceptor = (error: AxiosError) => {
  */
 function handleUnauthorized(): void {
   // 清除登录状态（新旧 key 都清除）
-  localStorage.removeItem('app-auth');
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+  localStorage.removeItem(STORAGE_KEYS.AUTH);
+  localStorage.removeItem(STORAGE_KEYS.TOKEN);
+  localStorage.removeItem(STORAGE_KEYS.USER);
   
   // 清除请求缓存
   requestCache.clear();

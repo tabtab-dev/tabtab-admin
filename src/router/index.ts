@@ -4,6 +4,7 @@ import { updateDocumentTitle } from '@/i18n';
 import { useMenuStore } from '@/stores/global/menu';
 import { useAuthStore } from '@/stores/global/auth';
 import { requestCache } from '@/api/client';
+import { STORAGE_KEYS } from '@/constants/common';
 
 /**
  * 基础路由配置
@@ -71,8 +72,8 @@ function checkAuthentication(): boolean {
     return authStore.isAuthenticated;
   } catch {
     // Store 未初始化时的降级处理
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
+    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    const user = localStorage.getItem(STORAGE_KEYS.USER);
     return !!(token && user);
   }
 }

@@ -1,5 +1,6 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed, watch } from 'vue';
+import { THEME_MODE, STORAGE_KEYS } from '@/constants/common';
 
 /**
  * 主题颜色配置
@@ -634,7 +635,7 @@ export const useThemeStore = defineStore(
     /** 当前主题 */
     const currentTheme = ref<string>('default');
     /** 当前模式 */
-    const currentMode = ref<'light' | 'dark'>('light');
+    const currentMode = ref<'light' | 'dark'>(THEME_MODE.LIGHT);
     /** 布局配置 */
     const layoutConfig = ref<LayoutConfig>({ ...defaultLayoutConfig });
 
@@ -723,7 +724,7 @@ export const useThemeStore = defineStore(
      */
     const setMode = (mode: 'light' | 'dark') => {
       currentMode.value = mode;
-      document.documentElement.classList.toggle('dark', mode === 'dark');
+      document.documentElement.classList.toggle('dark', mode === THEME_MODE.DARK);
       applyThemeColors();
     };
 
@@ -731,7 +732,7 @@ export const useThemeStore = defineStore(
      * 切换模式（支持 view-transition）
      */
     const toggleMode = async () => {
-      const newMode = currentMode.value === 'light' ? 'dark' : 'light';
+      const newMode = currentMode.value === THEME_MODE.LIGHT ? THEME_MODE.DARK : THEME_MODE.LIGHT;
       
       // 检查是否支持 view-transition API
       if ('startViewTransition' in document) {
@@ -808,7 +809,7 @@ export const useThemeStore = defineStore(
   },
   {
     persist: {
-      key: 'app-theme-config',
+      key: STORAGE_KEYS.THEME,
       paths: ['currentTheme', 'currentMode', 'layoutConfig'],
     },
   }

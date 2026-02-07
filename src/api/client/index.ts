@@ -10,6 +10,7 @@ import { requestInterceptor, responseSuccessInterceptor, responseErrorIntercepto
 import { USE_MOCK, MOCK_BASE_URL } from './mock';
 import { requestManager, requestCache } from './requestManager';
 import type { ApiResponse, RequestConfig } from '../types';
+import { API_BASE_URL, CACHE_TIME } from '@/constants/api';
 
 /**
  * 创建 Alova 实例
@@ -21,7 +22,7 @@ const createHttpClient = () => {
     // 使用 axios 作为请求适配器
     requestAdapter: axiosRequestAdapter(),
     // 基础配置
-    baseURL: USE_MOCK ? MOCK_BASE_URL : (import.meta.env.VITE_API_BASE_URL || '/api'),
+    baseURL: USE_MOCK ? MOCK_BASE_URL : API_BASE_URL,
 
     // 请求拦截器
     beforeRequest: requestInterceptor,
@@ -34,8 +35,8 @@ const createHttpClient = () => {
 
     // 缓存配置
     cacheFor: {
-      // GET 请求缓存 1 分钟（60000ms）
-      GET: 60000,
+      // GET 请求缓存 1 分钟
+      GET: CACHE_TIME.SHORT,
       // POST 请求不缓存
       POST: 0,
       // PUT 请求不缓存

@@ -10,6 +10,7 @@ import {
   type SupportedLocale
 } from '@/i18n';
 import { localeNames, supportedLocales, preloadLocaleMessages } from '@/i18n/locales';
+import { STORAGE_KEYS } from '@/constants/common';
 
 /**
  * 语言 Store
@@ -188,13 +189,13 @@ export const useLocaleStore = defineStore(
   },
   {
     persist: {
-      key: 'app-locale',
+      key: STORAGE_KEYS.LOCALE,
       paths: ['currentLocale'],
       // 使用自定义序列化，确保与 i18n 的 localStorage 同步
       beforeRestore: (context) => {
         // 从 i18n 的存储中读取语言设置
         try {
-          const stored = localStorage.getItem('app-locale');
+          const stored = localStorage.getItem(STORAGE_KEYS.LOCALE);
           if (stored) {
             const parsed = JSON.parse(stored);
             if (parsed && parsed.currentLocale) {
