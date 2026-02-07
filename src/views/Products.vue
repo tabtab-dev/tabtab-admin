@@ -4,7 +4,7 @@
  *
  * @description 基于 JSON 配置化的商品管理页面
  */
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { TTable } from '@/components/business/TTable'
 import { TForm } from '@/components/business/TForm'
 import { TModal } from '@/components/business/TModal'
@@ -513,10 +513,6 @@ function handleTableChange(pagination: any): void {
   }
 }
 
-// 组件挂载后加载数据
-onMounted(() => {
-  fetchData()
-})
 </script>
 
 <template>

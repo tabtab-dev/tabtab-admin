@@ -2,7 +2,7 @@
 /**
  * 北京仓库页
  */
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { TTable } from '@/components/business/TTable'
 import { TForm } from '@/components/business/TForm'
 import type { TableSchema } from '@/components/business/TTable'
@@ -80,10 +80,6 @@ const tableData = computed(() => beijingStock.value.map(item => ({ ...item, key:
 const selectedRowKeys = ref<(string | number)[]>([])
 function handleSelectChange(keys: (string | number)[]) { selectedRowKeys.value = keys }
 
-// 组件挂载后加载数据
-onMounted(() => {
-  fetchData()
-})
 </script>
 
 <template>
