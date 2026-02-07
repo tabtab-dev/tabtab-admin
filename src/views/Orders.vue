@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * 订单管理页 - 使用 TTable + TForm 重构
+ * 订单管理页 - 使用 useMutation 重构
  *
  * @description 基于 JSON 配置化的订单管理页面
  */
@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 import type { Order } from '@/types/models'
 import { ordersApi } from '@/api'
-import { useTableData } from '@/composables'
+import { useTableData, useMutation } from '@/composables'
 import {
   Plus,
   ShoppingCart,
@@ -41,43 +41,38 @@ const {
   loading,
   searchQuery,
   filters,
-  filteredData,
-  paginatedData,
+  currentPage,
+  pageSize,
   total,
   statistics,
   fetchData,
+  goToPage,
+  setPageSize,
   addData,
   updateData,
   removeData,
   batchRemoveData,
 } = useTableData<Order>({
-  apiCall: () => ordersApi.getOrders(),
-  filterFn: (items, query, filterValues) => {
-    let result = items
-
-    if (query) {
-      const lowerQuery = query.toLowerCase()
-      result = result.filter(
-        order =>
-          order.orderNo.toLowerCase().includes(lowerQuery) ||
-          order.customer.toLowerCase().includes(lowerQuery) ||
-          order.email.toLowerCase().includes(lowerQuery)
-      )
-    }
-
-    if (filterValues.status) {
-      result = result.filter(order => order.status === filterValues.status)
-    }
-
-    return result
+  // API 调用函数
+  apiCall: async (params) => {
+    const res = await ordersApi.getOrders(params)
+    return res || { list: [], total: 0, page: 1, pageSize: 10 }
   },
+  // 构建 API 请求参数
+  apiCallParams: (ctx) => ({
+    page: ctx.page,
+    pageSize: ctx.pageSize,
+    search: ctx.searchQuery,
+    status: ctx.filters.status,
+  }),
+  // 统计数据计算
   statisticsFn: (items) => {
     const total = items.length
     const pending = items.filter(o => o.status === ORDER_STATUS.PENDING).length
     const processing = items.filter(o => o.status === ORDER_STATUS.PROCESSING).length
     const completed = items.filter(o => o.status === ORDER_STATUS.COMPLETED).length
     const cancelled = items.filter(o => o.status === ORDER_STATUS.CANCELLED).length
-    const totalAmount = items.reduce((sum, o) => sum + o.total, 0)
+    const totalAmount = items.reduce((sum, o) => sum + (o.total || 0), 0)
 
     return {
       total,
@@ -88,6 +83,46 @@ const {
       totalAmount,
     }
   },
+})
+
+const { mutate: createOrder, loading: creating } = useMutation({
+  mutationFn: (values: Record<string, any>) => ordersApi.createOrder({
+    customer: values.customer,
+    email: values.email,
+    phone: values.phone,
+    address: values.address,
+    total: Number(values.total),
+    items: Number(values.items),
+    status: values.status,
+    note: values.note
+  }),
+  onSuccess: () => {
+    isAddDialogOpen.value = false
+    addFormData.value = {
+      customer: '',
+      email: '',
+      phone: '',
+      address: '',
+      total: 0,
+      items: 1,
+      status: ORDER_STATUS.PENDING,
+      note: ''
+    }
+    fetchData()
+  }
+})
+
+const { mutate: deleteOrder, loading: deleting } = useMutation({
+  mutationFn: (id: string) => ordersApi.deleteOrder(id),
+  onSuccess: () => fetchData()
+})
+
+const { mutate: batchDeleteOrders, loading: batchDeleting } = useMutation({
+  mutationFn: (ids: string[]) => ordersApi.batchDeleteOrders(ids),
+  onSuccess: () => {
+    tableRef.value?.clearSelection()
+    fetchData()
+  }
 })
 
 // ==================== 统计数据 ====================
@@ -260,9 +295,9 @@ const tableSchema = computed<TableSchema>(() => ({
   actionFixed: 'right'
 }))
 
-// 表格数据
+// 表格数据 - 后端分页直接使用 orders
 const tableData = computed(() => {
-  return paginatedData.value.map(order => ({
+  return orders.value.map(order => ({
     ...order,
     key: order.id
   }))
@@ -372,48 +407,17 @@ const addSchema: FormSchema = {
 
 // ==================== 事件处理 ====================
 
-/**
- * 处理新增订单提交
- */
-async function handleAddSubmit(values: Record<string, any>): Promise<void> {
-  await ordersApi.createOrder({
-    customer: values.customer,
-    email: values.email,
-    phone: values.phone,
-    address: values.address,
-    total: Number(values.total),
-    items: Number(values.items),
-    status: values.status,
-    note: values.note
-  })
-  isAddDialogOpen.value = false
-  addFormData.value = {
-    customer: '',
-    email: '',
-    phone: '',
-    address: '',
-    total: 0,
-    items: 1,
-    status: ORDER_STATUS.PENDING,
-    note: ''
-  }
-  await fetchData()
-}
-
-/**
- * 处理查看订单
- */
 function handleViewOrder(order: Order): void {
   viewingOrder.value = order
   isViewDialogOpen.value = true
 }
 
-/**
- * 处理删除订单
- */
-async function handleDeleteOrder(id: string): Promise<void> {
-  await ordersApi.deleteOrder(id)
-  await fetchData()
+function handleAddSubmit(values: Record<string, any>): void {
+  createOrder(values)
+}
+
+function handleDeleteOrder(id: string): void {
+  deleteOrder(id)
 }
 
 const selectedRowKeys = ref<(string | number)[]>([])
@@ -424,18 +428,27 @@ function handleSelectChange(keys: (string | number)[], rows: any[]): void {
   selectedRows.value = rows as Order[]
 }
 
-/**
- * 批量删除
- */
-async function handleBatchDelete(): Promise<void> {
+function handleBatchDelete(): void {
   if (selectedRowKeys.value.length === 0) {
     alert('请先选择要删除的订单')
     return
   }
   if (confirm(`确定要删除选中的 ${selectedRowKeys.value.length} 个订单吗？`)) {
-    await ordersApi.batchDeleteOrders(selectedRowKeys.value.map(String))
-    tableRef.value?.clearSelection()
-    await fetchData()
+    batchDeleteOrders(selectedRowKeys.value.map(String))
+  }
+}
+
+/**
+ * 处理表格分页、排序、筛选变化
+ */
+function handleTableChange(pagination: any): void {
+  // 更新当前页码
+  if (pagination.current !== undefined) {
+    goToPage(pagination.current)
+  }
+  // 更新每页数量
+  if (pagination.pageSize !== undefined) {
+    setPageSize(pagination.pageSize)
   }
 }
 </script>
@@ -527,6 +540,7 @@ async function handleBatchDelete(): Promise<void> {
           v-model:data="tableData"
           :schema="tableSchema"
           @select-change="handleSelectChange"
+          @change="handleTableChange"
         >
           <!-- 自定义订单号列 -->
           <template #orderNo="slotProps">

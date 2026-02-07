@@ -4,6 +4,7 @@
 
 import type { Method } from 'alova';
 import type { AxiosResponse, AxiosError } from 'axios';
+import { toast } from 'vue-sonner';
 
 /**
  * 请求拦截器
@@ -29,6 +30,14 @@ export const requestInterceptor = (method: Method) => {
 export const responseSuccessInterceptor = (response: AxiosResponse) => {
   const { data } = response;
 
+  // 添加调试日志
+  console.log('[响应成功拦截器]', {
+    url: response.config?.url,
+    method: response.config?.method,
+    status: response.status,
+    responseData: data
+  });
+
   // 根据业务状态码判断
   if (data.code !== 200) {
     // 处理业务错误
@@ -36,9 +45,16 @@ export const responseSuccessInterceptor = (response: AxiosResponse) => {
       // Token 过期，清除登录信息并跳转到登录页
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      toast.error('登录已过期，请重新登录');
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1500);
+    } else {
+      // 显示错误提示
+      toast.error(data.message || '请求失败');
     }
-    throw new Error(data.message || '请求失败');
+    // 返回 null 表示请求失败
+    return null;
   }
 
   // 返回业务数据
@@ -49,22 +65,39 @@ export const responseSuccessInterceptor = (response: AxiosResponse) => {
  * 响应错误拦截器
  * 处理网络错误和服务器错误
  */
-export const responseErrorInterceptor = (error: AxiosError): never => {
+export const responseErrorInterceptor = (error: AxiosError): null => {
   if (error.response) {
     // 服务器返回了错误状态码
     const status = error.response.status;
     const errorMessage = getErrorMessage(status);
-    console.error(errorMessage);
-    throw new Error(errorMessage);
+    
+    // 记录详细的错误信息
+    console.error('[API 错误]', {
+      status,
+      message: errorMessage,
+      url: error.config?.url,
+      method: error.config?.method,
+      data: error.response.data
+    });
+    
+    toast.error(errorMessage);
   } else if (error.request) {
     // 请求发出但没有收到响应
-    console.error('网络错误，请检查网络连接');
-    throw new Error('网络错误，请检查网络连接');
+    console.error('[网络错误] 请求发出但没有收到响应', {
+      url: error.config?.url,
+      method: error.config?.method
+    });
+    toast.error('网络错误，请检查网络连接');
   } else {
     // 请求配置出错
-    console.error('请求配置错误:', error.message);
-    throw new Error(error.message);
+    console.error('[请求配置错误]', {
+      message: error.message,
+      config: error.config
+    });
+    toast.error(`请求配置错误: ${error.message}`);
   }
+  // 返回 null 表示请求失败
+  return null;
 };
 
 /**

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * 用户管理页 - 使用 API + useTableData 重构
+ * 用户管理页 - 使用 useQuery + useMutation 重构
  *
  * @description 基于 JSON 配置化的用户管理页面
  */
@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TModal } from '@/components/business/TModal'
 import { usersApi } from '@/api'
-import { useTableData } from '@/composables'
+import { useTableData, useMutation } from '@/composables'
 import type { User } from '@/types/models'
 import { Plus, Users, UserCheck, UserCog, TrendingUp, Search } from 'lucide-vue-next'
 import { Avatar, Space, Tag } from 'antdv-next'
@@ -25,6 +25,7 @@ interface TableSlotProps {
   record: User
   text: any
   index: number
+  column: any
 }
 
 // ==================== 数据管理 ====================
@@ -35,39 +36,30 @@ const {
   filters,
   currentPage,
   pageSize,
-  filteredData,
-  paginatedData,
   total,
   statistics,
   fetchData,
-  addData,
-  updateData,
-  removeData,
-  batchRemoveData,
+  goToPage,
+  setPageSize,
+  addData: _addData,
+  updateData: _updateData,
+  removeData: _removeData,
+  batchRemoveData: _batchRemoveData,
 } = useTableData<User>({
-  apiCall: () => usersApi.getUsers(),
-  filterFn: (items, query, filterValues) => {
-    let result = items
-
-    if (query) {
-      const lowerQuery = query.toLowerCase()
-      result = result.filter(
-        user =>
-          user.name.toLowerCase().includes(lowerQuery) ||
-          user.email.toLowerCase().includes(lowerQuery)
-      )
-    }
-
-    if (filterValues.role) {
-      result = result.filter(user => user.role === filterValues.role)
-    }
-
-    if (filterValues.status) {
-      result = result.filter(user => user.status === filterValues.status)
-    }
-
-    return result
+  // API 调用函数
+  apiCall: async (params) => {
+    const res = await usersApi.getUsers(params)
+    return res || { list: [], total: 0, page: 1, pageSize: 10 }
   },
+  // 构建 API 请求参数
+  apiCallParams: (ctx) => ({
+    page: ctx.page,
+    pageSize: ctx.pageSize,
+    search: ctx.searchQuery,
+    role: ctx.filters.role,
+    status: ctx.filters.status,
+  }),
+  // 统计数据计算（基于当前页数据，如需全局统计需后端提供单独接口）
   statisticsFn: (items) => {
     const total = items.length
     const active = items.filter(u => u.status === USER_STATUS.ACTIVE).length
@@ -85,6 +77,53 @@ const {
       today,
     }
   },
+})
+
+const { mutate: createUser, loading: _creating } = useMutation({
+  mutationFn: (values: Record<string, any>) => usersApi.createUser({
+    name: values.name,
+    email: values.email,
+    role: values.role,
+    status: values.status
+  }),
+  onSuccess: () => {
+    isAddDialogOpen.value = false
+    addFormData.value = {
+      name: '',
+      email: '',
+      role: USER_ROLES.VIEWER,
+      status: USER_STATUS.ACTIVE
+    }
+    fetchData()
+  }
+})
+
+const { mutate: updateUser, loading: _updating } = useMutation({
+  mutationFn: ({ id, values }: { id: string; values: Record<string, any> }) => 
+    usersApi.updateUser(id, {
+      name: values.name,
+      email: values.email,
+      role: values.role,
+      status: values.status
+    }),
+  onSuccess: () => {
+    isEditDialogOpen.value = false
+    editingUser.value = null
+    fetchData()
+  }
+})
+
+const { mutate: deleteUser, loading: _deleting } = useMutation({
+  mutationFn: (id: string) => usersApi.deleteUser(id),
+  onSuccess: () => fetchData()
+})
+
+const { mutate: batchDeleteUsers, loading: _batchDeleting } = useMutation({
+  mutationFn: (ids: string[]) => usersApi.batchDeleteUsers(ids),
+  onSuccess: () => {
+    tableRef.value?.clearSelection()
+    fetchData()
+  }
 })
 
 const statisticsCards = computed(() => {
@@ -211,7 +250,8 @@ const tableSchema = computed<TableSchema>(() => ({
     pageSize: 10,
     show: true,
     showSizeChanger: true,
-    showQuickJumper: true
+    showQuickJumper: true,
+    total: total.value
   },
   rowSelection: {
     type: 'checkbox',
@@ -246,7 +286,13 @@ const addFormData = ref({
   status: USER_STATUS.ACTIVE
 })
 
-const editFormData = ref({
+const editFormData = ref<{
+  id: string
+  name: string
+  email: string
+  role: User['role']
+  status: User['status']
+}>({
   id: '',
   name: '',
   email: '',
@@ -378,23 +424,6 @@ const editSchema: FormSchema = {
   }
 }
 
-async function handleAddSubmit(values: Record<string, any>): Promise<void> {
-  await usersApi.createUser({
-    name: values.name,
-    email: values.email,
-    role: values.role,
-    status: values.status
-  })
-  isAddDialogOpen.value = false
-  addFormData.value = {
-    name: '',
-    email: '',
-    role: USER_ROLES.VIEWER,
-    status: USER_STATUS.ACTIVE
-  }
-  await fetchData()
-}
-
 function handleEditUser(user: User): void {
   editingUser.value = user
   editFormData.value = {
@@ -407,23 +436,18 @@ function handleEditUser(user: User): void {
   isEditDialogOpen.value = true
 }
 
-async function handleEditSubmit(values: Record<string, any>): Promise<void> {
+function handleAddSubmit(values: Record<string, any>): void {
+  createUser(values)
+}
+
+function handleEditSubmit(values: Record<string, any>): void {
   if (editingUser.value) {
-    await usersApi.updateUser(editingUser.value.id, {
-      name: values.name,
-      email: values.email,
-      role: values.role,
-      status: values.status
-    })
-    isEditDialogOpen.value = false
-    editingUser.value = null
-    await fetchData()
+    updateUser({ id: editingUser.value.id, values })
   }
 }
 
-async function handleDeleteUser(id: string): Promise<void> {
-  await usersApi.deleteUser(id)
-  await fetchData()
+function handleDeleteUser(id: string): void {
+  deleteUser(id)
 }
 
 const selectedRowKeys = ref<(string | number)[]>([])
@@ -434,15 +458,27 @@ function handleSelectChange(keys: (string | number)[], rows: any[]): void {
   selectedRows.value = rows as User[]
 }
 
-async function handleBatchDelete(): Promise<void> {
+function handleBatchDelete(): void {
   if (selectedRowKeys.value.length === 0) {
     alert('请先选择要删除的用户')
     return
   }
   if (confirm(`确定要删除选中的 ${selectedRowKeys.value.length} 个用户吗？`)) {
-    await usersApi.batchDeleteUsers(selectedRowKeys.value as string[])
-    tableRef.value?.clearSelection()
-    await fetchData()
+    batchDeleteUsers(selectedRowKeys.value as string[])
+  }
+}
+
+/**
+ * 处理表格分页、排序、筛选变化
+ */
+function handleTableChange(pagination: any): void {
+  // 更新当前页码
+  if (pagination.current !== undefined) {
+    goToPage(pagination.current)
+  }
+  // 更新每页数量
+  if (pagination.pageSize !== undefined) {
+    setPageSize(pagination.pageSize)
   }
 }
 </script>
@@ -520,42 +556,44 @@ async function handleBatchDelete(): Promise<void> {
       <CardContent class="pt-0">
         <TTable
           ref="tableRef"
-          v-model:data="paginatedData"
+          v-model:data="users"
           :schema="tableSchema"
+          :loading="loading"
           @select-change="handleSelectChange"
+          @change="handleTableChange"
         >
           <template #user="slotProps">
             <Space>
               <Avatar
                 :style="{
-                  backgroundColor: (slotProps as TableSlotProps).record.status === USER_STATUS.ACTIVE ? '#87d068' : '#ccc'
+                  backgroundColor: (slotProps as any).record.status === USER_STATUS.ACTIVE ? '#87d068' : '#ccc'
                 }"
               >
-                {{ (slotProps as TableSlotProps).record.name.charAt(0) }}
+                {{ (slotProps as any).record.name.charAt(0) }}
               </Avatar>
               <div>
-                <div class="font-medium">{{ (slotProps as TableSlotProps).record.name }}</div>
-                <div class="text-sm text-muted-foreground">{{ (slotProps as TableSlotProps).record.email }}</div>
+                <div class="font-medium">{{ (slotProps as any).record.name }}</div>
+                <div class="text-sm text-muted-foreground">{{ (slotProps as any).record.email }}</div>
               </div>
             </Space>
           </template>
 
           <template #role="slotProps">
-            <Tag :color="(slotProps as TableSlotProps).text === USER_ROLES.ADMIN ? 'red' : (slotProps as TableSlotProps).text === USER_ROLES.EDITOR ? 'blue' : 'default'">
-              {{ STATUS_CONFIG.USER[(slotProps as TableSlotProps).text as keyof typeof STATUS_CONFIG.USER]?.text || (slotProps as TableSlotProps).text }}
+            <Tag :color="(slotProps as any).text === USER_ROLES.ADMIN ? 'red' : (slotProps as any).text === USER_ROLES.EDITOR ? 'blue' : 'default'">
+              {{ STATUS_CONFIG.USER[(slotProps as any).text as keyof typeof STATUS_CONFIG.USER]?.text || (slotProps as any).text }}
             </Tag>
           </template>
 
           <template #status="slotProps">
             <Badge
               :class="{
-                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableSlotProps).text === USER_STATUS.ACTIVE,
-                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as TableSlotProps).text === USER_STATUS.INACTIVE,
-                'bg-red-500/10 text-red-500 border-red-500/20': (slotProps as TableSlotProps).text === USER_STATUS.SUSPENDED
+                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as any).text === USER_STATUS.ACTIVE,
+                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as any).text === USER_STATUS.INACTIVE,
+                'bg-red-500/10 text-red-500 border-red-500/20': (slotProps as any).text === USER_STATUS.SUSPENDED
               }"
               variant="outline"
             >
-              {{ STATUS_CONFIG.USER[(slotProps as TableSlotProps).text as keyof typeof STATUS_CONFIG.USER]?.text || (slotProps as TableSlotProps).text }}
+              {{ STATUS_CONFIG.USER[(slotProps as any).text as keyof typeof STATUS_CONFIG.USER]?.text || (slotProps as any).text }}
             </Badge>
           </template>
 

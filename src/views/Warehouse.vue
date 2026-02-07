@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * 仓库管理页
+ * 仓库管理页 - 使用 useMutation 重构
  */
 import { ref, computed } from 'vue'
 import { TTable } from '@/components/business/TTable'
@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import type { Warehouse } from '@/types/models'
 import { inventoryApi } from '@/api'
-import { useTableData } from '@/composables'
+import { useTableData, useMutation } from '@/composables'
 import {
   Plus,
   Building,
@@ -364,9 +364,8 @@ const editSchema: FormSchema = {
   }
 }
 
-// 事件处理
-async function handleAddSubmit(values: Record<string, any>) {
-  await inventoryApi.createWarehouse({
+const { mutate: createWarehouse, loading: creating } = useMutation({
+  mutationFn: (values: Record<string, any>) => inventoryApi.createWarehouse({
     name: values.name,
     code: values.code,
     location: values.location,
@@ -376,12 +375,37 @@ async function handleAddSubmit(values: Record<string, any>) {
     status: values.status,
     productCount: 0,
     usedCapacity: 0,
-  })
-  isAddOpen.value = false
-  addFormData.value = { name: '', code: '', location: '', manager: '', phone: '', capacity: 1000, status: 'active' }
-  await fetchData()
-}
+  }),
+  onSuccess: () => {
+    isAddOpen.value = false
+    addFormData.value = { name: '', code: '', location: '', manager: '', phone: '', capacity: 1000, status: 'active' }
+    fetchData()
+  }
+})
 
+const { mutate: updateWarehouse, loading: updating } = useMutation({
+  mutationFn: ({ id, values }: { id: string; values: Record<string, any> }) =>
+    inventoryApi.updateWarehouse(id, {
+      name: values.name,
+      location: values.location,
+      manager: values.manager,
+      phone: values.phone,
+      capacity: Number(values.capacity),
+      status: values.status
+    }),
+  onSuccess: () => {
+    isEditOpen.value = false
+    editingItem.value = null
+    fetchData()
+  }
+})
+
+const { mutate: deleteWarehouse, loading: deleting } = useMutation({
+  mutationFn: (id: string) => inventoryApi.deleteWarehouse(id),
+  onSuccess: () => fetchData()
+})
+
+// 事件处理
 function handleEdit(item: Warehouse) {
   editingItem.value = item
   editFormData.value = {
@@ -397,25 +421,18 @@ function handleEdit(item: Warehouse) {
   isEditOpen.value = true
 }
 
-async function handleEditSubmit(values: Record<string, any>) {
+function handleAddSubmit(values: Record<string, any>): void {
+  createWarehouse(values)
+}
+
+function handleEditSubmit(values: Record<string, any>): void {
   if (editingItem.value) {
-    await inventoryApi.updateWarehouse(editingItem.value.id, {
-      name: values.name,
-      location: values.location,
-      manager: values.manager,
-      phone: values.phone,
-      capacity: Number(values.capacity),
-      status: values.status
-    })
-    isEditOpen.value = false
-    editingItem.value = null
-    await fetchData()
+    updateWarehouse({ id: editingItem.value.id, values })
   }
 }
 
-async function handleDelete(id: string) {
-  await inventoryApi.deleteWarehouse(id)
-  await fetchData()
+function handleDelete(id: string): void {
+  deleteWarehouse(id)
 }
 
 const selectedRowKeys = ref<(string | number)[]>([])

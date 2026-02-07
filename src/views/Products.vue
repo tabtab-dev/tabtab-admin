@@ -1,10 +1,10 @@
 <script setup lang="ts">
 /**
- * 商品管理页 - 使用 TTable + TForm 重构
+ * 商品管理页 - 使用 useMutation 重构
  *
  * @description 基于 JSON 配置化的商品管理页面
  */
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { TTable } from '@/components/business/TTable'
 import { TForm } from '@/components/business/TForm'
 import { TModal } from '@/components/business/TModal'
@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import type { Product } from '@/types/models'
 import { productsApi } from '@/api'
-import { useTableData } from '@/composables'
+import { useTableData, useMutation } from '@/composables'
 import {
   Plus,
   Package,
@@ -50,46 +50,39 @@ const {
   loading,
   searchQuery,
   filters,
-  filteredData,
-  paginatedData,
+  currentPage,
+  pageSize,
   total,
   statistics,
   fetchData,
+  goToPage,
+  setPageSize,
   addData,
   updateData,
   removeData,
   batchRemoveData,
 } = useTableData<Product>({
-  apiCall: () => productsApi.getProducts(),
-  filterFn: (items, query, filterValues) => {
-    let result = items
-
-    if (query) {
-      const lowerQuery = query.toLowerCase()
-      result = result.filter(
-        product =>
-          product.name.toLowerCase().includes(lowerQuery) ||
-          product.sku.toLowerCase().includes(lowerQuery)
-      )
-    }
-
-    if (filterValues.category) {
-      result = result.filter(product => product.category === filterValues.category)
-    }
-
-    if (filterValues.status) {
-      result = result.filter(product => product.status === filterValues.status)
-    }
-
-    return result
+  // API 调用函数
+  apiCall: async (params) => {
+    const res = await productsApi.getProducts(params)
+    return res || { list: [], total: 0, page: 1, pageSize: 10 }
   },
+  // 构建 API 请求参数
+  apiCallParams: (ctx) => ({
+    page: ctx.page,
+    pageSize: ctx.pageSize,
+    search: ctx.searchQuery,
+    category: ctx.filters.category,
+    status: ctx.filters.status,
+  }),
+  // 统计数据计算
   statisticsFn: (items) => {
     const total = items.length
     const active = items.filter(p => p.status === PRODUCT_STATUS.ACTIVE).length
     const lowStock = items.filter(p => p.status === PRODUCT_STATUS.LOW_STOCK).length
     const outOfStock = items.filter(p => p.status === PRODUCT_STATUS.OUT_OF_STOCK).length
-    const totalSales = items.reduce((sum, p) => sum + p.sales, 0)
-    const totalStock = items.reduce((sum, p) => sum + p.stock, 0)
+    const totalSales = items.reduce((sum, p) => sum + (p.sales || 0), 0)
+    const totalStock = items.reduce((sum, p) => sum + (p.stock || 0), 0)
 
     return {
       total,
@@ -99,7 +92,62 @@ const {
       totalSales,
       totalStock,
     }
-  },
+  }
+})
+
+  const { mutate: createProduct, loading: creating } = useMutation({
+    mutationFn: (values: Record<string, any>) => {
+      const stock = Number(values.stock)
+      return productsApi.createProduct({
+        name: values.name,
+        category: values.category,
+        price: Number(values.price),
+        stock,
+        status: stock === 0 ? PRODUCT_STATUS.OUT_OF_STOCK : stock < 10 ? PRODUCT_STATUS.LOW_STOCK : PRODUCT_STATUS.ACTIVE,
+        sales: 0,
+        description: values.description
+      })
+    },
+  onSuccess: () => {
+    isAddDialogOpen.value = false
+    addFormData.value = {
+      name: '',
+      category: '',
+      price: 0,
+      stock: 0,
+      description: ''
+    }
+    fetchData()
+  }
+})
+
+const { mutate: updateProduct, loading: updating } = useMutation({
+  mutationFn: ({ id, values }: { id: string; values: Record<string, any> }) =>
+    productsApi.updateProduct(id, {
+      name: values.name,
+      category: values.category,
+      price: Number(values.price),
+      stock: Number(values.stock),
+      description: values.description
+    }),
+  onSuccess: () => {
+    isEditDialogOpen.value = false
+    editingProduct.value = null
+    fetchData()
+  }
+})
+
+const { mutate: deleteProduct, loading: deleting } = useMutation({
+  mutationFn: (id: string) => productsApi.deleteProduct(id),
+  onSuccess: () => fetchData()
+})
+
+const { mutate: batchDeleteProducts, loading: batchDeleting } = useMutation({
+  mutationFn: (ids: string[]) => productsApi.batchDeleteProducts(ids),
+  onSuccess: () => {
+    tableRef.value?.clearSelection()
+    fetchData()
+  }
 })
 
 // ==================== 统计数据 ====================
@@ -287,7 +335,7 @@ const tableSchema = computed<TableSchema>(() => ({
 
 // 表格数据
 const tableData = computed(() => {
-  return paginatedData.value.map(product => ({
+  return products.value.map(product => ({
     ...product,
     key: product.id
   }))
@@ -406,34 +454,6 @@ const editSchema: FormSchema = {
 
 // ==================== 事件处理 ====================
 
-/**
- * 处理新增商品提交
- */
-async function handleAddSubmit(values: Record<string, any>): Promise<void> {
-  const stock = Number(values.stock)
-  await productsApi.createProduct({
-    name: values.name,
-    category: values.category,
-    price: Number(values.price),
-    stock,
-    status: stock === 0 ? PRODUCT_STATUS.OUT_OF_STOCK : stock < 10 ? PRODUCT_STATUS.LOW_STOCK : PRODUCT_STATUS.ACTIVE,
-    sales: 0,
-    description: values.description
-  })
-  isAddDialogOpen.value = false
-  addFormData.value = {
-    name: '',
-    category: '',
-    price: 0,
-    stock: 0,
-    description: ''
-  }
-  await fetchData()
-}
-
-/**
- * 处理编辑商品
- */
 function handleEditProduct(product: Product): void {
   editingProduct.value = product
   editFormData.value = {
@@ -447,37 +467,20 @@ function handleEditProduct(product: Product): void {
   isEditDialogOpen.value = true
 }
 
-/**
- * 处理编辑提交
- */
-async function handleEditSubmit(values: Record<string, any>): Promise<void> {
+function handleAddSubmit(values: Record<string, any>): void {
+  createProduct(values)
+}
+
+function handleEditSubmit(values: Record<string, any>): void {
   if (editingProduct.value) {
-    await productsApi.updateProduct(editingProduct.value.id, {
-      name: values.name,
-      category: values.category,
-      price: Number(values.price),
-      stock: Number(values.stock),
-      description: values.description
-    })
-    isEditDialogOpen.value = false
-    editingProduct.value = null
-    await fetchData()
+    updateProduct({ id: editingProduct.value.id, values })
   }
 }
 
-/**
- * 处理删除商品
- */
-async function handleDeleteProduct(id: string): Promise<void> {
-  await productsApi.deleteProduct(id)
-  await fetchData()
+function handleDeleteProduct(id: string): void {
+  deleteProduct(id)
 }
 
-
-
-/**
- * 处理行选择变化
- */
 const selectedRowKeys = ref<(string | number)[]>([])
 const selectedRows = ref<Product[]>([])
 
@@ -486,18 +489,27 @@ function handleSelectChange(keys: (string | number)[], rows: any[]): void {
   selectedRows.value = rows as Product[]
 }
 
-/**
- * 批量删除
- */
-async function handleBatchDelete(): Promise<void> {
+function handleBatchDelete(): void {
   if (selectedRowKeys.value.length === 0) {
     alert('请先选择要删除的商品')
     return
   }
   if (confirm(`确定要删除选中的 ${selectedRowKeys.value.length} 个商品吗？`)) {
-    await productsApi.batchDeleteProducts(selectedRowKeys.value.map(String))
-    tableRef.value?.clearSelection()
-    await fetchData()
+    batchDeleteProducts(selectedRowKeys.value.map(String))
+  }
+}
+
+/**
+ * 处理表格分页、排序、筛选变化
+ */
+function handleTableChange(pagination: any): void {
+  // 更新当前页码
+  if (pagination.current !== undefined) {
+    goToPage(pagination.current)
+  }
+  // 更新每页数量
+  if (pagination.pageSize !== undefined) {
+    setPageSize(pagination.pageSize)
   }
 }
 </script>
@@ -608,6 +620,7 @@ async function handleBatchDelete(): Promise<void> {
           v-model:data="tableData"
           :schema="tableSchema"
           @select-change="handleSelectChange"
+          @change="handleTableChange"
         >
           <!-- 自定义商品列 -->
           <template #product="slotProps">

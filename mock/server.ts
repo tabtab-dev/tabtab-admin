@@ -44,7 +44,21 @@ function findRouteHandler(method: string, url: string) {
     return allRoutes[exactKey];
   }
 
-  // 2. 前缀匹配（用于动态路由如 /users/:id）
+  // 2. 动态路由匹配（如 /orders/:id）
+  for (const [key, handler] of Object.entries(allRoutes)) {
+    const [routeMethod, routePath] = key.split(' ');
+    if (routeMethod !== method) continue;
+
+    // 将路由配置中的 :param 转换为正则表达式
+    const routePattern = routePath.replace(/:([^/]+)/g, '([^/]+)');
+    const regex = new RegExp(`^${routePattern}$`);
+
+    if (regex.test(fullPath)) {
+      return handler;
+    }
+  }
+
+  // 3. 前缀匹配（用于以 / 结尾的路由）
   for (const [key, handler] of Object.entries(allRoutes)) {
     const [routeMethod, routePath] = key.split(' ');
     if (routeMethod !== method) continue;

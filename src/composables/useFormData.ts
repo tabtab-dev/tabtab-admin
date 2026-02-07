@@ -3,7 +3,6 @@
  * @description 封装表单提交、验证等通用逻辑
  */
 import { ref } from 'vue';
-import { useApi } from './useApi';
 
 /**
  * 表单数据配置选项
@@ -16,7 +15,7 @@ export interface UseFormDataOptions<T> {
   /** 提交成功回调 */
   onSuccess?: (response: any) => void;
   /** 提交失败回调 */
-  onError?: (error: Error) => void;
+  onError?: (error: Error | null) => void;
   /** 提交完成回调 */
   onComplete?: () => void;
   /** 是否重置表单（提交成功后） */
@@ -63,53 +62,54 @@ export function useFormData<T = Record<string, any>>(options: UseFormDataOptions
 
   const formData = ref<T>({ ...initialData });
   const isDirty = ref(false);
+  const submitting = ref(false);
+  const error = ref<Error | null>(null);
 
-  const { send: submitApi, loading: submitting, error } = useApi(apiCall, {
-    immediate: false,
-    onSuccess: (response) => {
+  const submit = async () => {
+    submitting.value = true;
+    error.value = null;
+    
+    try {
+      const result = await apiCall(formData.value);
+      
+      // 拦截器返回 null 表示失败
+      if (result === null) {
+        error.value = new Error('提交失败');
+        onError?.(error.value);
+        return null;
+      }
+      
       if (resetOnSuccess) {
         reset();
       }
-      onSuccess?.(response);
-    },
-    onError,
-    onComplete,
-  });
-
-  /**
-   * 提交表单
-   */
-  const submit = async () => {
-    return submitApi(formData.value);
+      
+      onSuccess?.(result);
+      return result;
+    } catch (err) {
+      error.value = err instanceof Error ? err : new Error(String(err));
+      onError?.(error.value);
+      return null;
+    } finally {
+      submitting.value = false;
+      onComplete?.();
+    }
   };
 
-  /**
-   * 重置表单
-   */
   const reset = () => {
     formData.value = { ...initialData };
     isDirty.value = false;
   };
 
-  /**
-   * 更新表单数据
-   */
   const updateFormData = (updates: Partial<T>) => {
     formData.value = { ...formData.value, ...updates };
     isDirty.value = true;
   };
 
-  /**
-   * 设置表单字段值
-   */
   const setFieldValue = <K extends keyof T>(key: K, value: T[K]) => {
     formData.value[key] = value;
     isDirty.value = true;
   };
 
-  /**
-   * 获取表单字段值
-   */
   const getFieldValue = <K extends keyof T>(key: K): T[K] => {
     return formData.value[key];
   };

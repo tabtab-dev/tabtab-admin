@@ -35,39 +35,29 @@ const {
   loading,
   searchQuery,
   filters,
-  filteredData,
-  paginatedData,
+  currentPage,
+  pageSize,
   total,
   statistics,
   fetchData,
+  goToPage,
+  setPageSize,
   addData,
   updateData,
   removeData,
   batchRemoveData,
 } = useTableData<Category>({
-  apiCall: () => categoriesApi.getCategories(),
-  filterFn: (items, query, filterValues) => {
-    let result = items
-
-    if (query) {
-      const lowerQuery = query.toLowerCase()
-      result = result.filter(
-        category =>
-          category.name.toLowerCase().includes(lowerQuery) ||
-          category.code.toLowerCase().includes(lowerQuery)
-      )
-    }
-
-    if (filterValues.level) {
-      result = result.filter(category => category.level === Number(filterValues.level))
-    }
-
-    if (filterValues.status) {
-      result = result.filter(category => category.status === filterValues.status)
-    }
-
-    return result
+  apiCall: async (params) => {
+    const res = await categoriesApi.getCategories(params)
+    return res || { list: [], total: 0, page: 1, pageSize: 10 }
   },
+  apiCallParams: (ctx) => ({
+    page: ctx.page,
+    pageSize: ctx.pageSize,
+    search: ctx.searchQuery,
+    level: ctx.filters.level,
+    status: ctx.filters.status,
+  }),
   statisticsFn: (items) => {
     const total = items.length
     const level1 = items.filter(c => c.level === 1).length
@@ -237,7 +227,7 @@ const level1Categories = computed(() => {
 
 // 表格数据
 const tableData = computed(() => {
-  return paginatedData.value.map(c => ({ ...c, key: c.id }))
+  return categories.value.map(c => ({ ...c, key: c.id }))
 })
 
 // 新增/编辑
@@ -459,6 +449,18 @@ async function handleBatchDelete() {
     await fetchData()
   }
 }
+
+/**
+ * 处理表格分页变化
+ */
+function handleTableChange(pagination: any): void {
+  if (pagination.current !== undefined) {
+    goToPage(pagination.current)
+  }
+  if (pagination.pageSize !== undefined) {
+    setPageSize(pagination.pageSize)
+  }
+}
 </script>
 
 <template>
@@ -542,6 +544,7 @@ async function handleBatchDelete() {
           v-model:data="tableData"
           :schema="tableSchema"
           @select-change="handleSelectChange"
+          @change="handleTableChange"
         >
           <!-- 名称列 -->
           <template #name="slotProps">

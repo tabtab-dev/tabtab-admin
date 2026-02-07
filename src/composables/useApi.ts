@@ -2,15 +2,15 @@
  * API 请求封装
  * @description 封装 Alova 的请求方法，提供统一的请求状态管理和错误处理
  */
-import { useRequest } from 'alova/client';
+import { useRequest, useFetcher } from 'alova/client';
 import type { Method } from 'alova';
 import type { Ref } from 'vue';
 import { httpClient } from '@/api';
 
 /**
- * 通用请求配置选项
+ * useQuery 配置选项
  */
-export interface UseApiOptions {
+export interface UseQueryOptions {
   /** 是否立即发起请求 */
   immediate?: boolean;
   /** 初始数据 */
@@ -18,66 +18,122 @@ export interface UseApiOptions {
   /** 请求成功回调 */
   onSuccess?: (data: any) => void;
   /** 请求失败回调 */
-  onError?: (error: Error) => void;
-  /** 请求完成回调（无论成功失败） */
+  onError?: (error: Error | null) => void;
+}
+
+/**
+ * useMutation 配置选项
+ */
+export interface UseMutationOptions<TVariables = any, TData = any> {
+  /** 变更函数 */
+  mutationFn: (variables: TVariables) => Promise<TData>;
+  /** 成功回调 */
+  onSuccess?: (data: TData, variables: TVariables) => void;
+  /** 失败回调 */
+  onError?: (error: Error | null, variables: TVariables) => void;
+  /** 完成回调 */
   onComplete?: () => void;
 }
 
 /**
- * 通用 API 请求 Hook
- * @param methodHandler - 请求方法或获取方法的函数
+ * 查询操作 Hook（使用 useRequest）
+ * @param methodHandler - 请求方法
  * @param options - 配置选项
  * @returns 请求状态和操作方法
  *
  * @example
  * ```ts
- * const { data, loading, error, send } = useApi(
- *   () => httpClient.Get('/users'),
+ * const { data, loading, fetchData } = useQuery(
+ *   () => usersApi.getUsers(),
  *   { immediate: true }
  * );
  * ```
  */
-export function useApi<T = any>(
+export function useQuery<T = any>(
   methodHandler: Method | (() => Method),
-  options: UseApiOptions = {}
+  options: UseQueryOptions = {}
 ) {
-  const { immediate = true, initialData, onSuccess, onError, onComplete } = options;
+  const { immediate = true, initialData, onSuccess, onError } = options;
 
   const { data, loading, error, send, abort, update } = useRequest(methodHandler, {
     immediate,
     initialData,
   });
 
-  // 包装 send 方法，添加回调处理
-  const sendWithCallbacks = async (...args: any[]): Promise<T> => {
+  const fetchData = async (...args: any[]): Promise<T | null> => {
     try {
       const result = await send(...args);
+      if (result === null) {
+        onError?.(error.value || new Error('请求失败'));
+        return null;
+      }
       onSuccess?.(result);
       return result;
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       onError?.(error);
-      throw error;
+      return null;
+    }
+  };
+
+  return {
+    data: data as Ref<T>,
+    loading,
+    error,
+    send: fetchData,
+    abort,
+    update,
+    fetchData,
+  };
+}
+
+/**
+ * 变更操作 Hook（使用 useFetcher）
+ * @param options - 配置选项
+ * @returns 变更状态和操作方法
+ *
+ * @example
+ * ```ts
+ * const { mutate: createUser, loading } = useMutation({
+ *   mutationFn: (values) => usersApi.createUser(values),
+ *   onSuccess: () => {
+ *     isAddDialogOpen.value = false
+ *     fetchData()
+ *   }
+ * });
+ * ```
+ */
+export function useMutation<TVariables = any, TData = any>(
+  options: UseMutationOptions<TVariables, TData>
+) {
+  const { mutationFn, onSuccess, onError, onComplete } = options;
+
+  const { loading, send, abort } = useFetcher();
+
+  const mutate = async (variables: TVariables): Promise<TData | null> => {
+    try {
+      const result = await send(mutationFn(variables));
+      if (result === null) {
+        const error = new Error('操作失败');
+        onError?.(error, variables);
+        return null;
+      }
+      onSuccess?.(result, variables);
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      onError?.(error, variables);
+      return null;
     } finally {
       onComplete?.();
     }
   };
 
   return {
-    /** 响应数据 */
-    data: data as Ref<T>,
-    /** 加载状态 */
+    mutate,
     loading,
-    /** 错误信息 */
-    error,
-    /** 发起请求 */
-    send: sendWithCallbacks,
-    /** 中断请求 */
     abort,
-    /** 更新数据 */
-    update,
   };
 }
 
-// 导出 HTTP 客户端供直接使用
 export { httpClient };
