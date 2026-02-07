@@ -102,17 +102,6 @@ export const requestInterceptor = (method: Method) => {
 export const responseSuccessInterceptor = (response: AxiosResponse) => {
   const { data } = response;
 
-  // 添加调试日志（仅在开发环境）
-  if (import.meta.env.DEV) {
-    console.log('[响应成功拦截器]', {
-      url: response.config?.url,
-      method: response.config?.method,
-      status: response.status,
-      duration: Date.now() - parseInt(response.config.headers['X-Request-Time'] || '0'),
-      responseData: data
-    });
-  }
-
   // 根据业务状态码判断
   if (data.code !== 200) {
     // 处理业务错误
@@ -189,16 +178,16 @@ function handleUnauthorized(): void {
   localStorage.removeItem(STORAGE_KEYS.AUTH);
   localStorage.removeItem(STORAGE_KEYS.TOKEN);
   localStorage.removeItem(STORAGE_KEYS.USER);
-  
+
   // 清除请求缓存
   requestCache.clear();
-  
+
   // 显示提示
   toast.error('登录已过期，请重新登录');
-  
+
   // 使用路由导航到登录页
   const currentPath = router.currentRoute.value.fullPath;
-  
+
   // 延迟导航，让用户看到提示
   setTimeout(() => {
     router.push({

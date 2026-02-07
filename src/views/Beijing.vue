@@ -79,6 +79,11 @@ const tableSchema = computed<TableSchema>(() => ({
 const tableData = computed(() => beijingStock.value.map(item => ({ ...item, key: item.id })))
 const selectedRowKeys = ref<(string | number)[]>([])
 function handleSelectChange(keys: (string | number)[]) { selectedRowKeys.value = keys }
+
+// 组件挂载后加载数据
+onMounted(() => {
+  fetchData()
+})
 </script>
 
 <template>

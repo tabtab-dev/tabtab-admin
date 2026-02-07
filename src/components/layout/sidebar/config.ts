@@ -4,63 +4,10 @@
  */
 import type { Component } from 'vue';
 import type { MenuItem, SidebarMenuItem, SidebarConfig, MenuGroup } from '@/types/menu';
+import { loadIcon, loadIcons, getCachedIcon } from '@/composables/useIcon';
 
-/**
- * 图标缓存映射
- * 缓存已加载的图标组件
- */
-const iconCache = new Map<string, Component>();
-
-/**
- * 动态加载图标组件
- * @param iconName - 图标名称（如 'LayoutDashboard', 'Users' 等）
- * @returns 图标组件或 undefined
- */
-export async function loadIcon(iconName?: string): Promise<Component | undefined> {
-  if (!iconName) return undefined;
-
-  // 检查缓存
-  if (iconCache.has(iconName)) {
-    return iconCache.get(iconName);
-  }
-
-  try {
-    // 动态导入 lucide-vue-next 图标
-    const module = await import('lucide-vue-next');
-    const icon = module[iconName as keyof typeof module] as Component;
-
-    if (icon) {
-      iconCache.set(iconName, icon);
-      return icon;
-    }
-
-    console.warn(`[SidebarConfig] Icon not found: ${iconName}`);
-    return undefined;
-  } catch (error) {
-    console.warn(`[SidebarConfig] Failed to load icon: ${iconName}`, error);
-    return undefined;
-  }
-}
-
-/**
- * 批量加载图标
- * @param iconNames - 图标名称数组
- * @returns 图标名称到组件的映射
- */
-export async function loadIcons(iconNames: string[]): Promise<Record<string, Component>> {
-  const result: Record<string, Component> = {};
-
-  await Promise.all(
-    iconNames.map(async (name) => {
-      const icon = await loadIcon(name);
-      if (icon) {
-        result[name] = icon;
-      }
-    })
-  );
-
-  return result;
-}
+// 重新导出图标函数，保持向后兼容
+export { loadIcon, loadIcons, getCachedIcon };
 
 /**
  * 将 API 菜单项转换为 Sidebar 菜单项

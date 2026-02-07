@@ -2,7 +2,7 @@
 /**
  * 分类管理页
  */
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { TTable } from '@/components/business/TTable'
 import { TForm } from '@/components/business/TForm'
 import { TModal } from '@/components/business/TModal'
@@ -461,6 +461,11 @@ function handleTableChange(pagination: any): void {
     setPageSize(pagination.pageSize)
   }
 }
+
+// 组件挂载后加载数据
+onMounted(() => {
+  fetchData()
+})
 </script>
 
 <template>

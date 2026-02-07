@@ -103,7 +103,7 @@ export function useTableData<T = any>(options: UseTableDataOptions<T>) {
   const {
     apiCall,
     apiCallParams,
-    immediate = true,
+    immediate = false,
     defaultPage = 1,
     defaultPageSize = 10,
     statisticsFn,

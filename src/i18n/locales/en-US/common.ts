@@ -142,7 +142,14 @@ export default {
   tabbar: {
     closeCurrent: 'Close Current',
     closeOthers: 'Close Others',
+    closeLeft: 'Close Left',
+    closeRight: 'Close Right',
     closeAll: 'Close All',
     refresh: 'Refresh',
+    scrollLeft: 'Scroll Left',
+    scrollRight: 'Scroll Right',
+    scrollToStart: 'Scroll to Start',
+    scrollToEnd: 'Scroll to End',
+    moreActions: 'More Actions',
   },
 } as const;

@@ -142,7 +142,14 @@ export default {
   tabbar: {
     closeCurrent: '关闭当前',
     closeOthers: '关闭其他',
+    closeLeft: '关闭左侧',
+    closeRight: '关闭右侧',
     closeAll: '关闭全部',
     refresh: '刷新页面',
+    scrollLeft: '向左滚动',
+    scrollRight: '向右滚动',
+    scrollToStart: '滚动到开头',
+    scrollToEnd: '滚动到末尾',
+    moreActions: '更多操作',
   },
 } as const;

@@ -72,37 +72,53 @@ function checkAuthentication(): boolean {
     return authStore.isAuthenticated;
   } catch {
     // Store 未初始化时的降级处理
-    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-    const user = localStorage.getItem(STORAGE_KEYS.USER);
-    return !!(token && user);
+    // 从 Pinia 持久化存储的 'app-auth' key 中读取
+    const authData = localStorage.getItem(STORAGE_KEYS.AUTH);
+    if (authData) {
+      try {
+        const parsed = JSON.parse(authData);
+        return !!(parsed?.token && parsed?.user);
+      } catch {
+        // 解析失败
+      }
+    }
+    return false;
   }
+}
+
+/**
+ * 动态菜单加载结果
+ */
+interface MenuLoadResult {
+  success: boolean;
+  needRetry: boolean;
 }
 
 /**
  * 处理动态菜单加载
  * 已登录且菜单未加载时调用
  */
-async function handleDynamicMenus(to: RouteLocationNormalized): Promise<boolean> {
+async function handleDynamicMenus(to: RouteLocationNormalized): Promise<MenuLoadResult> {
   const menuStore = useMenuStore();
   
   if (menuStore.isLoaded) {
-    return true;
+    return { success: true, needRetry: false };
   }
 
   const success = await menuStore.fetchMenus();
   
   if (!success) {
     // 加载菜单失败，可能是 token 过期
-    return false;
+    return { success: false, needRetry: false };
   }
 
   // 动态路由加载完成后，如果当前目标路由匹配到了404，
   // 说明动态路由刚刚被添加，需要重新导航以触发正确的路由匹配
   if (to.name === 'NotFound') {
-    return false; // 返回 false 表示需要重新导航
+    return { success: true, needRetry: true }; // 需要重新导航
   }
 
-  return true;
+  return { success: true, needRetry: false };
 }
 
 /**
@@ -140,9 +156,9 @@ router.beforeEach(async (to, from, next) => {
 
     // 已登录，检查是否需要加载菜单
     if (to.path !== '/login') {
-      const menuLoaded = await handleDynamicMenus(to);
+      const menuResult = await handleDynamicMenus(to);
       
-      if (!menuLoaded) {
+      if (!menuResult.success) {
         // Token 过期或菜单加载失败
         const authStore = useAuthStore();
         await authStore.logout();
@@ -155,7 +171,7 @@ router.beforeEach(async (to, from, next) => {
       }
 
       // 动态路由刚添加，需要重新导航
-      if (to.name === 'NotFound') {
+      if (menuResult.needRetry) {
         next({ 
           path: to.fullPath, 
           replace: true, 

@@ -383,6 +383,11 @@ async function handleBatchDelete() {
     await fetchData()
   }
 }
+
+// 组件挂载后加载数据
+onMounted(() => {
+  fetchData()
+})
 </script>
 
 <template>

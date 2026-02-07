@@ -4,8 +4,8 @@ import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { useMenuStore } from '@/stores/global/menu';
-import { loadIcon } from '@/components/layout/sidebar/config';
-import { ArrowRight, FileText } from 'lucide-vue-next';
+import { loadIcon, getCachedIcon } from '@/composables/useIcon';
+import { FileText } from 'lucide-vue-next';
 import type { Component } from 'vue';
 
 const router = useRouter();
@@ -31,7 +31,7 @@ const filteredMenus = computed(() => {
  */
 const groupedMenus = computed(() => {
   const groups: Record<string, typeof filteredMenus.value> = {};
-  
+
   filteredMenus.value.forEach(menu => {
     const groupKey = menu.group || 'other';
     if (!groups[groupKey]) {
@@ -58,7 +58,7 @@ const getCachedIcon = (iconName?: string): Component | undefined => {
  */
 const preloadIcons = async () => {
   const iconNames = new Set<string>();
-  
+
   filteredMenus.value.forEach(menu => {
     if (menu.icon) {
       iconNames.add(menu.icon);
@@ -68,9 +68,14 @@ const preloadIcons = async () => {
   await Promise.all(
     Array.from(iconNames).map(async (name) => {
       if (!iconCache.value[name]) {
-        const icon = await loadIcon(name);
-        if (icon) {
-          iconCache.value[name] = icon;
+        const cached = getCachedIcon(name);
+        if (cached) {
+          iconCache.value[name] = cached;
+        } else {
+          const icon = await loadIcon(name);
+          if (icon) {
+            iconCache.value[name] = icon;
+          }
         }
       }
     })
@@ -125,7 +130,6 @@ const handleSelect = (path: string) => {
             <span class="ml-auto text-xs text-muted-foreground truncate max-w-[120px]">
               {{ menu.path }}
             </span>
-            <ArrowRight class="h-3.5 w-3.5 ml-2 text-muted-foreground/50" />
           </CommandItem>
         </CommandGroup>
       </template>

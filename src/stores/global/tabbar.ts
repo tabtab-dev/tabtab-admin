@@ -1,384 +1,326 @@
+/**
+ * TabBar 状态管理
+ * @description 使用 Pinia 管理多标签页状态
+ */
 import { defineStore, acceptHMRUpdate } from 'pinia';
-import { ref, computed, markRaw, type Component } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useMenuStore } from '@/stores/global/menu';
-import {
-  LayoutDashboard,
-  Users,
-  ShoppingCart,
-  Package,
-  BarChart3,
-  Settings,
-  FileText,
-  Tags,
-  Warehouse,
-  TrendingUp,
-  DollarSign,
-  UserCircle,
-  FolderTree,
-  Layers,
-  Box,
-  Truck,
-  ClipboardList,
-  MapPin,
-  Building,
-  FormInput,
-  Table,
-  MessageSquare,
-  PanelRight,
-} from 'lucide-vue-next';
+import { ref, computed } from 'vue';
+import { markRaw } from 'vue';
+import type { Component } from 'vue';
+import { useMenuStore } from './menu';
+import { loadIcon, getCachedIcon } from '@/composables/useIcon';
+import type { TabItem } from '@/types/tabbar';
 
-/**
- * 标签项接口
- */
-export interface TabItem {
-  /** 唯一标识（路由路径） */
-  path: string;
-  /** 标题 */
-  title: string;
-  /** 标题国际化键名 */
-  titleKey?: string;
-  /** 图标组件 */
-  icon?: Component;
-  /** 是否可关闭 */
-  closable?: boolean;
-  /** 是否固定（首页等） */
-  affix?: boolean;
-}
+export const useTabBarStore = defineStore(
+  'tabbar',
+  () => {
+    // State
+    const tabs = ref<TabItem[]>([]);
+    const activeTab = ref<string>('');
+    const isLoading = ref(false);
 
-/**
- * 本地存储键名
- */
-const STORAGE_KEY = 'app-tabbar-config';
+    // Getters
+    /**
+     * 获取所有标签页
+     */
+    const allTabs = computed(() => tabs.value);
 
-/**
- * 可序列化的标签项（不包含 icon 组件）
- */
-interface SerializableTabItem {
-  path: string;
-  title: string;
-  titleKey?: string;
-  closable?: boolean;
-  affix?: boolean;
-}
+    /**
+     * 获取当前激活的标签页
+     */
+    const currentTab = computed(() => {
+      return tabs.value.find((tab) => tab.path === activeTab.value);
+    });
 
-/**
- * 从本地存储加载配置
- */
-const loadFromStorage = (): { tabs: SerializableTabItem[]; activeTab: string } | null => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch {
-    // 忽略解析错误
-  }
-  return null;
-};
+    /**
+     * 获取可关闭的标签页（排除固定标签）
+     */
+    const closableTabs = computed(() => {
+      return tabs.value.filter((tab) => !tab.affix);
+    });
 
-/**
- * 保存到本地存储（排除 icon 字段）
- */
-const saveToStorage = (tabs: TabItem[], activeTab: string) => {
-  try {
-    // 排除 icon 字段，只保存可序列化的数据
-    const serializableTabs: SerializableTabItem[] = tabs.map(({ icon, ...rest }) => rest);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ tabs: serializableTabs, activeTab }));
-  } catch {
-    // 忽略存储错误
-  }
-};
+    // Actions
+    /**
+     * 从菜单数据中查找图标
+     * @param path - 路由路径
+     * @returns 图标组件或 undefined
+     */
+    const findIconFromMenu = async (path: string): Promise<Component | undefined> => {
+      const menuStore = useMenuStore();
 
-/**
- * 根据图标名称获取图标组件
- * @param iconName 图标名称
- * @returns 图标组件或 undefined
- */
-const getIconComponent = (iconName?: string): Component | undefined => {
-  if (!iconName) return undefined;
-
-  // 图标映射表
-  const iconMap: Record<string, Component> = {
-    LayoutDashboard,
-    Users,
-    ShoppingCart,
-    Package,
-    BarChart3,
-    Settings,
-    FileText,
-    Tags,
-    Warehouse,
-    TrendingUp,
-    DollarSign,
-    UserCircle,
-    FolderTree,
-    Layers,
-    Box,
-    Truck,
-    ClipboardList,
-    MapPin,
-    Building,
-    FormInput,
-    Table,
-    MessageSquare,
-    PanelRight,
-  };
-
-  // 使用 markRaw 避免组件被 Vue 响应式系统处理，提高性能
-  const icon = iconMap[iconName];
-  return icon ? markRaw(icon) : undefined;
-};
-
-/**
- * 从菜单配置中查找图标
- * @param path 路由路径
- * @returns 图标组件
- */
-const findIconFromMenu = (path: string): Component | undefined => {
-  // 从 menuStore 中获取菜单数据
-  const menuStore = useMenuStore();
-
-  // 遍历所有菜单项查找匹配的图标
-  const findInMenus = (menus: typeof menuStore.menus): Component | undefined => {
-    for (const menu of menus) {
-      if (menu.path === path) {
-        // 菜单项中的 icon 是字符串名称，需要通过 getIcon 函数转换为组件
-        return getIconComponent(menu.icon);
+      // 先在扁平化菜单中查找
+      const menuItem = menuStore.flatMenus.find((item) => item.path === path);
+      if (menuItem?.icon) {
+        // 尝试从缓存获取
+        const cachedIcon = getCachedIcon(menuItem.icon);
+        if (cachedIcon) {
+          return markRaw(cachedIcon);
+        }
+        // 异步加载图标
+        const icon = await loadIcon(menuItem.icon);
+        return icon ? markRaw(icon) : undefined;
       }
-      if (menu.children) {
-        const found = findInMenus(menu.children);
-        if (found) return found;
-      }
-    }
-    return undefined;
-  };
 
-  return findInMenus(menuStore.menus);
-};
-
-/**
- * 为标签项恢复图标
- * @param tabs 标签列表
- * @returns 恢复图标后的标签列表
- */
-const restoreIcons = (tabs: SerializableTabItem[]): TabItem[] => {
-  return tabs.map(tab => ({
-    ...tab,
-    icon: findIconFromMenu(tab.path),
-  }));
-};
-
-/**
- * 获取默认固定标签（首页）
- * 使用函数形式延迟执行，避免在 Pinia 实例创建前调用 useMenuStore
- */
-const getDefaultFixedTabs = (): TabItem[] => [
-  {
-    path: '/dashboard',
-    title: '首页',
-    titleKey: 'menu.dashboard',
-    icon: findIconFromMenu('/dashboard'),
-    closable: false,
-    affix: true,
-  },
-];
-
-export const useTabBarStore = defineStore('tabbar', () => {
-  // 加载存储的配置
-  const storedConfig = loadFromStorage();
-
-  // 修复旧数据中的路径不一致问题
-  let restoredTabs: TabItem[];
-  if (storedConfig?.tabs) {
-    // 检查是否有旧的 / 路径，如果有则替换为 /dashboard
-    const fixedTabs = storedConfig.tabs.map(tab => ({
-      ...tab,
-      path: tab.path === '/' ? '/dashboard' : tab.path,
-    }));
-    restoredTabs = restoreIcons(fixedTabs);
-  } else {
-    // 延迟获取默认标签，确保 Pinia 已初始化
-    restoredTabs = getDefaultFixedTabs();
-  }
-
-  /** 标签列表 - 加载后恢复图标 */
-  const tabs = ref<TabItem[]>(restoredTabs);
-  /** 当前激活的标签路径 */
-  const activeTab = ref<string>(storedConfig?.activeTab === '/' ? '/dashboard' : storedConfig?.activeTab || '/dashboard');
-
-  /** 标签数量 */
-  const tabCount = computed(() => tabs.value.length);
-  /** 是否可以关闭其他标签 */
-  const canCloseOthers = computed(() => tabs.value.filter(tab => !tab.affix).length > 0);
-  /** 是否可以关闭全部 */
-  const canCloseAll = computed(() => tabs.value.some(tab => !tab.affix && tab.closable !== false));
-
-  /**
-   * 添加标签
-   * @param tab 标签项
-   */
-  const addTab = (tab: TabItem) => {
-    // 检查是否已存在（使用严格路径匹配）
-    const existingTab = tabs.value.find(item => item.path === tab.path);
-    if (!existingTab) {
-      tabs.value.push({
-        ...tab,
-        closable: tab.closable !== false,
-      });
-      persistConfig();
-    } else {
-      // 如果标签已存在，更新其信息（如图标、标题等）
-      Object.assign(existingTab, {
-        title: tab.title,
-        titleKey: tab.titleKey,
-        icon: tab.icon,
-      });
-      persistConfig();
-    }
-    // 激活该标签
-    activeTab.value = tab.path;
-    persistConfig();
-  };
-
-  /**
-   * 关闭标签
-   * @param path 标签路径
-   * @param router 路由器实例（用于跳转）
-   * @param currentPath 当前路径
-   */
-  const closeTab = (path: string, router?: ReturnType<typeof useRouter>, currentPath?: string) => {
-    const tabIndex = tabs.value.findIndex(tab => tab.path === path);
-    if (tabIndex === -1) return;
-
-    const tab = tabs.value[tabIndex];
-    // 固定标签不能关闭
-    if (tab.affix) return;
-
-    tabs.value.splice(tabIndex, 1);
-
-    // 如果关闭的是当前激活的标签，需要激活其他标签
-    if (activeTab.value === path && router) {
-      // 优先激活左侧标签
-      const newActiveTab = tabs.value[tabIndex - 1] || tabs.value[tabIndex];
-      if (newActiveTab) {
-        activeTab.value = newActiveTab.path;
-        router.push(newActiveTab.path);
-      }
-    }
-
-    persistConfig();
-  };
-
-  /**
-   * 关闭其他标签
-   * @param keepPath 保留的标签路径
-   */
-  const closeOthers = (keepPath: string) => {
-    tabs.value = tabs.value.filter(tab => tab.affix || tab.path === keepPath);
-    activeTab.value = keepPath;
-    persistConfig();
-  };
-
-  /**
-   * 关闭全部标签（保留固定标签）
-   */
-  const closeAll = (router?: ReturnType<typeof useRouter>) => {
-    const fixedTabs = tabs.value.filter(tab => tab.affix);
-    tabs.value = fixedTabs;
-
-    // 激活第一个固定标签
-    if (fixedTabs.length > 0) {
-      activeTab.value = fixedTabs[0].path;
-      if (router) {
-        router.push(fixedTabs[0].path);
-      }
-    }
-
-    persistConfig();
-  };
-
-  /**
-   * 激活标签
-   * @param path 标签路径
-   */
-  const activateTab = (path: string) => {
-    if (tabs.value.some(tab => tab.path === path)) {
-      activeTab.value = path;
-      persistConfig();
-    }
-  };
-
-  /**
-   * 刷新标签
-   * @param path 标签路径
-   */
-  const refreshTab = (path: string) => {
-    // 触发页面刷新逻辑，可以通过事件或 provide/inject 实现
-    window.dispatchEvent(new CustomEvent('tab-refresh', { detail: { path } }));
-  };
-
-  /**
-   * 从路由添加标签
-   * @param route 当前路由
-   */
-  const addTabFromRoute = (route: ReturnType<typeof useRoute>) => {
-    // 只处理有 meta 信息的路由
-    if (!route.meta?.title && !route.meta?.titleKey) return;
-
-    // 跳过登录页等特殊页面
-    if (route.path === '/login' || route.path === '/404') return;
-
-    // 从菜单配置中查找图标
-    const icon = findIconFromMenu(route.path);
-
-    const tab: TabItem = {
-      path: route.path,
-      title: (route.meta.title as string) || route.name as string || '未命名',
-      titleKey: route.meta.titleKey as string,
-      icon: icon,
-      closable: route.meta.affix !== true,
-      affix: route.meta.affix === true,
+      return undefined;
     };
 
-    addTab(tab);
-  };
+    /**
+     * 添加标签页
+     * @param tab - 标签页数据
+     */
+    const addTab = async (tab: Omit<TabItem, 'icon'> & { icon?: Component | string }): Promise<void> => {
+      // 检查是否已存在
+      const existingTab = tabs.value.find((t) => t.path === tab.path);
+      if (existingTab) {
+        // 如果已存在，更新标题（可能语言切换了）
+        existingTab.title = tab.title;
+        activeTab.value = tab.path;
+        return;
+      }
 
-  /**
-   * 保存当前配置
-   */
-  const persistConfig = () => {
-    saveToStorage(tabs.value, activeTab.value);
-  };
+      // 处理图标
+      let iconComponent: Component | undefined;
+      if (typeof tab.icon === 'string') {
+        // 如果是字符串，从菜单查找或加载
+        iconComponent = await findIconFromMenu(tab.path);
+        if (!iconComponent && tab.icon) {
+          const loaded = await loadIcon(tab.icon);
+          if (loaded) {
+            iconComponent = markRaw(loaded);
+          }
+        }
+      } else if (tab.icon) {
+        iconComponent = markRaw(tab.icon);
+      }
 
-  /**
-   * 重置为默认状态
-   */
-  const reset = () => {
-    tabs.value = getDefaultFixedTabs();
-    activeTab.value = '/dashboard';
-    persistConfig();
-  };
+      // 如果还是没有图标，尝试从菜单查找
+      if (!iconComponent) {
+        iconComponent = await findIconFromMenu(tab.path);
+      }
 
-  return {
-    // 状态
-    tabs,
-    activeTab,
-    // 计算属性
-    tabCount,
-    canCloseOthers,
-    canCloseAll,
-    // 方法
-    addTab,
-    closeTab,
-    closeOthers,
-    closeAll,
-    activateTab,
-    refreshTab,
-    addTabFromRoute,
-    reset,
-  };
-});
+      const newTab: TabItem = {
+        ...tab,
+        icon: iconComponent,
+      };
+
+      tabs.value.push(newTab);
+      activeTab.value = tab.path;
+    };
+
+    /**
+     * 移除标签页
+     * @param path - 标签页路径
+     */
+    const removeTab = (path: string): void => {
+      const index = tabs.value.findIndex((tab) => tab.path === path);
+      if (index === -1) return;
+
+      const tab = tabs.value[index];
+      if (tab.affix) return; // 固定标签不能关闭
+
+      tabs.value.splice(index, 1);
+
+      // 如果关闭的是当前激活的标签，激活相邻标签
+      if (activeTab.value === path) {
+        const nextTab = tabs.value[index] || tabs.value[index - 1];
+        if (nextTab) {
+          activeTab.value = nextTab.path;
+        }
+      }
+    };
+
+    /**
+     * 激活标签页
+     * @param path - 标签页路径
+     */
+    const activateTab = (path: string): void => {
+      const tab = tabs.value.find((t) => t.path === path);
+      if (tab) {
+        activeTab.value = path;
+      }
+    };
+
+    /**
+     * 关闭其他标签页
+     * @param path - 保留的标签页路径
+     */
+    const closeOtherTabs = (path: string): void => {
+      tabs.value = tabs.value.filter((tab) => tab.path === path || tab.affix);
+    };
+
+    /**
+     * 关闭左侧标签页
+     * @param path - 目标标签页路径
+     */
+    const closeLeftTabs = (path: string): void => {
+      const index = tabs.value.findIndex((tab) => tab.path === path);
+      if (index === -1) return;
+
+      tabs.value = tabs.value.filter((tab, i) => i >= index || tab.affix);
+    };
+
+    /**
+     * 关闭右侧标签页
+     * @param path - 目标标签页路径
+     */
+    const closeRightTabs = (path: string): void => {
+      const index = tabs.value.findIndex((tab) => tab.path === path);
+      if (index === -1) return;
+
+      tabs.value = tabs.value.filter((tab, i) => i <= index || tab.affix);
+    };
+
+    /**
+     * 关闭所有标签页
+     */
+    const closeAllTabs = (): void => {
+      tabs.value = tabs.value.filter((tab) => tab.affix);
+      if (tabs.value.length > 0) {
+        activeTab.value = tabs.value[0].path;
+      }
+    };
+
+    /**
+     * 刷新标签页
+     * @param path - 标签页路径
+     */
+    const refreshTab = (path: string): void => {
+      const tab = tabs.value.find((t) => t.path === path);
+      if (tab) {
+        tab.isRefreshing = true;
+        setTimeout(() => {
+          tab.isRefreshing = false;
+        }, 500);
+      }
+    };
+
+    /**
+     * 设置标签页加载状态
+     * @param path - 标签页路径
+     * @param loading - 是否加载中
+     */
+    const setTabLoading = (path: string, loading: boolean): void => {
+      const tab = tabs.value.find((t) => t.path === path);
+      if (tab) {
+        tab.isLoading = loading;
+      }
+    };
+
+    /**
+     * 更新标签页标题
+     * @param path - 标签页路径
+     * @param title - 新标题
+     */
+    const updateTabTitle = (path: string, title: string): void => {
+      const tab = tabs.value.find((t) => t.path === path);
+      if (tab) {
+        tab.title = title;
+      }
+    };
+
+    /**
+     * 更新所有标签页标题
+     * @param getTitle - 获取标题的函数，接收 path 返回翻译后的标题
+     */
+    const updateAllTabsTitle = (getTitle: (path: string) => string): void => {
+      tabs.value.forEach((tab) => {
+        tab.title = getTitle(tab.path);
+      });
+    };
+
+    /**
+     * 更新标签页图标
+     * @param path - 标签页路径
+     * @param icon - 新图标
+     */
+    const updateTabIcon = async (path: string, icon: string): Promise<void> => {
+      const tab = tabs.value.find((t) => t.path === path);
+      if (tab) {
+        const loadedIcon = await loadIcon(icon);
+        if (loadedIcon) {
+          tab.icon = markRaw(loadedIcon);
+        }
+      }
+    };
+
+    /**
+     * 从 localStorage 恢复标签页
+     */
+    const restoreTabs = async (): Promise<void> => {
+      try {
+        const saved = localStorage.getItem('tabbar-tabs');
+        if (saved) {
+          const savedTabs: Array<Omit<TabItem, 'icon'> & { icon?: string }> = JSON.parse(saved);
+
+          // 恢复标签页，重新加载图标
+          for (const savedTab of savedTabs) {
+            const icon = await findIconFromMenu(savedTab.path);
+            addTab({
+              ...savedTab,
+              icon,
+              isLoading: false,
+              isRefreshing: false,
+            });
+          }
+
+          const savedActive = localStorage.getItem('tabbar-active');
+          if (savedActive) {
+            activeTab.value = savedActive;
+          }
+        }
+      } catch (error) {
+        console.error('Failed to restore tabs:', error);
+      }
+    };
+
+    /**
+     * 保存标签页到 localStorage
+     */
+    const saveTabs = (): void => {
+      try {
+        // 只保存必要的数据，不保存组件引用
+        const tabsToSave = tabs.value.map((tab) => ({
+          path: tab.path,
+          title: tab.title,
+          affix: tab.affix,
+          icon: undefined, // 图标不保存，恢复时重新加载
+        }));
+        localStorage.setItem('tabbar-tabs', JSON.stringify(tabsToSave));
+        localStorage.setItem('tabbar-active', activeTab.value);
+      } catch (error) {
+        console.error('Failed to save tabs:', error);
+      }
+    };
+
+    return {
+      // State
+      tabs,
+      activeTab,
+      isLoading,
+      // Getters
+      allTabs,
+      currentTab,
+      closableTabs,
+      // Actions
+      addTab,
+      removeTab,
+      activateTab,
+      closeOtherTabs,
+      closeLeftTabs,
+      closeRightTabs,
+      closeAllTabs,
+      refreshTab,
+      setTabLoading,
+      updateTabTitle,
+      updateAllTabsTitle,
+      updateTabIcon,
+      restoreTabs,
+      saveTabs,
+    };
+  },
+  {
+    persist: false, // 使用自定义的 localStorage 逻辑
+  }
+);
 
 if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(useTabBarStore, import.meta.hot));

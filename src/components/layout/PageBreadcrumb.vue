@@ -1,170 +1,175 @@
 <script setup lang="ts">
-import { computed, type Component } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { Button } from '@/components/ui/button';
 import {
-  Home,
-  Users,
-  ShoppingCart,
-  Package,
-  BarChart3,
-  Settings,
-  FileText,
-  Tags,
-  Warehouse,
-  TrendingUp,
-  DollarSign,
-  UserCircle,
-  FolderTree,
-  Layers,
-  Box,
-  Truck,
-  ClipboardList,
-  MapPin,
-  Building,
-  LayoutDashboard,
-  ChevronRight,
-  MoreHorizontal,
-} from 'lucide-vue-next';
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { useMenuStore } from '@/stores/global/menu';
+import { loadIcon, getCachedIcon } from '@/composables/useIcon';
+import { Home } from 'lucide-vue-next';
+import type { Component } from 'vue';
+import type { MenuItem } from '@/types/menu';
 
 const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
 const menuStore = useMenuStore();
 
 /**
  * 面包屑项
  */
-interface BreadcrumbItem {
+interface BreadcrumbItemData {
   /** 标题 */
   title: string;
   /** 路径 */
   path: string;
+  /** 图标 */
+  icon?: Component;
   /** 是否可点击 */
   clickable: boolean;
-  /** 图标组件 */
-  icon: Component;
-  /** 是否为省略号 */
-  isEllipsis?: boolean;
 }
 
 /**
- * 路径图标映射
+ * 图标缓存
  */
-const pathIconMap: Record<string, Component> = {
-  '/': LayoutDashboard,
-  '/users': Users,
-  '/orders': ShoppingCart,
-  '/products': Package,
-  '/products/categories': Tags,
-  '/products/categories/level1': FolderTree,
-  '/products/categories/level2': Layers,
-  '/products/categories/tags': Box,
-  '/products/inventory': Warehouse,
-  '/products/inventory/stock': ClipboardList,
-  '/products/inventory/warehouse': Building,
-  '/products/inventory/warehouse/beijing': MapPin,
-  '/products/inventory/warehouse/shanghai': MapPin,
-  '/products/inventory/logistics': Truck,
-  '/analytics': BarChart3,
-  '/analytics/traffic': TrendingUp,
-  '/analytics/sales': DollarSign,
-  '/analytics/users': UserCircle,
-  '/settings': Settings,
-};
-
-const route = useRoute();
-const router = useRouter();
+const iconCache = ref<Record<string, Component>>({});
 
 /**
- * 获取路径对应的图标
- * @param path 路径
- * @returns 图标组件
+ * 在菜单树中查找路径
+ * @param menus 菜单列表
+ * @param targetPath 目标路径
+ * @param currentPath 当前路径数组
+ * @returns 路径数组或 null
  */
-const getPathIcon = (path: string): Component => {
-  // 精确匹配
-  if (pathIconMap[path]) {
-    return pathIconMap[path];
-  }
-  // 尝试匹配父路径
-  const segments = path.split('/').filter(Boolean);
-  for (let i = segments.length - 1; i >= 0; i--) {
-    const parentPath = '/' + segments.slice(0, i + 1).join('/');
-    if (pathIconMap[parentPath]) {
-      return pathIconMap[parentPath];
+const findPathInMenuTree = (
+  menus: MenuItem[],
+  targetPath: string,
+  currentPath: MenuItem[] = []
+): MenuItem[] | null => {
+  for (const menu of menus) {
+    const newPath = [...currentPath, menu];
+
+    // 完全匹配
+    if (menu.path === targetPath) {
+      return newPath;
+    }
+
+    // 检查是否是父路径（用于子路由匹配）
+    if (targetPath.startsWith(menu.path + '/') && menu.children) {
+      const result = findPathInMenuTree(menu.children, targetPath, newPath);
+      if (result) return result;
+    }
+
+    // 继续搜索子菜单
+    if (menu.children) {
+      const result = findPathInMenuTree(menu.children, targetPath, newPath);
+      if (result) return result;
     }
   }
-  return FileText;
+  return null;
 };
 
 /**
- * 生成面包屑列表
+ * 异步加载面包屑图标
  */
-const breadcrumbs = computed<BreadcrumbItem[]>(() => {
-  const path = route.path;
-  const items: BreadcrumbItem[] = [];
+const loadBreadcrumbIcons = async (items: BreadcrumbItemData[]) => {
+  for (const item of items) {
+    if (item.icon && typeof item.icon === 'string') {
+      const iconName = item.icon as string;
+      if (!iconCache.value[iconName]) {
+        const cached = getCachedIcon(iconName);
+        if (cached) {
+          iconCache.value[iconName] = cached;
+        } else {
+          const loaded = await loadIcon(iconName);
+          if (loaded) {
+            iconCache.value[iconName] = loaded;
+          }
+        }
+      }
+    }
+  }
+};
 
-  // 判断是否为首页（支持 '/' 和 '/dashboard'）
-  const isHomePage = path === '/' || path === '/dashboard';
+/**
+ * 面包屑数据
+ */
+const breadcrumbs = computed<BreadcrumbItemData[]>(() => {
+  const currentPath = route.path;
+  const result: BreadcrumbItemData[] = [];
 
-  // 首页
-  items.push({
-    title: t('common.breadcrumb.home'),
+  // 1. 首页（始终显示）
+  result.push({
+    title: t('menu.dashboard'),
     path: '/dashboard',
-    clickable: false,
     icon: Home,
+    clickable: currentPath !== '/dashboard',
   });
 
-  // 如果是首页，直接返回
-  if (isHomePage) {
-    return items;
+  // 如果当前就是首页，直接返回
+  if (currentPath === '/dashboard') {
+    return result;
   }
 
-  // 解析其他路径
-  const segments = path.split('/').filter(Boolean);
-  let currentPath = '';
+  // 2. 从菜单数据中查找路径
+  const menuPath = findPathInMenuTree(menuStore.menus, currentPath);
 
-  segments.forEach((segment, index) => {
-    currentPath += `/${segment}`;
-    const isLast = index === segments.length - 1;
-    const titleKey = menuStore.getRouteTitleKey(currentPath);
-    const title = titleKey !== currentPath ? t(titleKey) : segment;
-
-    items.push({
-      title,
-      path: currentPath,
-      clickable: !isLast,
-      icon: getPathIcon(currentPath),
+  if (menuPath && menuPath.length > 0) {
+    // 使用菜单路径生成面包屑
+    menuPath.forEach((menu, index) => {
+      const isLast = index === menuPath.length - 1;
+      result.push({
+        title: t(menu.i18nKey),
+        path: menu.path,
+        icon: undefined, // 面包屑通常不显示图标
+        clickable: !isLast,
+      });
     });
-  });
+  } else {
+    // 3. 回退：使用路由匹配生成面包屑
+    const matchedRoutes = route.matched.filter(r => r.path !== '');
 
-  return items;
-});
+    matchedRoutes.forEach((matched, index) => {
+      // 跳过根路由和 dashboard
+      if (matched.path === '/' || matched.path === '/dashboard') return;
 
-/**
- * 是否需要折叠（路径超过5项时）
- */
-const shouldCollapse = computed(() => breadcrumbs.value.length > 5);
+      const isLast = index === matchedRoutes.length - 1;
+      const titleKey = menuStore.getRouteTitleKey(matched.path);
 
-/**
- * 折叠后的面包屑列表
- */
-const displayedBreadcrumbs = computed(() => {
-  if (!shouldCollapse.value) {
-    return breadcrumbs.value;
+      result.push({
+        title: t(titleKey),
+        path: matched.path,
+        icon: undefined,
+        clickable: !isLast && matched.path !== currentPath,
+      });
+    });
   }
-  const items = breadcrumbs.value;
-  return [
-    items[0], // 首页
-    { title: t('common.breadcrumb.ellipsis'), path: '', clickable: false, icon: MoreHorizontal, isEllipsis: true }, // 省略号
-    ...items.slice(-3), // 最后三项
-  ];
+
+  return result;
 });
 
 /**
- * 处理点击
+ * 监听面包屑变化，加载图标
  */
-const handleClick = (item: BreadcrumbItem): void => {
+watch(
+  breadcrumbs,
+  (newItems) => {
+    loadBreadcrumbIcons(newItems);
+  },
+  { immediate: true }
+);
+
+/**
+ * 处理面包屑点击
+ * @param item 面包屑项
+ */
+const handleBreadcrumbClick = (item: BreadcrumbItemData) => {
   if (item.clickable && item.path) {
     router.push(item.path);
   }
@@ -172,51 +177,52 @@ const handleClick = (item: BreadcrumbItem): void => {
 </script>
 
 <template>
-  <nav class="flex items-center" aria-label="breadcrumb">
-    <ol class="flex items-center gap-0.5">
-      <template v-for="(item, index) in displayedBreadcrumbs" :key="item.path || index">
-        <li class="flex items-center">
-          <!-- 可点击项使用 ghost 按钮 -->
-          <Button
+  <Breadcrumb>
+    <BreadcrumbList>
+      <template v-for="(item, index) in breadcrumbs" :key="item.path">
+        <BreadcrumbItem>
+          <!-- 可点击的链接 -->
+          <BreadcrumbLink
             v-if="item.clickable"
-            variant="ghost"
-            size="sm"
-            class="h-7 px-2 text-muted-foreground hover:text-foreground font-normal"
-            @click="handleClick(item)"
+            as="button"
+            class="flex items-center gap-1.5 cursor-pointer"
+            @click="handleBreadcrumbClick(item)"
           >
             <component
               :is="item.icon"
-              class="h-3.5 w-3.5 mr-1.5"
+              v-if="item.icon && typeof item.icon !== 'string'"
+              class="h-3.5 w-3.5"
             />
-            <span class="text-sm">{{ item.title }}</span>
-          </Button>
-
-          <!-- 省略号 -->
-          <span
-            v-else-if="item.isEllipsis"
-            class="flex items-center px-2 text-muted-foreground"
-          >
-            <MoreHorizontal class="h-4 w-4" />
-          </span>
-
-          <!-- 当前页（最后一项）使用普通文本 -->
-          <span
-            v-else
-            class="flex items-center px-2 text-sm font-semibold text-foreground"
-          >
             <component
-              :is="item.icon"
-              class="h-3.5 w-3.5 mr-1.5 text-primary"
+              :is="iconCache[item.icon as string]"
+              v-else-if="item.icon && typeof item.icon === 'string' && iconCache[item.icon]"
+              class="h-3.5 w-3.5"
             />
             {{ item.title }}
-          </span>
-        </li>
+          </BreadcrumbLink>
 
-        <!-- 分隔符（除最后一项外） -->
-        <li v-if="index < displayedBreadcrumbs.length - 1" class="flex items-center">
-          <ChevronRight class="h-4 w-4 text-muted-foreground/40 mx-0.5" />
-        </li>
+          <!-- 当前页面（不可点击） -->
+          <BreadcrumbPage
+            v-else
+            class="flex items-center gap-1.5"
+          >
+            <component
+              :is="item.icon"
+              v-if="item.icon && typeof item.icon !== 'string'"
+              class="h-3.5 w-3.5"
+            />
+            <component
+              :is="iconCache[item.icon as string]"
+              v-else-if="item.icon && typeof item.icon === 'string' && iconCache[item.icon]"
+              class="h-3.5 w-3.5"
+            />
+            {{ item.title }}
+          </BreadcrumbPage>
+        </BreadcrumbItem>
+
+        <!-- 分隔符（最后一个不显示） -->
+        <BreadcrumbSeparator v-if="index < breadcrumbs.length - 1" />
       </template>
-    </ol>
-  </nav>
+    </BreadcrumbList>
+  </Breadcrumb>
 </template>
