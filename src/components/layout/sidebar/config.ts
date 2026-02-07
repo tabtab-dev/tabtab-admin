@@ -4,13 +4,13 @@
  */
 import type { Component } from 'vue';
 import type { MenuItem, SidebarMenuItem, SidebarConfig, MenuGroup } from '@/types/menu';
-import { loadIcon, loadIcons, getCachedIcon } from '@/composables/useIcon';
+import { getIcon, getIcons } from '@/composables/useIcon';
 
 // 重新导出图标函数，保持向后兼容
-export { loadIcon, loadIcons, getCachedIcon };
+export { getIcon, getIcons };
 
 /**
- * 将 API 菜单项转换为 Sidebar 菜单项
+ * 将 API 菜单项转换为 Sidebar 菜单项（同步）
  * @param menu - API 菜单项
  * @param iconMap - 图标组件映射（可选，用于批量加载优化）
  * @returns Sidebar 菜单项
@@ -23,7 +23,7 @@ export function convertMenuItem(
     key: menu.key,
     title: menu.title,
     path: menu.path,
-    icon: menu.icon ? iconMap?.[menu.icon] : undefined,
+    icon: menu.icon ? (iconMap?.[menu.icon] || getIcon(menu.icon)) : undefined,
     badge: menu.badge,
     group: menu.group,
     disabled: menu.disabled,
@@ -37,11 +37,11 @@ export function convertMenuItem(
 }
 
 /**
- * 异步转换菜单列表（带图标加载）
+ * 同步转换菜单列表
  * @param menus - API 菜单列表
  * @returns 转换后的 Sidebar 菜单列表
  */
-export async function convertMenuItems(menus: MenuItem[]): Promise<SidebarMenuItem[]> {
+export function convertMenuItems(menus: MenuItem[]): SidebarMenuItem[] {
   // 收集所有需要的图标名称
   const iconNames = new Set<string>();
   const collectIcons = (items: MenuItem[]) => {
@@ -56,8 +56,8 @@ export async function convertMenuItems(menus: MenuItem[]): Promise<SidebarMenuIt
   };
   collectIcons(menus);
 
-  // 批量加载图标
-  const iconMap = await loadIcons(Array.from(iconNames));
+  // 批量获取图标（同步）
+  const iconMap = getIcons(Array.from(iconNames));
 
   // 转换菜单
   return menus.map((menu) => convertMenuItem(menu, iconMap));

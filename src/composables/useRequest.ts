@@ -6,7 +6,7 @@ import { useRequest, useFetcher } from 'alova/client';
 import type { Method } from 'alova';
 import type { Ref } from 'vue';
 import { toast } from 'vue-sonner';
-import { httpClient } from '@/api';
+import type { httpClient } from '@/api';
 
 /**
  * useQuery 配置选项

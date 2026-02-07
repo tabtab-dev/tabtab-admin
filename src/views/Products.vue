@@ -137,12 +137,12 @@ const { mutate: updateProduct, loading: updating } = useMutation({
   }
 })
 
-const { mutate: deleteProduct, loading: deleting } = useMutation({
+const { mutate: deleteProduct } = useMutation({
   mutationFn: (id: string) => productsApi.deleteProduct(id),
   onSuccess: () => fetchData()
 })
 
-const { mutate: batchDeleteProducts, loading: batchDeleting } = useMutation({
+const { mutate: batchDeleteProducts } = useMutation({
   mutationFn: (ids: string[]) => productsApi.batchDeleteProducts(ids),
   onSuccess: () => {
     tableRef.value?.clearSelection()

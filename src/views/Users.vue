@@ -79,7 +79,7 @@ const {
   },
 })
 
-const { mutate: createUser, loading: _creating } = useMutation({
+const { mutate: createUser } = useMutation({
   mutationFn: (values: Record<string, any>) => usersApi.createUser({
     name: values.name,
     email: values.email,
@@ -99,7 +99,7 @@ const { mutate: createUser, loading: _creating } = useMutation({
   }
 })
 
-const { mutate: updateUser, loading: _updating } = useMutation({
+const { mutate: updateUser } = useMutation({
   mutationFn: ({ id, values }: { id: string; values: Record<string, any> }) => 
     usersApi.updateUser(id, {
       name: values.name,
@@ -121,7 +121,7 @@ const { mutate: deleteUser, loading: _deleting } = useMutation({
   onSuccess: () => fetchData()
 })
 
-const { mutate: batchDeleteUsers, loading: _batchDeleting } = useMutation({
+const { mutate: batchDeleteUsers } = useMutation({
   mutationFn: (ids: string[]) => usersApi.batchDeleteUsers(ids),
   successMessage: '批量删除成功',
   onSuccess: () => {

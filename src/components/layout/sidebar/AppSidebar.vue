@@ -36,33 +36,14 @@ const emit = defineEmits<{
 }>();
 
 /**
- * 转换后的菜单数据
+ * 转换后的菜单数据（同步转换）
  */
-const sidebarMenus = ref<SidebarMenuItem[]>([]);
-
-/**
- * 是否正在加载图标
- */
-const isLoadingIcons = ref(false);
-
-/**
- * 异步转换菜单数据
- */
-const loadMenus = async () => {
+const sidebarMenus = computed<SidebarMenuItem[]>(() => {
   if (menuStore.menus.length === 0) {
-    sidebarMenus.value = [];
-    return;
+    return [];
   }
-
-  isLoadingIcons.value = true;
-  try {
-    sidebarMenus.value = await convertMenuItems(menuStore.menus);
-  } catch (error) {
-    console.error('[AppSidebar] Failed to load menus:', error);
-  } finally {
-    isLoadingIcons.value = false;
-  }
-};
+  return convertMenuItems(menuStore.menus);
+});
 
 /**
  * 动态侧栏配置 - 使用 computed 确保响应式
@@ -76,17 +57,6 @@ const dynamicSidebarConfig = computed(() => ({
  * 使用侧栏逻辑
  */
 const sidebarState = useSidebar(dynamicSidebarConfig.value);
-
-/**
- * 监听菜单变化，更新 sidebar 配置
- */
-watch(
-  () => menuStore.menus,
-  () => {
-    loadMenus();
-  },
-  { deep: true, immediate: true }
-);
 
 /**
  * 折叠状态 - 优先使用外部传入的值

@@ -25,3 +25,5 @@ dist-ssr
 /.agents
 /.trae
 components.d.ts
+.eslintrc-auto-import.json
+src/auto-imports.d.ts

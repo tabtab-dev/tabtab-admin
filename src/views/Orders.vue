@@ -85,7 +85,7 @@ const {
   },
 })
 
-const { mutate: createOrder, loading: creating } = useMutation({
+const { mutate: createOrder } = useMutation({
   mutationFn: (values: Record<string, any>) => ordersApi.createOrder({
     customer: values.customer,
     email: values.email,
@@ -117,7 +117,7 @@ const { mutate: deleteOrder, loading: deleting } = useMutation({
   onSuccess: () => fetchData()
 })
 
-const { mutate: batchDeleteOrders, loading: batchDeleting } = useMutation({
+const { mutate: batchDeleteOrders } = useMutation({
   mutationFn: (ids: string[]) => ordersApi.batchDeleteOrders(ids),
   onSuccess: () => {
     tableRef.value?.clearSelection()

@@ -2,7 +2,8 @@
  * 表单数据管理 Composable
  * @description 封装表单提交、验证等通用逻辑
  */
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useMutation } from './useRequest';
 
 /**
  * 表单数据配置选项
@@ -20,6 +21,8 @@ export interface UseFormDataOptions<T> {
   onComplete?: () => void;
   /** 是否重置表单（提交成功后） */
   resetOnSuccess?: boolean;
+  /** 成功提示消息，设为 false 则不显示 */
+  successMessage?: string | false;
 }
 
 /**
@@ -58,41 +61,37 @@ export function useFormData<T = Record<string, any>>(options: UseFormDataOptions
     onError,
     onComplete,
     resetOnSuccess = true,
+    successMessage = '操作成功',
   } = options;
 
   const formData = ref<T>({ ...initialData });
   const isDirty = ref(false);
-  const submitting = ref(false);
-  const error = ref<Error | null>(null);
 
-  const submit = async () => {
-    submitting.value = true;
-    error.value = null;
-    
-    try {
-      const result = await apiCall(formData.value);
-      
-      // 拦截器返回 null 表示失败
-      if (result === null) {
-        error.value = new Error('提交失败');
-        onError?.(error.value);
-        return null;
-      }
-      
+  // 使用 useMutation 管理提交状态
+  const {
+    mutate,
+    loading: submitting,
+    error,
+  } = useMutation({
+    mutationFn: apiCall,
+    successMessage,
+    onSuccess: (response) => {
       if (resetOnSuccess) {
         reset();
       }
-      
-      onSuccess?.(result);
-      return result;
-    } catch (err) {
-      error.value = err instanceof Error ? err : new Error(String(err));
-      onError?.(error.value);
-      return null;
-    } finally {
-      submitting.value = false;
+      onSuccess?.(response);
+    },
+    onError: (err) => {
+      onError?.(err);
+    },
+    onComplete: () => {
       onComplete?.();
-    }
+    },
+  });
+
+  const submit = async () => {
+    isDirty.value = true;
+    return mutate(formData.value);
   };
 
   const reset = () => {

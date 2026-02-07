@@ -31,10 +31,6 @@ interface TableSlotProps {
 
 const {
   data: stockItems,
-  loading,
-  filteredData,
-  paginatedData,
-  fetchData,
 } = useTableData<StockItem>({
   apiCall: () => inventoryApi.getStockItems(),
   filterFn: (items, query, filterValues) => {

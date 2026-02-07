@@ -364,7 +364,7 @@ const editSchema: FormSchema = {
   }
 }
 
-const { mutate: createWarehouse, loading: creating } = useMutation({
+const { mutate: createWarehouse } = useMutation({
   mutationFn: (values: Record<string, any>) => inventoryApi.createWarehouse({
     name: values.name,
     code: values.code,
@@ -400,7 +400,7 @@ const { mutate: updateWarehouse, loading: updating } = useMutation({
   }
 })
 
-const { mutate: deleteWarehouse, loading: deleting } = useMutation({
+const { mutate: deleteWarehouse } = useMutation({
   mutationFn: (id: string) => inventoryApi.deleteWarehouse(id),
   onSuccess: () => fetchData()
 })

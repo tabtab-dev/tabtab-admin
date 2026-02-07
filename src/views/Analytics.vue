@@ -25,8 +25,6 @@ import {
 
 // 时间范围
 const timeRange = ref('7d')
-// 使用 timeRange 避免未使用变量错误
-timeRange.value
 
 // 核心指标
 const metrics = computed(() => [

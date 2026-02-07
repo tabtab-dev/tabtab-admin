@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import type { StockItem } from '@/types/models'
 import { inventoryApi } from '@/api'
 import { useTableData } from '@/composables'
-import { Building, Package, AlertTriangle, CheckCircle, MapPin } from 'lucide-vue-next'
+import { Building, Package, AlertTriangle, CheckCircle } from 'lucide-vue-next'
 
 const {
   data: stockItems,

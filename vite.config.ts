@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import vue from "@vitejs/plugin-vue";
 import { AntdvNextResolver } from "@antdv-next/auto-import-resolver";
 import Components from "unplugin-vue-components/vite";
+import AutoImport from "unplugin-auto-import/vite";
 import { mockPlugin } from "./mock/server";
 
 /**
@@ -31,6 +32,24 @@ export default defineConfig(({ mode }: ConfigEnv) => {
       tailwindcss(),
       Components({
         resolvers: [AntdvNextResolver()],
+      }),
+      // 自动导入配置
+      AutoImport({
+        imports: [
+          // 自动导入 Vue 相关函数
+          "vue",
+          "vue-router",
+          "vue-i18n",
+          // 自动导入 @vueuse/core
+          "@vueuse/core",
+        ],
+        // 自动生成类型声明文件
+        dts: "src/auto-imports.d.ts",
+        // 启用 ESLint 支持
+        eslintrc: {
+          enabled: true,
+          filepath: "./.eslintrc-auto-import.json",
+        },
       }),
       // 条件加载 Mock 插件
       isMockEnabled && mockPlugin(),

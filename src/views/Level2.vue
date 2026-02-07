@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import type { Category } from '@/types/models'
 import { categoriesApi } from '@/api'
 import { useTableData } from '@/composables'
-import { Plus, Layers, CheckCircle, XCircle, Package } from 'lucide-vue-next'
+import { Plus } from 'lucide-vue-next'
 
 const {
   data: categories,
@@ -58,16 +58,6 @@ const {
 })
 
 const level1Categories = computed(() => categories.value.filter(c => c.level === 1))
-
-const statisticsCards = computed(() => {
-  const stats = statistics.value || {}
-  return [
-    { title: '二级分类', value: stats.total || 0, icon: Layers, color: 'text-orange-500' },
-    { title: '已启用', value: stats.active || 0, icon: CheckCircle, color: 'text-green-500' },
-    { title: '已禁用', value: stats.inactive || 0, icon: XCircle, color: 'text-red-500' },
-    { title: '关联商品', value: stats.totalProducts || 0, icon: Package, color: 'text-purple-500' }
-  ]
-})
 
 const searchFormData = ref({ keyword: '', status: '' })
 const searchSchema: FormSchema = {

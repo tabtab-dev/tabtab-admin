@@ -15,11 +15,7 @@ import type { Category } from '@/types/models'
 import { categoriesApi } from '@/api'
 import { useTableData } from '@/composables'
 import {
-  Plus,
-  FolderTree,
-  CheckCircle,
-  XCircle,
-  Package
+  Plus
 } from 'lucide-vue-next'
 
 const {
@@ -66,17 +62,6 @@ const {
       totalProducts,
     }
   },
-})
-
-// 统计标签
-const statisticsCards = computed(() => {
-  const stats = statistics.value || {}
-  return [
-    { title: '一级分类', value: stats.total || 0, icon: FolderTree, color: 'text-blue-500' },
-    { title: '已启用', value: stats.active || 0, icon: CheckCircle, color: 'text-green-500' },
-    { title: '已禁用', value: stats.inactive || 0, icon: XCircle, color: 'text-red-500' },
-    { title: '关联商品', value: stats.totalProducts || 0, icon: Package, color: 'text-purple-500' }
-  ]
 })
 
 // 搜索表单

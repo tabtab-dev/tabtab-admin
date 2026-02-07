@@ -4,8 +4,7 @@
  */
 
 export { useQuery, useMutation } from './useRequest';
-export { useTable } from './useTable';
-export { useForm } from './useForm';
 export { useTableData } from './useTableData';
 export type { ApiCallParamsContext } from './useTableData';
 export { useFormData } from './useFormData';
+export { useIcon, loadIcon, loadIcons, getCachedIcon, hasIconCached, clearIconCache } from './useIcon';
