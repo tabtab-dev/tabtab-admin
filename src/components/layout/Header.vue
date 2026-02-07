@@ -19,6 +19,7 @@ import { useMenuStore } from '@/stores/global/menu';
 import { useNotifications } from '@/layouts/composables/useNotifications';
 import ThemeSettings from './ThemeSettings.vue';
 import LanguageSwitch from './LanguageSwitch.vue';
+import MenuSearchDialog from './MenuSearchDialog.vue';
 import {
   Sheet,
   SheetContent,
@@ -63,6 +64,7 @@ const searchQuery = ref('');
 const isSearchFocused = ref(false);
 const isSearchExpanded = ref(false);
 const isThemeDrawerOpen = ref(false);
+const isMenuSearchOpen = ref(false);
 const searchInputRef = ref<HTMLInputElement | null>(null);
 
 /**
@@ -142,10 +144,7 @@ const handleLogout = async () => {
  * 处理搜索
  */
 const handleSearch = () => {
-  if (searchQuery.value.trim()) {
-    console.log('Search:', searchQuery.value);
-    // TODO: 实现搜索逻辑
-  }
+  isMenuSearchOpen.value = true;
 };
 
 /**
@@ -170,14 +169,10 @@ const collapseSearch = () => {
  * 处理键盘快捷键
  */
 const handleKeydown = (e: KeyboardEvent) => {
-  // Cmd/Ctrl + K 聚焦搜索
+  // Cmd/Ctrl + K 打开菜单搜索
   if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
     e.preventDefault();
-    if (window.innerWidth < 768) {
-      expandSearch();
-    } else {
-      searchInputRef.value?.focus();
-    }
+    isMenuSearchOpen.value = true;
   }
   
   // ESC 关闭搜索
@@ -628,5 +623,8 @@ onUnmounted(() => {
         </DropdownMenu>
       </div>
     </div>
+
+    <!-- 菜单搜索对话框 -->
+    <MenuSearchDialog v-model:open="isMenuSearchOpen" />
   </header>
 </template>

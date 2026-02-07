@@ -164,22 +164,20 @@ export function useTableData<T = any>(options: UseTableDataOptions<T>) {
       result = [];
     }
 
-    if (searchQuery.value) {
-      const query = searchQuery.value.toLowerCase();
-      if (filterFn) {
-        const filtered = filterFn(result as T[], query, filters.value);
-        result = Array.isArray(filtered) ? [...filtered] : [];
-      } else {
-        result = result.filter((item: any) => {
-          return Object.values(item).some(
-            (value: any) =>
-              String(value).toLowerCase().includes(query)
-          );
-        });
-      }
+    const query = searchQuery.value.toLowerCase();
+    const hasQuery = searchQuery.value !== '';
+
+    if (hasQuery && filterFn) {
+      result = filterFn(result as T[], query, filters.value) || [];
+    } else if (hasQuery) {
+      result = result.filter((item: any) => {
+        return Object.values(item).some(
+          (value: any) =>
+            String(value).toLowerCase().includes(query)
+        );
+      });
     } else if (filterFn) {
-      const filtered = filterFn(result, '', filters.value);
-      result = Array.isArray(filtered) ? filtered : [];
+      result = filterFn(result, '', filters.value) || [];
     }
 
     Object.entries(filters.value).forEach(([key, value]) => {

@@ -3,11 +3,11 @@
  * 二级分类页
  */
 import { ref, computed, onMounted } from 'vue'
-import { TTable } from '@/components/data/TTable'
-import { TForm } from '@/components/data/TForm'
-import { TModal } from '@/components/data/TModal'
-import type { TableSchema } from '@/components/data/TTable'
-import type { FormSchema } from '@/components/data/TForm'
+import { TTable } from '@/components/business/TTable'
+import { TForm } from '@/components/business/TForm'
+import { TModal } from '@/components/business/TModal'
+import type { TableSchema } from '@/components/business/TTable'
+import type { FormSchema } from '@/components/business/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'

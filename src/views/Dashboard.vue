@@ -26,6 +26,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { ActivityItem, QuickAction } from '@/types/bento';
+import { ACTIVITY_TYPE, BUTTON_VARIANT } from '@/constants';
 
 const { t, locale } = useI18n();
 
@@ -57,22 +58,22 @@ const greeting = computed(() => {
  * 活动列表数据
  */
 const activities = ref<ActivityItem[]>([
-  { id: '1', type: 'success', title: '新用户注册', description: '用户 user@example.com 完成注册', time: '2 分钟前' },
-  { id: '2', type: 'info', title: '订单更新', description: '订单 #12345 状态已更新为已发货', time: '15 分钟前' },
-  { id: '3', type: 'warning', title: '库存预警', description: '商品 SKU-001 库存低于阈值', time: '1 小时前' },
-  { id: '4', type: 'success', title: '支付成功', description: '收到支付 $299.00', time: '2 小时前' },
-  { id: '5', type: 'error', title: '系统错误', description: 'API 响应超时', time: '3 小时前' },
-  { id: '6', type: 'success', title: '退款完成', description: '订单 #12340 退款已处理', time: '4 小时前' }
+  { id: '1', type: ACTIVITY_TYPE.SUCCESS, title: '新用户注册', description: '用户 user@example.com 完成注册', time: '2 分钟前' },
+  { id: '2', type: ACTIVITY_TYPE.INFO, title: '订单更新', description: '订单 #12345 状态已更新为已发货', time: '15 分钟前' },
+  { id: '3', type: ACTIVITY_TYPE.WARNING, title: '库存预警', description: '商品 SKU-001 库存低于阈值', time: '1 小时前' },
+  { id: '4', type: ACTIVITY_TYPE.SUCCESS, title: '支付成功', description: '收到支付 $299.00', time: '2 小时前' },
+  { id: '5', type: ACTIVITY_TYPE.ERROR, title: '系统错误', description: 'API 响应超时', time: '3 小时前' },
+  { id: '6', type: ACTIVITY_TYPE.SUCCESS, title: '退款完成', description: '订单 #12340 退款已处理', time: '4 小时前' }
 ]);
 
 /**
  * 快捷操作列表
  */
 const quickActions = ref<QuickAction[]>([
-  { id: '1', label: '新建订单', icon: ShoppingCart, onClick: () => console.log('新建订单'), variant: 'primary' },
-  { id: '2', label: '添加用户', icon: Users, onClick: () => console.log('添加用户'), variant: 'default' },
-  { id: '3', label: '生成报表', icon: FileText, onClick: () => console.log('生成报表'), variant: 'default' },
-  { id: '4', label: '系统设置', icon: Settings, onClick: () => console.log('系统设置'), variant: 'default' }
+  { id: '1', label: '新建订单', icon: ShoppingCart, onClick: () => {}, variant: BUTTON_VARIANT.PRIMARY },
+  { id: '2', label: '添加用户', icon: Users, onClick: () => {}, variant: BUTTON_VARIANT.DEFAULT },
+  { id: '3', label: '生成报表', icon: FileText, onClick: () => {}, variant: BUTTON_VARIANT.DEFAULT },
+  { id: '4', label: '系统设置', icon: Settings, onClick: () => {}, variant: BUTTON_VARIANT.DEFAULT }
 ]);
 
 /**
@@ -184,7 +185,7 @@ const pendingTasks = ref([
           value="$84,230"
           :trend="{ value: 12.5, isPositive: true }"
           :icon="Activity"
-          :action="{ label: '查看详细报告', onClick: () => console.log('查看报告') }"
+          :action="{ label: '查看详细报告', onClick: () => {} }"
         >
           <div class="grid grid-cols-3 gap-3 mt-2">
             <div class="text-center p-3 bg-white/10 backdrop-blur-sm rounded-lg">

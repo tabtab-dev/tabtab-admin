@@ -3,11 +3,11 @@
  * 分类管理页
  */
 import { ref, computed } from 'vue'
-import { TTable } from '@/components/data/TTable'
-import { TForm } from '@/components/data/TForm'
-import { TModal } from '@/components/data/TModal'
-import type { TableSchema, TTableExpose } from '@/components/data/TTable'
-import type { FormSchema } from '@/components/data/TForm'
+import { TTable } from '@/components/business/TTable'
+import { TForm } from '@/components/business/TForm'
+import { TModal } from '@/components/business/TModal'
+import type { TableSchema, TTableExpose } from '@/components/business/TTable'
+import type { FormSchema } from '@/components/business/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -22,6 +22,13 @@ import {
   Package,
   Tag
 } from 'lucide-vue-next'
+import { CATEGORY_STATUS } from '@/constants'
+
+interface TableSlotProps {
+  record: Category
+  text: any
+  index: number
+}
 
 const {
   data: categories,
@@ -65,7 +72,7 @@ const {
     const total = items.length
     const level1 = items.filter(c => c.level === 1).length
     const level2 = items.filter(c => c.level === 2).length
-    const active = items.filter(c => c.status === 'active').length
+    const active = items.filter(c => c.status === CATEGORY_STATUS.ACTIVE).length
 
     return {
       total,
@@ -123,8 +130,8 @@ const searchSchema: FormSchema = {
       placeholder: '全部状态',
       options: [
         { label: '全部状态', value: '' },
-        { label: '启用', value: 'active' },
-        { label: '禁用', value: 'inactive' }
+        { label: '启用', value: CATEGORY_STATUS.ACTIVE },
+        { label: '禁用', value: CATEGORY_STATUS.INACTIVE }
       ],
       className: 'w-[140px]'
     }
@@ -152,7 +159,6 @@ const searchSchema: FormSchema = {
 
 // 表格配置
 const tableRef = ref<TTableExpose>()
-
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
     {
@@ -223,7 +229,8 @@ const tableSchema = computed<TableSchema>(() => ({
   actionWidth: 150,
   actionFixed: 'right'
 }))
-// 一级分类列表（用于上级分类选择）
+
+// 一级分类列表（用于上级分类选择）
 const level1Categories = computed(() => {
   return categories.value.filter(c => c.level === 1)
 })
@@ -416,7 +423,7 @@ function handleEdit(item: Category) {
   isEditOpen.value = true
 }
 
-function handleEditSubmit(values: Record<string, any>) {
+async function handleEditSubmit(values: Record<string, any>) {
   if (editingItem.value) {
     categoriesApi.updateCategory(editingItem.value.id, {
       name: values.name,
@@ -539,16 +546,16 @@ async function handleBatchDelete() {
           <!-- 名称列 -->
           <template #name="slotProps">
             <div class="flex items-center gap-2">
-              <FolderTree v-if="(slotProps as any).record.level === 1" class="h-4 w-4 text-blue-500" />
+              <FolderTree v-if="(slotProps as TableSlotProps).record.level === 1" class="h-4 w-4 text-blue-500" />
               <Tag v-else class="h-4 w-4 text-orange-500" />
-              <span class="font-medium">{{ (slotProps as any).text }}</span>
+              <span class="font-medium">{{ (slotProps as TableSlotProps).text }}</span>
             </div>
           </template>
 
           <!-- 级别列 -->
           <template #level="slotProps">
-            <Badge :variant="(slotProps as any).text === 1 ? 'default' : 'secondary'">
-              {{ (slotProps as any).text === 1 ? '一级' : '二级' }}
+            <Badge :variant="(slotProps as TableSlotProps).text === 1 ? 'default' : 'secondary'">
+              {{ (slotProps as TableSlotProps).text === 1 ? '一级' : '二级' }}
             </Badge>
           </template>
 
@@ -556,12 +563,12 @@ async function handleBatchDelete() {
           <template #status="slotProps">
             <Badge
               :class="{
-                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as any).text === 'active',
-                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as any).text === 'inactive'
+                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableSlotProps).text === CATEGORY_STATUS.ACTIVE,
+                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as TableSlotProps).text === CATEGORY_STATUS.INACTIVE
               }"
               variant="outline"
             >
-              {{ (slotProps as any).text === 'active' ? '启用' : '禁用' }}
+              {{ (slotProps as TableSlotProps).text === CATEGORY_STATUS.ACTIVE ? '启用' : '禁用' }}
             </Badge>
           </template>
 

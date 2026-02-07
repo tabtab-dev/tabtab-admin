@@ -3,11 +3,11 @@
  * 仓库管理页
  */
 import { ref, computed } from 'vue'
-import { TTable } from '@/components/data/TTable'
-import { TForm } from '@/components/data/TForm'
-import { TModal } from '@/components/data/TModal'
-import type { TableSchema } from '@/components/data/TTable'
-import type { FormSchema } from '@/components/data/TForm'
+import { TTable } from '@/components/business/TTable'
+import { TForm } from '@/components/business/TForm'
+import { TModal } from '@/components/business/TModal'
+import type { TableSchema } from '@/components/business/TTable'
+import type { FormSchema } from '@/components/business/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -23,6 +23,13 @@ import {
   Package,
   TrendingUp
 } from 'lucide-vue-next'
+import { WAREHOUSE_STATUS } from '@/constants'
+
+interface TableSlotProps {
+  record: Warehouse
+  text: any
+  index: number
+}
 
 const {
   data: warehouses,
@@ -56,7 +63,7 @@ const {
   },
   statisticsFn: (items) => {
     const total = items.length
-    const active = items.filter(w => w.status === 'active').length
+    const active = items.filter(w => w.status === WAREHOUSE_STATUS.ACTIVE).length
     const totalCapacity = items.reduce((sum, w) => sum + w.capacity, 0)
     const usedCapacity = items.reduce((sum, w) => sum + w.usedCapacity, 0)
     const utilizationRate = totalCapacity > 0 ? Math.round((usedCapacity / totalCapacity) * 100) : 0
@@ -105,8 +112,8 @@ const searchSchema: FormSchema = {
       placeholder: '全部状态',
       options: [
         { label: '全部状态', value: '' },
-        { label: '运营中', value: 'active' },
-        { label: '已停用', value: 'inactive' }
+        { label: '运营中', value: WAREHOUSE_STATUS.ACTIVE },
+        { label: '已停用', value: WAREHOUSE_STATUS.INACTIVE }
       ],
       className: 'w-[140px]'
     }
@@ -479,34 +486,34 @@ function handleSelectChange(keys: (string | number)[]) {
           <template #name="slotProps">
             <div class="flex items-center gap-2">
               <Building class="h-4 w-4 text-blue-500" />
-              <span class="font-medium">{{ (slotProps as any).text }}</span>
+              <span class="font-medium">{{ (slotProps as TableSlotProps).text }}</span>
             </div>
           </template>
 
           <template #location="slotProps">
             <div class="flex items-center gap-1 text-sm">
               <MapPin class="h-3 w-3 text-muted-foreground" />
-              <span>{{ (slotProps as any).text }}</span>
+              <span>{{ (slotProps as TableSlotProps).text }}</span>
             </div>
           </template>
 
           <template #manager="slotProps">
             <div class="flex items-center gap-1 text-sm">
               <User class="h-3 w-3 text-muted-foreground" />
-              <span>{{ (slotProps as any).text }}</span>
+              <span>{{ (slotProps as TableSlotProps).text }}</span>
             </div>
           </template>
 
           <template #capacity="slotProps">
             <div class="space-y-1">
               <div class="flex justify-between text-xs">
-                <span>{{ (slotProps as any).record.usedCapacity }} / {{ (slotProps as any).text }}</span>
-                <span>{{ Math.round(((slotProps as any).record.usedCapacity / (slotProps as any).text) * 100) }}%</span>
+                <span>{{ (slotProps as TableSlotProps).record.usedCapacity }} / {{ (slotProps as TableSlotProps).text }}</span>
+                <span>{{ Math.round(((slotProps as TableSlotProps).record.usedCapacity / (slotProps as TableSlotProps).text) * 100) }}%</span>
               </div>
               <div class="h-1.5 bg-muted rounded-full overflow-hidden">
                 <div 
                   class="h-full bg-primary rounded-full"
-                  :style="{ width: `${Math.min(((slotProps as any).record.usedCapacity / (slotProps as any).text) * 100, 100)}%` }"
+                  :style="{ width: `${Math.min(((slotProps as TableSlotProps).record.usedCapacity / (slotProps as TableSlotProps).text) * 100, 100)}%` }"
                 />
               </div>
             </div>
@@ -515,12 +522,12 @@ function handleSelectChange(keys: (string | number)[]) {
           <template #status="slotProps">
             <Badge
               :class="{
-                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as any).text === 'active',
-                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as any).text === 'inactive'
+                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableSlotProps).text === WAREHOUSE_STATUS.ACTIVE,
+                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as TableSlotProps).text === WAREHOUSE_STATUS.INACTIVE
               }"
               variant="outline"
             >
-              {{ (slotProps as any).text === 'active' ? '运营中' : '已停用' }}
+              {{ (slotProps as TableSlotProps).text === WAREHOUSE_STATUS.ACTIVE ? '运营中' : '已停用' }}
             </Badge>
           </template>
 

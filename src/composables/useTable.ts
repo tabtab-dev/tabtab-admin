@@ -105,7 +105,9 @@ export function useTable<T = any>(options: UseTableOptions<T> = {}) {
   // 选择行
   const selectRow = (row: T, selected: boolean) => {
     if (selected) {
-      selectedRows.value.push(row);
+      if (!selectedRows.value.includes(row)) {
+        selectedRows.value.push(row);
+      }
     } else {
       const index = selectedRows.value.findIndex((r) => r === row);
       if (index > -1) {
@@ -117,7 +119,11 @@ export function useTable<T = any>(options: UseTableOptions<T> = {}) {
   // 全选/取消全选
   const selectAll = (rows: T[], selected: boolean) => {
     if (selected) {
-      selectedRows.value = [...new Set([...selectedRows.value, ...rows])];
+      rows.forEach(row => {
+        if (!selectedRows.value.includes(row)) {
+          selectedRows.value.push(row);
+        }
+      });
     } else {
       selectedRows.value = selectedRows.value.filter((r) => !rows.includes(r));
     }

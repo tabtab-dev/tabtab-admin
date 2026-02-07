@@ -117,8 +117,6 @@ export const useAuthStore = defineStore('auth', () => {
       token.value = storedToken;
       try {
         user.value = JSON.parse(storedUser);
-        // 可选：验证 Token 是否仍然有效
-        // await fetchCurrentUser();
       } catch (error) {
         console.error('Failed to parse stored user:', error);
         // 清除无效的存储数据

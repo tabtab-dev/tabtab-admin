@@ -5,11 +5,11 @@
  * @description 基于 JSON 配置化的订单管理页面
  */
 import { ref, computed } from 'vue'
-import { TTable } from '@/components/data/TTable'
-import { TForm } from '@/components/data/TForm'
-import { TModal } from '@/components/data/TModal'
-import type { TableSchema, TTableExpose } from '@/components/data/TTable'
-import type { FormSchema } from '@/components/data/TForm'
+import { TTable } from '@/components/business/TTable'
+import { TForm } from '@/components/business/TForm'
+import { TModal } from '@/components/business/TModal'
+import type { TableSchema, TTableExpose } from '@/components/business/TTable'
+import type { FormSchema } from '@/components/business/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -26,6 +26,14 @@ import {
   DollarSign
 } from 'lucide-vue-next'
 import { Tag, Space } from 'antdv-next'
+import { ORDER_STATUS, STATUS_CONFIG } from '@/constants'
+
+// ==================== 类型定义 ====================
+interface TableSlotProps {
+  record: Order
+  text: any
+  index: number
+}
 
 // ==================== 数据管理 ====================
 const {
@@ -65,10 +73,10 @@ const {
   },
   statisticsFn: (items) => {
     const total = items.length
-    const pending = items.filter(o => o.status === 'pending').length
-    const processing = items.filter(o => o.status === 'processing').length
-    const completed = items.filter(o => o.status === 'completed').length
-    const cancelled = items.filter(o => o.status === 'cancelled').length
+    const pending = items.filter(o => o.status === ORDER_STATUS.PENDING).length
+    const processing = items.filter(o => o.status === ORDER_STATUS.PROCESSING).length
+    const completed = items.filter(o => o.status === ORDER_STATUS.COMPLETED).length
+    const cancelled = items.filter(o => o.status === ORDER_STATUS.CANCELLED).length
     const totalAmount = items.reduce((sum, o) => sum + o.total, 0)
 
     return {
@@ -140,10 +148,10 @@ const searchSchema: FormSchema = {
       placeholder: '全部状态',
       options: [
         { label: '全部状态', value: '' },
-        { label: '待处理', value: 'pending' },
-        { label: '处理中', value: 'processing' },
-        { label: '已完成', value: 'completed' },
-        { label: '已取消', value: 'cancelled' }
+        { label: STATUS_CONFIG.ORDER.PENDING.text, value: STATUS_CONFIG.ORDER.PENDING.value },
+        { label: STATUS_CONFIG.ORDER.PROCESSING.text, value: STATUS_CONFIG.ORDER.PROCESSING.value },
+        { label: STATUS_CONFIG.ORDER.COMPLETED.text, value: STATUS_CONFIG.ORDER.COMPLETED.value },
+        { label: STATUS_CONFIG.ORDER.CANCELLED.text, value: STATUS_CONFIG.ORDER.CANCELLED.value }
       ],
       className: 'w-[140px]'
     }
@@ -172,15 +180,6 @@ const searchSchema: FormSchema = {
 // ==================== 表格配置 ====================
 const tableRef = ref<TTableExpose>()
 
-// 状态配置
-const statusConfig: Record<string, { color: string; text: string; icon: any }> = {
-  pending: { color: 'warning', text: '待处理', icon: Clock },
-  processing: { color: 'processing', text: '处理中', icon: Package },
-  completed: { color: 'success', text: '已完成', icon: CheckCircle },
-  cancelled: { color: 'error', text: '已取消', icon: XCircle }
-}
-
-// 表格 Schema
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
     {
@@ -214,10 +213,10 @@ const tableSchema = computed<TableSchema>(() => ({
       width: 120,
       slot: 'status',
       filters: [
-        { text: '待处理', value: 'pending' },
-        { text: '处理中', value: 'processing' },
-        { text: '已完成', value: 'completed' },
-        { text: '已取消', value: 'cancelled' }
+        { text: STATUS_CONFIG.ORDER.PENDING.text, value: STATUS_CONFIG.ORDER.PENDING.value },
+        { text: STATUS_CONFIG.ORDER.PROCESSING.text, value: STATUS_CONFIG.ORDER.PROCESSING.value },
+        { text: STATUS_CONFIG.ORDER.COMPLETED.text, value: STATUS_CONFIG.ORDER.COMPLETED.value },
+        { text: STATUS_CONFIG.ORDER.CANCELLED.text, value: STATUS_CONFIG.ORDER.CANCELLED.value }
       ]
     },
     {
@@ -284,7 +283,7 @@ const addFormData = ref({
   address: '',
   total: 0,
   items: 1,
-  status: 'pending' as Order['status'],
+  status: ORDER_STATUS.PENDING,
   note: ''
 })
 
@@ -345,10 +344,10 @@ const addSchema: FormSchema = {
       label: '订单状态',
       placeholder: '请选择状态',
       options: [
-        { label: '待处理', value: 'pending' },
-        { label: '处理中', value: 'processing' },
-        { label: '已完成', value: 'completed' },
-        { label: '已取消', value: 'cancelled' }
+        { label: STATUS_CONFIG.ORDER.PENDING.text, value: STATUS_CONFIG.ORDER.PENDING.value },
+        { label: STATUS_CONFIG.ORDER.PROCESSING.text, value: STATUS_CONFIG.ORDER.PROCESSING.value },
+        { label: STATUS_CONFIG.ORDER.COMPLETED.text, value: STATUS_CONFIG.ORDER.COMPLETED.value },
+        { label: STATUS_CONFIG.ORDER.CANCELLED.text, value: STATUS_CONFIG.ORDER.CANCELLED.value }
       ],
       rules: [{ required: true, message: '请选择订单状态' }]
     },
@@ -395,7 +394,7 @@ async function handleAddSubmit(values: Record<string, any>): Promise<void> {
     address: '',
     total: 0,
     items: 1,
-    status: 'pending',
+    status: ORDER_STATUS.PENDING,
     note: ''
   }
   await fetchData()
@@ -417,20 +416,6 @@ async function handleDeleteOrder(id: string): Promise<void> {
   await fetchData()
 }
 
-/**
- * 处理表格变化
- */
-function handleTableChange(
-  pagination: { current: number; pageSize: number; total: number },
-  filters: Record<string, (string | number | boolean)[] | null>,
-  sorter: any
-): void {
-  console.log('表格变化:', { pagination, filters, sorter })
-}
-
-/**
- * 处理行选择变化
- */
 const selectedRowKeys = ref<(string | number)[]>([])
 const selectedRows = ref<Order[]>([])
 
@@ -541,33 +526,32 @@ async function handleBatchDelete(): Promise<void> {
           ref="tableRef"
           v-model:data="tableData"
           :schema="tableSchema"
-          @change="handleTableChange"
           @select-change="handleSelectChange"
         >
           <!-- 自定义订单号列 -->
           <template #orderNo="slotProps">
-            <span class="font-mono font-medium">{{ (slotProps as any).text }}</span>
+            <span class="font-mono font-medium">{{ (slotProps as TableSlotProps).text }}</span>
           </template>
 
           <!-- 自定义客户列 -->
           <template #customer="slotProps">
             <Space direction="vertical" size="small">
-              <span class="font-medium">{{ (slotProps as any).record.customer }}</span>
-              <span class="text-xs text-muted-foreground">{{ (slotProps as any).record.phone }}</span>
+              <span class="font-medium">{{ (slotProps as TableSlotProps).record.customer }}</span>
+              <span class="text-xs text-muted-foreground">{{ (slotProps as TableSlotProps).record.phone }}</span>
             </Space>
           </template>
 
           <!-- 自定义金额列 -->
           <template #total="slotProps">
-            <span class="font-medium text-primary">¥{{ Number((slotProps as any).text).toFixed(2) }}</span>
+            <span class="font-medium text-primary">¥{{ Number((slotProps as TableSlotProps).text).toFixed(2) }}</span>
           </template>
 
           <!-- 自定义状态列 -->
           <template #status="slotProps">
-            <Tag :color="statusConfig[(slotProps as any).text]?.color || 'default'">
+            <Tag :color="(slotProps as TableSlotProps).text === ORDER_STATUS.PENDING ? 'warning' : (slotProps as TableSlotProps).text === ORDER_STATUS.PROCESSING ? 'processing' : (slotProps as TableSlotProps).text === ORDER_STATUS.COMPLETED ? 'success' : 'error'">
               <Space>
-                <component :is="statusConfig[(slotProps as any).text]?.icon" class="h-3 w-3" />
-                {{ statusConfig[(slotProps as any).text]?.text || (slotProps as any).text }}
+                <component :is="(slotProps as TableSlotProps).text === ORDER_STATUS.PENDING ? Clock : (slotProps as TableSlotProps).text === ORDER_STATUS.PROCESSING ? Package : (slotProps as TableSlotProps).text === ORDER_STATUS.COMPLETED ? CheckCircle : XCircle" class="h-3 w-3" />
+                {{ STATUS_CONFIG.ORDER[(slotProps as TableSlotProps).text as keyof typeof STATUS_CONFIG.ORDER]?.text || (slotProps as TableSlotProps).text }}
               </Space>
             </Tag>
           </template>
@@ -605,10 +589,10 @@ async function handleBatchDelete(): Promise<void> {
             <p class="text-sm text-muted-foreground">订单号</p>
             <p class="font-mono font-medium">{{ viewingOrder.orderNo }}</p>
           </div>
-          <Tag :color="statusConfig[viewingOrder.status]?.color || 'default'">
+          <Tag :color="(viewingOrder.status === ORDER_STATUS.PENDING ? 'warning' : viewingOrder.status === ORDER_STATUS.PROCESSING ? 'processing' : viewingOrder.status === ORDER_STATUS.COMPLETED ? 'success' : 'error')">
             <Space>
-              <component :is="statusConfig[viewingOrder.status]?.icon" class="h-3 w-3" />
-              {{ statusConfig[viewingOrder.status]?.text || viewingOrder.status }}
+              <component :is="(viewingOrder.status === ORDER_STATUS.PENDING ? Clock : viewingOrder.status === ORDER_STATUS.PROCESSING ? Package : viewingOrder.status === ORDER_STATUS.COMPLETED ? CheckCircle : XCircle)" class="h-3 w-3" />
+              {{ STATUS_CONFIG.ORDER[viewingOrder.status as keyof typeof STATUS_CONFIG.ORDER]?.text || viewingOrder.status }}
             </Space>
           </Tag>
         </div>

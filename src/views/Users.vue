@@ -5,20 +5,29 @@
  * @description 基于 JSON 配置化的用户管理页面
  */
 import { ref, computed } from 'vue'
-import { TTable } from '@/components/data/TTable'
-import { TForm } from '@/components/data/TForm'
-import type { TableSchema, TTableExpose } from '@/components/data/TTable'
-import type { FormSchema } from '@/components/data/TForm'
+import { TTable } from '@/components/business/TTable'
+import { TForm } from '@/components/business/TForm'
+import type { TableSchema, TTableExpose } from '@/components/business/TTable'
+import type { FormSchema } from '@/components/business/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { TModal } from '@/components/data/TModal'
+import { TModal } from '@/components/business/TModal'
 import { usersApi } from '@/api'
 import { useTableData } from '@/composables'
 import type { User } from '@/types/models'
 import { Plus, Users, UserCheck, UserCog, TrendingUp, Search } from 'lucide-vue-next'
 import { Avatar, Space, Tag } from 'antdv-next'
+import { USER_STATUS, USER_ROLES, STATUS_CONFIG } from '@/constants'
 
+// ==================== 类型定义 ====================
+interface TableSlotProps {
+  record: User
+  text: any
+  index: number
+}
+
+// ==================== 数据管理 ====================
 const {
   data: users,
   loading,
@@ -61,8 +70,8 @@ const {
   },
   statisticsFn: (items) => {
     const total = items.length
-    const active = items.filter(u => u.status === 'active').length
-    const admins = items.filter(u => u.role === 'admin').length
+    const active = items.filter(u => u.status === USER_STATUS.ACTIVE).length
+    const admins = items.filter(u => u.role === USER_ROLES.ADMIN).length
     const today = items.filter(u => {
       const created = new Date(u.createdAt)
       const now = new Date()
@@ -111,9 +120,9 @@ const searchSchema: FormSchema = {
       placeholder: '全部角色',
       options: [
         { label: '全部角色', value: '' },
-        { label: '管理员', value: 'admin' },
-        { label: '编辑', value: 'editor' },
-        { label: '查看者', value: 'viewer' }
+        { label: '管理员', value: USER_ROLES.ADMIN },
+        { label: '编辑', value: USER_ROLES.EDITOR },
+        { label: '查看者', value: USER_ROLES.VIEWER }
       ],
       className: 'w-[140px]'
     },
@@ -124,9 +133,9 @@ const searchSchema: FormSchema = {
       placeholder: '全部状态',
       options: [
         { label: '全部状态', value: '' },
-        { label: '活跃', value: 'active' },
-        { label: '非活跃', value: 'inactive' },
-        { label: '已暂停', value: 'suspended' }
+        { label: STATUS_CONFIG.USER.ACTIVE.text, value: STATUS_CONFIG.USER.ACTIVE.value },
+        { label: STATUS_CONFIG.USER.INACTIVE.text, value: STATUS_CONFIG.USER.INACTIVE.value },
+        { label: STATUS_CONFIG.USER.SUSPENDED.text, value: STATUS_CONFIG.USER.SUSPENDED.value }
       ],
       className: 'w-[140px]'
     }
@@ -155,18 +164,6 @@ const searchSchema: FormSchema = {
 
 const tableRef = ref<TTableExpose>()
 
-const roleLabels: Record<string, string> = {
-  admin: '管理员',
-  editor: '编辑',
-  viewer: '查看者'
-}
-
-const statusConfig: Record<string, { color: string; text: string }> = {
-  active: { color: 'success', text: '活跃' },
-  inactive: { color: 'default', text: '非活跃' },
-  suspended: { color: 'error', text: '已暂停' }
-}
-
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
     {
@@ -181,9 +178,9 @@ const tableSchema = computed<TableSchema>(() => ({
       width: 120,
       slot: 'role',
       filters: [
-        { text: '管理员', value: 'admin' },
-        { text: '编辑', value: 'editor' },
-        { text: '查看者', value: 'viewer' }
+        { text: '管理员', value: USER_ROLES.ADMIN },
+        { text: '编辑', value: USER_ROLES.EDITOR },
+        { text: '查看者', value: USER_ROLES.VIEWER }
       ]
     },
     {
@@ -192,9 +189,9 @@ const tableSchema = computed<TableSchema>(() => ({
       width: 100,
       slot: 'status',
       filters: [
-        { text: '活跃', value: 'active' },
-        { text: '非活跃', value: 'inactive' },
-        { text: '已暂停', value: 'suspended' }
+        { text: STATUS_CONFIG.USER.ACTIVE.text, value: STATUS_CONFIG.USER.ACTIVE.value },
+        { text: STATUS_CONFIG.USER.INACTIVE.text, value: STATUS_CONFIG.USER.INACTIVE.value },
+        { text: STATUS_CONFIG.USER.SUSPENDED.text, value: STATUS_CONFIG.USER.SUSPENDED.value }
       ]
     },
     {
@@ -245,16 +242,16 @@ const editingUser = ref<User | null>(null)
 const addFormData = ref({
   name: '',
   email: '',
-  role: 'viewer',
-  status: 'active'
+  role: USER_ROLES.VIEWER,
+  status: USER_STATUS.ACTIVE
 })
 
 const editFormData = ref({
   id: '',
   name: '',
   email: '',
-  role: 'viewer' as 'admin' | 'editor' | 'viewer',
-  status: 'active' as 'active' | 'inactive' | 'suspended'
+  role: USER_ROLES.VIEWER,
+  status: USER_STATUS.ACTIVE
 })
 
 const addSchema: FormSchema = {
@@ -288,9 +285,9 @@ const addSchema: FormSchema = {
       label: '角色',
       placeholder: '请选择角色',
       options: [
-        { label: '管理员', value: 'admin' },
-        { label: '编辑', value: 'editor' },
-        { label: '查看者', value: 'viewer' }
+        { label: '管理员', value: USER_ROLES.ADMIN },
+        { label: '编辑', value: USER_ROLES.EDITOR },
+        { label: '查看者', value: USER_ROLES.VIEWER }
       ],
       rules: [{ required: true, message: '请选择角色' }]
     },
@@ -300,9 +297,9 @@ const addSchema: FormSchema = {
       label: '状态',
       placeholder: '请选择状态',
       options: [
-        { label: '活跃', value: 'active' },
-        { label: '非活跃', value: 'inactive' },
-        { label: '已暂停', value: 'suspended' }
+        { label: STATUS_CONFIG.USER.ACTIVE.text, value: STATUS_CONFIG.USER.ACTIVE.value },
+        { label: STATUS_CONFIG.USER.INACTIVE.text, value: STATUS_CONFIG.USER.INACTIVE.value },
+        { label: STATUS_CONFIG.USER.SUSPENDED.text, value: STATUS_CONFIG.USER.SUSPENDED.value }
       ],
       rules: [{ required: true, message: '请选择状态' }]
     }
@@ -350,9 +347,9 @@ const editSchema: FormSchema = {
       label: '角色',
       placeholder: '请选择角色',
       options: [
-        { label: '管理员', value: 'admin' },
-        { label: '编辑', value: 'editor' },
-        { label: '查看者', value: 'viewer' }
+        { label: '管理员', value: USER_ROLES.ADMIN },
+        { label: '编辑', value: USER_ROLES.EDITOR },
+        { label: '查看者', value: USER_ROLES.VIEWER }
       ],
       rules: [{ required: true, message: '请选择角色' }]
     },
@@ -362,9 +359,9 @@ const editSchema: FormSchema = {
       label: '状态',
       placeholder: '请选择状态',
       options: [
-        { label: '活跃', value: 'active' },
-        { label: '非活跃', value: 'inactive' },
-        { label: '已暂停', value: 'suspended' }
+        { label: STATUS_CONFIG.USER.ACTIVE.text, value: STATUS_CONFIG.USER.ACTIVE.value },
+        { label: STATUS_CONFIG.USER.INACTIVE.text, value: STATUS_CONFIG.USER.INACTIVE.value },
+        { label: STATUS_CONFIG.USER.SUSPENDED.text, value: STATUS_CONFIG.USER.SUSPENDED.value }
       ],
       rules: [{ required: true, message: '请选择状态' }]
     }
@@ -392,8 +389,8 @@ async function handleAddSubmit(values: Record<string, any>): Promise<void> {
   addFormData.value = {
     name: '',
     email: '',
-    role: 'viewer',
-    status: 'active'
+    role: USER_ROLES.VIEWER,
+    status: USER_STATUS.ACTIVE
   }
   await fetchData()
 }
@@ -427,14 +424,6 @@ async function handleEditSubmit(values: Record<string, any>): Promise<void> {
 async function handleDeleteUser(id: string): Promise<void> {
   await usersApi.deleteUser(id)
   await fetchData()
-}
-
-function handleTableChange(
-  pagination: { current: number; pageSize: number; total: number },
-  filters: Record<string, (string | number | boolean)[] | null>,
-  sorter: any
-): void {
-  console.log('表格变化:', { pagination, filters, sorter })
 }
 
 const selectedRowKeys = ref<(string | number)[]>([])
@@ -533,41 +522,40 @@ async function handleBatchDelete(): Promise<void> {
           ref="tableRef"
           v-model:data="paginatedData"
           :schema="tableSchema"
-          @change="handleTableChange"
           @select-change="handleSelectChange"
         >
           <template #user="slotProps">
             <Space>
               <Avatar
                 :style="{
-                  backgroundColor: (slotProps as any).record.status === 'active' ? '#87d068' : '#ccc'
+                  backgroundColor: (slotProps as TableSlotProps).record.status === USER_STATUS.ACTIVE ? '#87d068' : '#ccc'
                 }"
               >
-                {{ (slotProps as any).record.name.charAt(0) }}
+                {{ (slotProps as TableSlotProps).record.name.charAt(0) }}
               </Avatar>
               <div>
-                <div class="font-medium">{{ (slotProps as any).record.name }}</div>
-                <div class="text-sm text-muted-foreground">{{ (slotProps as any).record.email }}</div>
+                <div class="font-medium">{{ (slotProps as TableSlotProps).record.name }}</div>
+                <div class="text-sm text-muted-foreground">{{ (slotProps as TableSlotProps).record.email }}</div>
               </div>
             </Space>
           </template>
 
           <template #role="slotProps">
-            <Tag :color="(slotProps as any).text === 'admin' ? 'red' : (slotProps as any).text === 'editor' ? 'blue' : 'default'">
-              {{ roleLabels[(slotProps as any).text] }}
+            <Tag :color="(slotProps as TableSlotProps).text === USER_ROLES.ADMIN ? 'red' : (slotProps as TableSlotProps).text === USER_ROLES.EDITOR ? 'blue' : 'default'">
+              {{ STATUS_CONFIG.USER[(slotProps as TableSlotProps).text as keyof typeof STATUS_CONFIG.USER]?.text || (slotProps as TableSlotProps).text }}
             </Tag>
           </template>
 
           <template #status="slotProps">
             <Badge
               :class="{
-                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as any).text === 'active',
-                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as any).text === 'inactive',
-                'bg-red-500/10 text-red-500 border-red-500/20': (slotProps as any).text === 'suspended'
+                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableSlotProps).text === USER_STATUS.ACTIVE,
+                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as TableSlotProps).text === USER_STATUS.INACTIVE,
+                'bg-red-500/10 text-red-500 border-red-500/20': (slotProps as TableSlotProps).text === USER_STATUS.SUSPENDED
               }"
               variant="outline"
             >
-              {{ statusConfig[(slotProps as any).text]?.text || (slotProps as any).text }}
+              {{ STATUS_CONFIG.USER[(slotProps as TableSlotProps).text as keyof typeof STATUS_CONFIG.USER]?.text || (slotProps as TableSlotProps).text }}
             </Badge>
           </template>
 

@@ -79,6 +79,7 @@ export default {
   // Header
   header: {
     search: 'Search...',
+    searchPlaceholder: 'Search menus...',
     searchShortcut: 'Search shortcut',
     notifications: 'Notifications',
     markAllRead: 'Mark all read',

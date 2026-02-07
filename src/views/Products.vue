@@ -5,11 +5,11 @@
  * @description 基于 JSON 配置化的商品管理页面
  */
 import { ref, computed } from 'vue'
-import { TTable } from '@/components/data/TTable'
-import { TForm } from '@/components/data/TForm'
-import { TModal } from '@/components/data/TModal'
-import type { TableSchema, TTableExpose } from '@/components/data/TTable'
-import type { FormSchema } from '@/components/data/TForm'
+import { TTable } from '@/components/business/TTable'
+import { TForm } from '@/components/business/TForm'
+import { TModal } from '@/components/business/TModal'
+import type { TableSchema, TTableExpose } from '@/components/business/TTable'
+import type { FormSchema } from '@/components/business/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -26,6 +26,23 @@ import {
   Layers
 } from 'lucide-vue-next'
 import { Space, Avatar } from 'antdv-next'
+import { PRODUCT_STATUS, STATUS_CONFIG, BUTTON_VARIANT } from '@/constants'
+
+// ==================== 类型定义 ====================
+interface ProductFormData {
+  id?: string
+  name: string
+  category: string
+  price: number
+  stock: number
+  description: string
+}
+
+interface TableSlotProps {
+  record: Product
+  text: any
+  index: number
+}
 
 // ==================== 数据管理 ====================
 const {
@@ -68,9 +85,9 @@ const {
   },
   statisticsFn: (items) => {
     const total = items.length
-    const active = items.filter(p => p.status === 'active').length
-    const lowStock = items.filter(p => p.status === 'low-stock').length
-    const outOfStock = items.filter(p => p.status === 'out-of-stock').length
+    const active = items.filter(p => p.status === PRODUCT_STATUS.ACTIVE).length
+    const lowStock = items.filter(p => p.status === PRODUCT_STATUS.LOW_STOCK).length
+    const outOfStock = items.filter(p => p.status === PRODUCT_STATUS.OUT_OF_STOCK).length
     const totalSales = items.reduce((sum, p) => sum + p.sales, 0)
     const totalStock = items.reduce((sum, p) => sum + p.stock, 0)
 
@@ -157,9 +174,9 @@ const searchSchema: FormSchema = {
       placeholder: '全部状态',
       options: [
         { label: '全部状态', value: '' },
-        { label: '在售', value: 'active' },
-        { label: '库存不足', value: 'low-stock' },
-        { label: '缺货', value: 'out-of-stock' }
+        { label: STATUS_CONFIG.PRODUCT.ACTIVE.text, value: STATUS_CONFIG.PRODUCT.ACTIVE.value },
+        { label: STATUS_CONFIG.PRODUCT.LOW_STOCK.text, value: STATUS_CONFIG.PRODUCT.LOW_STOCK.value },
+        { label: STATUS_CONFIG.PRODUCT.OUT_OF_STOCK.text, value: STATUS_CONFIG.PRODUCT.OUT_OF_STOCK.value }
       ],
       className: 'w-[140px]'
     }
@@ -188,13 +205,6 @@ const searchSchema: FormSchema = {
 
 // ==================== 表格配置 ====================
 const tableRef = ref<TTableExpose>()
-
-// 状态配置
-const statusConfig: Record<string, { color: string; text: string }> = {
-  active: { color: 'success', text: '在售' },
-  'low-stock': { color: 'warning', text: '库存不足' },
-  'out-of-stock': { color: 'error', text: '缺货' }
-}
 
 // 表格 Schema
 const tableSchema = computed<TableSchema>(() => ({
@@ -241,9 +251,9 @@ const tableSchema = computed<TableSchema>(() => ({
       width: 120,
       slot: 'status',
       filters: [
-        { text: '在售', value: 'active' },
-        { text: '库存不足', value: 'low-stock' },
-        { text: '缺货', value: 'out-of-stock' }
+        { text: STATUS_CONFIG.PRODUCT.ACTIVE.text, value: STATUS_CONFIG.PRODUCT.ACTIVE.value },
+        { text: STATUS_CONFIG.PRODUCT.LOW_STOCK.text, value: STATUS_CONFIG.PRODUCT.LOW_STOCK.value },
+        { text: STATUS_CONFIG.PRODUCT.OUT_OF_STOCK.text, value: STATUS_CONFIG.PRODUCT.OUT_OF_STOCK.value }
       ]
     }
   ],
@@ -288,10 +298,8 @@ const isAddDialogOpen = ref(false)
 const isEditDialogOpen = ref(false)
 const editingProduct = ref<Product | null>(null)
 
-
-
 // 新增表单数据
-const addFormData = ref({
+const addFormData = ref<ProductFormData>({
   name: '',
   category: '',
   price: 0,
@@ -300,7 +308,7 @@ const addFormData = ref({
 })
 
 // 编辑表单数据
-const editFormData = ref({
+const editFormData = ref<ProductFormData>({
   id: '',
   name: '',
   category: '',
@@ -309,8 +317,8 @@ const editFormData = ref({
   description: ''
 })
 
-// 新增表单 Schema
-const addSchema: FormSchema = {
+// 共享表单 Schema
+const productFormSchema: FormSchema = {
   layout: 'horizontal',
   labelCol: { span: 6 },
   wrapperCol: { span: 18 },
@@ -363,7 +371,12 @@ const addSchema: FormSchema = {
       label: '商品描述',
       placeholder: '请输入商品描述（可选）'
     }
-  ],
+  ]
+}
+
+// 新增表单 Schema
+const addSchema: FormSchema = {
+  ...productFormSchema,
   actions: {
     showSubmit: true,
     showReset: true,
@@ -378,59 +391,7 @@ const addSchema: FormSchema = {
 
 // 编辑表单 Schema
 const editSchema: FormSchema = {
-  layout: 'horizontal',
-  labelCol: { span: 6 },
-  wrapperCol: { span: 18 },
-  fields: [
-    {
-      name: 'name',
-      type: 'input',
-      label: '商品名称',
-      placeholder: '请输入商品名称',
-      rules: [
-        { required: true, message: '商品名称不能为空' },
-        { min: 2, message: '商品名称至少2个字符' }
-      ]
-    },
-    {
-      name: 'category',
-      type: 'select',
-      label: '分类',
-      placeholder: '请选择分类',
-      options: [
-        { label: '电子产品', value: '电子产品' },
-        { label: '配件', value: '配件' },
-        { label: '音频设备', value: '音频设备' }
-      ],
-      rules: [{ required: true, message: '请选择分类' }]
-    },
-    {
-      name: 'price',
-      type: 'number',
-      label: '价格',
-      placeholder: '请输入价格',
-      rules: [
-        { required: true, message: '价格不能为空' },
-        { type: 'number', min: 0, message: '价格不能为负数' }
-      ]
-    },
-    {
-      name: 'stock',
-      type: 'number',
-      label: '库存',
-      placeholder: '请输入库存数量',
-      rules: [
-        { required: true, message: '库存不能为空' },
-        { type: 'number', min: 0, message: '库存不能为负数' }
-      ]
-    },
-    {
-      name: 'description',
-      type: 'textarea',
-      label: '商品描述',
-      placeholder: '请输入商品描述（可选）'
-    }
-  ],
+  ...productFormSchema,
   actions: {
     showSubmit: true,
     showReset: true,
@@ -449,12 +410,13 @@ const editSchema: FormSchema = {
  * 处理新增商品提交
  */
 async function handleAddSubmit(values: Record<string, any>): Promise<void> {
+  const stock = Number(values.stock)
   await productsApi.createProduct({
     name: values.name,
     category: values.category,
     price: Number(values.price),
-    stock: Number(values.stock),
-    status: Number(values.stock) === 0 ? 'out-of-stock' : Number(values.stock) < 10 ? 'low-stock' : 'active',
+    stock,
+    status: stock === 0 ? PRODUCT_STATUS.OUT_OF_STOCK : stock < 10 ? PRODUCT_STATUS.LOW_STOCK : PRODUCT_STATUS.ACTIVE,
     sales: 0,
     description: values.description
   })
@@ -511,16 +473,7 @@ async function handleDeleteProduct(id: string): Promise<void> {
   await fetchData()
 }
 
-/**
- * 处理表格变化
- */
-function handleTableChange(
-  pagination: { current: number; pageSize: number; total: number },
-  filters: Record<string, (string | number | boolean)[] | null>,
-  sorter: any
-): void {
-  console.log('表格变化:', { pagination, filters, sorter })
-}
+
 
 /**
  * 处理行选择变化
@@ -565,14 +518,12 @@ async function handleBatchDelete(): Promise<void> {
 
     <!-- 新增商品弹窗 -->
     <TModal
-      ref="addModalRef"
       v-model:open="isAddDialogOpen"
       title="添加新商品"
       width="560"
       :footer="null"
     >
       <TForm
-        ref="formRef"
         v-model="addFormData"
         :schema="addSchema"
         @submit="handleAddSubmit"
@@ -581,7 +532,6 @@ async function handleBatchDelete(): Promise<void> {
 
     <!-- 编辑商品弹窗 -->
     <TModal
-      ref="editModalRef"
       v-model:open="isEditDialogOpen"
       title="编辑商品"
       width="560"
@@ -589,7 +539,6 @@ async function handleBatchDelete(): Promise<void> {
     >
       <TForm
         v-if="editingProduct"
-        ref="formRef"
         v-model="editFormData"
         :schema="editSchema"
         @submit="handleEditSubmit"
@@ -658,7 +607,6 @@ async function handleBatchDelete(): Promise<void> {
           ref="tableRef"
           v-model:data="tableData"
           :schema="tableSchema"
-          @change="handleTableChange"
           @select-change="handleSelectChange"
         >
           <!-- 自定义商品列 -->
@@ -672,15 +620,15 @@ async function handleBatchDelete(): Promise<void> {
                 <Package class="h-5 w-5" />
               </Avatar>
               <Space direction="vertical" size="small">
-                <span class="font-medium">{{ (slotProps as any).record.name }}</span>
-                <span class="text-xs text-muted-foreground font-mono">{{ (slotProps as any).record.sku }}</span>
+                <span class="font-medium">{{ (slotProps as TableSlotProps).record.name }}</span>
+                <span class="text-xs text-muted-foreground font-mono">{{ (slotProps as TableSlotProps).record.sku }}</span>
               </Space>
             </Space>
           </template>
 
           <!-- 自定义价格列 -->
           <template #price="slotProps">
-            <span class="font-medium text-primary">¥{{ Number((slotProps as any).text).toFixed(2) }}</span>
+            <span class="font-medium text-primary">¥{{ Number((slotProps as TableSlotProps).text).toFixed(2) }}</span>
           </template>
 
           <!-- 自定义库存列 -->
@@ -688,13 +636,13 @@ async function handleBatchDelete(): Promise<void> {
             <Space>
               <span :class="[
                 'font-medium',
-                (slotProps as any).record.stock === 0 ? 'text-red-500' :
-                (slotProps as any).record.stock < 10 ? 'text-yellow-500' : 'text-green-500'
+                (slotProps as TableSlotProps).record.stock === 0 ? 'text-red-500' :
+                (slotProps as TableSlotProps).record.stock < 10 ? 'text-yellow-500' : 'text-green-500'
               ]">
-                {{ (slotProps as any).text }}
+                {{ (slotProps as TableSlotProps).text }}
               </span>
               <TrendingUp
-                v-if="(slotProps as any).record.stock < 10"
+                v-if="(slotProps as TableSlotProps).record.stock < 10"
                 class="h-4 w-4 text-red-500"
               />
             </Space>
@@ -704,13 +652,13 @@ async function handleBatchDelete(): Promise<void> {
           <template #status="slotProps">
             <Badge
               :class="{
-                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as any).text === 'active',
-                'bg-yellow-500/10 text-yellow-500 border-yellow-500/20': (slotProps as any).text === 'low-stock',
-                'bg-red-500/10 text-red-500 border-red-500/20': (slotProps as any).text === 'out-of-stock'
+                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableSlotProps).text === PRODUCT_STATUS.ACTIVE,
+                'bg-yellow-500/10 text-yellow-500 border-yellow-500/20': (slotProps as TableSlotProps).text === PRODUCT_STATUS.LOW_STOCK,
+                'bg-red-500/10 text-red-500 border-red-500/20': (slotProps as TableSlotProps).text === PRODUCT_STATUS.OUT_OF_STOCK
               }"
               variant="outline"
             >
-              {{ statusConfig[(slotProps as any).text]?.text || (slotProps as any).text }}
+              {{ STATUS_CONFIG.PRODUCT[(slotProps as TableSlotProps).text as keyof typeof STATUS_CONFIG.PRODUCT]?.text || (slotProps as TableSlotProps).text }}
             </Badge>
           </template>
 

@@ -3,11 +3,11 @@
  * 物流管理页
  */
 import { ref, computed } from 'vue'
-import { TTable } from '@/components/data/TTable'
-import { TForm } from '@/components/data/TForm'
-import { TModal } from '@/components/data/TModal'
-import type { TableSchema } from '@/components/data/TTable'
-import type { FormSchema } from '@/components/data/TForm'
+import { TTable } from '@/components/business/TTable'
+import { TForm } from '@/components/business/TForm'
+import { TModal } from '@/components/business/TModal'
+import type { TableSchema } from '@/components/business/TTable'
+import type { FormSchema } from '@/components/business/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -18,6 +18,13 @@ import {
   CheckCircle,
   Star
 } from 'lucide-vue-next'
+import { WAREHOUSE_STATUS } from '@/constants'
+
+interface TableSlotProps {
+  record: LogisticsCompany
+  text: any
+  index: number
+}
 
 // 物流公司数据
 interface LogisticsCompany {
@@ -27,7 +34,7 @@ interface LogisticsCompany {
   contact: string
   phone: string
   address: string
-  status: 'active' | 'inactive'
+  status: WAREHOUSE_STATUS.ACTIVE | WAREHOUSE_STATUS.INACTIVE
   rating: number
   deliveryCount: number
   createdAt: string
@@ -122,8 +129,8 @@ const searchSchema: FormSchema = {
       placeholder: '全部状态',
       options: [
         { label: '全部状态', value: '' },
-        { label: '合作中', value: 'active' },
-        { label: '已停用', value: 'inactive' }
+        { label: '合作中', value: WAREHOUSE_STATUS.ACTIVE },
+        { label: '已停用', value: WAREHOUSE_STATUS.INACTIVE }
       ],
       className: 'w-[140px]'
     }
@@ -158,7 +165,6 @@ const filteredCompanies = computed(() => {
 })
 
 // 表格配置
-
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
     {
@@ -492,7 +498,7 @@ function handleSelectChange(keys: (string | number)[]) {
           <template #name="slotProps">
             <div class="flex items-center gap-2">
               <Truck class="h-4 w-4 text-blue-500" />
-              <span class="font-medium">{{ (slotProps as any).text }}</span>
+              <span class="font-medium">{{ (slotProps as TableSlotProps).text }}</span>
             </div>
           </template>
 
@@ -500,7 +506,7 @@ function handleSelectChange(keys: (string | number)[]) {
           <template #rating="slotProps">
             <div class="flex items-center gap-1">
               <Star class="h-3 w-3 text-yellow-500 fill-yellow-500" />
-              <span class="font-medium">{{ (slotProps as any).text }}</span>
+              <span class="font-medium">{{ (slotProps as TableSlotProps).text }}</span>
             </div>
           </template>
 
@@ -508,12 +514,12 @@ function handleSelectChange(keys: (string | number)[]) {
           <template #status="slotProps">
             <Badge
               :class="{
-                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as any).text === 'active',
-                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as any).text === 'inactive'
+                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableSlotProps).text === WAREHOUSE_STATUS.ACTIVE,
+                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as TableSlotProps).text === WAREHOUSE_STATUS.INACTIVE
               }"
               variant="outline"
             >
-              {{ (slotProps as any).text === 'active' ? '合作中' : '已停用' }}
+              {{ (slotProps as TableSlotProps).text === WAREHOUSE_STATUS.ACTIVE ? '合作中' : '已停用' }}
             </Badge>
           </template>
 

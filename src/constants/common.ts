@@ -60,3 +60,55 @@ export const WAREHOUSE_STATUS = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
 } as const;
+
+/** 分类状态 */
+export const CATEGORY_STATUS = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+} as const;
+
+/** 盘点状态 */
+export const STOCK_CHECK_STATUS = {
+  PENDING: 'pending',
+  CONFIRMED: 'confirmed',
+  ADJUSTED: 'adjusted',
+} as const;
+
+/** 活动类型 */
+export const ACTIVITY_TYPE = {
+  SUCCESS: 'success',
+  INFO: 'info',
+  WARNING: 'warning',
+  ERROR: 'error',
+} as const;
+
+/** 按钮变体 */
+export const BUTTON_VARIANT = {
+  PRIMARY: 'primary',
+  DEFAULT: 'default',
+  DANGER: 'danger',
+  LINK: 'link',
+} as const;
+
+/** 状态配置映射 */
+export const STATUS_CONFIG = {
+  /** 产品状态配置 */
+  PRODUCT: {
+    ACTIVE: { value: PRODUCT_STATUS.ACTIVE, text: '在售', color: 'success' },
+    LOW_STOCK: { value: PRODUCT_STATUS.LOW_STOCK, text: '库存不足', color: 'warning' },
+    OUT_OF_STOCK: { value: PRODUCT_STATUS.OUT_OF_STOCK, text: '缺货', color: 'error' },
+  },
+  /** 用户状态配置 */
+  USER: {
+    ACTIVE: { value: USER_STATUS.ACTIVE, text: '活跃', color: 'success' },
+    INACTIVE: { value: USER_STATUS.INACTIVE, text: '非活跃', color: 'default' },
+    SUSPENDED: { value: USER_STATUS.SUSPENDED, text: '已暂停', color: 'error' },
+  },
+  /** 订单状态配置 */
+  ORDER: {
+    PENDING: { value: ORDER_STATUS.PENDING, text: '待处理', color: 'warning' },
+    PROCESSING: { value: ORDER_STATUS.PROCESSING, text: '处理中', color: 'info' },
+    COMPLETED: { value: ORDER_STATUS.COMPLETED, text: '已完成', color: 'success' },
+    CANCELLED: { value: ORDER_STATUS.CANCELLED, text: '已取消', color: 'error' },
+  },
+} as const;

@@ -3,8 +3,8 @@ import { ref, h } from 'vue';
 import { useRouter } from 'vue-router';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { TForm } from '@/components/data/TForm';
-import type { FormSchema, TFormExpose } from '@/components/data/TForm';
+import { TForm } from '@/components/business/TForm';
+import type { FormSchema, TFormExpose } from '@/components/business/TForm';
 import { useAuthStore } from '@/stores/global/auth';
 import { useThemeStore } from '@/stores/global/theme';
 import {

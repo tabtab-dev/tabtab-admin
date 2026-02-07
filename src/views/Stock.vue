@@ -3,11 +3,11 @@
  * 库存盘点页
  */
 import { ref, computed } from 'vue'
-import { TTable } from '@/components/data/TTable'
-import { TForm } from '@/components/data/TForm'
-import { TModal } from '@/components/data/TModal'
-import type { TableSchema } from '@/components/data/TTable'
-import type { FormSchema } from '@/components/data/TForm'
+import { TTable } from '@/components/business/TTable'
+import { TForm } from '@/components/business/TForm'
+import { TModal } from '@/components/business/TModal'
+import type { TableSchema } from '@/components/business/TTable'
+import type { FormSchema } from '@/components/business/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -21,6 +21,13 @@ import {
   CheckCircle,
   History
 } from 'lucide-vue-next'
+import { STOCK_CHECK_STATUS } from '@/constants'
+
+interface TableSlotProps {
+  record: StockItem
+  text: any
+  index: number
+}
 
 const {
   data: stockItems,
@@ -340,32 +347,32 @@ function handleSelectChange(keys: (string | number)[]) {
         >
           <template #product="slotProps">
             <div>
-              <div class="font-medium">{{ (slotProps as any).text }}</div>
-              <div class="text-xs text-muted-foreground font-mono">{{ (slotProps as any).record.sku }}</div>
+              <div class="font-medium">{{ (slotProps as TableSlotProps).text }}</div>
+              <div class="text-xs text-muted-foreground font-mono">{{ (slotProps as TableSlotProps).record.sku }}</div>
             </div>
           </template>
 
           <template #difference="slotProps">
             <span :class="[
               'font-medium',
-              (slotProps as any).text > 0 ? 'text-green-500' : 
-              (slotProps as any).text < 0 ? 'text-red-500' : 'text-gray-500'
+              (slotProps as TableSlotProps).text > 0 ? 'text-green-500' : 
+              (slotProps as TableSlotProps).text < 0 ? 'text-red-500' : 'text-gray-500'
             ]">
-              {{ (slotProps as any).text > 0 ? '+' : '' }}{{ (slotProps as any).text }}
+              {{ (slotProps as TableSlotProps).text > 0 ? '+' : '' }}{{ (slotProps as TableSlotProps).text }}
             </span>
           </template>
 
           <template #status="slotProps">
             <Badge
               :class="{
-                'bg-yellow-500/10 text-yellow-500 border-yellow-500/20': (slotProps as any).text === 'pending',
-                'bg-purple-500/10 text-purple-500 border-purple-500/20': (slotProps as any).text === 'adjusted',
-                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as any).text === 'confirmed'
+                'bg-yellow-500/10 text-yellow-500 border-yellow-500/20': (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.PENDING,
+                'bg-purple-500/10 text-purple-500 border-purple-500/20': (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.ADJUSTED,
+                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.CONFIRMED
               }"
               variant="outline"
             >
-              {{ (slotProps as any).text === 'pending' ? '待确认' : 
-                 (slotProps as any).text === 'adjusted' ? '已调整' : '已确认' }}
+              {{ (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.PENDING ? '待确认' : 
+                 (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.ADJUSTED ? '已调整' : '已确认' }}
             </Badge>
           </template>
 

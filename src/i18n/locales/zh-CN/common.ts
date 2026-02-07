@@ -79,6 +79,7 @@ export default {
   // Header
   header: {
     search: '搜索...',
+    searchPlaceholder: '搜索菜单...',
     searchShortcut: '搜索快捷键',
     notifications: '消息通知',
     markAllRead: '全部已读',

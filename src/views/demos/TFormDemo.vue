@@ -6,8 +6,8 @@
  */
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { TForm } from '@/components/data/TForm'
-import type { FormSchema } from '@/components/data/TForm'
+import { TForm } from '@/components/business/TForm'
+import type { FormSchema } from '@/components/business/TForm'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
