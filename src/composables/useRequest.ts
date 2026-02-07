@@ -5,6 +5,7 @@
 import { useRequest, useFetcher } from 'alova/client';
 import type { Method } from 'alova';
 import type { Ref } from 'vue';
+import { toast } from 'vue-sonner';
 import { httpClient } from '@/api';
 
 /**
@@ -33,6 +34,8 @@ export interface UseMutationOptions<TVariables = any, TData = any> {
   onError?: (error: Error | null, variables: TVariables) => void;
   /** 完成回调 */
   onComplete?: () => void;
+  /** 成功提示消息，设为 false 则不显示 */
+  successMessage?: string | false;
 }
 
 /**
@@ -106,7 +109,7 @@ export function useQuery<T = any>(
 export function useMutation<TVariables = any, TData = any>(
   options: UseMutationOptions<TVariables, TData>
 ) {
-  const { mutationFn, onSuccess, onError, onComplete } = options;
+  const { mutationFn, onSuccess, onError, onComplete, successMessage = '操作成功' } = options;
 
   const { loading, send, abort } = useFetcher();
 
@@ -117,6 +120,10 @@ export function useMutation<TVariables = any, TData = any>(
         const error = new Error('操作失败');
         onError?.(error, variables);
         return null;
+      }
+      // 显示成功提示
+      if (successMessage !== false) {
+        toast.success(successMessage);
       }
       onSuccess?.(result, variables);
       return result;

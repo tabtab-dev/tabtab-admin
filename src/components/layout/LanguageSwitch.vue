@@ -8,11 +8,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Globe, Check } from 'lucide-vue-next';
+import { Globe, Check, Loader2 } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 
 /**
  * 语言切换组件
  * 支持下拉选择和直接切换两种模式
+ * 支持加载状态显示
  */
 
 const props = withDefaults(defineProps<{
@@ -38,19 +40,34 @@ const currentLocaleLabel = computed(() => {
 });
 
 /**
- * 切换语言
+ * 是否正在加载
  */
-const handleToggle = () => {
-  if (props.mode === 'toggle') {
-    localeStore.toggleLocale();
+const isLoading = computed(() => localeStore.isLoading);
+
+/**
+ * 切换语言（toggle 模式）
+ */
+const handleToggle = async () => {
+  if (props.mode === 'toggle' && !isLoading.value) {
+    const newLocale = await localeStore.toggleLocale();
+    if (newLocale) {
+      toast.success(`已切换至 ${localeStore.currentLocaleName}`);
+    } else {
+      toast.error('切换语言失败');
+    }
   }
 };
 
 /**
- * 选择语言
+ * 选择语言（dropdown 模式）
  */
-const handleSelect = (locale: string) => {
-  localeStore.changeLocale(locale as 'zh-CN' | 'en-US');
+const handleSelect = async (locale: string) => {
+  const success = await localeStore.changeLocale(locale as 'zh-CN' | 'en-US');
+  if (success) {
+    toast.success(`已切换至 ${localeStore.currentLocaleName}`);
+  } else {
+    toast.error(localeStore.error || '切换语言失败');
+  }
 };
 </script>
 
@@ -58,8 +75,14 @@ const handleSelect = (locale: string) => {
   <!-- 下拉菜单模式 -->
   <DropdownMenu v-if="mode === 'dropdown'">
     <DropdownMenuTrigger as-child>
-      <Button :variant="variant" :size="size" class="gap-2">
-        <Globe class="h-4 w-4" />
+      <Button
+        :variant="variant"
+        :size="size"
+        class="gap-2"
+        :disabled="isLoading"
+      >
+        <Loader2 v-if="isLoading" class="h-4 w-4 animate-spin" />
+        <Globe v-else class="h-4 w-4" />
         <span v-if="size !== 'icon'" class="hidden sm:inline">{{ currentLocaleLabel }}</span>
       </Button>
     </DropdownMenuTrigger>
@@ -69,6 +92,7 @@ const handleSelect = (locale: string) => {
         :key="locale.value"
         @click="handleSelect(locale.value)"
         class="cursor-pointer justify-between"
+        :disabled="isLoading"
       >
         <span>{{ locale.label }}</span>
         <Check
@@ -85,9 +109,11 @@ const handleSelect = (locale: string) => {
     :variant="variant"
     :size="size"
     class="gap-2"
+    :disabled="isLoading"
     @click="handleToggle"
   >
-    <Globe class="h-4 w-4" />
+    <Loader2 v-if="isLoading" class="h-4 w-4 animate-spin" />
+    <Globe v-else class="h-4 w-4" />
     <span v-if="size !== 'icon'" class="hidden sm:inline">{{ currentLocaleLabel }}</span>
   </Button>
 </template>

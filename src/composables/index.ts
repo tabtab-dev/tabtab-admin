@@ -3,7 +3,7 @@
  * @description 统一导出所有 Composables
  */
 
-export { useQuery, useMutation } from './useApi';
+export { useQuery, useMutation } from './useRequest';
 export { useTable } from './useTable';
 export { useForm } from './useForm';
 export { useTableData } from './useTableData';

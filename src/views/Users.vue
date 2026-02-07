@@ -86,6 +86,7 @@ const { mutate: createUser, loading: _creating } = useMutation({
     role: values.role,
     status: values.status
   }),
+  successMessage: '用户创建成功',
   onSuccess: () => {
     isAddDialogOpen.value = false
     addFormData.value = {
@@ -106,6 +107,7 @@ const { mutate: updateUser, loading: _updating } = useMutation({
       role: values.role,
       status: values.status
     }),
+  successMessage: '用户更新成功',
   onSuccess: () => {
     isEditDialogOpen.value = false
     editingUser.value = null
@@ -115,11 +117,13 @@ const { mutate: updateUser, loading: _updating } = useMutation({
 
 const { mutate: deleteUser, loading: _deleting } = useMutation({
   mutationFn: (id: string) => usersApi.deleteUser(id),
+  successMessage: '用户删除成功',
   onSuccess: () => fetchData()
 })
 
 const { mutate: batchDeleteUsers, loading: _batchDeleting } = useMutation({
   mutationFn: (ids: string[]) => usersApi.batchDeleteUsers(ids),
+  successMessage: '批量删除成功',
   onSuccess: () => {
     tableRef.value?.clearSelection()
     fetchData()
