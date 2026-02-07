@@ -9,6 +9,7 @@ import { menuApi } from '@/api';
 import type { MenuItem, RouteConfig } from '@/types/menu';
 import router from '@/router';
 import { convertToRouteRecords } from '@/router/routeMapping';
+import { flattenMenus, findMenuByPath } from '@/layouts/composables/useMenuUtils';
 
 export const useMenuStore = defineStore(
   'menu',
@@ -18,7 +19,7 @@ export const useMenuStore = defineStore(
     const routes = ref<RouteConfig[]>([]);
     const isLoading = ref(false);
     const isLoaded = ref(false);
-    
+
     // 记录已添加的动态路由名称，用于清理
     const addedRouteNames = ref<string[]>([]);
 
@@ -26,18 +27,7 @@ export const useMenuStore = defineStore(
     /**
      * 获取扁平化的菜单列表
      */
-    const flatMenus = computed(() => {
-      const flatten = (items: MenuItem[]): MenuItem[] => {
-        return items.reduce((acc: MenuItem[], item) => {
-          acc.push(item);
-          if (item.children) {
-            acc.push(...flatten(item.children));
-          }
-          return acc;
-        }, []);
-      };
-      return flatten(menus.value);
-    });
+    const flatMenus = computed(() => flattenMenus(menus.value));
 
     /**
      * 获取路由标题映射
@@ -99,7 +89,7 @@ export const useMenuStore = defineStore(
         if (!isExists) {
           // 路由不存在，添加到布局路由的子路由中
           router.addRoute('Root', route);
-          
+
           // 记录已添加的路由名称
           if (route.name && !addedRouteNames.value.includes(route.name as string)) {
             addedRouteNames.value.push(route.name as string);
@@ -120,7 +110,7 @@ export const useMenuStore = defineStore(
           console.warn(`[MenuStore] 移除路由失败: ${routeName}`, error);
         }
       });
-      
+
       // 清空记录
       addedRouteNames.value = [];
     };
@@ -131,7 +121,7 @@ export const useMenuStore = defineStore(
      * @returns 菜单项或 undefined
      */
     const getMenuByPath = (path: string): MenuItem | undefined => {
-      return flatMenus.value.find((menu) => menu.path === path);
+      return findMenuByPath(menus.value, path);
     };
 
     /**
@@ -149,7 +139,7 @@ export const useMenuStore = defineStore(
     const reset = () => {
       // 先移除动态路由
       removeDynamicRoutes();
-      
+
       // 重置状态
       menus.value = [];
       routes.value = [];

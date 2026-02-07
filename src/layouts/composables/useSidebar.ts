@@ -2,6 +2,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useWindowSize } from '@vueuse/core';
 import { defaultSidebarConfig, type SidebarConfig } from '@/components/layout/sidebar/config';
+import { useMenuUtils, createLRUCache } from './useMenuUtils';
 
 /**
  * 存储键名
@@ -40,6 +41,9 @@ export function useSidebar(config: SidebarConfig = defaultSidebarConfig) {
   const expandedKeys = ref<Set<string>>(new Set());
   const isDragging = ref(false);
 
+  // 使用统一的菜单工具函数
+  const menuUtils = useMenuUtils({ expandedKeys });
+
   // ============ 计算属性 ============
 
   /**
@@ -55,20 +59,6 @@ export function useSidebar(config: SidebarConfig = defaultSidebarConfig) {
   const currentSize = computed(() => {
     return collapsed.value ? pxToPercent(config.collapsedWidth) : size.value;
   });
-
-  /**
-   * 判断是否激活
-   */
-  const isActive = (path: string): boolean => {
-    return route.path === path || (path !== '/' && route.path.startsWith(path));
-  };
-
-  /**
-   * 判断是否展开
-   */
-  const isExpanded = (key: string): boolean => {
-    return expandedKeys.value.has(key);
-  };
 
   // ============ 方法 ============
 
@@ -160,6 +150,18 @@ export function useSidebar(config: SidebarConfig = defaultSidebarConfig) {
   };
 
   /**
+   * 展开当前激活菜单的所有父级
+   */
+  const expandToActive = (): void => {
+    const keys = menuUtils.getExpandedKeysByPath(config.menus);
+    keys.forEach((key) => {
+      expandedKeys.value.add(key);
+    });
+    expandedKeys.value = new Set(expandedKeys.value);
+    saveState();
+  };
+
+  /**
    * 保存状态到 localStorage
    */
   const saveState = (): void => {
@@ -184,11 +186,11 @@ export function useSidebar(config: SidebarConfig = defaultSidebarConfig) {
       if (saved) {
         const state: SidebarState = JSON.parse(saved);
         collapsed.value = state.collapsed ?? false;
-        
+
         const minSize = pxToPercent(config.minWidth);
         const maxSize = pxToPercent(config.maxWidth);
         size.value = Math.max(minSize, Math.min(maxSize, state.size ?? pxToPercent(config.defaultWidth)));
-        
+
         expandedKeys.value = new Set(state.expandedKeys ?? []);
       }
     } catch {
@@ -213,9 +215,8 @@ export function useSidebar(config: SidebarConfig = defaultSidebarConfig) {
     isDragging,
     config,
 
-    // 计算属性方法
-    isActive,
-    isExpanded,
+    // 菜单工具函数（统一使用）
+    ...menuUtils,
 
     // 操作方法
     toggleCollapse,
@@ -227,5 +228,6 @@ export function useSidebar(config: SidebarConfig = defaultSidebarConfig) {
     toggleSubMenu,
     expandSubMenu,
     collapseSubMenu,
+    expandToActive,
   };
 }

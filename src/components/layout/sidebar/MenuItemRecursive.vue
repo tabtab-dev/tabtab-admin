@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, ChevronRight } from 'lucide-vue-next';
 import { useMenuUtils, formatBadge } from '@/layouts/composables/useMenuUtils';
-import type { MenuItem } from './config';
+import type { SidebarMenuItem } from '@/types/menu';
 
 const { t } = useI18n();
 
@@ -15,7 +15,7 @@ const { t } = useI18n();
  */
 interface Props {
   /** 菜单项数据 */
-  item: MenuItem;
+  item: SidebarMenuItem;
   /** 是否折叠 */
   collapsed: boolean;
   /** 当前层级 */

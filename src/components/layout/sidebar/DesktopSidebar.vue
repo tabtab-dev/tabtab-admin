@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, watch, ref } from 'vue';
-import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import type { SplitterPanel } from 'reka-ui';
 import {
@@ -10,8 +9,9 @@ import {
 } from '@/components/ui/resizable';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useThemeStore } from '@/stores/global/theme';
-import { pxToPercent } from '@/layouts/composables/useMenuUtils';
-import type { MenuItem, SidebarConfig } from './config';
+import { pxToPercent, useMenuUtils } from '@/layouts/composables/useMenuUtils';
+import { getGroupTitleKey, groupMenus } from './config';
+import type { SidebarConfig, SidebarMenuItem } from '@/types/menu';
 import SidebarItem from './SidebarItem.vue';
 import SidebarSubMenu from './SidebarSubMenu.vue';
 import Logo from '../Logo.vue';
@@ -54,7 +54,6 @@ interface Emits {
 
 const emit = defineEmits<Emits>();
 
-const route = useRoute();
 const themeStore = useThemeStore();
 
 /**
@@ -90,37 +89,20 @@ const maxSizePercent = computed(() => pxToPercent(props.config.maxWidth, window.
 /**
  * 按分组组织的菜单
  */
-const groupedMenus = computed(() => {
-  const groups: Record<string, MenuItem[]> = {};
-  
-  props.config.menus.forEach(item => {
-    const group = item.group || 'default';
-    if (!groups[group]) {
-      groups[group] = [];
-    }
-    groups[group].push(item);
-  });
-  
-  return groups;
+const groupedMenus = computed(() => groupMenus(props.config.menus));
+
+/**
+ * 使用菜单工具函数
+ */
+const { isActive, isExpanded: checkExpanded } = useMenuUtils({
+  expandedKeys: computed(() => props.expandedKeys),
 });
 
 /**
- * 分组标题映射 - 使用 i18nKey
+ * 判断是否展开
  */
-const groupTitleKeys: Record<string, string> = {
-  main: 'menu.groupMain',
-  analytics: 'menu.groupAnalytics',
-  system: 'menu.groupSystem',
-  default: 'menu.groupMain',
-};
-
-/**
- * 获取分组标题
- * @param groupKey 分组 key
- * @returns 翻译后的标题
- */
-const getGroupTitle = (groupKey: string): string => {
-  return t(groupTitleKeys[groupKey] || groupTitleKeys.default);
+const isExpanded = (key: string): boolean => {
+  return checkExpanded(key);
 };
 
 /**
@@ -142,22 +124,17 @@ const handleToggleSubMenu = (key: string): void => {
 /**
  * 判断是否有子菜单
  */
-const hasChildren = (item: MenuItem): boolean => {
+const hasChildren = (item: SidebarMenuItem): boolean => {
   return !!item.children && item.children.length > 0;
 };
 
 /**
- * 判断是否激活
+ * 获取分组标题
+ * @param groupKey 分组 key
+ * @returns 翻译后的标题
  */
-const isActive = (path: string): boolean => {
-  return route.path === path || (path !== '/' && route.path.startsWith(path));
-};
-
-/**
- * 判断是否展开
- */
-const isExpanded = (key: string): boolean => {
-  return props.expandedKeys.has(key);
+const getGroupTitle = (groupKey: string): string => {
+  return t(getGroupTitleKey(groupKey));
 };
 
 /**

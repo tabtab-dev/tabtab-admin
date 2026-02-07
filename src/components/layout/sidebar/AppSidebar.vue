@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue';
+import { computed, watch, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMediaQuery } from '@vueuse/core';
 import { useSidebar } from '@/layouts/composables/useSidebar';
 import { useThemeStore } from '@/stores/global/theme';
 import { useMenuStore } from '@/stores/global/menu';
-import { defaultSidebarConfig, convertMenuItem } from './config';
+import { defaultSidebarConfig, convertMenuItems } from './config';
+import type { SidebarMenuItem } from '@/types/menu';
 import DesktopSidebar from './DesktopSidebar.vue';
 import MobileSidebar from './MobileSidebar.vue';
 
@@ -35,14 +36,36 @@ const emit = defineEmits<{
 }>();
 
 /**
- * 将 API 菜单数据转换为 Sidebar 配置
+ * 转换后的菜单数据
  */
-const sidebarMenus = computed(() => {
-  return menuStore.menus.map(menu => convertMenuItem(menu));
-});
+const sidebarMenus = ref<SidebarMenuItem[]>([]);
 
 /**
- * 动态侧栏配置
+ * 是否正在加载图标
+ */
+const isLoadingIcons = ref(false);
+
+/**
+ * 异步转换菜单数据
+ */
+const loadMenus = async () => {
+  if (menuStore.menus.length === 0) {
+    sidebarMenus.value = [];
+    return;
+  }
+
+  isLoadingIcons.value = true;
+  try {
+    sidebarMenus.value = await convertMenuItems(menuStore.menus);
+  } catch (error) {
+    console.error('[AppSidebar] Failed to load menus:', error);
+  } finally {
+    isLoadingIcons.value = false;
+  }
+};
+
+/**
+ * 动态侧栏配置 - 使用 computed 确保响应式
  */
 const dynamicSidebarConfig = computed(() => ({
   ...defaultSidebarConfig,
@@ -60,9 +83,9 @@ const sidebarState = useSidebar(dynamicSidebarConfig.value);
 watch(
   () => menuStore.menus,
   () => {
-    sidebarState.config.menus = sidebarMenus.value;
+    loadMenus();
   },
-  { deep: true }
+  { deep: true, immediate: true }
 );
 
 /**
@@ -79,7 +102,6 @@ const collapsed = computed({
 const {
   currentSize,
   isDragging,
-  config,
   expandedKeys,
   setSize,
   startDrag,
@@ -126,7 +148,7 @@ const handleNavigate = (path: string): void => {
     <!-- 桌面端侧栏 - 仅在桌面端渲染 -->
     <DesktopSidebar
       v-if="isDesktop"
-      :config="config"
+      :config="dynamicSidebarConfig"
       :collapsed="collapsed"
       :current-size="currentSize"
       :is-dragging="isDragging"
@@ -142,7 +164,7 @@ const handleNavigate = (path: string): void => {
     <!-- 移动端侧栏 - 仅在移动端渲染 -->
     <MobileSidebar
       v-else
-      :config="config"
+      :config="dynamicSidebarConfig"
       :expanded-keys="expandedKeys"
       @toggle-sub-menu="toggleSubMenu"
       @navigate="handleNavigate"

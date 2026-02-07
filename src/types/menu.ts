@@ -2,9 +2,11 @@
  * 菜单类型定义
  * @description 定义菜单相关的类型接口
  */
+import type { Component } from 'vue';
 
 /**
- * 菜单项类型
+ * 基础菜单项类型
+ * 用于 API 返回的数据结构
  */
 export interface MenuItem {
   /** 唯一标识 */
@@ -31,6 +33,43 @@ export interface MenuItem {
   component?: string;
   /** 是否在菜单中隐藏 */
   hidden?: boolean;
+  /** 权限码列表（用于权限控制） */
+  permissions?: string[];
+  /** 角色列表（用于角色控制） */
+  roles?: string[];
+}
+
+/**
+ * 侧边栏菜单项类型
+ * 用于 Sidebar 组件内部，包含图标组件
+ */
+export interface SidebarMenuItem {
+  /** 唯一标识 */
+  key: string;
+  /** 菜单标题（显示用，实际使用 i18nKey 翻译） */
+  title: string;
+  /** 路由路径 */
+  path: string;
+  /** 图标组件 */
+  icon?: Component;
+  /** 徽标数量（可选） */
+  badge?: number;
+  /** 子菜单 */
+  children?: SidebarMenuItem[];
+  /** 菜单分组 */
+  group?: string;
+  /** 是否禁用 */
+  disabled?: boolean;
+  /** 是否默认展开 */
+  defaultExpanded?: boolean;
+  /** i18n 翻译 key */
+  i18nKey: string;
+  /** 是否在菜单中隐藏 */
+  hidden?: boolean;
+  /** 权限码列表（用于权限控制） */
+  permissions?: string[];
+  /** 角色列表（用于角色控制） */
+  roles?: string[];
 }
 
 /**
@@ -51,6 +90,10 @@ export interface RouteConfig {
     requiresAuth?: boolean;
     /** 图标 */
     icon?: string;
+    /** 权限码列表 */
+    permissions?: string[];
+    /** 角色列表 */
+    roles?: string[];
   };
   /** 子路由 */
   children?: RouteConfig[];
@@ -71,7 +114,7 @@ export interface MenuResponse {
  */
 export interface SidebarConfig {
   /** 菜单列表 */
-  menus: MenuItem[];
+  menus: SidebarMenuItem[];
   /** 折叠状态宽度（px） */
   collapsedWidth: number;
   /** 展开状态最小宽度（px） */
@@ -80,4 +123,16 @@ export interface SidebarConfig {
   maxWidth: number;
   /** 默认展开宽度（px） */
   defaultWidth: number;
+}
+
+/**
+ * 菜单分组配置
+ */
+export interface MenuGroup {
+  /** 分组 key */
+  key: string;
+  /** 分组标题 i18n key */
+  titleKey: string;
+  /** 分组排序 */
+  order?: number;
 }

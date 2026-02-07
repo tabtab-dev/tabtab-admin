@@ -9,7 +9,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useMenuUtils, formatBadge, getButtonVariant, getIconClass } from '@/layouts/composables/useMenuUtils';
-import type { MenuItem } from './config';
+import type { SidebarMenuItem } from '@/types/menu';
 
 const { t } = useI18n();
 
@@ -18,7 +18,7 @@ const { t } = useI18n();
  */
 interface Props {
   /** 菜单项数据 */
-  item: MenuItem;
+  item: SidebarMenuItem;
   /** 是否折叠 */
   collapsed: boolean;
   /** 是否激活 */
