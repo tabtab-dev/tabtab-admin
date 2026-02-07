@@ -628,238 +628,191 @@ export const defaultLayoutConfig: LayoutConfig = {
   showBreadcrumb: true,
 };
 
-/**
- * 本地存储键名
- */
-const STORAGE_KEY = 'app-theme-config';
+export const useThemeStore = defineStore(
+  'theme',
+  () => {
+    /** 当前主题 */
+    const currentTheme = ref<string>('default');
+    /** 当前模式 */
+    const currentMode = ref<'light' | 'dark'>('light');
+    /** 布局配置 */
+    const layoutConfig = ref<LayoutConfig>({ ...defaultLayoutConfig });
 
-/**
- * 从本地存储加载配置
- */
-const loadFromStorage = () => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch {
-    // 忽略解析错误
-  }
-  return null;
-};
-
-/**
- * 保存到本地存储
- */
-const saveToStorage = (config: {
-  theme: string;
-  mode: 'light' | 'dark';
-  layout: LayoutConfig;
-}) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
-  } catch {
-    // 忽略存储错误
-  }
-};
-
-export const useThemeStore = defineStore('theme', () => {
-  // 加载存储的配置
-  const storedConfig = loadFromStorage();
-
-  /** 当前主题 */
-  const currentTheme = ref<string>(storedConfig?.theme ?? 'default');
-  /** 当前模式 */
-  const currentMode = ref<'light' | 'dark'>(storedConfig?.mode ?? 'light');
-  /** 布局配置 */
-  const layoutConfig = ref<LayoutConfig>({
-    ...defaultLayoutConfig,
-    ...storedConfig?.layout,
-  });
-
-  /** 当前主题颜色 */
-  const currentColors = computed(() => {
-    const theme = presetThemes[currentTheme.value];
-    return theme?.colors[currentMode.value] || presetThemes.default?.colors.light;
-  });
-
-  /** 所有可用主题 */
-  const availableThemes = computed(() => {
-    return Object.entries(presetThemes).map(([key, value]) => ({
-      key,
-      name: value.name,
-    }));
-  });
-
-  /**
-   * 应用主题颜色到 CSS 变量
-   */
-  const applyThemeColors = () => {
-    const colors = currentColors.value;
-    if (!colors) return;
-    const root = document.documentElement;
-
-    root.style.setProperty('--primary', colors.primary);
-    root.style.setProperty('--primary-foreground', colors.primaryForeground);
-    root.style.setProperty('--secondary', colors.secondary);
-    root.style.setProperty('--secondary-foreground', colors.secondaryForeground);
-    root.style.setProperty('--accent', colors.accent);
-    root.style.setProperty('--accent-foreground', colors.accentForeground);
-    root.style.setProperty('--background', colors.background);
-    root.style.setProperty('--foreground', colors.foreground);
-    root.style.setProperty('--card', colors.card);
-    root.style.setProperty('--card-foreground', colors.cardForeground);
-    root.style.setProperty('--popover', colors.popover);
-    root.style.setProperty('--popover-foreground', colors.popoverForeground);
-    root.style.setProperty('--muted', colors.muted);
-    root.style.setProperty('--muted-foreground', colors.mutedForeground);
-    root.style.setProperty('--border', colors.border);
-    root.style.setProperty('--input', colors.input);
-    root.style.setProperty('--ring', colors.ring);
-    root.style.setProperty('--destructive', colors.destructive);
-  };
-
-  /**
-   * 应用布局配置
-   */
-  const applyLayoutConfig = () => {
-    const config = layoutConfig.value;
-    const root = document.documentElement;
-
-    root.style.setProperty('--radius', `${config.radius}rem`);
-    root.style.setProperty('--sidebar-width', `${config.sidebarWidth}px`);
-    root.style.setProperty('--sidebar-collapsed-width', `${config.sidebarCollapsedWidth}px`);
-    root.style.setProperty('--header-height', `${config.headerHeight}px`);
-
-    // 应用字体大小
-    const fontSizeMap = {
-      sm: '14px',
-      base: '16px',
-      lg: '18px',
-    };
-    root.style.setProperty('--font-size-base', fontSizeMap[config.fontSize]);
-
-    // 应用动画开关
-    if (config.animations) {
-      root.classList.remove('reduce-motion');
-    } else {
-      root.classList.add('reduce-motion');
-    }
-  };
-
-  /**
-   * 保存当前配置
-   */
-  const persistConfig = () => {
-    saveToStorage({
-      theme: currentTheme.value,
-      mode: currentMode.value,
-      layout: layoutConfig.value,
+    /** 当前主题颜色 */
+    const currentColors = computed(() => {
+      const theme = presetThemes[currentTheme.value];
+      return theme?.colors[currentMode.value] || presetThemes.default?.colors.light;
     });
-  };
 
-  /**
-   * 设置主题
-   */
-  const setTheme = (theme: string) => {
-    if (presetThemes[theme]) {
-      currentTheme.value = theme;
+    /** 所有可用主题 */
+    const availableThemes = computed(() => {
+      return Object.entries(presetThemes).map(([key, value]) => ({
+        key,
+        name: value.name,
+      }));
+    });
+
+    /**
+     * 应用主题颜色到 CSS 变量
+     */
+    const applyThemeColors = () => {
+      const colors = currentColors.value;
+      if (!colors) return;
+      const root = document.documentElement;
+
+      root.style.setProperty('--primary', colors.primary);
+      root.style.setProperty('--primary-foreground', colors.primaryForeground);
+      root.style.setProperty('--secondary', colors.secondary);
+      root.style.setProperty('--secondary-foreground', colors.secondaryForeground);
+      root.style.setProperty('--accent', colors.accent);
+      root.style.setProperty('--accent-foreground', colors.accentForeground);
+      root.style.setProperty('--background', colors.background);
+      root.style.setProperty('--foreground', colors.foreground);
+      root.style.setProperty('--card', colors.card);
+      root.style.setProperty('--card-foreground', colors.cardForeground);
+      root.style.setProperty('--popover', colors.popover);
+      root.style.setProperty('--popover-foreground', colors.popoverForeground);
+      root.style.setProperty('--muted', colors.muted);
+      root.style.setProperty('--muted-foreground', colors.mutedForeground);
+      root.style.setProperty('--border', colors.border);
+      root.style.setProperty('--input', colors.input);
+      root.style.setProperty('--ring', colors.ring);
+      root.style.setProperty('--destructive', colors.destructive);
+    };
+
+    /**
+     * 应用布局配置
+     */
+    const applyLayoutConfig = () => {
+      const config = layoutConfig.value;
+      const root = document.documentElement;
+
+      root.style.setProperty('--radius', `${config.radius}rem`);
+      root.style.setProperty('--sidebar-width', `${config.sidebarWidth}px`);
+      root.style.setProperty('--sidebar-collapsed-width', `${config.sidebarCollapsedWidth}px`);
+      root.style.setProperty('--header-height', `${config.headerHeight}px`);
+
+      // 应用字体大小
+      const fontSizeMap = {
+        sm: '14px',
+        base: '16px',
+        lg: '18px',
+      };
+      root.style.setProperty('--font-size-base', fontSizeMap[config.fontSize]);
+
+      // 应用动画开关
+      if (config.animations) {
+        root.classList.remove('reduce-motion');
+      } else {
+        root.classList.add('reduce-motion');
+      }
+    };
+
+    /**
+     * 设置主题
+     */
+    const setTheme = (theme: string) => {
+      if (presetThemes[theme]) {
+        currentTheme.value = theme;
+        applyThemeColors();
+      }
+    };
+
+    /**
+     * 设置模式
+     */
+    const setMode = (mode: 'light' | 'dark') => {
+      currentMode.value = mode;
+      document.documentElement.classList.toggle('dark', mode === 'dark');
       applyThemeColors();
-      persistConfig();
-    }
-  };
+    };
 
-  /**
-   * 设置模式
-   */
-  const setMode = (mode: 'light' | 'dark') => {
-    currentMode.value = mode;
-    document.documentElement.classList.toggle('dark', mode === 'dark');
-    applyThemeColors();
-    persistConfig();
-  };
-
-  /**
-   * 切换模式（支持 view-transition）
-   */
-  const toggleMode = async () => {
-    const newMode = currentMode.value === 'light' ? 'dark' : 'light';
-    
-    // 检查是否支持 view-transition API
-    if ('startViewTransition' in document) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const transition = (document as any).startViewTransition(() => {
+    /**
+     * 切换模式（支持 view-transition）
+     */
+    const toggleMode = async () => {
+      const newMode = currentMode.value === 'light' ? 'dark' : 'light';
+      
+      // 检查是否支持 view-transition API
+      if ('startViewTransition' in document) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const transition = (document as any).startViewTransition(() => {
+          setMode(newMode);
+        });
+        
+        await transition.ready;
+        
+        // 添加自定义动画效果
+        document.documentElement.animate(
+          [
+            { clipPath: 'circle(0% at 50% 50%)' },
+            { clipPath: 'circle(150% at 50% 50%)' },
+          ],
+          {
+            duration: 500,
+            easing: 'ease-in-out',
+            pseudoElement: '::view-transition-new(root)',
+          }
+        );
+      } else {
+        // 降级处理：直接切换
         setMode(newMode);
-      });
-      
-      await transition.ready;
-      
-      // 添加自定义动画效果
-      document.documentElement.animate(
-        [
-          { clipPath: 'circle(0% at 50% 50%)' },
-          { clipPath: 'circle(150% at 50% 50%)' },
-        ],
-        {
-          duration: 500,
-          easing: 'ease-in-out',
-          pseudoElement: '::view-transition-new(root)',
-        }
-      );
-    } else {
-      // 降级处理：直接切换
-      setMode(newMode);
-    }
-  };
+      }
+    };
 
-  /**
-   * 更新布局配置
-   */
-  const updateLayoutConfig = (config: Partial<LayoutConfig>) => {
-    layoutConfig.value = { ...layoutConfig.value, ...config };
-    applyLayoutConfig();
-    persistConfig();
-  };
+    /**
+     * 更新布局配置
+     */
+    const updateLayoutConfig = (config: Partial<LayoutConfig>) => {
+      layoutConfig.value = { ...layoutConfig.value, ...config };
+      applyLayoutConfig();
+    };
 
-  /**
-   * 重置布局配置
-   */
-  const resetLayoutConfig = () => {
-    layoutConfig.value = { ...defaultLayoutConfig };
-    applyLayoutConfig();
-    persistConfig();
-  };
+    /**
+     * 重置布局配置
+     */
+    const resetLayoutConfig = () => {
+      layoutConfig.value = { ...defaultLayoutConfig };
+      applyLayoutConfig();
+    };
 
-  // 初始化
-  const init = () => {
-    applyThemeColors();
-    applyLayoutConfig();
-  };
+    // 初始化
+    const init = () => {
+      applyThemeColors();
+      applyLayoutConfig();
+    };
 
-  // 监听主题变化
-  watch([currentTheme, currentMode], () => {
-    applyThemeColors();
-  }, { immediate: true });
+    // 监听主题变化
+    watch([currentTheme, currentMode], () => {
+      applyThemeColors();
+    }, { immediate: true });
 
-  // 监听布局配置变化
-  watch(layoutConfig, () => {
-    applyLayoutConfig();
-  }, { deep: true, immediate: true });
+    // 监听布局配置变化
+    watch(layoutConfig, () => {
+      applyLayoutConfig();
+    }, { deep: true, immediate: true });
 
-  return {
-    currentTheme,
-    currentMode,
-    layoutConfig,
-    currentColors,
-    availableThemes,
-    setTheme,
-    setMode,
-    toggleMode,
-    updateLayoutConfig,
-    resetLayoutConfig,
-    init,
-  };
-});
+    return {
+      currentTheme,
+      currentMode,
+      layoutConfig,
+      currentColors,
+      availableThemes,
+      setTheme,
+      setMode,
+      toggleMode,
+      updateLayoutConfig,
+      resetLayoutConfig,
+      init,
+    };
+  },
+  {
+    persist: {
+      key: 'app-theme-config',
+      paths: ['currentTheme', 'currentMode', 'layoutConfig'],
+    },
+  }
+);
 
 if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(useThemeStore, import.meta.hot));

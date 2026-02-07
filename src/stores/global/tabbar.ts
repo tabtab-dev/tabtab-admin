@@ -91,52 +91,13 @@ const saveToStorage = (tabs: TabItem[], activeTab: string) => {
 };
 
 /**
- * 为标签项恢复图标
- * @param tabs 标签列表
- * @returns 恢复图标后的标签列表
- */
-const restoreIcons = (tabs: SerializableTabItem[]): TabItem[] => {
-  return tabs.map(tab => ({
-    ...tab,
-    icon: findIconFromMenu(tab.path),
-  }));
-};
-
-/**
- * 从菜单配置中查找图标
- * @param path 路由路径
- * @returns 图标组件
- */
-const findIconFromMenu = (path: string): Component | undefined => {
-  // 从 menuStore 中获取菜单数据
-  const menuStore = useMenuStore();
-  
-  // 遍历所有菜单项查找匹配的图标
-  const findInMenus = (menus: typeof menuStore.menus): Component | undefined => {
-    for (const menu of menus) {
-      if (menu.path === path) {
-        // 菜单项中的 icon 是字符串名称，需要通过 getIcon 函数转换为组件
-        return getIconComponent(menu.icon);
-      }
-      if (menu.children) {
-        const found = findInMenus(menu.children);
-        if (found) return found;
-      }
-    }
-    return undefined;
-  };
-
-  return findInMenus(menuStore.menus);
-};
-
-/**
  * 根据图标名称获取图标组件
  * @param iconName 图标名称
  * @returns 图标组件或 undefined
  */
 const getIconComponent = (iconName?: string): Component | undefined => {
   if (!iconName) return undefined;
-  
+
   // 图标映射表
   const iconMap: Record<string, Component> = {
     LayoutDashboard,
@@ -163,16 +124,56 @@ const getIconComponent = (iconName?: string): Component | undefined => {
     MessageSquare,
     PanelRight,
   };
-  
+
   // 使用 markRaw 避免组件被 Vue 响应式系统处理，提高性能
   const icon = iconMap[iconName];
   return icon ? markRaw(icon) : undefined;
 };
 
 /**
- * 默认固定标签（首页）
+ * 从菜单配置中查找图标
+ * @param path 路由路径
+ * @returns 图标组件
  */
-const defaultFixedTabs: TabItem[] = [
+const findIconFromMenu = (path: string): Component | undefined => {
+  // 从 menuStore 中获取菜单数据
+  const menuStore = useMenuStore();
+
+  // 遍历所有菜单项查找匹配的图标
+  const findInMenus = (menus: typeof menuStore.menus): Component | undefined => {
+    for (const menu of menus) {
+      if (menu.path === path) {
+        // 菜单项中的 icon 是字符串名称，需要通过 getIcon 函数转换为组件
+        return getIconComponent(menu.icon);
+      }
+      if (menu.children) {
+        const found = findInMenus(menu.children);
+        if (found) return found;
+      }
+    }
+    return undefined;
+  };
+
+  return findInMenus(menuStore.menus);
+};
+
+/**
+ * 为标签项恢复图标
+ * @param tabs 标签列表
+ * @returns 恢复图标后的标签列表
+ */
+const restoreIcons = (tabs: SerializableTabItem[]): TabItem[] => {
+  return tabs.map(tab => ({
+    ...tab,
+    icon: findIconFromMenu(tab.path),
+  }));
+};
+
+/**
+ * 获取默认固定标签（首页）
+ * 使用函数形式延迟执行，避免在 Pinia 实例创建前调用 useMenuStore
+ */
+const getDefaultFixedTabs = (): TabItem[] => [
   {
     path: '/dashboard',
     title: '首页',
@@ -197,7 +198,8 @@ export const useTabBarStore = defineStore('tabbar', () => {
     }));
     restoredTabs = restoreIcons(fixedTabs);
   } else {
-    restoredTabs = [...defaultFixedTabs];
+    // 延迟获取默认标签，确保 Pinia 已初始化
+    restoredTabs = getDefaultFixedTabs();
   }
 
   /** 标签列表 - 加载后恢复图标 */
@@ -284,7 +286,7 @@ export const useTabBarStore = defineStore('tabbar', () => {
   const closeAll = (router?: ReturnType<typeof useRouter>) => {
     const fixedTabs = tabs.value.filter(tab => tab.affix);
     tabs.value = fixedTabs;
-    
+
     // 激活第一个固定标签
     if (fixedTabs.length > 0) {
       activeTab.value = fixedTabs[0].path;
@@ -292,7 +294,7 @@ export const useTabBarStore = defineStore('tabbar', () => {
         router.push(fixedTabs[0].path);
       }
     }
-    
+
     persistConfig();
   };
 
@@ -353,8 +355,8 @@ export const useTabBarStore = defineStore('tabbar', () => {
    * 重置为默认状态
    */
   const reset = () => {
-    tabs.value = [...defaultFixedTabs];
-    activeTab.value = '/';
+    tabs.value = getDefaultFixedTabs();
+    activeTab.value = '/dashboard';
     persistConfig();
   };
 

@@ -8,4 +8,4 @@ export { useAuthStore } from './auth';
 export { useThemeStore } from './theme';
 export { useLocaleStore } from './locale';
 export { useMenuStore } from './menu';
-export { useTabbarStore } from './tabbar';
+export { useTabBarStore } from './tabbar';

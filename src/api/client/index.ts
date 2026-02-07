@@ -8,6 +8,7 @@ import { axiosRequestAdapter } from '@alova/adapter-axios';
 import type { Method } from 'alova';
 import { requestInterceptor, responseSuccessInterceptor, responseErrorInterceptor } from './interceptors';
 import { USE_MOCK, MOCK_BASE_URL } from './mock';
+import { requestManager, requestCache } from './requestManager';
 import type { ApiResponse, RequestConfig } from '../types';
 
 /**
@@ -143,3 +144,100 @@ export const request = {
     return httpClient.Options<ApiResponse<T>>(url, config);
   },
 };
+
+/**
+ * 增强版请求对象（带去重、重试、缓存功能）
+ *
+ * @example
+ * ```ts
+ * // 发送请求（自动去重和重试）
+ * const data = await enhancedRequest.get<User[]>('/users')
+ *
+ * // 使用缓存
+ * const data = await enhancedRequest.getWithCache<User[]>('/users', {}, 300000)
+ * ```
+ */
+export const enhancedRequest = {
+  /**
+   * GET 请求（带去重和重试）
+   */
+  async get<T = any>(url: string, config?: RequestConfig): Promise<T> {
+    const method = request.get<T>(url, config);
+    return requestManager.execute<T>(method);
+  },
+
+  /**
+   * POST 请求（带去重和重试）
+   */
+  async post<T = any>(url: string, data?: any, config?: RequestConfig): Promise<T> {
+    const method = request.post<T>(url, data, config);
+    return requestManager.execute<T>(method);
+  },
+
+  /**
+   * PUT 请求（带去重和重试）
+   */
+  async put<T = any>(url: string, data?: any, config?: RequestConfig): Promise<T> {
+    const method = request.put<T>(url, data, config);
+    return requestManager.execute<T>(method);
+  },
+
+  /**
+   * PATCH 请求（带去重和重试）
+   */
+  async patch<T = any>(url: string, data?: any, config?: RequestConfig): Promise<T> {
+    const method = request.patch<T>(url, data, config);
+    return requestManager.execute<T>(method);
+  },
+
+  /**
+   * DELETE 请求（带去重和重试）
+   */
+  async delete<T = any>(url: string, config?: RequestConfig): Promise<T> {
+    const method = request.delete<T>(url, config);
+    return requestManager.execute<T>(method);
+  },
+
+  /**
+   * GET 请求（带缓存）
+   * @param ttl - 缓存有效期（毫秒）
+   */
+  async getWithCache<T = any>(
+    url: string,
+    config?: RequestConfig,
+    ttl: number = 60000
+  ): Promise<T> {
+    const cacheKey = `GET:${url}:${JSON.stringify(config?.params || {})}`;
+    
+    // 检查缓存
+    const cached = requestCache.get<T>(cacheKey);
+    if (cached !== undefined) {
+      return cached;
+    }
+
+    // 发起请求
+    const data = await this.get<T>(url, config);
+    
+    // 缓存结果
+    requestCache.set(cacheKey, data, ttl);
+    
+    return data;
+  },
+
+  /**
+   * 清除请求缓存
+   */
+  clearCache(key?: string): void {
+    requestCache.clear(key);
+  },
+
+  /**
+   * 获取 pending 请求数量
+   */
+  getPendingCount(): number {
+    return requestManager.getPendingCount();
+  },
+};
+
+// 导出请求管理器和缓存
+export { requestManager, requestCache };

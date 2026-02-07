@@ -4,8 +4,11 @@
  */
 
 // 导出请求客户端
-export { request, httpClient } from './client';
+export { request, httpClient, enhancedRequest, requestManager, requestCache } from './client';
 export type { Method } from './client';
+
+// 导出请求管理器类型
+export type { RequestManagerOptions } from './client/requestManager';
 
 // 导出 API 通用类型
 export type {

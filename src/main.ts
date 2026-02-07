@@ -1,5 +1,5 @@
 import { createApp } from 'vue';
-import { createPinia } from 'pinia';
+import { createStore } from '@/stores';
 import router from './router';
 import { useAuthStore } from '@/stores/global/auth';
 import { useThemeStore } from '@/stores/global/theme';
@@ -15,7 +15,7 @@ import App from './App.vue';
  */
 async function initApp() {
   const app = createApp(App);
-  const pinia = createPinia();
+  const pinia = createStore();
 
   app.use(pinia);
   app.use(router);
