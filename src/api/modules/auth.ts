@@ -3,7 +3,7 @@
  * @description 登录、登出、获取用户信息等接口
  */
 import { request } from '../client';
-import type { User } from '@/stores/global/auth';
+import type { User } from '@/types';
 
 /**
  * 登录请求参数

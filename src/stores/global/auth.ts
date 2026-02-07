@@ -2,15 +2,7 @@ import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
 import { authApi } from '@/api';
 import { useMenuStore } from './menu';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar?: string;
-  role: 'admin' | 'editor' | 'viewer';
-  permissions: string[];
-}
+import type { User } from '@/types';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null);

@@ -3,7 +3,7 @@
  * @description 封装表格常用的逻辑，如分页、排序、筛选等
  */
 import { ref, computed } from 'vue';
-import type { PaginationData } from '@/api';
+import type { PaginationData } from '@/types';
 import { PAGINATION_DEFAULT } from '@/constants';
 
 /**

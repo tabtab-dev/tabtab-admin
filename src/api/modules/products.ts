@@ -3,8 +3,7 @@
  * @description 产品的增删改查等接口
  */
 import { request } from '../client';
-import type { Product } from '@/types/models';
-import type { PaginationData } from '../types';
+import type { Product, PaginationData } from '@/types';
 
 /**
  * 创建产品参数
