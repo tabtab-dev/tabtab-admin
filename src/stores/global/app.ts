@@ -23,9 +23,6 @@ export const useAppStore = defineStore('app', () => {
   
   /** 全局通知列表 */
   const notifications = ref<Notification[]>([]);
-  
-  /** 全局加载状态 */
-  const isLoading = ref(false);
 
   /**
    * 切换移动端侧边栏
@@ -91,27 +88,17 @@ export const useAppStore = defineStore('app', () => {
     notifications.value = [];
   };
 
-  /**
-   * 设置全局加载状态
-   * @param loading 是否加载中
-   */
-  const setLoading = (loading: boolean) => {
-    isLoading.value = loading;
-  };
-
   return {
     // 状态
     mobileSidebarOpen,
     notifications,
-    isLoading,
-    
+
     // 方法
     toggleMobileSidebar,
     setMobileSidebar,
     addNotification,
     removeNotification,
     clearNotifications,
-    setLoading,
   };
 });
 
