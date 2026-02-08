@@ -42,8 +42,7 @@ const tabBarStore = useTabBarStore();
 const scrollContainerRef = ref<HTMLElement | null>(null);
 const tabsContainerRef = ref<HTMLElement | null>(null);
 
-// Context menu state
-const contextMenuTab = ref<typeof tabBarStore.tabs[0] | null>(null);
+
 
 // Dragging state - 用于控制拖拽时的动画
 const isDragging = ref(false);
@@ -89,35 +88,6 @@ const getContextMenuItems = (tab: typeof tabBarStore.tabs[0]) => {
     { type: 'separator' as const },
     { key: 'closeAll', label: t('common.tabbar.closeAll'), icon: 'Ellipsis' },
   ];
-};
-
-// Handle context menu actions
-const handleContextMenuAction = (action: string, path: string) => {
-  switch (action) {
-    case 'refresh':
-      handleRefreshTab(path);
-      break;
-    case 'close':
-      handleCloseTab(path);
-      break;
-    case 'closeOther':
-      handleCloseOthers(path);
-      break;
-    case 'closeLeft':
-      handleCloseLeft(path);
-      break;
-    case 'closeRight':
-      handleCloseRight(path);
-      break;
-    case 'closeAll':
-      handleCloseAll();
-      break;
-  }
-};
-
-// Handle right click on tab
-const handleTabContextMenu = (event: MouseEvent, tab: typeof tabBarStore.tabs[0]) => {
-  contextMenuTab.value = tab;
 };
 
 // Drag handlers with animation control
@@ -216,7 +186,6 @@ onMounted(() => {
                   @dragstart="onDragStart($event, tab.path)"
                   @dragover="handleDragOver($event, tab.path)"
                   @dragend="onDragEnd"
-                  @contextmenu="handleTabContextMenu($event, tab)"
                 >
                   <!-- Drag Handle -->
                   <GripVertical
@@ -264,7 +233,7 @@ onMounted(() => {
                   <ContextMenuItem
                     v-else
                     :disabled="item.disabled"
-                    @click="handleContextMenuAction(item.key, tab.path)"
+                    @click="item.key === 'refresh' ? handleRefreshTab(tab.path) : item.key === 'close' ? handleCloseTab(tab.path) : item.key === 'closeOther' ? handleCloseOthers(tab.path) : item.key === 'closeLeft' ? handleCloseLeft(tab.path) : item.key === 'closeRight' ? handleCloseRight(tab.path) : handleCloseAll()"
                   >
                     <Icon
                       v-if="item.icon"

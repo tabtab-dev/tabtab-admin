@@ -19,3 +19,6 @@ export type { LoginCredentials, AuthFlowResult } from './useAuthFlow';
 
 export { useLoading, useLocalLoading, startLoading, stopLoading, stopAllLoading, withLoading } from './useLoading';
 export type { LoadingType, LoadingOptions, LocalLoadingState } from './useLoading';
+
+export { useTabBar } from './useTabBar';
+export type { UseTabBarOptions, UseTabBarReturn } from './useTabBar';
