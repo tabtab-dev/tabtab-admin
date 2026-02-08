@@ -2,7 +2,6 @@
 /**
  * 上海仓库页
  */
-import { ref, computed } from 'vue'
 import { TTable } from '@/components/business/TTable'
 import { TForm } from '@/components/business/TForm'
 import type { TableSchema } from '@/components/business/TTable'

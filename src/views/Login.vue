@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref, h } from 'vue';
-import { useRouter } from 'vue-router';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { TForm } from '@/components/business/TForm';

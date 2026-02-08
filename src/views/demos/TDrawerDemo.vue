@@ -4,7 +4,6 @@
  *
  * @description 展示 TDrawer 抽屉组件的各种使用场景和配置方式
  */
-import { ref } from 'vue'
 import { TDrawer, TForm, TTable } from '@/components/business'
 import type { TDrawerExpose, FormSchema, TableSchema, DrawerPlacement } from '@/components/business'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'

@@ -1,11 +1,9 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 /**
  * TFormDemo - TForm 组件演示页面
  *
  * @description 展示 TForm 表单组件的各种使用场景和配置方式
  */
-import { ref, computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { TForm } from '@/components/business/TForm'
 import type { FormSchema } from '@/components/business/TForm'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'

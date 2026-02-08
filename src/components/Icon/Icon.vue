@@ -3,7 +3,6 @@
  * 动态图标组件
  * @description 基于 lucide-vue-next 的动态图标加载组件
  */
-import { computed, watch, shallowRef } from 'vue';
 import type { Component } from 'vue';
 
 /**

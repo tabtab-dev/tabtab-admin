@@ -1,5 +1,4 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
-import { ref, computed } from 'vue';
 import { authApi } from '@/api';
 import { useMenuStore } from './menu';
 import type { User } from '@/types';

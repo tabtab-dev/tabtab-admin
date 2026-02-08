@@ -1,5 +1,4 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
-import { ref, computed, watch } from 'vue';
 import { THEME_MODE, STORAGE_KEYS } from '@/constants/common';
 
 /**

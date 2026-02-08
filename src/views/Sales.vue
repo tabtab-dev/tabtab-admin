@@ -2,7 +2,6 @@
 /**
  * 销售分析页
  */
-import { ref, computed } from 'vue'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DollarSign, ShoppingCart, TrendingUp, Package } from 'lucide-vue-next'
 

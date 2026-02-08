@@ -2,7 +2,6 @@
 /**
  * 用户分析页
  */
-import { ref, computed } from 'vue'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, UserPlus, UserCheck, Activity } from 'lucide-vue-next'
 

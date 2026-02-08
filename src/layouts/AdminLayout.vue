@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, watch, onMounted, onUnmounted } from 'vue';
 import Header from '@/components/layout/Header.vue';
 import TabBar from './TabBar.vue';
 import AppSidebar from '@/components/layout/sidebar/AppSidebar.vue';
@@ -23,6 +22,11 @@ const themeStore = useThemeStore();
 const sidebarCollapsed = ref(themeStore.layoutConfig.sidebarCollapsed);
 
 /**
+ * 刷新 key - 用于触发局部刷新
+ */
+const refreshKey = ref(0);
+
+/**
  * 切换侧栏折叠
  */
 const toggleSidebarCollapse = () => {
@@ -44,13 +48,13 @@ watch(
 );
 
 /**
- * 处理标签栏刷新事件
+ * 处理标签栏刷新事件 - 局部刷新
  */
 const handleTabRefresh = (event: CustomEvent<{ path: string }>) => {
   const { path } = event.detail;
-  // 如果刷新的是当前页面，则重新加载
+  // 如果刷新的是当前页面，增加 refreshKey 触发组件重新渲染
   if (path === window.location.pathname) {
-    window.location.reload();
+    refreshKey.value++;
   }
 };
 
@@ -88,7 +92,7 @@ onUnmounted(() => {
                 >
                   <Suspense>
                     <template #default>
-                      <component :is="Component" :key="route.path" />
+                      <component :is="Component" :key="route.path + '-' + refreshKey" />
                     </template>
                     <template #fallback>
                       <PageSkeleton />

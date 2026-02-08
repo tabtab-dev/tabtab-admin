@@ -1,5 +1,4 @@
-import { computed, type Ref } from 'vue';
-import { useRoute } from 'vue-router';
+import type { Ref } from 'vue';
 import type { MenuItem, SidebarMenuItem } from '@/types/menu';
 
 /**

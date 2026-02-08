@@ -3,7 +3,6 @@
  * @description 使用 Pinia 管理多标签页状态
  */
 import { defineStore, acceptHMRUpdate } from 'pinia';
-import { ref, computed } from 'vue';
 import { useMenuStore } from './menu';
 import type { TabItem } from '@/types/tabbar';
 

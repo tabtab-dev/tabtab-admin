@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { computed, watch, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useMediaQuery } from '@vueuse/core';
 import { useSidebar } from '@/layouts/composables/useSidebar';
 import { useThemeStore } from '@/stores/global/theme';
 import { useMenuStore } from '@/stores/global/menu';

@@ -3,7 +3,6 @@
  * @description 使用 Pinia 管理菜单状态和动态路由
  */
 import { defineStore, acceptHMRUpdate } from 'pinia';
-import { ref, computed } from 'vue';
 import type { RouteRecordRaw } from 'vue-router';
 import { menuApi } from '@/api';
 import type { MenuItem, RouteConfig } from '@/types/menu';

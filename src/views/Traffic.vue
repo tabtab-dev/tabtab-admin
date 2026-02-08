@@ -2,7 +2,6 @@
 /**
  * 流量分析页
  */
-import { ref, computed } from 'vue'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { TrendingUp, Users, Eye, MousePointer } from 'lucide-vue-next'
 

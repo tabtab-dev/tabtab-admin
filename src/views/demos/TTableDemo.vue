@@ -4,7 +4,6 @@
  *
  * @description 展示 TTable 表格组件的各种使用场景和配置方式
  */
-import { ref, computed } from 'vue'
 import { TTable } from '@/components/business/TTable'
 import type { TableSchema, TTableExpose } from '@/components/business/TTable'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'

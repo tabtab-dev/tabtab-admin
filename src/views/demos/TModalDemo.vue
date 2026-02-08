@@ -4,7 +4,6 @@
  *
  * @description 展示 TModal 对话框组件的各种使用场景和配置方式
  */
-import { ref } from 'vue'
 import { TModal, TForm, TTable } from '@/components/business'
 import type { TModalExpose, FormSchema, TableSchema } from '@/components/business'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'

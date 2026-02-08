@@ -1,6 +1,3 @@
-import { ref, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { useWindowSize } from '@vueuse/core';
 import { defaultSidebarConfig, type SidebarConfig } from '@/components/layout/sidebar/config';
 import { useMenuUtils, createLRUCache } from './useMenuUtils';
 

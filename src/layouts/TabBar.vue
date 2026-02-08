@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useI18n } from 'vue-i18n';
 import { useTabBarStore } from '@/stores/global/tabbar';
 import { useTabBar } from '@/composables/useTabBar';
 import { Button } from '@/components/ui/button';

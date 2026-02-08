@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { useMenuStore } from '@/stores/global/menu';
 import { loadIcon, getCachedIcon } from '@/composables/useIcon';

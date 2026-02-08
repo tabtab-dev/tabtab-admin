@@ -2,7 +2,7 @@
  * 图标工具函数
  * @description 提供图标获取功能，使用 unplugin-icons 实现按需加载
  */
-import { h, type Component } from 'vue';
+import type { Component } from 'vue';
 
 /**
  * 图标名称映射表

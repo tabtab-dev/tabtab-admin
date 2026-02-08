@@ -1,5 +1,4 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
-import { ref, computed } from 'vue';
 import {
   i18n,
   setLocale as setI18nLocale,
