@@ -69,7 +69,11 @@ onUnmounted(() => {
       <AppSidebar v-model:collapsed="sidebarCollapsed">
         <ScrollArea class="h-full flex flex-col">
           <!-- 标签栏 - 根据主题配置显示/隐藏 -->
-          <TabBar v-if="themeStore.layoutConfig.showTabBar" />
+          <TabBar 
+            v-if="themeStore.layoutConfig.showTabBar" 
+            :class="{ 'sticky top-0 z-10 bg-background': themeStore.layoutConfig.fixedTabBar }"
+            class="flex-shrink-0"
+          />
 
           <!-- 页面内容 -->
           <div class="flex-1 p-6 bg-muted/30">

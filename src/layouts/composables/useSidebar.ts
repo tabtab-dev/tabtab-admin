@@ -1,7 +1,8 @@
 import { defaultSidebarConfig, type SidebarConfig } from '@/components/layout/sidebar/config';
 import { useMenuUtils } from './useMenuUtils';
+import { STORAGE_KEYS } from '@/constants/common';
 
-const STORAGE_KEY = 'sidebar-state';
+const STORAGE_KEY = STORAGE_KEYS.SIDEBAR_STATE;
 
 interface SidebarState {
   collapsed: boolean;

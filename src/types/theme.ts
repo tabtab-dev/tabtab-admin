@@ -33,6 +33,7 @@ export interface LayoutConfig {
   animations: boolean;
   showTabBar: boolean;
   showBreadcrumb: boolean;
+  fixedTabBar: boolean;
 }
 
 export interface PresetTheme {

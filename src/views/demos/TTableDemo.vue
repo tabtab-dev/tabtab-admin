@@ -105,7 +105,8 @@ const advancedSchema: TableSchema = {
       confirmText: '确定要删除该用户吗？',
       onClick: (record) => alert(`删除用户: ${record.name}`)
     }
-  ]
+  ],
+  actionWidth: 180,        // 操作列宽
 }
 
 // ==================== 选择行示例数据 ====================

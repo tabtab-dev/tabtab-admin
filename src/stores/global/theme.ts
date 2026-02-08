@@ -98,6 +98,7 @@ export const defaultLayoutConfig: LayoutConfig = {
   animations: true,
   showTabBar: true,
   showBreadcrumb: true,
+  fixedTabBar: false,
 };
 
 const cssVarMap: Record<keyof ThemeColors, string> = {

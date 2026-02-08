@@ -231,6 +231,8 @@ export interface TableAction {
   text: string
   /** 按钮类型 */
   type?: 'primary' | 'default' | 'danger' | 'link'
+  /** 按钮样式变体（覆盖默认的 ghost） */
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
   /** 点击事件 */
   onClick: (record: TableRecord, index: number) => void
   /** 是否显示（支持函数动态判断） */

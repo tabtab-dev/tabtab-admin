@@ -6,7 +6,9 @@
  */
 import { computed, ref, shallowRef, watch, useSlots, h } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ConfigProvider, Popconfirm, Button } from 'antdv-next'
+import { ConfigProvider, Popconfirm } from 'antdv-next'
+import { Button } from '@/components/ui/button'
+import { Pencil, Trash2, Eye, MoreHorizontal, FileText, Settings, Download, Share2, Copy, ExternalLink } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 import { useTTableTheme } from './theme'
 import { getAntdvLocale } from '@/i18n/locales'
@@ -253,6 +255,36 @@ const tableColumns = computed(() => {
 })
 
 /**
+ * 默认图标映射
+ * @description 根据按钮文本自动匹配图标
+ */
+const defaultIconMap: Record<string, any> = {
+  '编辑': Pencil,
+  '修改': Pencil,
+  '删除': Trash2,
+  '查看': Eye,
+  '详情': MoreHorizontal,
+  '详情页': FileText,
+  '设置': Settings,
+  '下载': Download,
+  '分享': Share2,
+  '复制': Copy,
+  '跳转': ExternalLink
+}
+
+/**
+ * 获取按钮图标
+ * @param action - 操作按钮配置
+ * @returns 图标组件
+ */
+function getActionIcon(action: TableAction) {
+  if (action.icon) {
+    return action.icon
+  }
+  return defaultIconMap[action.text] || null
+}
+
+/**
  * 渲染操作按钮
  * @param record - 行数据
  * @param index - 行索引
@@ -271,16 +303,21 @@ function renderActions(record: TableRecord, index: number) {
       ? action.disabled(record, index)
       : action.disabled
 
+    const icon = getActionIcon(action)
+
     const buttonClass = cn(
-      'px-2',
-      action.type === 'danger' && 'text-destructive hover:text-destructive/80',
-      action.type === 'primary' && 'text-primary hover:text-primary/80'
+      'h-8 px-3 py-1.5 gap-1.5 text-sm font-medium',
+      action.variant === 'destructive' && 'text-destructive hover:text-destructive hover:bg-destructive/10',
+      action.variant === 'default' && 'text-primary hover:text-primary hover:bg-primary/10',
+      !action.variant && action.type === 'danger' && 'text-destructive hover:text-destructive hover:bg-destructive/10',
+      !action.variant && action.type === 'primary' && 'text-primary hover:text-primary hover:bg-primary/10',
+      !action.variant && !action.type && 'text-foreground hover:text-accent-foreground hover:bg-accent'
     )
 
     const button = h(Button, {
       key: actionIndex,
-      type: action.type === 'link' ? 'link' : 'text',
-      size: 'small',
+      variant: action.variant || 'ghost',
+      size: 'sm',
       disabled: isDisabled,
       class: buttonClass,
       onClick: (e: MouseEvent) => {
@@ -289,7 +326,10 @@ function renderActions(record: TableRecord, index: number) {
           action.onClick(record, index)
         }
       }
-    }, () => action.text)
+    }, () => [
+      icon ? h(icon, { class: 'size-4' }) : null,
+      action.text
+    ])
 
     if (action.confirm) {
       return h(Popconfirm, {

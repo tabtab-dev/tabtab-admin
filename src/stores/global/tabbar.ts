@@ -4,6 +4,7 @@
  */
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { useMenuStore } from './menu';
+import { STORAGE_KEYS } from '@/constants/common';
 import type { TabItem } from '@/types/tabbar';
 
 export const useTabBarStore = defineStore(
@@ -13,7 +14,6 @@ export const useTabBarStore = defineStore(
     const tabs = ref<TabItem[]>([]);
     const activeTab = ref<string>('');
     const isLoading = ref(false);
-    const isRestored = ref(false); // 标记是否已从 localStorage 恢复
 
     // Getters
     /**
@@ -211,60 +211,11 @@ export const useTabBarStore = defineStore(
       }
     };
 
-    /**
-     * 从 localStorage 恢复标签页
-     */
-    const restoreTabs = (): void => {
-      try {
-        const saved = localStorage.getItem('tabbar-tabs');
-        if (saved) {
-          const savedTabs: TabItem[] = JSON.parse(saved);
-
-          // 直接恢复整个 tabs 数组，保持原有顺序
-          tabs.value = savedTabs.map((savedTab) => ({
-            ...savedTab,
-            icon: findIconFromMenu(savedTab.path) || savedTab.icon,
-            isLoading: false,
-            isRefreshing: false,
-          }));
-
-          const savedActive = localStorage.getItem('tabbar-active');
-          if (savedActive) {
-            activeTab.value = savedActive;
-          }
-        }
-        isRestored.value = true; // 标记恢复完成
-      } catch (error) {
-        console.error('Failed to restore tabs:', error);
-        isRestored.value = true; // 即使出错也标记为已恢复，避免阻塞
-      }
-    };
-
-    /**
-     * 保存标签页到 localStorage
-     */
-    const saveTabs = (): void => {
-      try {
-        // 只保存必要的数据
-        const tabsToSave = tabs.value.map((tab) => ({
-          path: tab.path,
-          title: tab.title,
-          affix: tab.affix,
-          icon: tab.icon,
-        }));
-        localStorage.setItem('tabbar-tabs', JSON.stringify(tabsToSave));
-        localStorage.setItem('tabbar-active', activeTab.value);
-      } catch (error) {
-        console.error('Failed to save tabs:', error);
-      }
-    };
-
     return {
       // State
       tabs,
       activeTab,
       isLoading,
-      isRestored,
       // Getters
       allTabs,
       currentTab,
@@ -282,12 +233,13 @@ export const useTabBarStore = defineStore(
       updateTabTitle,
       updateAllTabsTitle,
       updateTabIcon,
-      restoreTabs,
-      saveTabs,
     };
   },
   {
-    persist: false, // 使用自定义的 localStorage 逻辑
+    persist: {
+      key: STORAGE_KEYS.TABBAR,
+      pick: ['tabs', 'activeTab'],
+    },
   }
 );
 

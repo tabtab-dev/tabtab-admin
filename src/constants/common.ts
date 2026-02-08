@@ -12,6 +12,9 @@ export const STORAGE_KEYS = {
   LOCALE: 'app-locale',
   LAYOUT_CONFIG: 'layoutConfig',
   SIDEBAR_COLLAPSED: 'sidebarCollapsed',
+  SIDEBAR_STATE: 'sidebar-state',
+  TABBAR: 'tabbar-tabs',
+  TABBAR_ACTIVE: 'tabbar-active',
 } as const;
 
 /** StorageKey 类型 */

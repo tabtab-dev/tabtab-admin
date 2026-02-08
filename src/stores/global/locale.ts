@@ -126,19 +126,6 @@ export const useLocaleStore = defineStore(
     persist: {
       key: STORAGE_KEYS.LOCALE,
       pick: ['currentLocale'],
-      beforeRestore: (context) => {
-        try {
-          const stored = localStorage.getItem(STORAGE_KEYS.LOCALE);
-          if (stored) {
-            const parsed = JSON.parse(stored);
-            if (parsed?.currentLocale) {
-              context.store.currentLocale = parsed.currentLocale;
-            }
-          }
-        } catch {
-          // 忽略解析错误
-        }
-      },
     },
   }
 );

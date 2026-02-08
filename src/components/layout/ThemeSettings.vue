@@ -86,6 +86,13 @@ const updateShowTabBar = (value: boolean) => {
 const updateShowBreadcrumb = (value: boolean) => {
   themeStore.updateLayoutConfig({ showBreadcrumb: value });
 };
+
+/**
+ * 更新固定标签栏状态
+ */
+const updateFixedTabBar = (value: boolean) => {
+  themeStore.updateLayoutConfig({ fixedTabBar: value });
+};
 </script>
 
 <template>
@@ -196,6 +203,18 @@ const updateShowBreadcrumb = (value: boolean) => {
         <Switch
           :model-value="themeStore.layoutConfig.showTabBar"
           @update:model-value="updateShowTabBar"
+        />
+      </div>
+
+      <!-- 固定标签栏 -->
+      <div class="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+        <div class="flex items-center gap-2 text-sm font-medium text-foreground">
+          <PanelTop class="h-4 w-4 text-muted-foreground" />
+          <span>{{ t('common.theme.fixedTabBar') }}</span>
+        </div>
+        <Switch
+          :model-value="themeStore.layoutConfig.fixedTabBar"
+          @update:model-value="updateFixedTabBar"
         />
       </div>
 

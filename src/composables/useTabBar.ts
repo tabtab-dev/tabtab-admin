@@ -221,38 +221,6 @@ export function useTabBar(options: UseTabBarOptions): UseTabBarReturn {
     (newPath) => {
       if (!newPath) return;
 
-      // 等待从 localStorage 恢复完成后再处理路由变化
-      if (!tabBarStore.isRestored) {
-        // 使用一次性监听器，在恢复完成后处理当前路由
-        const unwatch = watch(
-          () => tabBarStore.isRestored,
-          (restored) => {
-            if (restored) {
-              unwatch();
-              // 恢复完成后，检查当前路由对应的标签
-              const existingTab = tabBarStore.tabs.find((t) => t.path === newPath);
-              if (existingTab) {
-                tabBarStore.activateTab(newPath);
-                nextTick(() => scrollToTab(newPath));
-              } else {
-                // 如果标签不存在，添加新标签
-                const titleKey = menuStore.getRouteTitleKey(newPath);
-                const menuItem = menuStore.flatMenus.find((m) => m.path === newPath);
-                tabBarStore.addTab({
-                  path: newPath,
-                  title: t(titleKey),
-                  icon: menuItem?.icon,
-                  affix: newPath === '/dashboard',
-                });
-                nextTick(() => scrollToTab(newPath));
-              }
-            }
-          },
-          { immediate: true }
-        );
-        return;
-      }
-
       // Check if tab already exists
       const existingTab = tabBarStore.tabs.find((t) => t.path === newPath);
       if (existingTab) {
@@ -275,22 +243,6 @@ export function useTabBar(options: UseTabBarOptions): UseTabBarReturn {
       scrollToTab(newPath);
     },
     { immediate: true }
-  );
-
-  // ============ Persistence ============
-  watch(
-    () => tabBarStore.tabs,
-    () => {
-      tabBarStore.saveTabs();
-    },
-    { deep: true }
-  );
-
-  watch(
-    () => tabBarStore.activeTab,
-    () => {
-      tabBarStore.saveTabs();
-    }
   );
 
   // ============ Locale Watch ============

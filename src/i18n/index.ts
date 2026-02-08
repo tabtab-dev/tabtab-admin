@@ -12,11 +12,12 @@ import {
   isSupportedLocale,
   type SupportedLocale,
 } from './locales';
+import { STORAGE_KEYS } from '@/constants/common';
 
 /**
  * 本地存储键名
  */
-const STORAGE_KEY = 'app-locale';
+const STORAGE_KEY = STORAGE_KEYS.LOCALE;
 
 /**
  * 应用标题
@@ -25,12 +26,16 @@ const APP_TITLE = import.meta.env.VITE_APP_TITLE || 'TabTab Admin';
 
 /**
  * 从本地存储加载语言设置
+ * 从 Pinia store 持久化的 JSON 格式读取
  */
 function loadLocaleFromStorage(): SupportedLocale | null {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored && isSupportedLocale(stored)) {
-      return stored;
+    if (!stored) return null;
+
+    const parsed = JSON.parse(stored);
+    if (parsed?.currentLocale && isSupportedLocale(parsed.currentLocale)) {
+      return parsed.currentLocale;
     }
   } catch {
     // 忽略存储错误
@@ -44,17 +49,6 @@ function loadLocaleFromStorage(): SupportedLocale | null {
  */
 function getInitialLocale(): SupportedLocale {
   return loadLocaleFromStorage() ?? getBrowserLocale();
-}
-
-/**
- * 保存语言设置到本地存储
- */
-export function saveLocaleToStorage(locale: SupportedLocale): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, locale);
-  } catch {
-    // 忽略存储错误
-  }
 }
 
 /**
@@ -165,7 +159,6 @@ export async function setLocale(locale: SupportedLocale): Promise<boolean> {
 
   // 更新当前语言
   i18n.global.locale.value = locale;
-  saveLocaleToStorage(locale);
 
   // 更新 HTML lang 属性
   updateHtmlLang(locale);

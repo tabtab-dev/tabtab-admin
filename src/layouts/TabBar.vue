@@ -100,11 +100,6 @@ const onDragEnd = () => {
   isDragging.value = false;
   handleDragEnd();
 };
-
-// Restore tabs on mount
-onMounted(() => {
-  tabBarStore.restoreTabs();
-});
 </script>
 
 <template>
