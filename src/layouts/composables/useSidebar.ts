@@ -1,5 +1,5 @@
 import { defaultSidebarConfig, type SidebarConfig } from '@/components/layout/sidebar/config';
-import { useMenuUtils, createLRUCache } from './useMenuUtils';
+import { useMenuUtils } from './useMenuUtils';
 
 /**
  * 存储键名

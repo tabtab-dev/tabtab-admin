@@ -12,7 +12,7 @@ export type { ApiCallParamsContext, UseTableDataOptions, TableDataState } from '
 export { useFormData } from './useFormData';
 export type { UseFormDataOptions, FormDataState } from './useFormData';
 
-export { useIcon, getIcon, getIcons, hasIcon, getAvailableIcons, clearIconCache } from './useIcon';
+export { useIcon, getIcon } from './useIcon';
 
 export { useAuthFlow } from './useAuthFlow';
 export type { LoginCredentials, AuthFlowResult } from './useAuthFlow';

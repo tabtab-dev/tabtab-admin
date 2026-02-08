@@ -103,15 +103,28 @@ export default defineConfig(({ mode }: ConfigEnv) => {
       rollupOptions: {
         output: {
           // 手动分块
-          manualChunks: {
+          manualChunks: (id) => {
             // Vue 核心库
-            'vue-vendor': ['vue', 'vue-router', 'pinia'],
+            if (id.includes('node_modules/vue') || 
+                id.includes('node_modules/vue-router') || 
+                id.includes('node_modules/pinia')) {
+              return 'vue-vendor';
+            }
             // UI 组件库
-            'ui-vendor': ['reka-ui', '@tanstack/vue-table'],
+            if (id.includes('node_modules/reka-ui') || 
+                id.includes('node_modules/@tanstack/vue-table')) {
+              return 'ui-vendor';
+            }
             // 工具库
-            'utils-vendor': ['@vueuse/core', 'dayjs', 'zod'],
-            // 图表库（如果使用了）
-            // 'charts-vendor': ['echarts'],
+            if (id.includes('node_modules/@vueuse/core') || 
+                id.includes('node_modules/dayjs') || 
+                id.includes('node_modules/zod')) {
+              return 'utils-vendor';
+            }
+            // 图标库
+            if (id.includes('node_modules/lucide-vue-next')) {
+              return 'icons-vendor';
+            }
           },
           // 入口文件分块
           entryFileNames: 'js/[name]-[hash].js',
