@@ -809,7 +809,7 @@ export const useThemeStore = defineStore(
   {
     persist: {
       key: STORAGE_KEYS.THEME,
-      paths: ['currentTheme', 'currentMode', 'layoutConfig'],
+      pick: ['currentTheme', 'currentMode', 'layoutConfig'],
     },
   }
 );

@@ -189,7 +189,7 @@ export const useLocaleStore = defineStore(
   {
     persist: {
       key: STORAGE_KEYS.LOCALE,
-      paths: ['currentLocale'],
+      pick: ['currentLocale'],
       // 使用自定义序列化，确保与 i18n 的 localStorage 同步
       beforeRestore: (context) => {
         // 从 i18n 的存储中读取语言设置

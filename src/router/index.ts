@@ -67,14 +67,16 @@ const router = createRouter({
 
 /**
  * 全局前置守卫
- * 按顺序执行：标题更新 -> 认证检查 -> 菜单加载
+ * 按顺序执行：标题更新 -> 认证检查 -> 菜单加载 -> 权限检查
  */
 router.beforeEach(async (to, from, next) => {
   // 1. 更新页面标题
   updateDocumentTitle(to);
 
-  // 2. 认证检查
+  // 2. 认证检查 - 优先从 localStorage 读取，避免 Pinia 状态恢复时机问题
   const isAuthenticated = checkAuthentication();
+
+  console.log('[Router] isAuthenticated:', isAuthenticated, 'to:', to.path, 'matched:', to.matched.length);
 
   // 处理登录页访问
   if (to.name === 'Login') {
@@ -91,6 +93,7 @@ router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.meta.requiresAuth !== false;
   if (requiresAuth && !isAuthenticated) {
     // 未登录，重定向到登录页
+    console.log('[Router] Redirecting to login, not authenticated');
     next({
       name: 'Login',
       query: to.fullPath !== '/' ? { redirect: to.fullPath } : undefined
@@ -98,28 +101,18 @@ router.beforeEach(async (to, from, next) => {
     return;
   }
 
-  // 3. 菜单加载（仅对已登录用户）
-  if (isAuthenticated && to.path !== '/login') {
+  // 3. 处理动态路由（仅对已登录用户）
+  // 如果当前路由匹配到了 404，且菜单还没加载，尝试加载菜单
+  if (isAuthenticated && to.name === 'NotFound') {
     const menuStore = useMenuStore();
 
     if (!menuStore.isLoaded) {
+      console.log('[Router] Route not found, trying to load menus...');
       const success = await menuStore.fetchMenus();
 
-      if (!success) {
-        // Token 过期或菜单加载失败
-        const authStore = useAuthStore();
-        await authStore.logout();
-
-        next({
-          name: 'Login',
-          query: { redirect: to.fullPath }
-        });
-        return;
-      }
-
-      // 动态路由加载完成后，如果当前目标路由匹配到了404，
-      // 说明动态路由刚刚被添加，需要重新导航以触发正确的路由匹配
-      if (to.name === 'NotFound') {
+      if (success) {
+        console.log('[Router] Menus loaded, retrying navigation to:', to.fullPath);
+        // 动态路由已添加，重新导航到目标路径
         next({
           path: to.fullPath,
           replace: true,
@@ -127,6 +120,8 @@ router.beforeEach(async (to, from, next) => {
           hash: to.hash
         });
         return;
+      } else {
+        console.warn('[Router] Failed to load menus');
       }
     }
   }

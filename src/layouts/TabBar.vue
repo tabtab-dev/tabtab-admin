@@ -28,9 +28,9 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Ellipsis,
   RotateCw,
   X,
-  MoreHorizontal,
   GripVertical,
   Settings,
 } from 'lucide-vue-next';
@@ -87,7 +87,7 @@ const getContextMenuItems = (tab: typeof tabBarStore.tabs[0]) => {
     { key: 'closeLeft', label: t('common.tabbar.closeLeft'), icon: 'ChevronLeft', disabled: isFirst },
     { key: 'closeRight', label: t('common.tabbar.closeRight'), icon: 'ChevronRight', disabled: isLast },
     { type: 'separator' as const },
-    { key: 'closeAll', label: t('common.tabbar.closeAll'), icon: 'MoreHorizontal' },
+    { key: 'closeAll', label: t('common.tabbar.closeAll'), icon: 'Ellipsis' },
   ];
 };
 
@@ -331,7 +331,7 @@ onMounted(() => {
           class="h-7 w-7 flex-shrink-0"
           :title="t('common.tabbar.moreActions')"
         >
-          <MoreHorizontal class="h-4 w-4" />
+          <Ellipsis class="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
 

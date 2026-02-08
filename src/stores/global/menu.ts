@@ -51,10 +51,30 @@ export const useMenuStore = defineStore(
      * @returns 是否获取成功
      */
     const fetchMenus = async (): Promise<boolean> => {
-      if (isLoading.value) return false;
+      // 如果已经加载完成，直接返回成功
+      if (isLoaded.value) {
+        console.log('[MenuStore] Menus already loaded');
+        return true;
+      }
+
+      // 如果正在加载中，等待加载完成
+      if (isLoading.value) {
+        console.log('[MenuStore] Menus are loading, waiting...');
+        return new Promise((resolve) => {
+          const checkLoaded = () => {
+            if (!isLoading.value) {
+              resolve(isLoaded.value);
+            } else {
+              setTimeout(checkLoaded, 50);
+            }
+          };
+          checkLoaded();
+        });
+      }
 
       isLoading.value = true;
       try {
+        console.log('[MenuStore] Fetching menus...');
         const response = await menuApi.getMenus();
         menus.value = response.menus;
         routes.value = response.routes;
@@ -62,10 +82,11 @@ export const useMenuStore = defineStore(
 
         // 动态添加路由
         addDynamicRoutes(response.routes);
+        console.log('[MenuStore] Menus loaded and routes added');
 
         return true;
       } catch (error) {
-        console.error('Failed to fetch menus:', error);
+        console.error('[MenuStore] Failed to fetch menus:', error);
         return false;
       } finally {
         isLoading.value = false;

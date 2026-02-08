@@ -78,22 +78,30 @@ export function useAuthFlow() {
   /**
    * 初始化认证状态
    * 从持久化存储恢复用户状态
+   * 注意：菜单加载失败不会导致登出，避免影响用户体验
    */
   const initialize = async (): Promise<AuthFlowResult> => {
     try {
       await authStore.initialize();
 
-      // 如果已登录，获取菜单
+      // 如果已登录，尝试获取菜单
       if (authStore.isAuthenticated) {
+        console.log('[AuthFlow] User is authenticated, fetching menus...');
         const menuSuccess = await menuStore.fetchMenus();
+
         if (!menuSuccess) {
-          return { success: false, error: '获取菜单失败' };
+          console.warn('[AuthFlow] Failed to fetch menus, but keeping user logged in');
+          // 菜单加载失败不登出用户，只是记录错误
+          // 这样用户刷新页面后不会因为菜单加载失败而被登出
+        } else {
+          console.log('[AuthFlow] Menus fetched successfully');
         }
       }
 
       return { success: true };
     } catch (error) {
       const appError = normalizeError(error);
+      console.error('[AuthFlow] Initialization error:', appError);
       return { success: false, error: appError.message };
     }
   };

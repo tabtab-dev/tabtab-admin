@@ -162,10 +162,7 @@ export const responseErrorInterceptor = (error: AxiosError) => {
  * 使用 Vue Router 进行导航，而不是直接操作 window.location
  */
 function handleUnauthorized(): void {
-  // 清除登录状态（新旧 key 都清除）
-  localStorage.removeItem(STORAGE_KEYS.AUTH);
-  localStorage.removeItem(STORAGE_KEYS.TOKEN);
-  localStorage.removeItem(STORAGE_KEYS.USER);
+  console.log('[Auth] Handling 401 unauthorized');
 
   // 清除请求缓存
   requestCache.clear();
@@ -173,15 +170,23 @@ function handleUnauthorized(): void {
   // 显示提示
   toast.error('登录已过期，请重新登录');
 
-  // 使用路由导航到登录页
-  const currentPath = router.currentRoute.value.fullPath;
-
-  // 延迟导航，让用户看到提示
+  // 延迟清除登录状态和导航，避免在初始化过程中清除状态
   setTimeout(() => {
-    router.push({
-      name: 'Login',
-      query: currentPath !== '/' && currentPath !== '/login' ? { redirect: currentPath } : undefined
-    });
+    // 清除登录状态（新旧 key 都清除）
+    localStorage.removeItem(STORAGE_KEYS.AUTH);
+    localStorage.removeItem(STORAGE_KEYS.TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.USER);
+
+    // 使用路由导航到登录页
+    const currentPath = router.currentRoute.value.fullPath;
+
+    // 如果当前不在登录页，才导航到登录页
+    if (currentPath !== '/login') {
+      router.push({
+        name: 'Login',
+        query: currentPath !== '/' && currentPath !== '/login' ? { redirect: currentPath } : undefined
+      });
+    }
   }, 1500);
 }
 

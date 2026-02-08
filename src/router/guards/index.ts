@@ -8,26 +8,35 @@ import { STORAGE_KEYS } from '@/constants/common';
 
 /**
  * 检查用户是否已认证
- * 优先从 Pinia store 获取，避免直接操作 localStorage
+ * 优先从 localStorage 读取，避免 Pinia 状态恢复时机问题
  */
 export function checkAuthentication(): boolean {
-  try {
-    const authStore = useAuthStore();
-    return authStore.isAuthenticated;
-  } catch {
-    // Store 未初始化时的降级处理
-    // 从 Pinia 持久化存储的 'app-auth' key 中读取
+  // 直接从 localStorage 读取，避免 Pinia 状态恢复时机问题
+  // 因为在路由守卫执行时，Pinia 插件可能还没有完成状态恢复
+  if (typeof localStorage !== 'undefined') {
     const authData = localStorage.getItem(STORAGE_KEYS.AUTH);
     if (authData) {
       try {
         const parsed = JSON.parse(authData);
-        return !!(parsed?.token && parsed?.user);
+        const hasAuth = !!(parsed?.token && parsed?.user);
+        console.log('[Auth Guard] checkAuthentication from localStorage:', hasAuth, parsed?.token?.slice(0, 20) + '...');
+        return hasAuth;
       } catch {
-        // 解析失败
+        console.warn('[Auth Guard] Failed to parse auth data from localStorage');
       }
     }
-    return false;
   }
+
+  // 降级：尝试从 Pinia store 读取
+  try {
+    const authStore = useAuthStore();
+    console.log('[Auth Guard] checkAuthentication from store:', authStore.isAuthenticated);
+    return authStore.isAuthenticated;
+  } catch (error) {
+    console.warn('[Auth Guard] Failed to get auth state from store:', error);
+  }
+
+  return false;
 }
 
 /**

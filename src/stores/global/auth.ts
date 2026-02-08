@@ -28,6 +28,8 @@ export const useAuthStore = defineStore(
         user.value = response.user;
         token.value = response.token;
 
+        console.log('[Auth] Login successful, token and user saved');
+
         // 注意：登录成功后获取菜单的逻辑已移至 useAuthFlow composable
         // 避免 store 之间的直接耦合
 
@@ -92,11 +94,25 @@ export const useAuthStore = defineStore(
      * 从持久化存储恢复用户状态
      */
     const initialize = async (): Promise<void> => {
+      console.log('[Auth] Initializing...');
+      console.log('[Auth] Current token:', token.value);
+      console.log('[Auth] Current user:', user.value);
+      console.log('[Auth] isAuthenticated:', isAuthenticated.value);
+
+      // 检查 localStorage 中的原始数据
+      if (typeof localStorage !== 'undefined') {
+        const rawData = localStorage.getItem('app-auth');
+        console.log('[Auth] Raw localStorage data:', rawData);
+      }
+
       // 状态已通过持久化插件自动恢复
       // 这里可以添加额外的初始化逻辑，如验证 token 有效性
       if (token.value && user.value) {
+        console.log('[Auth] Token and user exist, checking validity...');
         // 可选：验证 token 是否仍然有效
         // await fetchCurrentUser();
+      } else {
+        console.log('[Auth] No token or user found in persisted state');
       }
     };
 
@@ -116,7 +132,7 @@ export const useAuthStore = defineStore(
   {
     persist: {
       key: 'app-auth',
-      paths: ['token', 'user'],
+      pick: ['token', 'user'],
     },
   }
 );

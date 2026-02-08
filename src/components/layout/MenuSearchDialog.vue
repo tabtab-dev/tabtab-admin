@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { useMenuStore } from '@/stores/global/menu';
-import { loadIcon, getCachedIcon } from '@/composables/useIcon';
+import { getIcon } from '@/composables/useIcon';
 import { FileText } from 'lucide-vue-next';
 import type { Component } from 'vue';
 
@@ -65,14 +65,9 @@ const preloadIcons = async () => {
   await Promise.all(
     Array.from(iconNames).map(async (name) => {
       if (!iconCache.value[name]) {
-        const cached = getCachedIcon(name);
-        if (cached) {
-          iconCache.value[name] = cached;
-        } else {
-          const icon = await loadIcon(name);
-          if (icon) {
-            iconCache.value[name] = icon;
-          }
+        const icon = await getIcon(name);
+        if (icon) {
+          iconCache.value[name] = icon;
         }
       }
     })
