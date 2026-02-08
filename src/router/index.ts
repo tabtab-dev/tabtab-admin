@@ -1,10 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import type { RouteRecordRaw, RouteLocationNormalized } from 'vue-router';
-import { updateDocumentTitle } from '@/i18n';
+import type { RouteRecordRaw, NavigationGuardNext, RouteLocationNormalized } from 'vue-router';
+import { checkAuthentication } from './guards';
 import { useMenuStore } from '@/stores/global/menu';
 import { useAuthStore } from '@/stores/global/auth';
+import { updateDocumentTitle } from '@/i18n';
 import { requestCache } from '@/api/client';
-import { STORAGE_KEYS } from '@/constants/common';
+
+// 同步导入 Dashboard 组件（避免开发时动态导入问题）
+import Dashboard from '@/views/Dashboard.vue';
 
 /**
  * 基础路由配置
@@ -28,7 +31,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'dashboard',
         name: 'Dashboard',
-        component: () => import('@/views/Dashboard.vue'),
+        component: Dashboard,
         meta: { requiresAuth: true, titleKey: 'menu.dashboard' }
       }
     ]
@@ -63,127 +66,84 @@ const router = createRouter({
 });
 
 /**
- * 检查用户是否已认证
- * 优先从 Pinia store 获取，避免直接操作 localStorage
- */
-function checkAuthentication(): boolean {
-  try {
-    const authStore = useAuthStore();
-    return authStore.isAuthenticated;
-  } catch {
-    // Store 未初始化时的降级处理
-    // 从 Pinia 持久化存储的 'app-auth' key 中读取
-    const authData = localStorage.getItem(STORAGE_KEYS.AUTH);
-    if (authData) {
-      try {
-        const parsed = JSON.parse(authData);
-        return !!(parsed?.token && parsed?.user);
-      } catch {
-        // 解析失败
-      }
-    }
-    return false;
-  }
-}
-
-/**
- * 动态菜单加载结果
- */
-interface MenuLoadResult {
-  success: boolean;
-  needRetry: boolean;
-}
-
-/**
- * 处理动态菜单加载
- * 已登录且菜单未加载时调用
- */
-async function handleDynamicMenus(to: RouteLocationNormalized): Promise<MenuLoadResult> {
-  const menuStore = useMenuStore();
-  
-  if (menuStore.isLoaded) {
-    return { success: true, needRetry: false };
-  }
-
-  const success = await menuStore.fetchMenus();
-  
-  if (!success) {
-    // 加载菜单失败，可能是 token 过期
-    return { success: false, needRetry: false };
-  }
-
-  // 动态路由加载完成后，如果当前目标路由匹配到了404，
-  // 说明动态路由刚刚被添加，需要重新导航以触发正确的路由匹配
-  if (to.name === 'NotFound') {
-    return { success: true, needRetry: true }; // 需要重新导航
-  }
-
-  return { success: true, needRetry: false };
-}
-
-/**
  * 全局前置守卫
- * 处理认证和动态菜单加载
+ * 按顺序执行：标题更新 -> 认证检查 -> 菜单加载
  */
 router.beforeEach(async (to, from, next) => {
-  // 更新页面标题
+  // 1. 更新页面标题
   updateDocumentTitle(to);
 
+  // 2. 认证检查
   const isAuthenticated = checkAuthentication();
-  const requiresAuth = to.meta.requiresAuth !== false;
 
-  // 1. 处理登录页访问
+  // 处理登录页访问
   if (to.name === 'Login') {
     if (isAuthenticated) {
       // 已登录用户访问登录页，重定向到首页
       next({ name: 'Root' });
-    } else {
-      next();
+      return;
     }
+    next();
     return;
   }
 
-  // 2. 处理需要认证的页面
-  if (requiresAuth) {
-    if (!isAuthenticated) {
-      // 未登录，重定向到登录页
-      next({ 
-        name: 'Login',
-        query: to.fullPath !== '/' ? { redirect: to.fullPath } : undefined
-      });
-      return;
-    }
+  // 处理需要认证的页面
+  const requiresAuth = to.meta.requiresAuth !== false;
+  if (requiresAuth && !isAuthenticated) {
+    // 未登录，重定向到登录页
+    next({
+      name: 'Login',
+      query: to.fullPath !== '/' ? { redirect: to.fullPath } : undefined
+    });
+    return;
+  }
 
-    // 已登录，检查是否需要加载菜单
-    if (to.path !== '/login') {
-      const menuResult = await handleDynamicMenus(to);
-      
-      if (!menuResult.success) {
+  // 3. 菜单加载（仅对已登录用户）
+  if (isAuthenticated && to.path !== '/login') {
+    const menuStore = useMenuStore();
+
+    if (!menuStore.isLoaded) {
+      const success = await menuStore.fetchMenus();
+
+      if (!success) {
         // Token 过期或菜单加载失败
         const authStore = useAuthStore();
         await authStore.logout();
-        
-        next({ 
+
+        next({
           name: 'Login',
           query: { redirect: to.fullPath }
         });
         return;
       }
 
-      // 动态路由刚添加，需要重新导航
-      if (menuResult.needRetry) {
-        next({ 
-          path: to.fullPath, 
-          replace: true, 
-          query: to.query, 
-          hash: to.hash 
+      // 动态路由加载完成后，如果当前目标路由匹配到了404，
+      // 说明动态路由刚刚被添加，需要重新导航以触发正确的路由匹配
+      if (to.name === 'NotFound') {
+        next({
+          path: to.fullPath,
+          replace: true,
+          query: to.query,
+          hash: to.hash
         });
         return;
       }
     }
   }
 
-  // 3. 正常放行
+  // 4. 权限检查（如果路由需要特定权限）
+  if (to.meta.permissions) {
+    const authStore = useAuthStore();
+    const requiredPermissions = to.meta.permissions as string[];
+    const hasPermission = requiredPermissions.every(perm => authStore.hasPermission(perm));
+
+    if (!hasPermission) {
+      next({ name: 'NotFound' });
+      return;
+    }
+  }
+
+  // 正常放行
   next();
 });
 
@@ -198,7 +158,6 @@ router.afterEach((to, from) => {
   }
 
   // 清理过期的请求缓存
-  // 在路由切换时清理缓存，避免内存泄漏
   if (requestCache && typeof requestCache.clear === 'function') {
     // 可以在这里添加特定缓存的清理逻辑
   }
@@ -209,7 +168,7 @@ router.afterEach((to, from) => {
  */
 router.onError((error) => {
   console.error('[Router Error]', error);
-  
+
   // 动态导入失败时的处理
   if (error.message?.includes('Failed to fetch dynamically imported module')) {
     console.error('动态导入模块失败，可能是网络问题或代码分割错误');

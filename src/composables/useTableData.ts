@@ -2,6 +2,7 @@
  * 表格数据管理 Composable
  * @description 封装数据获取、过滤、分页、统计等通用逻辑（仅支持后端分页）
  */
+import { normalizeError, type AppError } from '@/utils/errorHandler';
 
 /**
  * API 调用参数上下文
@@ -17,11 +18,11 @@ export interface ApiCallParamsContext {
  * 表格数据配置选项
  */
 export interface UseTableDataOptions<T> {
-  /** 
+  /**
    * API 调用函数，支持传入参数
    */
   apiCall: (params?: Record<string, any>) => Promise<{ list: T[]; total: number; page: number; pageSize: number }>;
-  /** 
+  /**
    * 构建 API 调用参数的函数，用于后端分页/搜索
    * @param ctx - 当前分页和搜索状态
    */
@@ -37,7 +38,7 @@ export interface UseTableDataOptions<T> {
   /** 请求成功回调 */
   onSuccess?: (data: { list: T[]; total: number; page: number; pageSize: number }) => void;
   /** 请求失败回调 */
-  onError?: (error: Error) => void;
+  onError?: (error: AppError) => void;
 }
 
 /**
@@ -49,7 +50,7 @@ export interface TableDataState<T> {
   /** 加载状态 */
   loading: boolean;
   /** 错误信息 */
-  error: Error | null;
+  error: AppError | null;
   /** 搜索关键词 */
   searchQuery: string;
   /** 过滤条件 */
@@ -119,7 +120,7 @@ export function useTableData<T = any>(options: UseTableDataOptions<T>) {
   // ============ 状态 ============
   const data = ref<T[]>([]);
   const loading = ref(false);
-  const error = ref<Error | null>(null);
+  const error = ref<AppError | null>(null);
   const searchQuery = ref('');
   const filters = ref<Record<string, any>>({});
   const currentPage = ref(defaultPage);
@@ -151,10 +152,10 @@ export function useTableData<T = any>(options: UseTableDataOptions<T>) {
 
     try {
       const result = await apiCall(params);
-      
+
       // 拦截器返回 null 表示失败
       if (result === null) {
-        error.value = new Error('获取数据失败');
+        error.value = normalizeError(new Error('获取数据失败'));
         data.value = [];
         total.value = 0;
         return;
@@ -164,7 +165,7 @@ export function useTableData<T = any>(options: UseTableDataOptions<T>) {
       total.value = result.total || 0;
       onSuccess?.(result);
     } catch (err) {
-      error.value = err instanceof Error ? err : new Error('获取数据失败');
+      error.value = normalizeError(err);
       data.value = [];
       total.value = 0;
       onError?.(error.value);
@@ -196,7 +197,7 @@ export function useTableData<T = any>(options: UseTableDataOptions<T>) {
    */
   const statistics = computed(() => {
     const items = data.value;
-    
+
     if (statisticsFn) {
       return statisticsFn(items) || {};
     }

@@ -2,6 +2,10 @@
  * TabBar Composable
  * @description 专业的标签栏逻辑管理
  */
+import { ref, computed, watch, nextTick } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { useScroll, useResizeObserver } from '@vueuse/core';
 import { useTabBarStore } from '@/stores/global/tabbar';
 import { useMenuStore } from '@/stores/global/menu';
 

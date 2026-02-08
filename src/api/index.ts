@@ -4,8 +4,12 @@
  */
 
 // 导出请求客户端
-export { request, httpClient, enhancedRequest, requestManager, requestCache } from './client';
+export { api, httpClient, requestManager, requestCache } from './client';
 export type { Method } from './client';
+
+// 为了保持向后兼容，保留旧的导出（标记为废弃）
+/** @deprecated 使用 api 替代 */
+export { request, enhancedRequest } from './client';
 
 // 导出请求管理器类型
 export type { RequestManagerOptions } from './client/requestManager';

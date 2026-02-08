@@ -8,20 +8,7 @@ import { toast } from 'vue-sonner';
 import router from '@/router';
 import { requestCache } from './requestManager';
 import { STORAGE_KEYS } from '@/constants/common';
-
-/**
- * 自定义错误类
- */
-export class ApiError extends Error {
-  constructor(
-    public code: number,
-    message: string,
-    public data?: any
-  ) {
-    super(message);
-    this.name = 'ApiError';
-  }
-}
+import { ApiError, NetworkError, AuthError } from '@/utils/errorHandler';
 
 /**
  * 是否正在刷新 token
@@ -108,12 +95,13 @@ export const responseSuccessInterceptor = (response: AxiosResponse) => {
     if (data.code === 401) {
       // Token 过期，使用路由导航
       handleUnauthorized();
+      throw new AuthError(data.message || '登录已过期，请重新登录');
     } else {
       // 显示错误提示
       toast.error(data.message || '请求失败');
     }
     // 抛出错误，让调用方 catch
-    throw new ApiError(data.code, data.message || '请求失败', data);
+    throw new ApiError(data.message || '请求失败', `API_${data.code}`, data.code, data);
   }
 
   // 返回业务数据
@@ -128,15 +116,15 @@ export const responseErrorInterceptor = (error: AxiosError) => {
   if (error.response) {
     // 服务器返回了错误状态码
     const status = error.response.status;
-    
+
     // 401 未授权处理
     if (status === 401) {
       handleUnauthorized();
-      throw new ApiError(401, '未授权，请重新登录');
+      throw new AuthError('未授权，请重新登录');
     }
 
     const errorMessage = getErrorMessage(status);
-    
+
     // 记录详细的错误信息（仅在开发环境）
     if (import.meta.env.DEV) {
       console.error('[API 错误]', {
@@ -147,9 +135,9 @@ export const responseErrorInterceptor = (error: AxiosError) => {
         data: error.response.data
       });
     }
-    
+
     toast.error(errorMessage);
-    throw new ApiError(status, errorMessage, error.response.data);
+    throw new ApiError(errorMessage, `HTTP_${status}`, status, error.response.data);
   } else if (error.request) {
     // 请求发出但没有收到响应
     console.error('[网络错误] 请求发出但没有收到响应', {
@@ -157,7 +145,7 @@ export const responseErrorInterceptor = (error: AxiosError) => {
       method: error.config?.method
     });
     toast.error('网络错误，请检查网络连接');
-    throw new ApiError(0, '网络错误，请检查网络连接');
+    throw new NetworkError('网络错误，请检查网络连接');
   } else {
     // 请求配置出错
     console.error('[请求配置错误]', {
@@ -165,7 +153,7 @@ export const responseErrorInterceptor = (error: AxiosError) => {
       config: error.config
     });
     toast.error(`请求配置错误: ${error.message}`);
-    throw new ApiError(-1, `请求配置错误: ${error.message}`);
+    throw new ApiError(`请求配置错误: ${error.message}`, 'CONFIG_ERROR');
   }
 };
 

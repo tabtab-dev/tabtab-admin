@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { defineAsyncComponent } from 'vue';
 import { 
   HeroCard, 
   StatCard, 
   ActivityCard, 
   QuickActions,
   MiniChart,
-  ProgressRing 
+  ProgressRing,
 } from '@/components/bento';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { 

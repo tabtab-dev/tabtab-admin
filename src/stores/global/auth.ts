@@ -1,6 +1,5 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { authApi } from '@/api';
-import { useMenuStore } from './menu';
 import type { User } from '@/types';
 
 export const useAuthStore = defineStore(
@@ -29,9 +28,8 @@ export const useAuthStore = defineStore(
         user.value = response.user;
         token.value = response.token;
 
-        // 登录成功后获取菜单
-        const menuStore = useMenuStore();
-        await menuStore.fetchMenus();
+        // 注意：登录成功后获取菜单的逻辑已移至 useAuthFlow composable
+        // 避免 store 之间的直接耦合
 
         return true;
       } catch (error) {
@@ -44,6 +42,7 @@ export const useAuthStore = defineStore(
 
     /**
      * 用户登出
+     * 注意：清理菜单状态的逻辑已移至 useAuthFlow composable
      */
     const logout = async (): Promise<void> => {
       try {
@@ -55,10 +54,7 @@ export const useAuthStore = defineStore(
         // 清除本地状态
         user.value = null;
         token.value = null;
-
-        // 重置菜单状态
-        const menuStore = useMenuStore();
-        menuStore.reset();
+        // 注意：menuStore.reset() 已移至 useAuthFlow，避免 store 耦合
       }
     };
 

@@ -17,9 +17,13 @@ const PageSkeleton = defineAsyncComponent(() => import('@/components/layout/Page
 const themeStore = useThemeStore();
 
 /**
- * 侧栏折叠状态 - 从主题配置初始化
+ * 侧栏折叠状态 - 使用 computed 实现双向绑定
+ * 与 themeStore.layoutConfig.sidebarCollapsed 保持同步
  */
-const sidebarCollapsed = ref(themeStore.layoutConfig.sidebarCollapsed);
+const sidebarCollapsed = computed({
+  get: () => themeStore.layoutConfig.sidebarCollapsed,
+  set: (value) => themeStore.updateLayoutConfig({ sidebarCollapsed: value })
+});
 
 /**
  * 刷新 key - 用于触发局部刷新
@@ -31,21 +35,7 @@ const refreshKey = ref(0);
  */
 const toggleSidebarCollapse = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value;
-  // 同步更新主题配置
-  themeStore.updateLayoutConfig({ sidebarCollapsed: sidebarCollapsed.value });
 };
-
-/**
- * 监听主题配置中的 sidebarCollapsed 变化，实现实时联动
- */
-watch(
-  () => themeStore.layoutConfig.sidebarCollapsed,
-  (newValue) => {
-    if (sidebarCollapsed.value !== newValue) {
-      sidebarCollapsed.value = newValue;
-    }
-  }
-);
 
 /**
  * 处理标签栏刷新事件 - 局部刷新
@@ -131,7 +121,7 @@ onUnmounted(() => {
   .fade-slide-leave-active {
     transition: none;
   }
-  
+
   .fade-slide-enter-from,
   .fade-slide-leave-to {
     opacity: 1;

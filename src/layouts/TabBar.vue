@@ -45,6 +45,9 @@ const tabsContainerRef = ref<HTMLElement | null>(null);
 // Context menu state
 const contextMenuTab = ref<typeof tabBarStore.tabs[0] | null>(null);
 
+// Dragging state - 用于控制拖拽时的动画
+const isDragging = ref(false);
+
 // Use the tab bar composable
 const {
   isOverflowing,
@@ -117,6 +120,17 @@ const handleTabContextMenu = (event: MouseEvent, tab: typeof tabBarStore.tabs[0]
   contextMenuTab.value = tab;
 };
 
+// Drag handlers with animation control
+const onDragStart = (event: DragEvent, path: string) => {
+  isDragging.value = true;
+  handleDragStart(event, path);
+};
+
+const onDragEnd = () => {
+  isDragging.value = false;
+  handleDragEnd();
+};
+
 // Restore tabs on mount
 onMounted(() => {
   tabBarStore.restoreTabs();
@@ -180,6 +194,7 @@ onMounted(() => {
           name="tab"
           tag="div"
           class="flex items-center gap-1"
+          :class="{ 'dragging': isDragging }"
         >
           <div
             v-for="tab in tabBarStore.tabs"
@@ -198,9 +213,9 @@ onMounted(() => {
                     tab.isLoading && 'opacity-70',
                   ]"
                   @click="handleTabClick(tab.path)"
-                  @dragstart="handleDragStart($event, tab.path)"
+                  @dragstart="onDragStart($event, tab.path)"
                   @dragover="handleDragOver($event, tab.path)"
-                  @dragend="handleDragEnd"
+                  @dragend="onDragEnd"
                   @contextmenu="handleTabContextMenu($event, tab)"
                 >
                   <!-- Drag Handle -->
@@ -374,6 +389,19 @@ onMounted(() => {
 
 .tab-move {
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Disable animations during drag */
+.dragging .tab-enter-active,
+.dragging .tab-leave-active,
+.dragging .tab-move {
+  transition: none !important;
+}
+
+.dragging .tab-enter-from,
+.dragging .tab-leave-to {
+  opacity: 1;
+  transform: none;
 }
 
 /* Reduced motion */

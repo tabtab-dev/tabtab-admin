@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 import { createStore } from '@/stores';
 import router from './router';
-import { useAuthStore } from '@/stores/global/auth';
+import { useAuthFlow } from '@/composables/useAuthFlow';
 import { useThemeStore } from '@/stores/global/theme';
 import { useLocaleStore } from '@/stores/global/locale';
 import { i18n } from './i18n';
@@ -21,13 +21,18 @@ async function initApp() {
   app.use(router);
   app.use(i18n);
 
-  const authStore = useAuthStore();
+  // 使用 useAuthFlow 替代直接使用 authStore，统一处理认证流程
+  const { initialize: initAuth, isAuthenticated } = useAuthFlow();
   const themeStore = useThemeStore();
   const localeStore = useLocaleStore();
 
   // 并行初始化认证和主题
-  await authStore.initialize();
+  const authResult = await initAuth();
   themeStore.init();
+
+  if (!authResult.success && isAuthenticated.value) {
+    console.warn('Auth initialization failed:', authResult.error);
+  }
 
   // 初始化语言（异步加载语言包）
   const localeSuccess = await localeStore.init();

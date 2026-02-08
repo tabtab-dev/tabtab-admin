@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { TForm } from '@/components/business/TForm';
 import type { FormSchema, TFormExpose } from '@/components/business/TForm';
-import { useAuthStore } from '@/stores/global/auth';
+import { useAuthFlow } from '@/composables/useAuthFlow';
 import { useThemeStore } from '@/stores/global/theme';
 import {
   Shield,
@@ -21,7 +21,7 @@ import {
 } from 'lucide-vue-next';
 
 const router = useRouter();
-const authStore = useAuthStore();
+const { login, isLoading: authLoading } = useAuthFlow();
 const themeStore = useThemeStore();
 
 /**
@@ -39,9 +39,9 @@ const formData = ref({
 });
 
 /**
- * 登录加载状态
+ * 登录加载状态 - 从 useAuthFlow 获取
  */
-const isLoading = ref(false);
+const isLoading = authLoading;
 
 /**
  * 错误提示信息
@@ -96,19 +96,16 @@ const loginSchema: FormSchema = {
  */
 const handleLogin = async (values: Record<string, any>) => {
   errorMessage.value = '';
-  isLoading.value = true;
 
-  try {
-    const success = await authStore.login(values.email, values.password);
-    if (success) {
-      router.push('/');
-    } else {
-      errorMessage.value = '登录失败，请检查账户信息';
-    }
-  } catch (error) {
-    errorMessage.value = '登录过程中发生错误，请稍后重试';
-  } finally {
-    isLoading.value = false;
+  const result = await login({
+    email: values.email,
+    password: values.password
+  });
+
+  if (result.success) {
+    router.push('/');
+  } else {
+    errorMessage.value = result.error || '登录失败，请检查账户信息';
   }
 };
 
