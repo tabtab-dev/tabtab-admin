@@ -105,34 +105,6 @@ export function getIconClass(active: boolean): string {
     : 'h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors';
 }
 
-export function filterMenusByPermission(
-  menus: MenuItem[] | SidebarMenuItem[],
-  userPermissions: string[] = [],
-  userRoles: string[] = []
-): (MenuItem | SidebarMenuItem)[] {
-  return menus.filter((menu) => {
-    if (menu.permissions?.length) {
-      const hasPermission = menu.permissions.some((p) => userPermissions.includes(p));
-      if (!hasPermission) return false;
-    }
-
-    if (menu.roles?.length) {
-      const hasRole = menu.roles.some((r) => userRoles.includes(r));
-      if (!hasRole) return false;
-    }
-
-    if (menu.children?.length) {
-      menu.children = filterMenusByPermission(
-        menu.children,
-        userPermissions,
-        userRoles
-      ) as typeof menu.children;
-    }
-
-    return true;
-  });
-}
-
 export function flattenMenus<T extends { children?: T[] }>(menus: T[]): T[] {
   return menus.reduce((acc: T[], item) => {
     acc.push(item);
