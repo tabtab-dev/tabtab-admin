@@ -1,27 +1,7 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { shallowRef } from 'vue';
 import { THEME_MODE, STORAGE_KEYS } from '@/constants/common';
-
-export interface ThemeColors {
-  primary: string;
-  primaryForeground: string;
-  secondary: string;
-  secondaryForeground: string;
-  accent: string;
-  accentForeground: string;
-  background: string;
-  foreground: string;
-  card: string;
-  cardForeground: string;
-  popover: string;
-  popoverForeground: string;
-  muted: string;
-  mutedForeground: string;
-  border: string;
-  input: string;
-  ring: string;
-  destructive: string;
-}
+import type { ThemeColors, LayoutConfig, PresetTheme } from '@/types/theme';
 
 // 基础亮色颜色（所有主题共享）
 const baseLightColors = {
@@ -101,24 +81,12 @@ function generateThemeColors(config: typeof themeConfigs[string]): { light: Them
 }
 
 // 生成预设主题
-export const presetThemes: Record<string, { name: string; colors: { light: ThemeColors; dark: ThemeColors } }> = Object.fromEntries(
+export const presetThemes: Record<string, PresetTheme> = Object.fromEntries(
   Object.entries(themeConfigs).map(([key, config]) => [
     key,
     { name: config.name, colors: generateThemeColors(config) },
   ])
 );
-
-export interface LayoutConfig {
-  sidebarWidth: number;
-  sidebarCollapsedWidth: number;
-  sidebarCollapsed: boolean;
-  headerHeight: number;
-  radius: number;
-  fontSize: 'sm' | 'base' | 'lg';
-  animations: boolean;
-  showTabBar: boolean;
-  showBreadcrumb: boolean;
-}
 
 export const defaultLayoutConfig: LayoutConfig = {
   sidebarWidth: 280,
@@ -158,7 +126,6 @@ export const useThemeStore = defineStore(
   () => {
     const currentTheme = ref<string>('default');
     const currentMode = ref<'light' | 'dark'>(THEME_MODE.LIGHT);
-    // 使用 shallowRef 优化大型配置对象的响应式性能
     const layoutConfig = shallowRef<LayoutConfig>({ ...defaultLayoutConfig });
 
     const currentColors = computed(() => {
@@ -212,8 +179,7 @@ export const useThemeStore = defineStore(
       const newMode = currentMode.value === THEME_MODE.LIGHT ? THEME_MODE.DARK : THEME_MODE.LIGHT;
 
       if ('startViewTransition' in document) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const transition = (document as any).startViewTransition(() => setMode(newMode));
+        const transition = (document as Document & { startViewTransition: (callback: () => void) => { ready: Promise<void> } }).startViewTransition(() => setMode(newMode));
         await transition.ready;
 
         document.documentElement.animate(

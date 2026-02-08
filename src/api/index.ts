@@ -3,18 +3,11 @@
  * @description 统一导出所有 API 模块和类型
  */
 
-// 导出请求客户端
 export { api, httpClient, requestManager, requestCache } from './client';
 export type { Method } from './client';
 
-// 为了保持向后兼容，保留旧的导出（标记为废弃）
-/** @deprecated 使用 api 替代 */
-export { request, enhancedRequest } from './client';
-
-// 导出请求管理器类型
 export type { RequestManagerOptions } from './client/requestManager';
 
-// 导出 API 通用类型
 export type {
   ApiResponse,
   PaginationParams,
@@ -22,7 +15,6 @@ export type {
   RequestConfig,
 } from './types';
 
-// 导出认证 API
 export {
   authApi,
   type LoginParams,
@@ -30,7 +22,6 @@ export {
   type ChangePasswordParams,
 } from './modules/auth';
 
-// 导出用户 API
 export {
   usersApi,
   type CreateUserParams,
@@ -38,10 +29,8 @@ export {
   type GetUsersParams,
 } from './modules/users';
 
-// 导出菜单 API
 export { menuApi } from './modules/menu';
 
-// 导出产品 API
 export {
   productsApi,
   type CreateProductParams,
@@ -49,7 +38,6 @@ export {
   type GetProductsParams,
 } from './modules/products';
 
-// 导出订单 API
 export {
   ordersApi,
   type CreateOrderParams,
@@ -57,7 +45,6 @@ export {
   type GetOrdersParams,
 } from './modules/orders';
 
-// 导出分类和标签 API
 export {
   categoriesApi,
   type CreateCategoryParams,
@@ -67,7 +54,6 @@ export {
   type UpdateTagParams,
 } from './modules/categories';
 
-// 导出库存管理 API
 export {
   inventoryApi,
   type CreateWarehouseParams,

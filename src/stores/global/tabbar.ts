@@ -13,6 +13,7 @@ export const useTabBarStore = defineStore(
     const tabs = ref<TabItem[]>([]);
     const activeTab = ref<string>('');
     const isLoading = ref(false);
+    const isRestored = ref(false); // 标记是否已从 localStorage 恢复
 
     // Getters
     /**
@@ -219,24 +220,23 @@ export const useTabBarStore = defineStore(
         if (saved) {
           const savedTabs: TabItem[] = JSON.parse(saved);
 
-          // 恢复标签页，重新从菜单查找图标
-          for (const savedTab of savedTabs) {
-            const icon = findIconFromMenu(savedTab.path);
-            addTab({
-              ...savedTab,
-              icon: icon || savedTab.icon,
-              isLoading: false,
-              isRefreshing: false,
-            });
-          }
+          // 直接恢复整个 tabs 数组，保持原有顺序
+          tabs.value = savedTabs.map((savedTab) => ({
+            ...savedTab,
+            icon: findIconFromMenu(savedTab.path) || savedTab.icon,
+            isLoading: false,
+            isRefreshing: false,
+          }));
 
           const savedActive = localStorage.getItem('tabbar-active');
           if (savedActive) {
             activeTab.value = savedActive;
           }
         }
+        isRestored.value = true; // 标记恢复完成
       } catch (error) {
         console.error('Failed to restore tabs:', error);
+        isRestored.value = true; // 即使出错也标记为已恢复，避免阻塞
       }
     };
 
@@ -264,6 +264,7 @@ export const useTabBarStore = defineStore(
       tabs,
       activeTab,
       isLoading,
+      isRestored,
       // Getters
       allTabs,
       currentTab,

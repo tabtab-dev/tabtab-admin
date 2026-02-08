@@ -12,27 +12,12 @@ export const useAuthStore = defineStore(
     const isAuthenticated = computed(() => !!token.value && !!user.value);
     const isAdmin = computed(() => user.value?.role === 'admin');
 
-    /**
-     * 用户登录
-     * @param email - 邮箱
-     * @param password - 密码
-     * @returns 是否登录成功
-     */
     const login = async (email: string, password: string): Promise<boolean> => {
       isLoading.value = true;
       try {
-        // 使用 Alova 发送登录请求（根据配置自动选择正式或 Mock 接口）
         const response = await authApi.login({ email, password });
-
-        // 保存用户信息和 Token
         user.value = response.user;
         token.value = response.token;
-
-        console.log('[Auth] Login successful, token and user saved');
-
-        // 注意：登录成功后获取菜单的逻辑已移至 useAuthFlow composable
-        // 避免 store 之间的直接耦合
-
         return true;
       } catch (error) {
         console.error('Login failed:', error);
@@ -42,28 +27,17 @@ export const useAuthStore = defineStore(
       }
     };
 
-    /**
-     * 用户登出
-     * 注意：清理菜单状态的逻辑已移至 useAuthFlow composable
-     */
     const logout = async (): Promise<void> => {
       try {
-        // 调用登出 API（根据配置自动选择正式或 Mock 接口）
         await authApi.logout();
       } catch (error) {
         console.error('Logout API error:', error);
       } finally {
-        // 清除本地状态
         user.value = null;
         token.value = null;
-        // 注意：menuStore.reset() 已移至 useAuthFlow，避免 store 耦合
       }
     };
 
-    /**
-     * 获取当前用户信息
-     * @returns 是否获取成功
-     */
     const fetchCurrentUser = async (): Promise<boolean> => {
       if (!token.value) return false;
 
@@ -73,46 +47,20 @@ export const useAuthStore = defineStore(
         return true;
       } catch (error) {
         console.error('Failed to fetch current user:', error);
-        // Token 可能已过期，清除登录状态
         user.value = null;
         token.value = null;
         return false;
       }
     };
 
-    /**
-     * 检查用户是否有指定权限
-     * @param permission - 权限标识
-     * @returns 是否有权限
-     */
     const hasPermission = (permission: string): boolean => {
       return user.value?.permissions.includes(permission) || false;
     };
 
-    /**
-     * 初始化认证状态
-     * 从持久化存储恢复用户状态
-     */
     const initialize = async (): Promise<void> => {
-      console.log('[Auth] Initializing...');
-      console.log('[Auth] Current token:', token.value);
-      console.log('[Auth] Current user:', user.value);
-      console.log('[Auth] isAuthenticated:', isAuthenticated.value);
-
-      // 检查 localStorage 中的原始数据
-      if (typeof localStorage !== 'undefined') {
-        const rawData = localStorage.getItem('app-auth');
-        console.log('[Auth] Raw localStorage data:', rawData);
-      }
-
-      // 状态已通过持久化插件自动恢复
-      // 这里可以添加额外的初始化逻辑，如验证 token 有效性
       if (token.value && user.value) {
-        console.log('[Auth] Token and user exist, checking validity...');
         // 可选：验证 token 是否仍然有效
         // await fetchCurrentUser();
-      } else {
-        console.log('[Auth] No token or user found in persisted state');
       }
     };
 
