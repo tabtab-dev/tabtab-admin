@@ -42,15 +42,14 @@ export function checkAuthentication(): boolean {
 /**
  * 检查用户是否有指定权限
  * @param permissions - 权限列表
+ * @param authStore - AuthStore 实例，避免在函数内部调用 useAuthStore 可能导致的问题
  * @returns 是否拥有所有权限
  */
-export function checkPermissions(permissions: string[]): boolean {
-  try {
-    const authStore = useAuthStore();
-    return permissions.every(perm => authStore.hasPermission(perm));
-  } catch {
-    return false;
-  }
+export function checkPermissions(
+  permissions: string[],
+  authStore: ReturnType<typeof useAuthStore>
+): boolean {
+  return permissions.every(perm => authStore.hasPermission(perm));
 }
 
 // 导出权限守卫

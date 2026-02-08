@@ -6,14 +6,24 @@
 import type zhCN from './locales/zh-CN';
 
 /**
- * 提取对象的所有键路径（支持嵌套）
+ * 递归深度限制辅助类型
+ */
+type Prev = [never, 0, 1, 2, 3, 4, 5];
+
+/**
+ * 提取对象的所有键路径（支持嵌套，限制递归深度为5层）
  * 例如: { a: { b: 'value' } } => 'a' | 'a.b'
  */
-type KeyPaths<T extends Record<string, unknown>, K extends keyof T = keyof T> = K extends string
-  ? T[K] extends Record<string, unknown>
-    ? `${K}` | `${K}.${KeyPaths<T[K]>}`
-    : `${K}`
-  : never;
+type KeyPaths<
+  T extends Record<string, unknown>,
+  Depth extends number = 5
+> = Depth extends 0
+  ? never
+  : keyof T extends string
+    ? T[keyof T] extends Record<string, unknown>
+      ? `${keyof T}` | `${keyof T}.${KeyPaths<T[keyof T], Prev[Depth]>}`
+      : `${keyof T}`
+    : never;
 
 /**
  * 根据键路径获取对应的值类型

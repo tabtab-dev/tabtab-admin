@@ -1,4 +1,5 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
+import { shallowRef } from 'vue';
 import { THEME_MODE, STORAGE_KEYS } from '@/constants/common';
 
 export interface ThemeColors {
@@ -157,7 +158,8 @@ export const useThemeStore = defineStore(
   () => {
     const currentTheme = ref<string>('default');
     const currentMode = ref<'light' | 'dark'>(THEME_MODE.LIGHT);
-    const layoutConfig = ref<LayoutConfig>({ ...defaultLayoutConfig });
+    // 使用 shallowRef 优化大型配置对象的响应式性能
+    const layoutConfig = shallowRef<LayoutConfig>({ ...defaultLayoutConfig });
 
     const currentColors = computed(() => {
       const theme = presetThemes[currentTheme.value];

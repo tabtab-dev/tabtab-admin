@@ -9,11 +9,20 @@ import { toast } from 'vue-sonner';
 import { api } from '@/api';
 import { normalizeError, type AppError } from '@/utils/errorHandler';
 
-export interface UseQueryOptions {
+export interface UseQueryOptions<T = any> {
   immediate?: boolean;
-  initialData?: any;
-  onSuccess?: (data: any) => void;
+  initialData?: T;
+  onSuccess?: (data: T) => void;
   onError?: (error: AppError) => void;
+}
+
+export interface UseQueryReturn<T> {
+  readonly data: Ref<T | undefined>;
+  readonly loading: Ref<boolean>;
+  readonly error: Ref<AppError | null>;
+  send: (...args: any[]) => Promise<T | null>;
+  abort: () => void;
+  update: (updater: (data: T) => T) => void;
 }
 
 export interface UseMutationOptions<TVariables = any, TData = any> {
@@ -22,6 +31,12 @@ export interface UseMutationOptions<TVariables = any, TData = any> {
   onError?: (error: AppError, variables: TVariables) => void;
   onComplete?: () => void;
   successMessage?: string | false;
+}
+
+export interface UseMutationReturn<TVariables, TData> {
+  mutate: (variables: TVariables) => Promise<TData | null>;
+  readonly loading: Ref<boolean>;
+  abort: () => void;
 }
 
 /**
@@ -47,8 +62,8 @@ function handleRequestResult<T>(
  */
 export function useQuery<T = any>(
   methodHandler: Method | (() => Method),
-  options: UseQueryOptions = {}
-) {
+  options: UseQueryOptions<T> = {}
+): UseQueryReturn<T> {
   const { immediate = true, initialData, onSuccess, onError } = options;
 
   const { data, loading, error, send, abort, update } = useAlovaRequest(methodHandler, {
@@ -68,9 +83,9 @@ export function useQuery<T = any>(
   };
 
   return {
-    data: data as Ref<T>,
-    loading,
-    error,
+    data: data as Ref<T | undefined>,
+    loading: loading as Ref<boolean>,
+    error: error as Ref<AppError | null>,
     send: fetchData,
     abort,
     update,
@@ -82,7 +97,7 @@ export function useQuery<T = any>(
  */
 export function useMutation<TVariables = any, TData = any>(
   options: UseMutationOptions<TVariables, TData>
-) {
+): UseMutationReturn<TVariables, TData> {
   const { mutationFn, onSuccess, onError, onComplete, successMessage = '操作成功' } = options;
 
   const { loading, send, abort } = useFetcher();
@@ -111,7 +126,7 @@ export function useMutation<TVariables = any, TData = any>(
 
   return {
     mutate,
-    loading,
+    loading: loading as Ref<boolean>,
     abort,
   };
 }

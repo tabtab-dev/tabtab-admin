@@ -2,6 +2,7 @@
  * 表格数据管理 Composable
  * @description 封装数据获取、过滤、分页、统计等通用逻辑（仅支持后端分页）
  */
+import { useDebounceFn } from '@vueuse/core';
 import { normalizeError, type AppError } from '@/utils/errorHandler';
 
 /**
@@ -174,13 +175,25 @@ export function useTableData<T = any>(options: UseTableDataOptions<T>) {
     }
   };
 
-  // 监听分页和搜索变化，自动重新获取数据
+  // 创建防抖的搜索请求函数（300ms 延迟）
+  const debouncedFetch = useDebounceFn(fetchData, 300);
+
+  // 监听分页变化（立即执行）
   watch(
-    [currentPage, pageSize, searchQuery, filters],
+    [currentPage, pageSize],
     () => {
       fetchData();
     },
     { immediate }
+  );
+
+  // 监听搜索和过滤变化（防抖执行）
+  watch(
+    [searchQuery, filters],
+    () => {
+      debouncedFetch();
+    },
+    { deep: true }
   );
 
   // ============ 计算属性 ============

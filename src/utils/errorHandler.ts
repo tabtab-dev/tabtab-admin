@@ -12,6 +12,7 @@ export type ErrorLevel = 'info' | 'warning' | 'error' | 'fatal';
 /**
  * 应用错误类
  * 用于区分业务错误和系统错误
+ * 注意：项目使用 TypeScript target: ES2022+，不需要手动修复原型链
  */
 export class AppError extends Error {
   constructor(
@@ -22,8 +23,7 @@ export class AppError extends Error {
   ) {
     super(message);
     this.name = 'AppError';
-    // 修复原型链
-    Object.setPrototypeOf(this, AppError.prototype);
+    // TypeScript ES2022+ 自动处理原型链，无需 Object.setPrototypeOf
   }
 
   /**
@@ -55,7 +55,6 @@ export class ApiError extends AppError {
   ) {
     super(message, code, level, { statusCode, response });
     this.name = 'ApiError';
-    Object.setPrototypeOf(this, ApiError.prototype);
   }
 }
 
@@ -71,7 +70,6 @@ export class ValidationError extends AppError {
   ) {
     super(message, code, 'warning', { fields });
     this.name = 'ValidationError';
-    Object.setPrototypeOf(this, ValidationError.prototype);
   }
 
   /**
@@ -96,7 +94,6 @@ export class NetworkError extends AppError {
   ) {
     super(message, code, 'error');
     this.name = 'NetworkError';
-    Object.setPrototypeOf(this, NetworkError.prototype);
   }
 }
 
@@ -110,7 +107,6 @@ export class AuthError extends AppError {
   ) {
     super(message, code, 'warning');
     this.name = 'AuthError';
-    Object.setPrototypeOf(this, AuthError.prototype);
   }
 }
 

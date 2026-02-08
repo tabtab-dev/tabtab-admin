@@ -45,6 +45,9 @@ export const useMenuStore = defineStore(
       return map;
     });
 
+    // 用于防止重复请求的 Promise 锁
+    let pendingPromise: Promise<boolean> | null = null;
+
     // Actions
     /**
      * 获取菜单和路由数据
@@ -57,40 +60,37 @@ export const useMenuStore = defineStore(
         return true;
       }
 
-      // 如果正在加载中，等待加载完成
-      if (isLoading.value) {
-        console.log('[MenuStore] Menus are loading, waiting...');
-        return new Promise((resolve) => {
-          const checkLoaded = () => {
-            if (!isLoading.value) {
-              resolve(isLoaded.value);
-            } else {
-              setTimeout(checkLoaded, 50);
-            }
-          };
-          checkLoaded();
-        });
+      // 如果正在加载中，返回正在进行的 Promise
+      if (pendingPromise) {
+        console.log('[MenuStore] Menus are loading, returning pending promise...');
+        return pendingPromise;
       }
 
-      isLoading.value = true;
-      try {
-        console.log('[MenuStore] Fetching menus...');
-        const response = await menuApi.getMenus();
-        menus.value = response.menus;
-        routes.value = response.routes;
-        isLoaded.value = true;
+      // 创建新的加载 Promise
+      pendingPromise = (async () => {
+        isLoading.value = true;
+        try {
+          console.log('[MenuStore] Fetching menus...');
+          const response = await menuApi.getMenus();
+          menus.value = response.menus;
+          routes.value = response.routes;
+          isLoaded.value = true;
 
-        // 动态添加路由
-        addDynamicRoutes(response.routes);
-        console.log('[MenuStore] Menus loaded and routes added');
+          // 动态添加路由
+          addDynamicRoutes(response.routes);
+          console.log('[MenuStore] Menus loaded and routes added');
 
-        return true;
-      } catch (error) {
-        console.error('[MenuStore] Failed to fetch menus:', error);
-        return false;
-      } finally {
-        isLoading.value = false;
-      }
+          return true;
+        } catch (error) {
+          console.error('[MenuStore] Failed to fetch menus:', error);
+          return false;
+        } finally {
+          isLoading.value = false;
+          pendingPromise = null;
+        }
+      })();
+
+      return pendingPromise;
     };
 
     /**

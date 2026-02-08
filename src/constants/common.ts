@@ -14,6 +14,9 @@ export const STORAGE_KEYS = {
   SIDEBAR_COLLAPSED: 'sidebarCollapsed',
 } as const;
 
+/** StorageKey 类型 */
+export type StorageKey = typeof STORAGE_KEYS[keyof typeof STORAGE_KEYS];
+
 /** 主题模式 */
 export const THEME_MODE = {
   LIGHT: 'light',

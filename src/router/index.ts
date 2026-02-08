@@ -6,13 +6,11 @@ import { useAuthStore } from '@/stores/global/auth';
 import { updateDocumentTitle } from '@/i18n';
 import { requestCache } from '@/api/client';
 
-// 同步导入 Dashboard 组件（避免开发时动态导入问题）
-import Dashboard from '@/views/Dashboard.vue';
-
 /**
  * 基础路由配置
  * 包含登录页和 404 页面（固定路由）
  * 其他路由通过动态方式从后端获取
+ * 所有页面组件使用懒加载，优化首屏性能
  */
 const routes: RouteRecordRaw[] = [
   {
@@ -31,7 +29,8 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'dashboard',
         name: 'Dashboard',
-        component: Dashboard,
+        // 使用懒加载，与生产环境保持一致
+        component: () => import('@/views/Dashboard.vue'),
         meta: { requiresAuth: true, titleKey: 'menu.dashboard' }
       }
     ]

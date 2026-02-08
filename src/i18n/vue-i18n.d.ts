@@ -3,6 +3,7 @@
  * 为 useI18n 和全局 $t 提供类型支持
  */
 
+import type { Ref } from 'vue';
 import type { TypedT, SupportedLocale } from './types';
 
 declare module 'vue-i18n' {

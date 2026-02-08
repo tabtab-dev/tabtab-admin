@@ -4,7 +4,7 @@
  *
  * @description 支持通过 JSON Schema 配置生成表格，样式与 shadcn-vue 主题对齐
  */
-import { computed, ref, watch, useSlots, h } from 'vue'
+import { computed, ref, shallowRef, watch, useSlots, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ConfigProvider, Popconfirm, Button } from 'antdv-next'
 import { cn } from '@/lib/utils'
@@ -92,8 +92,9 @@ const slots = useSlots()
 
 /**
  * Table 实例引用
+ * @description 使用 shallowRef 优化，表格实例不需要深层响应式
  */
-const tableRef = ref<any>(null)
+const tableRef = shallowRef<any>(null)
 
 /**
  * 表格状态
