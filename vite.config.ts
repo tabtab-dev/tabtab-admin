@@ -5,6 +5,8 @@ import vue from "@vitejs/plugin-vue";
 import { AntdvNextResolver } from "@antdv-next/auto-import-resolver";
 import Components from "unplugin-vue-components/vite";
 import AutoImport from "unplugin-auto-import/vite";
+import Icons from "unplugin-icons/vite";
+import IconsResolver from "unplugin-icons/resolver";
 import { mockPlugin } from "./mock/server";
 
 /**
@@ -31,7 +33,18 @@ export default defineConfig(({ mode }: ConfigEnv) => {
       vue(),
       tailwindcss(),
       Components({
-        resolvers: [AntdvNextResolver()],
+        resolvers: [
+          AntdvNextResolver(),
+          // 自动导入图标组件，前缀为 Icon
+          IconsResolver({
+            prefix: 'Icon',
+            enabledCollections: ['lucide'],
+          }),
+        ],
+      }),
+      // 图标插件配置
+      Icons({
+        autoInstall: true,
       }),
       // 自动导入配置
       AutoImport({

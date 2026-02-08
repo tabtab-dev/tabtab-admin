@@ -41,7 +41,7 @@ export interface MenuItem {
 
 /**
  * 侧边栏菜单项类型
- * 用于 Sidebar 组件内部，包含图标组件
+ * 用于 Sidebar 组件内部，包含图标名称
  */
 export interface SidebarMenuItem {
   /** 唯一标识 */
@@ -50,8 +50,8 @@ export interface SidebarMenuItem {
   title: string;
   /** 路由路径 */
   path: string;
-  /** 图标组件 */
-  icon?: Component;
+  /** 图标名称（对应 lucide-vue-next 的图标名称） */
+  icon?: string;
   /** 徽标数量（可选） */
   badge?: number;
   /** 子菜单 */

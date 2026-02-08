@@ -24,7 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useIcon } from '@/composables/useIcon';
+import { Icon } from '@/components/Icon';
 import {
   ChevronLeft,
   ChevronRight,
@@ -218,9 +218,9 @@ onMounted(() => {
                   />
 
                   <!-- Icon -->
-                  <component
-                    :is="tab.icon"
+                  <Icon
                     v-else-if="tab.icon"
+                    :name="tab.icon"
                     class="h-3.5 w-3.5"
                   />
 
@@ -253,9 +253,9 @@ onMounted(() => {
                     :disabled="item.disabled"
                     @click="handleContextMenuAction(item.key, tab.path)"
                   >
-                    <component
-                      :is="useIcon(item.icon).value"
+                    <Icon
                       v-if="item.icon"
+                      :name="item.icon"
                       class="h-4 w-4 mr-2"
                     />
                     <span>{{ item.label }}</span>

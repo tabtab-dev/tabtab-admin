@@ -8,6 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { Icon } from '@/components/Icon';
 import { useMenuUtils, formatBadge, getButtonVariant, getIconClass } from '@/layouts/composables/useMenuUtils';
 import type { SidebarMenuItem } from '@/types/menu';
 
@@ -94,8 +95,9 @@ const ariaLabel = computed(() => {
         :style="{ borderRadius: 'calc(var(--radius) * 0.8)' }"
         @click="handleClick"
       >
-        <component
-          :is="item.icon"
+        <Icon
+          v-if="item.icon"
+          :name="item.icon"
           class="h-5 w-5"
           aria-hidden="true"
         />
@@ -161,8 +163,9 @@ const ariaLabel = computed(() => {
       aria-hidden="true"
     />
 
-    <component
-      :is="item.icon"
+    <Icon
+      v-if="item.icon"
+      :name="item.icon"
       :class="[
         'h-[18px] w-[18px] flex-shrink-0 transition-colors duration-200',
         active ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-foreground'

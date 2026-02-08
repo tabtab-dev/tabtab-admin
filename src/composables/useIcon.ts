@@ -1,23 +1,44 @@
 /**
  * 图标工具函数
- * @description 提供图标获取功能，全量导入 lucide-vue-next
+ * @description 提供图标获取功能，使用 unplugin-icons 实现按需加载
  */
-import * as icons from 'lucide-vue-next';
-import { shallowRef, type Component } from 'vue';
+import { h, type Component } from 'vue';
 
 /**
- * 图标名称到组件的映射
+ * 图标名称映射表
+ * 用于将图标名称转换为 unplugin-icons 的导入路径
  */
-const iconMap = icons as unknown as Record<string, Component>;
+const iconCache = new Map<string, Component>();
 
 /**
- * 获取图标组件
- * @param iconName - 图标名称（如 'LayoutDashboard', 'Users' 等）
+ * 动态导入图标组件
+ * @param iconName - 图标名称（如 'layout-dashboard', 'users' 等）
  * @returns 图标组件或 undefined
  */
-export function getIcon(iconName?: string): Component | undefined {
+export async function getIcon(iconName?: string): Promise<Component | undefined> {
   if (!iconName) return undefined;
-  return iconMap[iconName];
+
+  // 检查缓存
+  if (iconCache.has(iconName)) {
+    return iconCache.get(iconName);
+  }
+
+  try {
+    // 将驼峰命名转换为 kebab-case
+    const kebabName = iconName
+      .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+      .toLowerCase();
+
+    // 动态导入图标
+    const module = await import(`~icons/lucide/${kebabName}.js`);
+    const component = module.default;
+
+    // 缓存组件
+    iconCache.set(iconName, component);
+    return component;
+  } catch {
+    return undefined;
+  }
 }
 
 /**
@@ -25,15 +46,17 @@ export function getIcon(iconName?: string): Component | undefined {
  * @param iconNames - 图标名称数组
  * @returns 图标名称到组件的映射
  */
-export function getIcons(iconNames: string[]): Record<string, Component> {
+export async function getIcons(iconNames: string[]): Promise<Record<string, Component>> {
   const result: Record<string, Component> = {};
 
-  iconNames.forEach((name) => {
-    const icon = getIcon(name);
-    if (icon) {
-      result[name] = icon;
-    }
-  });
+  await Promise.all(
+    iconNames.map(async (name) => {
+      const icon = await getIcon(name);
+      if (icon) {
+        result[name] = icon;
+      }
+    })
+  );
 
   return result;
 }
@@ -45,36 +68,41 @@ export function getIcons(iconNames: string[]): Record<string, Component> {
  */
 export function hasIcon(iconName?: string): boolean {
   if (!iconName) return false;
-  return iconName in iconMap;
+  return iconCache.has(iconName);
 }
 
 /**
- * 获取所有可用的图标名称
+ * 获取所有已缓存的图标名称
  * @returns 图标名称数组
  */
 export function getAvailableIcons(): string[] {
-  return Object.keys(iconMap).filter((key) => 
-    // 过滤掉非组件导出（如 createIcons 等工具函数）
-    typeof iconMap[key] === 'object' && iconMap[key] !== null
-  );
+  return Array.from(iconCache.keys());
 }
 
 /**
  * 使用图标（带响应式缓存）
  * @param iconName - 图标名称
  * @returns 图标组件的 ref
- * @deprecated 直接使用 getIcon 即可，无需异步加载
  */
 export function useIcon(iconName?: string) {
-  return shallowRef<Component | undefined>(getIcon(iconName));
+  return {
+    // 返回一个渲染函数，用于在模板中使用
+    render: () => {
+      if (!iconName) return null;
+      const cached = iconCache.get(iconName);
+      if (cached) {
+        return h(cached);
+      }
+      return null;
+    },
+  };
 }
 
 /**
  * 清除图标缓存
- * @deprecated 全量导入模式下无需缓存
  */
 export function clearIconCache(): void {
-  // 全量导入模式下无需清除缓存
+  iconCache.clear();
 }
 
 // 为了向后兼容，保留旧函数名

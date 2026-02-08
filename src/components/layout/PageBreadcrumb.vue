@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import {
@@ -10,10 +10,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { Icon } from '@/components/Icon';
 import { useMenuStore } from '@/stores/global/menu';
-import { loadIcon, getCachedIcon } from '@/composables/useIcon';
-import { Home } from 'lucide-vue-next';
-import type { Component } from 'vue';
 import type { MenuItem } from '@/types/menu';
 
 const { t } = useI18n();
@@ -29,16 +27,11 @@ interface BreadcrumbItemData {
   title: string;
   /** 路径 */
   path: string;
-  /** 图标 */
-  icon?: Component;
+  /** 图标名称 */
+  icon?: string;
   /** 是否可点击 */
   clickable: boolean;
 }
-
-/**
- * 图标缓存
- */
-const iconCache = ref<Record<string, Component>>({});
 
 /**
  * 在菜单树中查找路径
@@ -76,28 +69,6 @@ const findPathInMenuTree = (
 };
 
 /**
- * 异步加载面包屑图标
- */
-const loadBreadcrumbIcons = async (items: BreadcrumbItemData[]) => {
-  for (const item of items) {
-    if (item.icon && typeof item.icon === 'string') {
-      const iconName = item.icon as string;
-      if (!iconCache.value[iconName]) {
-        const cached = getCachedIcon(iconName);
-        if (cached) {
-          iconCache.value[iconName] = cached;
-        } else {
-          const loaded = await loadIcon(iconName);
-          if (loaded) {
-            iconCache.value[iconName] = loaded;
-          }
-        }
-      }
-    }
-  }
-};
-
-/**
  * 面包屑数据
  */
 const breadcrumbs = computed<BreadcrumbItemData[]>(() => {
@@ -108,7 +79,7 @@ const breadcrumbs = computed<BreadcrumbItemData[]>(() => {
   result.push({
     title: t('menu.dashboard'),
     path: '/dashboard',
-    icon: Home,
+    icon: 'House',
     clickable: currentPath !== '/dashboard',
   });
 
@@ -127,7 +98,7 @@ const breadcrumbs = computed<BreadcrumbItemData[]>(() => {
       result.push({
         title: t(menu.i18nKey),
         path: menu.path,
-        icon: undefined, // 面包屑通常不显示图标
+        icon: menu.icon,
         clickable: !isLast,
       });
     });
@@ -155,17 +126,6 @@ const breadcrumbs = computed<BreadcrumbItemData[]>(() => {
 });
 
 /**
- * 监听面包屑变化，加载图标
- */
-watch(
-  breadcrumbs,
-  (newItems) => {
-    loadBreadcrumbIcons(newItems);
-  },
-  { immediate: true }
-);
-
-/**
  * 处理面包屑点击
  * @param item 面包屑项
  */
@@ -188,14 +148,9 @@ const handleBreadcrumbClick = (item: BreadcrumbItemData) => {
             class="flex items-center gap-1.5 cursor-pointer"
             @click="handleBreadcrumbClick(item)"
           >
-            <component
-              :is="item.icon"
-              v-if="item.icon && typeof item.icon !== 'string'"
-              class="h-3.5 w-3.5"
-            />
-            <component
-              :is="iconCache[item.icon as string]"
-              v-else-if="item.icon && typeof item.icon === 'string' && iconCache[item.icon]"
+            <Icon
+              v-if="item.icon"
+              :name="item.icon"
               class="h-3.5 w-3.5"
             />
             {{ item.title }}
@@ -206,14 +161,9 @@ const handleBreadcrumbClick = (item: BreadcrumbItemData) => {
             v-else
             class="flex items-center gap-1.5"
           >
-            <component
-              :is="item.icon"
-              v-if="item.icon && typeof item.icon !== 'string'"
-              class="h-3.5 w-3.5"
-            />
-            <component
-              :is="iconCache[item.icon as string]"
-              v-else-if="item.icon && typeof item.icon === 'string' && iconCache[item.icon]"
+            <Icon
+              v-if="item.icon"
+              :name="item.icon"
               class="h-3.5 w-3.5"
             />
             {{ item.title }}

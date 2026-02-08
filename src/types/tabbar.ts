@@ -12,8 +12,8 @@ export interface TabItem {
   path: string;
   /** 标题 */
   title: string;
-  /** 图标组件 */
-  icon?: Component;
+  /** 图标名称（对应 lucide-vue-next 的图标） */
+  icon?: string;
   /** 是否固定（不可关闭） */
   affix?: boolean;
   /** 是否加载中 */

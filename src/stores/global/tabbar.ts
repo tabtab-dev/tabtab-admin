@@ -4,10 +4,7 @@
  */
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
-import { markRaw } from 'vue';
-import type { Component } from 'vue';
 import { useMenuStore } from './menu';
-import { loadIcon, getCachedIcon } from '@/composables/useIcon';
 import type { TabItem } from '@/types/tabbar';
 
 export const useTabBarStore = defineStore(
@@ -40,34 +37,23 @@ export const useTabBarStore = defineStore(
 
     // Actions
     /**
-     * 从菜单数据中查找图标
+     * 从菜单数据中查找图标名称
      * @param path - 路由路径
-     * @returns 图标组件或 undefined
+     * @returns 图标名称或 undefined
      */
-    const findIconFromMenu = async (path: string): Promise<Component | undefined> => {
+    const findIconFromMenu = (path: string): string | undefined => {
       const menuStore = useMenuStore();
 
       // 先在扁平化菜单中查找
       const menuItem = menuStore.flatMenus.find((item) => item.path === path);
-      if (menuItem?.icon) {
-        // 尝试从缓存获取
-        const cachedIcon = getCachedIcon(menuItem.icon);
-        if (cachedIcon) {
-          return markRaw(cachedIcon);
-        }
-        // 异步加载图标
-        const icon = await loadIcon(menuItem.icon);
-        return icon ? markRaw(icon) : undefined;
-      }
-
-      return undefined;
+      return menuItem?.icon;
     };
 
     /**
      * 添加标签页
      * @param tab - 标签页数据
      */
-    const addTab = async (tab: Omit<TabItem, 'icon'> & { icon?: Component | string }): Promise<void> => {
+    const addTab = (tab: TabItem): void => {
       // 检查是否已存在
       const existingTab = tabs.value.find((t) => t.path === tab.path);
       if (existingTab) {
@@ -77,29 +63,15 @@ export const useTabBarStore = defineStore(
         return;
       }
 
-      // 处理图标
-      let iconComponent: Component | undefined;
-      if (typeof tab.icon === 'string') {
-        // 如果是字符串，从菜单查找或加载
-        iconComponent = await findIconFromMenu(tab.path);
-        if (!iconComponent && tab.icon) {
-          const loaded = await loadIcon(tab.icon);
-          if (loaded) {
-            iconComponent = markRaw(loaded);
-          }
-        }
-      } else if (tab.icon) {
-        iconComponent = markRaw(tab.icon);
-      }
-
-      // 如果还是没有图标，尝试从菜单查找
-      if (!iconComponent) {
-        iconComponent = await findIconFromMenu(tab.path);
+      // 如果没有提供图标，从菜单查找
+      let iconName = tab.icon;
+      if (!iconName) {
+        iconName = findIconFromMenu(tab.path);
       }
 
       const newTab: TabItem = {
         ...tab,
-        icon: iconComponent,
+        icon: iconName,
       };
 
       tabs.value.push(newTab);
@@ -230,33 +202,30 @@ export const useTabBarStore = defineStore(
     /**
      * 更新标签页图标
      * @param path - 标签页路径
-     * @param icon - 新图标
+     * @param icon - 新图标名称
      */
-    const updateTabIcon = async (path: string, icon: string): Promise<void> => {
+    const updateTabIcon = (path: string, icon: string): void => {
       const tab = tabs.value.find((t) => t.path === path);
       if (tab) {
-        const loadedIcon = await loadIcon(icon);
-        if (loadedIcon) {
-          tab.icon = markRaw(loadedIcon);
-        }
+        tab.icon = icon;
       }
     };
 
     /**
      * 从 localStorage 恢复标签页
      */
-    const restoreTabs = async (): Promise<void> => {
+    const restoreTabs = (): void => {
       try {
         const saved = localStorage.getItem('tabbar-tabs');
         if (saved) {
-          const savedTabs: Array<Omit<TabItem, 'icon'> & { icon?: string }> = JSON.parse(saved);
+          const savedTabs: TabItem[] = JSON.parse(saved);
 
-          // 恢复标签页，重新加载图标
+          // 恢复标签页，重新从菜单查找图标
           for (const savedTab of savedTabs) {
-            const icon = await findIconFromMenu(savedTab.path);
+            const icon = findIconFromMenu(savedTab.path);
             addTab({
               ...savedTab,
-              icon,
+              icon: icon || savedTab.icon,
               isLoading: false,
               isRefreshing: false,
             });
@@ -277,12 +246,12 @@ export const useTabBarStore = defineStore(
      */
     const saveTabs = (): void => {
       try {
-        // 只保存必要的数据，不保存组件引用
+        // 只保存必要的数据
         const tabsToSave = tabs.value.map((tab) => ({
           path: tab.path,
           title: tab.title,
           affix: tab.affix,
-          icon: undefined, // 图标不保存，恢复时重新加载
+          icon: tab.icon,
         }));
         localStorage.setItem('tabbar-tabs', JSON.stringify(tabsToSave));
         localStorage.setItem('tabbar-active', activeTab.value);

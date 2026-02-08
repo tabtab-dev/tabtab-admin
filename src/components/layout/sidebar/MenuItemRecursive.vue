@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, ChevronRight } from 'lucide-vue-next';
+import { Icon } from '@/components/Icon';
 import { useMenuUtils, formatBadge } from '@/layouts/composables/useMenuUtils';
 import type { SidebarMenuItem } from '@/types/menu';
 
@@ -224,8 +225,9 @@ const menuTitle = computed(() => {
       />
 
       <div class="flex items-center gap-2.5 relative z-10 flex-1 min-w-0">
-        <component
-          :is="item.icon"
+        <Icon
+          v-if="item.icon"
+          :name="item.icon"
           :class="iconClasses"
           aria-hidden="true"
         />

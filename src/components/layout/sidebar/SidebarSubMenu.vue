@@ -6,6 +6,7 @@ import { useTimeoutFn, useElementBounding, useWindowScroll } from '@vueuse/core'
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, ChevronRight } from 'lucide-vue-next';
+import { Icon } from '@/components/Icon';
 import { useMenuUtils, formatBadge } from '@/layouts/composables/useMenuUtils';
 import MenuItemRecursive from './MenuItemRecursive.vue';
 import type { SidebarMenuItem } from '@/types/menu';
@@ -204,8 +205,9 @@ const childCountText = computed(() => {
       ]"
       :style="{ borderRadius: 'calc(var(--radius) * 0.8)' }"
     >
-      <component
-        :is="item.icon"
+      <Icon
+        v-if="item.icon"
+        :name="item.icon"
         class="h-5 w-5"
         aria-hidden="true"
       />
@@ -275,8 +277,9 @@ const childCountText = computed(() => {
                 class="h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0"
                 :class="(active || isChildActive) ? 'bg-primary/15' : 'bg-muted'"
               >
-                <component
-                  :is="item.icon"
+                <Icon
+                  v-if="item.icon"
+                  :name="item.icon"
                   class="h-4 w-4"
                   :class="(active || isChildActive) ? 'text-primary' : 'text-muted-foreground'"
                 />
@@ -339,8 +342,9 @@ const childCountText = computed(() => {
       />
 
       <div class="flex items-center gap-2.5 relative z-10">
-        <component
-          :is="item.icon"
+        <Icon
+          v-if="item.icon"
+          :name="item.icon"
           :class="[
             'h-[18px] w-[18px] flex-shrink-0 transition-colors duration-200',
             (active || isChildActive) ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-foreground'
