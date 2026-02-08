@@ -9,49 +9,41 @@ import { toast } from 'vue-sonner';
 import { api } from '@/api';
 import { normalizeError, type AppError } from '@/utils/errorHandler';
 
-/**
- * useQuery 配置选项
- */
 export interface UseQueryOptions {
-  /** 是否立即发起请求 */
   immediate?: boolean;
-  /** 初始数据 */
   initialData?: any;
-  /** 请求成功回调 */
   onSuccess?: (data: any) => void;
-  /** 请求失败回调 */
   onError?: (error: AppError) => void;
 }
 
-/**
- * useMutation 配置选项
- */
 export interface UseMutationOptions<TVariables = any, TData = any> {
-  /** 变更函数 */
   mutationFn: (variables: TVariables) => Promise<TData>;
-  /** 成功回调 */
   onSuccess?: (data: TData, variables: TVariables) => void;
-  /** 失败回调 */
   onError?: (error: AppError, variables: TVariables) => void;
-  /** 完成回调 */
   onComplete?: () => void;
-  /** 成功提示消息，设为 false 则不显示 */
   successMessage?: string | false;
 }
 
 /**
- * 查询操作 Hook（使用 useRequest）
- * @param methodHandler - 请求方法
- * @param options - 配置选项
- * @returns 请求状态和操作方法
- *
- * @example
- * ```ts
- * const { data, loading, fetchData } = useQuery(
- *   () => api.getMethod('/users'),
- *   { immediate: true }
- * );
- * ```
+ * 处理请求结果
+ */
+function handleRequestResult<T>(
+  result: T | null,
+  error: unknown,
+  onSuccess?: (data: T) => void,
+  onError?: (error: AppError) => void
+): T | null {
+  if (result === null) {
+    const appError = normalizeError(error || new Error('请求失败'));
+    onError?.(appError);
+    return null;
+  }
+  onSuccess?.(result);
+  return result;
+}
+
+/**
+ * 查询操作 Hook
  */
 export function useQuery<T = any>(
   methodHandler: Method | (() => Method),
@@ -67,13 +59,7 @@ export function useQuery<T = any>(
   const fetchData = async (...args: any[]): Promise<T | null> => {
     try {
       const result = await send(...args);
-      if (result === null) {
-        const appError = normalizeError(error.value || new Error('请求失败'));
-        onError?.(appError);
-        return null;
-      }
-      onSuccess?.(result);
-      return result;
+      return handleRequestResult(result, error.value, onSuccess, onError);
     } catch (err) {
       const appError = normalizeError(err);
       onError?.(appError);
@@ -88,25 +74,11 @@ export function useQuery<T = any>(
     send: fetchData,
     abort,
     update,
-    fetchData,
   };
 }
 
 /**
- * 变更操作 Hook（使用 useFetcher）
- * @param options - 配置选项
- * @returns 变更状态和操作方法
- *
- * @example
- * ```ts
- * const { mutate: createUser, loading } = useMutation({
- *   mutationFn: (values) => api.post('/users', values),
- *   onSuccess: () => {
- *     isAddDialogOpen.value = false
- *     fetchData()
- *   }
- * });
- * ```
+ * 变更操作 Hook
  */
 export function useMutation<TVariables = any, TData = any>(
   options: UseMutationOptions<TVariables, TData>
@@ -123,7 +95,6 @@ export function useMutation<TVariables = any, TData = any>(
         onError?.(error, variables);
         return null;
       }
-      // 显示成功提示
       if (successMessage !== false) {
         toast.success(successMessage);
       }
@@ -145,5 +116,4 @@ export function useMutation<TVariables = any, TData = any>(
   };
 }
 
-// 导出 api 对象供直接使用
 export { api };
