@@ -27,11 +27,7 @@ export const THEME_MODE = {
   AUTO: 'auto',
 } as const;
 
-/** 语言选项 */
-export const LOCALE_OPTIONS = [
-  { label: '简体中文', value: 'zh-CN' },
-  { label: 'English', value: 'en-US' },
-] as const;
+
 
 /** 用户角色 */
 export const USER_ROLES = {

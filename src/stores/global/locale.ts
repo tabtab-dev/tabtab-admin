@@ -1,6 +1,5 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import {
-  i18n,
   setLocale as setI18nLocale,
   getCurrentLocale,
   toggleLocale as toggleI18nLocale,
@@ -31,12 +30,12 @@ export const useLocaleStore = defineStore(
     const isEnUS = computed(() => currentLocale.value === 'en-US');
 
     /**
-     * 通用异步操作包装器
+     * 执行异步操作并处理状态
      */
-    const withLoading = async <T>(
+    async function executeAsync<T>(
       operation: () => Promise<T>,
       errorMessage: string
-    ): Promise<T | null> => {
+    ): Promise<T | null> {
       isLoading.value = true;
       error.value = null;
 
@@ -49,48 +48,48 @@ export const useLocaleStore = defineStore(
       } finally {
         isLoading.value = false;
       }
-    };
+    }
+
+    /**
+     * 更新语言后的通用处理
+     */
+    function afterLocaleChange(locale: SupportedLocale): void {
+      currentLocale.value = locale;
+      updateDocumentTitle();
+      preloadLocaleMessages(locale === 'zh-CN' ? 'en-US' : 'zh-CN');
+    }
 
     /**
      * 设置语言
      */
-    const changeLocale = async (locale: SupportedLocale): Promise<boolean> => {
-      if (locale === currentLocale.value) {
-        return true;
-      }
+    async function changeLocale(locale: SupportedLocale): Promise<boolean> {
+      if (locale === currentLocale.value) return true;
 
-      const result = await withLoading(async () => {
+      const result = await executeAsync(async () => {
         const success = await setI18nLocale(locale);
-        if (success) {
-          currentLocale.value = locale;
-          updateDocumentTitle();
-          preloadLocaleMessages(locale === 'zh-CN' ? 'en-US' : 'zh-CN');
-        }
+        if (success) afterLocaleChange(locale);
         return success;
       }, '切换语言失败');
 
       return result ?? false;
-    };
+    }
 
     /**
      * 切换语言
      */
-    const toggleLocale = async (): Promise<SupportedLocale | null> => {
-      return await withLoading(async () => {
+    async function toggleLocale(): Promise<SupportedLocale | null> {
+      return await executeAsync(async () => {
         const newLocale = await toggleI18nLocale();
-        if (newLocale) {
-          currentLocale.value = newLocale;
-          updateDocumentTitle();
-        }
+        if (newLocale) afterLocaleChange(newLocale);
         return newLocale;
       }, '切换语言失败');
-    };
+    }
 
     /**
      * 初始化语言设置
      */
-    const init = async (): Promise<boolean> => {
-      const result = await withLoading(async () => {
+    async function init(): Promise<boolean> {
+      const result = await executeAsync(async () => {
         const success = await initI18n();
         if (success) {
           currentLocale.value = getCurrentLocale();
@@ -102,11 +101,11 @@ export const useLocaleStore = defineStore(
       }, '初始化语言设置失败');
 
       return result ?? false;
-    };
+    }
 
-    const clearError = () => {
+    function clearError() {
       error.value = null;
-    };
+    }
 
     return {
       currentLocale,

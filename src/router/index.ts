@@ -75,8 +75,6 @@ router.beforeEach(async (to, from, next) => {
   // 2. 认证检查 - 优先从 localStorage 读取，避免 Pinia 状态恢复时机问题
   const isAuthenticated = checkAuthentication();
 
-  console.log('[Router] isAuthenticated:', isAuthenticated, 'to:', to.path, 'matched:', to.matched.length);
-
   // 处理登录页访问
   if (to.name === 'Login') {
     if (isAuthenticated) {
@@ -92,7 +90,6 @@ router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.meta.requiresAuth !== false;
   if (requiresAuth && !isAuthenticated) {
     // 未登录，重定向到登录页
-    console.log('[Router] Redirecting to login, not authenticated');
     next({
       name: 'Login',
       query: to.fullPath !== '/' ? { redirect: to.fullPath } : undefined
@@ -106,11 +103,9 @@ router.beforeEach(async (to, from, next) => {
     const menuStore = useMenuStore();
 
     if (!menuStore.isLoaded) {
-      console.log('[Router] Route not found, trying to load menus...');
       const success = await menuStore.fetchMenus();
 
       if (success) {
-        console.log('[Router] Menus loaded, retrying navigation to:', to.fullPath);
         // 动态路由已添加，重新导航到目标路径
         next({
           path: to.fullPath,
@@ -119,8 +114,6 @@ router.beforeEach(async (to, from, next) => {
           hash: to.hash
         });
         return;
-      } else {
-        console.warn('[Router] Failed to load menus');
       }
     }
   }

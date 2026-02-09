@@ -15,32 +15,24 @@ import {
 import { STORAGE_KEYS } from '@/constants/common';
 
 /**
- * 本地存储键名
- */
-const STORAGE_KEY = STORAGE_KEYS.LOCALE;
-
-/**
  * 应用标题
  */
 const APP_TITLE = import.meta.env.VITE_APP_TITLE || 'TabTab Admin';
 
 /**
  * 从本地存储加载语言设置
- * 从 Pinia store 持久化的 JSON 格式读取
+ * Pinia store 持久化为 JSON 格式: { "currentLocale": "zh-CN" }
  */
 function loadLocaleFromStorage(): SupportedLocale | null {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return null;
-
-    const parsed = JSON.parse(stored);
-    if (parsed?.currentLocale && isSupportedLocale(parsed.currentLocale)) {
-      return parsed.currentLocale;
-    }
+    const stored = localStorage.getItem(STORAGE_KEYS.LOCALE);
+    const parsed = stored ? JSON.parse(stored) : null;
+    return parsed?.currentLocale && isSupportedLocale(parsed.currentLocale)
+      ? parsed.currentLocale
+      : null;
   } catch {
-    // 忽略存储错误
+    return null;
   }
-  return null;
 }
 
 /**
