@@ -335,7 +335,7 @@ const childCountText = computed(() => {
         aria-hidden="true"
       />
 
-      <div class="flex items-center gap-2.5 relative z-10">
+      <div class="flex items-center gap-2.5 relative z-10 flex-1 min-w-0">
         <Icon
           v-if="item.icon"
           :name="item.icon"
