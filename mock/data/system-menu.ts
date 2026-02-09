@@ -21,6 +21,7 @@ export const systemMenusData: Menu[] = [
     keepAlive: true,
     external: false,
     permission: 'dashboard:view',
+    type: 'menu',
     createdAt: '2024-01-01',
   },
   {
@@ -37,6 +38,7 @@ export const systemMenusData: Menu[] = [
     keepAlive: false,
     external: false,
     permission: '',
+    type: 'directory',
     createdAt: '2024-01-01',
   },
   {
@@ -53,6 +55,7 @@ export const systemMenusData: Menu[] = [
     keepAlive: true,
     external: false,
     permission: 'system:user:view',
+    type: 'menu',
     createdAt: '2024-01-01',
   },
   {
@@ -69,6 +72,7 @@ export const systemMenusData: Menu[] = [
     keepAlive: true,
     external: false,
     permission: 'system:organization:view',
+    type: 'menu',
     createdAt: '2024-01-01',
   },
   {
@@ -85,6 +89,7 @@ export const systemMenusData: Menu[] = [
     keepAlive: true,
     external: false,
     permission: 'system:role:view',
+    type: 'menu',
     createdAt: '2024-01-01',
   },
   {
@@ -101,6 +106,7 @@ export const systemMenusData: Menu[] = [
     keepAlive: true,
     external: false,
     permission: 'system:menu:view',
+    type: 'menu',
     createdAt: '2024-01-01',
   },
 ];
