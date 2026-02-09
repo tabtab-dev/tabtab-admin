@@ -4,7 +4,7 @@
  */
 
 import type { IncomingMessage, ServerResponse } from 'http';
-import { menuData, routeData } from '../data/menu';
+import { routeData } from '../data/menu';
 import { createResponse } from '../utils/response';
 
 /**
@@ -12,13 +12,17 @@ import { createResponse } from '../utils/response';
  */
 export const menuRoutes: Record<string, (req: IncomingMessage & { body?: any }, res: ServerResponse) => void> = {
   /**
-   * 获取当前用户菜单和路由配置
+   * 获取当前用户路由配置
    * GET /mock-api/menu/list
+   * @description 只返回 routes，前端自行从 routes 提取菜单数据
    */
   'GET /mock-api/menu/list': (req, res) => {
     // 从请求头获取 token
     const authHeader = req.headers.authorization || '';
     const token = authHeader.replace('Bearer ', '');
+
+    console.log('[Mock] /menu/list called, token:', token ? 'exists' : 'missing');
+    console.log('[Mock] routeData length:', routeData?.length);
 
     if (!token) {
       res.statusCode = 200;
@@ -26,11 +30,10 @@ export const menuRoutes: Record<string, (req: IncomingMessage & { body?: any }, 
       return;
     }
 
-    // 返回菜单和路由数据
+    // 只返回路由数据，前端自行提取菜单
+    console.log('[Mock] Response data:', JSON.stringify(routeData).substring(0, 200));
+
     res.statusCode = 200;
-    res.end(JSON.stringify(createResponse({
-      menus: menuData,
-      routes: routeData,
-    })));
+    res.end(JSON.stringify(createResponse(routeData)));
   },
 };

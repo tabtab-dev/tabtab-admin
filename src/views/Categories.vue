@@ -62,12 +62,14 @@ const {
     const level1 = items.filter(c => c.level === 1).length
     const level2 = items.filter(c => c.level === 2).length
     const active = items.filter(c => c.status === CATEGORY_STATUS.ACTIVE).length
+    const totalProducts = items.reduce((sum, c) => sum + (c.productCount || 0), 0)
 
     return {
       total,
       level1,
       level2,
       active,
+      totalProducts,
     }
   },
 })
@@ -534,7 +536,7 @@ function handleTableChange(pagination: any): void {
           </div>
           <div class="flex items-center gap-2 text-sm text-muted-foreground">
             <Package class="h-4 w-4" />
-            <span>关联商品: {{ statistics.value.totalProducts || 0 }}</span>
+            <span>关联商品: {{ statistics.totalProducts || 0 }}</span>
           </div>
         </div>
       </CardHeader>

@@ -74,11 +74,11 @@ const isDeepLevel = computed(() => props.level >= 1);
  */
 const buttonClasses = computed(() => {
   const baseClasses = 'w-full justify-between h-9 px-3 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden';
-  
+
   if (props.item.disabled) {
     return `${baseClasses} opacity-50 cursor-not-allowed`;
   }
-  
+
   // 根级菜单（level=0）使用主色调选中样式
   if (!isDeepLevel.value) {
     if (active.value || isChildActive.value) {
@@ -86,7 +86,7 @@ const buttonClasses = computed(() => {
     }
     return `${baseClasses} hover:bg-primary/10 hover:text-primary`;
   }
-  
+
   // 深层级菜单（level>=1，即二级及以上）使用次级选中样式
   if (active.value) {
     return `${baseClasses} bg-primary/10 text-primary border-l-2 border-primary/40 hover:bg-primary/15`;
@@ -111,10 +111,10 @@ const indicatorClasses = computed(() => {
     }
     return null;
   }
-  
+
   // 根级菜单使用渐变条指示器
   if (active.value || isChildActive.value) {
-    const gradientClass = active.value 
+    const gradientClass = active.value
       ? 'from-primary-foreground/40 via-primary-foreground/60 to-primary-foreground/40'
       : 'from-primary/30 via-primary/50 to-primary/30';
     return `absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-gradient-to-b ${gradientClass}`;
@@ -127,7 +127,7 @@ const indicatorClasses = computed(() => {
  */
 const iconClasses = computed(() => {
   const baseClasses = 'h-[18px] w-[18px] flex-shrink-0 transition-colors duration-200';
-  
+
   // 深层级菜单样式
   if (isDeepLevel.value) {
     if (active.value) {
@@ -138,7 +138,7 @@ const iconClasses = computed(() => {
     }
     return `${baseClasses} text-muted-foreground group-hover:text-foreground`;
   }
-  
+
   // 根级菜单样式
   if (active.value || isChildActive.value) {
     return `${baseClasses} text-primary-foreground`;
@@ -189,7 +189,7 @@ const handleChildNavigate = (path: string): void => {
  * 菜单标题（翻译后）
  */
 const menuTitle = computed(() => {
-  return t(props.item.i18nKey);
+  return props.item.i18nKey ? t(props.item.i18nKey) : props.item.title;
 });
 </script>
 
@@ -269,7 +269,7 @@ const menuTitle = computed(() => {
       <div
         v-if="hasChildren && isExpanded && !collapsed"
         role="menu"
-        :aria-label="`${menuTitle} 子菜单`"
+        :aria-label="`${item.title} 子菜单`"
         class="space-y-0.5 overflow-hidden relative py-0.5"
         :class="level >= 1 ? 'bg-muted/20 rounded-lg my-1' : ''"
         :style="indentStyle"

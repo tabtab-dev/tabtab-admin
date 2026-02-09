@@ -29,7 +29,29 @@ export {
   type GetUsersParams,
 } from './modules/users';
 
-export { menuApi } from './modules/menu';
+export {
+  menuApi,
+  type Menu,
+  type CreateMenuParams,
+  type UpdateMenuParams,
+  type GetMenusParams,
+} from './modules/menu';
+
+export {
+  organizationApi,
+  type Organization,
+  type CreateOrganizationParams,
+  type UpdateOrganizationParams,
+  type GetOrganizationsParams,
+} from './modules/organization';
+
+export {
+  roleApi,
+  type Role,
+  type CreateRoleParams,
+  type UpdateRoleParams,
+  type GetRolesParams,
+} from './modules/role';
 
 export {
   productsApi,
@@ -61,3 +83,13 @@ export {
   type GetWarehousesParams,
   type GetStockParams,
 } from './modules/inventory';
+
+export {
+  analyticsApi,
+  type CoreMetrics,
+  type TopProduct,
+  type CategoryShare,
+  type TrafficData,
+  type UserBehavior,
+  type AnalyticsData,
+} from './modules/analytics';

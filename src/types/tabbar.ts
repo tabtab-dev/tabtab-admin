@@ -10,7 +10,7 @@ import type { Component } from 'vue';
 export interface TabItem {
   /** 路由路径 */
   path: string;
-  /** 标题 */
+  /** 标题（国际化 key） */
   title: string;
   /** 图标名称（对应 lucide-vue-next 的图标） */
   icon?: string;

@@ -30,31 +30,11 @@ const {
   loading,
   searchQuery,
   filters,
-  filteredData,
-  paginatedData,
   total,
   statistics,
   fetchData,
 } = useTableData<StockItem>({
-  apiCall: () => inventoryApi.getStockItems(),
-  filterFn: (items, query, filterValues) => {
-    let result = items
-
-    if (query) {
-      const lowerQuery = query.toLowerCase()
-      result = result.filter(
-        item =>
-          item.productName.toLowerCase().includes(lowerQuery) ||
-          item.sku.toLowerCase().includes(lowerQuery)
-      )
-    }
-
-    if (filterValues.warehouseId) {
-      result = result.filter(item => item.warehouseId === filterValues.warehouseId)
-    }
-
-    return result
-  },
+  apiCall: () => inventoryApi.getStock(),
   statisticsFn: (items) => {
     const warehouseIds = new Set(items.map(item => item.warehouseId))
     const totalWarehouses = warehouseIds.size
@@ -196,7 +176,7 @@ const tableSchema = computed<TableSchema>(() => ({
 
 // 表格数据
 const tableData = computed(() => {
-  return paginatedData.value.map(item => ({ ...item, key: item.id }))
+  return stockItems.value.map(item => ({ ...item, key: item.id }))
 })
 
 const selectedRowKeys = ref<(string | number)[]>([])
@@ -219,7 +199,7 @@ function handleSelectChange(keys: (string | number)[]) {
     <!-- 统计标签 -->
     <div class="flex flex-wrap gap-3">
       <div
-        v-for="stat in statistics"
+        v-for="stat in statisticsCards"
         :key="stat.title"
         class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
       >

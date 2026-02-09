@@ -5,10 +5,38 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import type { RouteRecordRaw } from 'vue-router';
 import { menuApi } from '@/api';
-import type { MenuItem, RouteConfig } from '@/types/menu';
+import type { MenuItem, RouteConfig, RouteMeta } from '@/types/menu';
 import router from '@/router';
 import { convertToRouteRecords } from '@/router/routeMapping';
-import { flattenMenus, findMenuByPath } from '@/layouts/composables/useMenuUtils';
+
+/**
+ * 从路由配置生成菜单数据
+ * 提取需要展示在侧边栏的菜单项
+ * @param routes - 路由配置数组
+ * @returns 菜单项数组
+ */
+function generateMenusFromRoutes(routes: RouteConfig[]): MenuItem[] {
+  return routes
+    .filter((route) => !route.meta?.hideInMenu)
+    .map((route) => {
+      const menu: MenuItem = {
+        path: route.path,
+        title: route.meta?.title || '',
+        icon: route.meta?.icon,
+        hideInMenu: route.meta?.hideInMenu,
+        order: route.meta?.order,
+        i18nKey: route.meta?.i18nKey,
+        badge: route.meta?.badge,
+      };
+
+      if (route.children && route.children.length > 0) {
+        menu.children = generateMenusFromRoutes(route.children);
+      }
+
+      return menu;
+    })
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+}
 
 export const useMenuStore = defineStore(
   'menu',
@@ -26,22 +54,35 @@ export const useMenuStore = defineStore(
     /**
      * 获取扁平化的菜单列表
      */
-    const flatMenus = computed(() => flattenMenus(menus.value));
-
-    /**
-     * 获取路由标题映射
-     */
-    const routeTitleMap = computed(() => {
-      const map: Record<string, string> = {};
+    const flatMenus = computed(() => {
+      const result: MenuItem[] = [];
       const traverse = (items: MenuItem[]) => {
         items.forEach((item) => {
-          map[item.path] = item.i18nKey;
+          result.push(item);
           if (item.children) {
             traverse(item.children);
           }
         });
       };
       traverse(menus.value);
+      return result;
+    });
+
+    /**
+     * 获取路由标题映射（使用国际化 key）
+     */
+    const routeTitleMap = computed(() => {
+      const map: Record<string, string> = {};
+      const traverse = (items: RouteConfig[]) => {
+        items.forEach((item) => {
+          // 优先使用 i18nKey，如果没有则回退到 title
+          map[item.path] = item.meta.i18nKey || item.meta.title;
+          if (item.children) {
+            traverse(item.children);
+          }
+        });
+      };
+      traverse(routes.value);
       return map;
     });
 
@@ -71,13 +112,16 @@ export const useMenuStore = defineStore(
         isLoading.value = true;
         try {
           console.log('[MenuStore] Fetching menus...');
-          const response = await menuApi.getMenus();
-          menus.value = response.menus;
-          routes.value = response.routes;
+          const routeConfigs = await menuApi.getUserMenus();
+          console.log('[MenuStore] Response:', routeConfigs);
+
+          routes.value = routeConfigs;
+          // 从路由配置自动生成菜单数据
+          menus.value = generateMenusFromRoutes(routeConfigs);
           isLoaded.value = true;
 
           // 动态添加路由
-          addDynamicRoutes(response.routes);
+          addDynamicRoutes(routeConfigs);
           console.log('[MenuStore] Menus loaded and routes added');
 
           return true;
@@ -141,15 +185,27 @@ export const useMenuStore = defineStore(
      * @returns 菜单项或 undefined
      */
     const getMenuByPath = (path: string): MenuItem | undefined => {
-      return findMenuByPath(menus.value, path);
+      const find = (items: MenuItem[]): MenuItem | undefined => {
+        for (const item of items) {
+          if (item.path === path) {
+            return item;
+          }
+          if (item.children) {
+            const found = find(item.children);
+            if (found) return found;
+          }
+        }
+        return undefined;
+      };
+      return find(menus.value);
     };
 
     /**
-     * 根据路径获取路由标题的 i18n key
+     * 根据路径获取路由标题
      * @param path - 路由路径
-     * @returns i18n key
+     * @returns 标题
      */
-    const getRouteTitleKey = (path: string): string => {
+    const getRouteTitle = (path: string): string => {
       return routeTitleMap.value[path] || path;
     };
 
@@ -181,7 +237,7 @@ export const useMenuStore = defineStore(
       addDynamicRoutes,
       removeDynamicRoutes,
       getMenuByPath,
-      getRouteTitleKey,
+      getRouteTitle,
       reset,
     };
   },

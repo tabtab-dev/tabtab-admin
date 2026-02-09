@@ -212,7 +212,7 @@ const childCountText = computed(() => {
       <Badge
         v-if="item.badge"
         variant="destructive"
-        class="absolute -top-1 -right-1 h-4 min-w-4 !px-1 text-[10px] shadow-sm animate-in zoom-in-50"
+        class="absolute -top-1 left-1 h-4 min-w-4 !px-1 text-[10px] shadow-sm animate-in zoom-in-50"
         role="status"
       >
         {{ formatBadge(item.badge) }}

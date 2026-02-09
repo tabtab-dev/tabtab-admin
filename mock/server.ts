@@ -10,6 +10,11 @@ import { menuRoutes } from './routes/menu';
 import { productsRoutes } from './routes/products';
 import { ordersRoutes } from './routes/orders';
 import { categoriesRoutes } from './routes/categories';
+import { organizationRoutes } from './routes/organization';
+import { roleRoutes } from './routes/role';
+import { systemMenuRoutes } from './routes/system-menu';
+import { inventoryRoutes } from './routes/inventory';
+import { analyticsRoutes } from './routes/analytics';
 
 /**
  * 合并所有模块路由
@@ -21,6 +26,11 @@ const allRoutes: Record<string, (req: IncomingMessage & { body?: any }, res: Ser
   ...productsRoutes,
   ...ordersRoutes,
   ...categoriesRoutes,
+  ...organizationRoutes,
+  ...roleRoutes,
+  ...systemMenuRoutes,
+  ...inventoryRoutes,
+  ...analyticsRoutes,
 };
 
 /**

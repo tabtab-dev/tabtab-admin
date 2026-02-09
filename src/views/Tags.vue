@@ -14,7 +14,8 @@ import type { Tag } from '@/types/models'
 import { categoriesApi } from '@/api'
 import { useTableData } from '@/composables'
 import {
-  Plus
+  Plus,
+  TagIcon
 } from 'lucide-vue-next'
 
 const {
@@ -28,14 +29,13 @@ const {
   fetchData,
 } = useTableData<Tag>({
   apiCall: async () => {
-    const categories = await categoriesApi.getCategories()
-    return categories.filter(c => c.id.startsWith('tag-')).map(c => ({
-      id: c.id,
-      name: c.name,
-      color: c.description || '#1890ff',
-      productCount: c.productCount,
-      createdAt: c.createdAt,
-    }))
+    const response = await categoriesApi.getTags()
+    return {
+      list: response.list || [],
+      total: response.total || 0,
+      page: response.page || 1,
+      pageSize: response.pageSize || 10
+    }
   },
   filterFn: (items, query) => {
     if (!query) return items
@@ -214,14 +214,9 @@ const editSchema: FormSchema = {
 }
 
 async function handleAddSubmit(values: Record<string, any>) {
-  await categoriesApi.createCategory({
+  await categoriesApi.createTag({
     name: values.name,
-    code: `tag-${Date.now()}`,
-    level: 1,
-    sort: 0,
-    status: 'active',
-    productCount: 0,
-    description: values.color
+    color: values.color || '#1890ff'
   })
   isAddOpen.value = false
   addFormData.value = { name: '', color: '#1890ff' }
@@ -240,9 +235,9 @@ function handleEdit(item: Tag) {
 
 async function handleEditSubmit(values: Record<string, any>) {
   if (editingItem.value) {
-    await categoriesApi.updateCategory(editingItem.value.id, {
+    await categoriesApi.updateTag(editingItem.value.id, {
       name: values.name,
-      description: values.color
+      color: values.color
     })
     isEditOpen.value = false
     editingItem.value = null
@@ -251,7 +246,7 @@ async function handleEditSubmit(values: Record<string, any>) {
 }
 
 async function handleDelete(id: string) {
-  await categoriesApi.deleteCategory(id)
+  await categoriesApi.deleteTag(id)
   await fetchData()
 }
 
@@ -259,6 +254,24 @@ const selectedRowKeys = ref<(string | number)[]>([])
 function handleSelectChange(keys: (string | number)[]) {
   selectedRowKeys.value = keys
 }
+
+/**
+ * 统计卡片数据
+ */
+const statisticsCards = computed(() => [
+  {
+    title: '标签总数',
+    value: statistics.value.total || 0,
+    icon: TagIcon,
+    color: 'text-primary'
+  },
+  {
+    title: '关联商品',
+    value: statistics.value.totalProducts || 0,
+    icon: Plus,
+    color: 'text-green-500'
+  }
+])
 
 </script>
 

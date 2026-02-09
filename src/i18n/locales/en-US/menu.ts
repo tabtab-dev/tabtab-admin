@@ -4,35 +4,50 @@
 export default {
   // Main Menu
   dashboard: 'Dashboard',
-  users: 'User Management',
   orders: 'Order Management',
   products: 'Product Management',
   analytics: 'Analytics',
   settings: 'System Settings',
+
+  // System Management
+  system: 'System Management',
+  systemUser: 'User Management',
+  systemRole: 'Role Management',
+  systemMenu: 'Menu Management',
+  systemOrganization: 'Organization',
 
   // Product Submenu
   productList: 'Product List',
   categories: 'Categories',
   categoryLevel1: 'Level 1 Category',
   categoryLevel2: 'Level 2 Category',
-  tags: 'Tags',
   inventory: 'Inventory',
   stock: 'Stock Check',
   warehouse: 'Warehouse',
   warehouseBeijing: 'Beijing Warehouse',
   warehouseShanghai: 'Shanghai Warehouse',
+  tags: 'Tags',
+
+  // Order Submenu
+  orderList: 'Order List',
   logistics: 'Logistics',
 
   // Analytics Submenu
+  analyticsOverview: 'Analytics Overview',
   traffic: 'Traffic Analysis',
   sales: 'Sales Analysis',
   usersAnalysis: 'User Analysis',
 
   // Demo Menu
-  tformDemo: 'TForm Demo',
-  ttableDemo: 'TTable Demo',
-  tmodalDemo: 'TModal Demo',
-  tdrawerDemo: 'TDrawer Demo',
+  demos: 'Component Demos',
+  tformDemo: 'Form Component',
+  ttableDemo: 'Table Component',
+  tmodalDemo: 'Modal Component',
+  tdrawerDemo: 'Drawer Component',
+  permissionDemo: 'Permission Demo',
+  nested: 'Nested Menu',
+  level1: 'Level 1',
+  level2: 'Level 2',
 
   // Menu Groups
   groupMain: 'Main Menu',

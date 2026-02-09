@@ -35,8 +35,18 @@ import {
   Settings,
 } from 'lucide-vue-next';
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const tabBarStore = useTabBarStore();
+
+/**
+ * 获取标签标题（支持多语言响应式切换）
+ * @param titleKey - 国际化 key
+ * @returns 翻译后的标题
+ */
+const getTabTitle = (titleKey: string): string => {
+  // locale 被访问时会建立响应式依赖，语言切换时自动重新计算
+  return t(titleKey);
+};
 
 // Refs for scroll containers
 const scrollContainerRef = ref<HTMLElement | null>(null);
@@ -202,7 +212,7 @@ const onDragEnd = () => {
                   />
 
                   <!-- Title -->
-                  <span class="max-w-[120px] truncate">{{ tab.title }}</span>
+                  <span class="max-w-[120px] truncate">{{ getTabTitle(tab.title) }}</span>
 
                   <!-- Close Button -->
                   <button

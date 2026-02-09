@@ -62,7 +62,7 @@ const iconClass = computed(() => getIconClass(props.active));
  * 菜单标题（翻译后）
  */
 const menuTitle = computed(() => {
-  return t(props.item.i18nKey);
+  return props.item.i18nKey ? t(props.item.i18nKey) : props.item.title;
 });
 
 /**
@@ -70,8 +70,8 @@ const menuTitle = computed(() => {
  */
 const ariaLabel = computed(() => {
   if (!props.collapsed) return undefined;
-  return props.item.badge 
-    ? `${menuTitle.value} (${props.item.badge} 条通知)` 
+  return props.item.badge
+    ? `${menuTitle.value} (${props.item.badge} 条通知)`
     : menuTitle.value;
 });
 </script>
@@ -99,18 +99,18 @@ const ariaLabel = computed(() => {
           class="h-5 w-5"
           aria-hidden="true"
         />
-        
-        <!-- 徽标 - 折叠状态下显示在右上角 - 使用 shadcn-vue Badge 组件 -->
+
+        <!-- 徽标 - 折叠状态下显示在左上角 - 使用 shadcn-vue Badge 组件 -->
         <Badge
           v-if="item.badge"
           variant="destructive"
-          class="absolute -top-1 -right-1 h-4 min-w-4 !px-1 text-[10px] shadow-sm animate-in zoom-in-50"
+          class="absolute -top-1 -left-1 h-4 min-w-4 !px-1 text-[10px] shadow-sm animate-in zoom-in-50"
           role="status"
           :aria-label="`${item.badge} 条通知`"
         >
           {{ formatBadge(item.badge) }}
         </Badge>
-        
+
         <!-- 激活状态指示点 -->
         <span
           v-if="active"
@@ -119,7 +119,7 @@ const ariaLabel = computed(() => {
         />
       </Button>
     </TooltipTrigger>
-    
+
     <TooltipContent side="right" :side-offset="10">
       <div class="flex items-center gap-2">
         <span>{{ menuTitle }}</span>

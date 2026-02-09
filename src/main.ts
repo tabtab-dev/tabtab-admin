@@ -5,6 +5,7 @@ import { useAuthFlow } from '@/composables/useAuthFlow';
 import { useThemeStore } from '@/stores/global/theme';
 import { useLocaleStore } from '@/stores/global/locale';
 import { i18n } from './i18n';
+import { registerPermissionDirectives } from '@/directives/permission';
 import './assets/css/app.css';
 import './assets/css/theme.css';
 import App from './App.vue';
@@ -27,6 +28,10 @@ async function initApp() {
 
   app.use(i18n);
   console.log('[App] i18n installed');
+
+  // 注册权限指令
+  registerPermissionDirectives(app);
+  console.log('[App] Permission directives registered');
 
   // 使用 useAuthFlow 替代直接使用 authStore，统一处理认证流程
   const { initialize: initAuth, isAuthenticated } = useAuthFlow();

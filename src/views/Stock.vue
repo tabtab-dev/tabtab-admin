@@ -31,25 +31,7 @@ interface TableSlotProps {
 const {
   data: stockItems,
 } = useTableData<StockItem>({
-  apiCall: () => inventoryApi.getStockItems(),
-  filterFn: (items, query, filterValues) => {
-    let result = items
-
-    if (query) {
-      const lowerQuery = query.toLowerCase()
-      result = result.filter(
-        item =>
-          item.productName.toLowerCase().includes(lowerQuery) ||
-          item.sku.toLowerCase().includes(lowerQuery)
-      )
-    }
-
-    if (filterValues.warehouseId) {
-      result = result.filter(item => item.warehouseId === filterValues.warehouseId)
-    }
-
-    return result
-  },
+  apiCall: () => inventoryApi.getStock(),
 })
 
 const warehouses = computed(() => {

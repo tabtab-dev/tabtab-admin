@@ -25,12 +25,7 @@ const createHttpClient = () => {
       onSuccess: responseSuccessInterceptor,
       onError: responseErrorInterceptor,
     },
-    cacheFor: {
-      GET: CACHE_TIME.SHORT,
-      POST: 0,
-      PUT: 0,
-      DELETE: 0,
-    },
+    cacheFor: null, // 禁用缓存，确保每次请求都发送到服务器
   });
 };
 

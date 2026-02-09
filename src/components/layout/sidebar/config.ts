@@ -7,23 +7,19 @@ import type { MenuItem, SidebarMenuItem, SidebarConfig, MenuGroup } from '@/type
 /**
  * 将 API 菜单项转换为 Sidebar 菜单项
  * @param menu - API 菜单项
+ * @param index - 索引用于生成 key
  * @returns Sidebar 菜单项
  */
-export function convertMenuItem(menu: MenuItem): SidebarMenuItem {
+export function convertMenuItem(menu: MenuItem, index: number = 0): SidebarMenuItem {
   return {
-    key: menu.key,
+    key: menu.path || `menu-${index}`,
     title: menu.title,
     path: menu.path,
     icon: menu.icon,
-    badge: menu.badge,
-    group: menu.group,
-    disabled: menu.disabled,
-    defaultExpanded: menu.defaultExpanded,
+    hidden: menu.hideInMenu,
     i18nKey: menu.i18nKey,
-    hidden: menu.hidden,
-    permissions: menu.permissions,
-    roles: menu.roles,
-    children: menu.children?.map((child) => convertMenuItem(child)),
+    badge: menu.badge,
+    children: menu.children?.map((child, idx) => convertMenuItem(child, idx)),
   };
 }
 
@@ -33,7 +29,7 @@ export function convertMenuItem(menu: MenuItem): SidebarMenuItem {
  * @returns 转换后的 Sidebar 菜单列表
  */
 export function convertMenuItems(menus: MenuItem[]): SidebarMenuItem[] {
-  return menus.map((menu) => convertMenuItem(menu));
+  return menus.map((menu, index) => convertMenuItem(menu, index));
 }
 
 /**
@@ -75,7 +71,7 @@ export function groupMenus(menus: SidebarMenuItem[]): Record<string, SidebarMenu
   const groups: Record<string, SidebarMenuItem[]> = {};
 
   menus.forEach((item) => {
-    const group = item.group || 'default';
+    const group = 'default';
     if (!groups[group]) {
       groups[group] = [];
     }

@@ -4,22 +4,62 @@
  */
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { TrendingUp, Users, Eye, MousePointer } from 'lucide-vue-next'
+import { MiniChart } from '@/components/bento'
+import { analyticsApi } from '@/api/modules/analytics'
 
+/**
+ * 流量数据
+ */
 const trafficData = ref({
-  totalVisits: 45231,
-  uniqueVisitors: 28456,
-  pageViews: 128456,
-  avgDuration: '3:42',
-  bounceRate: '42.3%',
-  growth: 12.5
+  totalVisits: 0,
+  uniqueVisitors: 0,
+  pageViews: 0,
+  avgDuration: '0:00',
+  bounceRate: '0%',
+  growth: 0
 })
 
+/**
+ * 访问趋势数据
+ */
+const trafficTrendData = ref<{ day: string; visits: number; orders: number }[]>([])
+
+/**
+ * 统计数据
+ */
 const statistics = computed(() => [
   { title: '总访问量', value: trafficData.value.totalVisits.toLocaleString(), icon: Eye, color: 'text-blue-500', trend: '+12.5%' },
   { title: '独立访客', value: trafficData.value.uniqueVisitors.toLocaleString(), icon: Users, color: 'text-green-500', trend: '+8.3%' },
   { title: '页面浏览量', value: trafficData.value.pageViews.toLocaleString(), icon: MousePointer, color: 'text-purple-500', trend: '+15.2%' },
   { title: '平均停留', value: trafficData.value.avgDuration, icon: TrendingUp, color: 'text-orange-500', trend: '+5.1%' }
 ])
+
+/**
+ * 获取流量数据
+ */
+const fetchTrafficData = async () => {
+  try {
+    const metricsData = await analyticsApi.getCoreMetrics('7d')
+    const trendData = await analyticsApi.getTrafficData('7d')
+
+    trafficData.value = {
+      totalVisits: metricsData.totalVisits,
+      uniqueVisitors: metricsData.newUsers * 10,
+      pageViews: metricsData.totalVisits * 3,
+      avgDuration: '3:42',
+      bounceRate: '42.3%',
+      growth: metricsData.visitsChange
+    }
+
+    trafficTrendData.value = trendData
+  } catch (error) {
+    console.error('获取流量数据失败:', error)
+  }
+}
+
+onMounted(() => {
+  fetchTrafficData()
+})
 </script>
 
 <template>
@@ -42,16 +82,29 @@ const statistics = computed(() => [
       </div>
     </div>
 
+
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card class="border-0 shadow-sm">
         <CardHeader>
           <CardTitle class="text-base">访问趋势</CardTitle>
         </CardHeader>
         <CardContent>
-          <div class="h-[300px] flex items-center justify-center text-muted-foreground">
-            <div class="text-center">
-              <TrendingUp class="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p>访问趋势图表</p>
+          <div class="h-[300px] flex flex-col justify-center">
+            <MiniChart
+              v-if="trafficTrendData.length > 0"
+              type="line"
+              :data="trafficTrendData.map(d => d.visits / 100)"
+              color="bg-blue-500"
+              :height="200"
+            />
+            <div v-else class="flex items-center justify-center text-muted-foreground h-full">
+              <div class="text-center">
+                <TrendingUp class="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>加载中...</p>
+              </div>
+            </div>
+            <div class="mt-4 flex justify-between text-xs text-muted-foreground">
+              <span v-for="(item, index) in trafficTrendData" :key="index">{{ item.day }}</span>
             </div>
           </div>
         </CardContent>
@@ -59,13 +112,25 @@ const statistics = computed(() => [
 
       <Card class="border-0 shadow-sm">
         <CardHeader>
-          <CardTitle class="text-base">来源分布</CardTitle>
+          <CardTitle class="text-base">订单趋势</CardTitle>
         </CardHeader>
         <CardContent>
-          <div class="h-[300px] flex items-center justify-center text-muted-foreground">
-            <div class="text-center">
-              <MousePointer class="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p>流量来源分布</p>
+          <div class="h-[300px] flex flex-col justify-center">
+            <MiniChart
+              v-if="trafficTrendData.length > 0"
+              type="bar"
+              :data="trafficTrendData.map(d => d.orders)"
+              color="bg-green-500"
+              :height="200"
+            />
+            <div v-else class="flex items-center justify-center text-muted-foreground h-full">
+              <div class="text-center">
+                <MousePointer class="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>加载中...</p>
+              </div>
+            </div>
+            <div class="mt-4 flex justify-between text-xs text-muted-foreground">
+              <span v-for="(item, index) in trafficTrendData" :key="index">{{ item.day }}</span>
             </div>
           </div>
         </CardContent>

@@ -108,10 +108,10 @@ const breadcrumbs = computed<BreadcrumbItemData[]>(() => {
       if (matched.path === '/' || matched.path === '/dashboard') return;
 
       const isLast = index === matchedRoutes.length - 1;
-      const titleKey = menuStore.getRouteTitleKey(matched.path);
+      const title = menuStore.getRouteTitle(matched.path);
 
       result.push({
-        title: t(titleKey),
+        title: t(title),
         path: matched.path,
         icon: undefined,
         clickable: !isLast && matched.path !== currentPath,

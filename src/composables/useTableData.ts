@@ -221,6 +221,20 @@ export function useTableData<T = any>(options: UseTableDataOptions<T>) {
   });
 
   /**
+   * 过滤后的数据
+   */
+  const filteredData = computed(() => {
+    return data.value;
+  });
+
+  /**
+   * 分页后的数据
+   */
+  const paginatedData = computed(() => {
+    return data.value;
+  });
+
+  /**
    * 重置搜索和过滤
    */
   const resetFilters = () => {
@@ -310,6 +324,8 @@ export function useTableData<T = any>(options: UseTableDataOptions<T>) {
     error,
     searchQuery,
     filters,
+    filteredData,
+    paginatedData,
     currentPage,
     pageSize,
     totalPages,

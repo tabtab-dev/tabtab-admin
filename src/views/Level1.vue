@@ -14,7 +14,11 @@ import type { Category } from '@/types/models'
 import { categoriesApi } from '@/api'
 import { useTableData } from '@/composables'
 import {
-  Plus
+  Plus,
+  FolderTree,
+  CheckCircle2,
+  XCircle,
+  Package
 } from 'lucide-vue-next'
 
 const {
@@ -176,6 +180,36 @@ const tableSchema = computed<TableSchema>(() => ({
 const tableData = computed(() => {
   return paginatedData.value.map(c => ({ ...c, key: c.id }))
 })
+
+/**
+ * 统计卡片数据
+ */
+const statCards = computed(() => [
+  {
+    title: '分类总数',
+    value: statistics.value.total ?? 0,
+    icon: FolderTree,
+    color: 'text-blue-500'
+  },
+  {
+    title: '已启用',
+    value: statistics.value.active ?? 0,
+    icon: CheckCircle2,
+    color: 'text-green-500'
+  },
+  {
+    title: '已禁用',
+    value: statistics.value.inactive ?? 0,
+    icon: XCircle,
+    color: 'text-gray-500'
+  },
+  {
+    title: '商品总数',
+    value: statistics.value.totalProducts ?? 0,
+    icon: Package,
+    color: 'text-purple-500'
+  }
+])
 
 // 新增/编辑
 const isAddOpen = ref(false)
@@ -397,7 +431,7 @@ async function handleBatchDelete() {
     <!-- 统计标签 -->
     <div class="flex flex-wrap gap-3">
       <div
-        v-for="stat in statistics"
+        v-for="stat in statCards"
         :key="stat.title"
         class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
       >

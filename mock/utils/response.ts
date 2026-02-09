@@ -96,3 +96,61 @@ export function paginatedResponse<T>(
  * @deprecated 使用 createSuccessResponse 代替
  */
 export const successResponse = createSuccessResponse;
+
+/**
+ * 创建分页响应
+ * @param data - 分页数据
+ * @param total - 总记录数
+ * @param page - 当前页码
+ * @param pageSize - 每页数量
+ * @returns 分页响应对象
+ */
+export const createPaginationResponse = paginatedResponse;
+
+/**
+ * 创建 JSON 格式的标准响应
+ * @param data - 响应数据
+ * @param code - 状态码，默认 200
+ * @param message - 消息，默认 'success'
+ * @returns JSON 字符串
+ */
+export function createJSONResponse<T>(data: T, code = 200, message = 'success'): string {
+  return JSON.stringify(createResponse(data, code, message));
+}
+
+/**
+ * 创建 JSON 格式的成功响应
+ * @param data - 响应数据
+ * @param message - 成功消息
+ * @returns JSON 字符串
+ */
+export function createJSONSuccessResponse<T>(data: T, message = '操作成功'): string {
+  return JSON.stringify(createSuccessResponse(data, message));
+}
+
+/**
+ * 创建 JSON 格式的错误响应
+ * @param message - 错误消息
+ * @param code - 错误码，默认 400
+ * @returns JSON 字符串
+ */
+export function createJSONErrorResponse(message: string, code = 400): string {
+  return JSON.stringify(createErrorResponse(message, code));
+}
+
+/**
+ * 创建 JSON 格式的分页响应
+ * @param data - 分页数据
+ * @param total - 总记录数
+ * @param page - 当前页码
+ * @param pageSize - 每页数量
+ * @returns JSON 字符串
+ */
+export function createJSONPaginationResponse<T>(
+  data: T[],
+  total: number,
+  page: number,
+  pageSize: number
+): string {
+  return JSON.stringify(paginatedResponse(data, total, page, pageSize));
+}

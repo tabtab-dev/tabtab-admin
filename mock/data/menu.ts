@@ -1,288 +1,467 @@
 /**
  * 菜单 Mock 数据
- * @description 提供菜单和路由配置的模拟数据
+ * @description 提供菜单和路由配置的模拟数据，参考后端返回格式
  */
 
 import type { MenuItem, RouteConfig } from '@/types/menu';
 
 /**
- * 菜单数据
+ * 路由配置数据
+ * 参考后端接口返回的路由格式
  */
-export const menuData: MenuItem[] = [
+export const routeData: RouteConfig[] = [
   {
-    key: 'dashboard',
-    title: 'Dashboard',
     path: '/dashboard',
-    icon: 'LayoutDashboard',
-    group: 'main',
-    i18nKey: 'menu.dashboard',
+    name: 'dashboard',
+    component: '/Dashboard',
+    meta: {
+      title: '仪表盘',
+      icon: 'LayoutDashboard',
+      keepAlive: true,
+      hideInMenu: false,
+      order: 1,
+      i18nKey: 'menu.dashboard',
+    },
   },
   {
-    key: 'users',
-    title: 'Users',
-    path: '/users',
-    icon: 'Users',
-    group: 'main',
-    i18nKey: 'menu.users',
+    path: '/system',
+    name: 'system',
+    component: 'BasicLayout',
+    redirect: '/system/user',
+    meta: {
+      title: '系统管理',
+      icon: 'Settings',
+      keepAlive: false,
+      hideInMenu: false,
+      order: 10,
+      i18nKey: 'menu.system',
+    },
+    children: [
+      {
+        path: '/system/user',
+        name: 'system:user',
+        component: '/system/user/index',
+        meta: {
+          title: '用户管理',
+          icon: 'User',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 10,
+          i18nKey: 'menu.systemUser',
+        },
+      },
+      {
+        path: '/system/role',
+        name: 'system:role',
+        component: '/system/role/index',
+        meta: {
+          title: '角色管理',
+          icon: 'Shield',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 20,
+          i18nKey: 'menu.systemRole',
+        },
+      },
+      {
+        path: '/system/menu',
+        name: 'system:menu',
+        component: '/system/menu/index',
+        meta: {
+          title: '菜单管理',
+          icon: 'Menu',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 30,
+          i18nKey: 'menu.systemMenu',
+        },
+      },
+      {
+        path: '/system/organization',
+        name: 'system:organization',
+        component: '/system/organization/index',
+        meta: {
+          title: '组织架构',
+          icon: 'Building2',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 40,
+          i18nKey: 'menu.systemOrganization',
+        },
+      },
+    ],
   },
   {
-    key: 'orders',
-    title: 'Orders',
-    path: '/orders',
-    icon: 'ShoppingCart',
-    badge: 30,
-    group: 'main',
-    i18nKey: 'menu.orders',
-  },
-  {
-    key: 'products',
-    title: 'Products',
     path: '/products',
-    icon: 'Package',
-    group: 'main',
-    defaultExpanded: true,
-    i18nKey: 'menu.products',
+    name: 'products',
+    component: 'BasicLayout',
+    redirect: '/products/list',
+    meta: {
+      title: '商品管理',
+      icon: 'Package',
+      keepAlive: false,
+      hideInMenu: false,
+      order: 20,
+      i18nKey: 'menu.products',
+    },
     children: [
       {
-        key: 'product-list',
-        title: 'Product List',
-        path: '/products',
-        icon: 'FileText',
-        i18nKey: 'menu.productList',
+        path: '/products/list',
+        name: 'products:list',
+        component: '/Products',
+        meta: {
+          title: '商品列表',
+          icon: 'FileText',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 10,
+          i18nKey: 'menu.productList',
+        },
       },
       {
-        key: 'product-categories',
-        title: 'Categories',
         path: '/products/categories',
-        icon: 'Tags',
-        i18nKey: 'menu.categories',
-        children: [
-          {
-            key: 'category-level1',
-            title: 'Level 1',
-            path: '/products/categories/level1',
-            icon: 'FolderTree',
-            i18nKey: 'menu.categoryLevel1',
-          },
-          {
-            key: 'category-level2',
-            title: 'Level 2',
-            path: '/products/categories/level2',
-            icon: 'Layers',
-            i18nKey: 'menu.categoryLevel2',
-          },
-          {
-            key: 'category-tags',
-            title: 'Tags',
-            path: '/products/categories/tags',
-            icon: 'Box',
-            i18nKey: 'menu.tags',
-          },
-        ],
+        name: 'products:categories',
+        component: '/Categories',
+        meta: {
+          title: '分类管理',
+          icon: 'Tags',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 20,
+          i18nKey: 'menu.categories',
+        },
       },
       {
-        key: 'product-inventory',
-        title: 'Inventory',
         path: '/products/inventory',
-        icon: 'Warehouse',
-        i18nKey: 'menu.inventory',
-        children: [
-          {
-            key: 'inventory-stock',
-            title: 'Stock',
-            path: '/products/inventory/stock',
-            icon: 'ClipboardList',
-            i18nKey: 'menu.stock',
-          },
-          {
-            key: 'inventory-warehouse',
-            title: 'Warehouse',
-            path: '/products/inventory/warehouse',
-            icon: 'Building',
-            i18nKey: 'menu.warehouse',
-            children: [
-              {
-                key: 'warehouse-beijing',
-                title: 'Beijing',
-                path: '/products/inventory/warehouse/beijing',
-                icon: 'MapPin',
-                i18nKey: 'menu.warehouseBeijing',
-              },
-              {
-                key: 'warehouse-shanghai',
-                title: 'Shanghai',
-                path: '/products/inventory/warehouse/shanghai',
-                icon: 'MapPin',
-                i18nKey: 'menu.warehouseShanghai',
-              },
-            ],
-          },
-          {
-            key: 'inventory-logistics',
-            title: 'Logistics',
-            path: '/products/inventory/logistics',
-            icon: 'Truck',
-            i18nKey: 'menu.logistics',
-          },
-        ],
+        name: 'products:inventory',
+        component: '/Inventory',
+        meta: {
+          title: '库存管理',
+          icon: 'Warehouse',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 30,
+          i18nKey: 'menu.inventory',
+        },
+      },
+      {
+        path: '/products/warehouse',
+        name: 'products:warehouse',
+        component: '/Warehouse',
+        meta: {
+          title: '仓库管理',
+          icon: 'Building2',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 40,
+          i18nKey: 'menu.warehouse',
+        },
+      },
+      {
+        path: '/products/stock',
+        name: 'products:stock',
+        component: '/Stock',
+        meta: {
+          title: '库存盘点',
+          icon: 'ClipboardList',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 50,
+          i18nKey: 'menu.stock',
+        },
+      },
+      {
+        path: '/products/tags',
+        name: 'products:tags',
+        component: '/Tags',
+        meta: {
+          title: '标签管理',
+          icon: 'Tag',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 60,
+          i18nKey: 'menu.tags',
+        },
       },
     ],
   },
   {
-    key: 'analytics',
-    title: 'Analytics',
-    path: '/analytics',
-    icon: 'ChartBar',
-    group: 'analytics',
-    i18nKey: 'menu.analytics',
+    path: '/orders',
+    name: 'orders',
+    component: 'BasicLayout',
+    redirect: '/orders/list',
+    meta: {
+      title: '订单管理',
+      icon: 'ShoppingCart',
+      keepAlive: false,
+      hideInMenu: false,
+      order: 30,
+      i18nKey: 'menu.orders',
+      badge: 5,
+    },
     children: [
       {
-        key: 'analytics-traffic',
-        title: 'Traffic',
-        path: '/analytics/traffic',
-        icon: 'TrendingUp',
-        i18nKey: 'menu.traffic',
+        path: '/orders/list',
+        name: 'orders:list',
+        component: '/Orders',
+        meta: {
+          title: '订单列表',
+          icon: 'FileText',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 10,
+          i18nKey: 'menu.orderList',
+        },
       },
       {
-        key: 'analytics-sales',
-        title: 'Sales',
-        path: '/analytics/sales',
-        icon: 'DollarSign',
-        i18nKey: 'menu.sales',
-      },
-      {
-        key: 'analytics-users',
-        title: 'Users Analysis',
-        path: '/analytics/users',
-        icon: 'UserRound',
-        i18nKey: 'menu.usersAnalysis',
+        path: '/orders/logistics',
+        name: 'orders:logistics',
+        component: '/Logistics',
+        meta: {
+          title: '物流管理',
+          icon: 'Truck',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 20,
+          i18nKey: 'menu.logistics',
+        },
       },
     ],
   },
   {
-    key: 'settings',
-    title: 'Settings',
+    path: '/analytics',
+    name: 'analytics',
+    component: 'BasicLayout',
+    redirect: '/analytics/overview',
+    meta: {
+      title: '数据分析',
+      icon: 'ChartBar',
+      keepAlive: false,
+      hideInMenu: false,
+      order: 40,
+      i18nKey: 'menu.analytics',
+    },
+    children: [
+      {
+        path: '/analytics/overview',
+        name: 'analytics:overview',
+        component: '/Analytics',
+        meta: {
+          title: '数据概览',
+          icon: 'BarChart3',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 5,
+          i18nKey: 'menu.analyticsOverview',
+        },
+      },
+      {
+        path: '/analytics/traffic',
+        name: 'analytics:traffic',
+        component: '/Traffic',
+        meta: {
+          title: '流量分析',
+          icon: 'TrendingUp',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 10,
+          i18nKey: 'menu.traffic',
+        },
+      },
+      {
+        path: '/analytics/sales',
+        name: 'analytics:sales',
+        component: '/Sales',
+        meta: {
+          title: '销售分析',
+          icon: 'DollarSign',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 20,
+          i18nKey: 'menu.sales',
+        },
+      },
+      {
+        path: '/analytics/users',
+        name: 'analytics:users',
+        component: '/UsersAnalysis',
+        meta: {
+          title: '用户分析',
+          icon: 'UserRound',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 30,
+          i18nKey: 'menu.usersAnalysis',
+        },
+      },
+    ],
+  },
+  {
+    path: '/demos',
+    name: 'demos',
+    component: 'BasicLayout',
+    redirect: '/demos/tform',
+    meta: {
+      title: '组件示例',
+      icon: 'LayoutTemplate',
+      keepAlive: false,
+      hideInMenu: false,
+      order: 50,
+      i18nKey: 'menu.demos',
+    },
+    children: [
+      {
+        path: '/demos/tform',
+        name: 'demos:tform',
+        component: '/demos/TFormDemo',
+        meta: {
+          title: '表单组件',
+          icon: 'FormInput',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 10,
+          i18nKey: 'menu.tformDemo',
+        },
+      },
+      {
+        path: '/demos/ttable',
+        name: 'demos:ttable',
+        component: '/demos/TTableDemo',
+        meta: {
+          title: '表格组件',
+          icon: 'Table',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 20,
+          i18nKey: 'menu.ttableDemo',
+        },
+      },
+      {
+        path: '/demos/tmodal',
+        name: 'demos:tmodal',
+        component: '/demos/TModalDemo',
+        meta: {
+          title: '弹窗组件',
+          icon: 'MessageSquare',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 30,
+          i18nKey: 'menu.tmodalDemo',
+        },
+      },
+      {
+        path: '/demos/tdrawer',
+        name: 'demos:tdrawer',
+        component: '/demos/TDrawerDemo',
+        meta: {
+          title: '抽屉组件',
+          icon: 'PanelRight',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 40,
+          i18nKey: 'menu.tdrawerDemo',
+        },
+      },
+      {
+        path: '/demos/permission',
+        name: 'demos:permission',
+        component: '/demos/PermissionDemo',
+        meta: {
+          title: '权限示例',
+          icon: 'ShieldCheck',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 50,
+          i18nKey: 'menu.permissionDemo',
+        },
+      },
+      {
+        path: '/demos/nested',
+        name: 'demos:nested',
+        component: 'BasicLayout',
+        redirect: '/demos/nested/level1',
+        meta: {
+          title: '嵌套菜单',
+          icon: 'Layers',
+          keepAlive: false,
+          hideInMenu: false,
+          order: 60,
+          i18nKey: 'menu.nested',
+        },
+        children: [
+          {
+            path: '/demos/nested/level1',
+            name: 'demos:nested:level1',
+            component: '/Level1',
+            meta: {
+              title: 'Level 1',
+              icon: 'Circle',
+              keepAlive: false,
+              hideInMenu: false,
+              order: 10,
+              i18nKey: 'menu.level1',
+            },
+          },
+          {
+            path: '/demos/nested/level2',
+            name: 'demos:nested:level2',
+            component: '/Level2',
+            meta: {
+              title: 'Level 2',
+              icon: 'Circle',
+              keepAlive: false,
+              hideInMenu: false,
+              order: 20,
+              i18nKey: 'menu.level2',
+            },
+          },
+        ],
+      },
+    ],
+  },
+  {
     path: '/settings',
-    icon: 'Settings',
-    group: 'system',
-    i18nKey: 'menu.settings',
-  },
-  {
-    key: 'tform-demo',
-    title: 'TForm Demo',
-    path: '/demos/tform-demo',
-    icon: 'Form',
-    group: 'system',
-    i18nKey: 'menu.tformDemo',
-  },
-  {
-    key: 'ttable-demo',
-    title: 'TTable Demo',
-    path: '/demos/ttable-demo',
-    icon: 'Table',
-    group: 'system',
-    i18nKey: 'menu.ttableDemo',
-  },
-  {
-    key: 'tmodal-demo',
-    title: 'TModal Demo',
-    path: '/demos/tmodal-demo',
-    icon: 'MessageSquare',
-    group: 'system',
-    i18nKey: 'menu.tmodalDemo',
-  },
-  {
-    key: 'tdrawer-demo',
-    title: 'TDrawer Demo',
-    path: '/demos/tdrawer-demo',
-    icon: 'PanelRight',
-    group: 'system',
-    i18nKey: 'menu.tdrawerDemo',
+    name: 'settings',
+    component: '/Settings',
+    meta: {
+      title: '系统设置',
+      icon: 'Settings2',
+      keepAlive: false,
+      hideInMenu: false,
+      order: 60,
+      i18nKey: 'menu.settings',
+    },
   },
 ];
 
 /**
- * 将菜单路径转换为 component 格式
- * @param path - 菜单路径（如 /products/categories）
- * @returns component 格式（如 /categories）
+ * 从路由配置生成菜单数据
+ * 提取需要展示在侧边栏的菜单项
  */
-function pathToComponent(path: string): string {
-  // Dashboard 路径特殊处理
-  if (path === '/dashboard') {
-    return '/dashboard';
-  }
+function generateMenusFromRoutes(routes: RouteConfig[]): MenuItem[] {
+  return routes
+    .filter((route) => !route.meta.hideInMenu)
+    .map((route) => {
+      const menu: MenuItem = {
+        path: route.path,
+        title: route.meta.title,
+        icon: route.meta.icon,
+        hideInMenu: route.meta.hideInMenu,
+        order: route.meta.order,
+        i18nKey: route.meta.i18nKey,
+      };
 
-  // 获取最后一段路径
-  const segments = path.split('/').filter(Boolean);
-  const lastSegment = segments[segments.length - 1];
+      if (route.children && route.children.length > 0) {
+        menu.children = generateMenusFromRoutes(route.children);
+      }
 
-  // 转换为 kebab-case
-  return '/' + lastSegment.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+      return menu;
+    })
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
 }
 
 /**
- * 生成路由名称
- * @param path - 菜单路径
- * @param key - 菜单key（用于确保唯一性）
- * @returns 路由名称
+ * 菜单数据
+ * 从路由配置自动生成
  */
-function generateRouteName(path: string, key?: string): string {
-  // 移除开头的斜杠，将路径转换为驼峰命名
-  const normalized = path.replace(/^\//, '').replace(/-/g, '/');
-  const segments = normalized.split('/').filter(Boolean);
-
-  // 将每个 segment 首字母大写
-  const pascalCase = segments
-    .map((seg) => seg.charAt(0).toUpperCase() + seg.slice(1).toLowerCase())
-    .join('');
-
-  // 如果路径生成名称为空，使用 key
-  const baseName = pascalCase || 'Dashboard';
-
-  // 如果有 key 且与 baseName 不同，追加 key 以确保唯一性
-  if (key && key !== baseName.toLowerCase().replace(/-/g, '')) {
-    const keySuffix = key
-      .split('-')
-      .map((seg) => seg.charAt(0).toUpperCase() + seg.slice(1).toLowerCase())
-      .join('');
-    return baseName + keySuffix;
-  }
-
-  return baseName;
-}
-
-/**
- * 将菜单项转换为路由配置
- * @param menu - 菜单项
- * @param parentPath - 父路径（用于计算相对路径）
- * @returns 路由配置
- */
-function menuToRouteConfig(menu: MenuItem, parentPath: string = ''): RouteConfig {
-  // 计算相对路径：如果是子菜单，移除父路径前缀
-  let relativePath = menu.path;
-  if (parentPath) {
-    if (menu.path === parentPath) {
-      // 子路由和父路由路径相同，使用空字符串（默认子路由）
-      relativePath = '';
-    } else if (menu.path.startsWith(parentPath + '/')) {
-      relativePath = menu.path.slice(parentPath.length + 1); // 移除父路径和斜杠
-    }
-  }
-
-  return {
-    path: relativePath,
-    name: generateRouteName(menu.path, menu.key),
-    component: pathToComponent(menu.path),
-    meta: {
-      titleKey: menu.i18nKey || menu.title,
-      icon: menu.icon,
-      requiresAuth: true,
-    },
-    children: menu.children?.map(child => menuToRouteConfig(child, menu.path)),
-  };
-}
-
-/**
- * 路由配置数据
- */
-export const routeData: RouteConfig[] = menuData.map(menu => menuToRouteConfig(menu));
+export const menuData: MenuItem[] = generateMenusFromRoutes(routeData);

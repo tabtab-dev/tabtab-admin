@@ -126,7 +126,7 @@ const {
  * 当前路由标题
  */
 const currentRouteTitle = computed(() => {
-  return menuStore.getRouteTitleKey(route.path);
+  return menuStore.getRouteTitle(route.path);
 });
 
 /**

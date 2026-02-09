@@ -1,116 +1,113 @@
 /**
  * 菜单类型定义
- * @description 定义菜单相关的类型接口
+ * @description 定义菜单和路由相关的类型接口，参考后端返回的数据格式
  */
-import type { Component } from 'vue';
 
 /**
- * 基础菜单项类型
- * 用于 API 返回的数据结构
+ * 路由元数据
  */
-export interface MenuItem {
-  /** 唯一标识 */
-  key: string;
-  /** 菜单标题 */
+export interface RouteMeta {
+  /** 页面标题 */
   title: string;
-  /** 路由路径 */
-  path: string;
-  /** 图标名称（对应 lucide-vue-next 的图标） */
+  /** 图标（lucide 图标名称） */
   icon?: string;
-  /** 徽标数量（可选） */
-  badge?: number;
-  /** 子菜单 */
-  children?: MenuItem[];
-  /** 菜单分组 */
-  group?: string;
-  /** 是否禁用 */
-  disabled?: boolean;
-  /** 是否默认展开 */
-  defaultExpanded?: boolean;
-  /** i18n 翻译 key */
-  i18nKey: string;
-  /** 组件路径（用于动态路由） */
-  component?: string;
+  /** 是否缓存页面 */
+  keepAlive?: boolean;
   /** 是否在菜单中隐藏 */
-  hidden?: boolean;
-  /** 权限码列表（用于权限控制） */
+  hideInMenu?: boolean;
+  /** 菜单排序 */
+  order?: number;
+  /** 是否需要认证 */
+  requiresAuth?: boolean;
+  /** 权限码列表 */
   permissions?: string[];
-  /** 角色列表（用于角色控制） */
+  /** 角色列表 */
   roles?: string[];
+  /** i18n 翻译 key */
+  i18nKey?: string;
+  /** 徽标数量（菜单上显示数字角标） */
+  badge?: number;
 }
 
 /**
- * 侧边栏菜单项类型
- * 用于 Sidebar 组件内部，包含图标名称
- */
-export interface SidebarMenuItem {
-  /** 唯一标识 */
-  key: string;
-  /** 菜单标题（显示用，实际使用 i18nKey 翻译） */
-  title: string;
-  /** 路由路径 */
-  path: string;
-  /** 图标名称（对应 lucide-vue-next 的图标名称） */
-  icon?: string;
-  /** 徽标数量（可选） */
-  badge?: number;
-  /** 子菜单 */
-  children?: SidebarMenuItem[];
-  /** 菜单分组 */
-  group?: string;
-  /** 是否禁用 */
-  disabled?: boolean;
-  /** 是否默认展开 */
-  defaultExpanded?: boolean;
-  /** i18n 翻译 key */
-  i18nKey: string;
-  /** 是否在菜单中隐藏 */
-  hidden?: boolean;
-  /** 权限码列表（用于权限控制） */
-  permissions?: string[];
-  /** 角色列表（用于角色控制） */
-  roles?: string[];
-}
-
-/**
- * 路由配置类型
+ * 后端返回的路由配置
+ * 参考后端接口返回的数据格式
  */
 export interface RouteConfig {
   /** 路由路径 */
   path: string;
   /** 路由名称 */
   name: string;
-  /** 组件路径 */
-  component: string;
-  /** 元数据 */
-  meta: {
-    /** 页面标题 i18n key */
-    titleKey: string;
-    /** 是否需要认证 */
-    requiresAuth?: boolean;
-    /** 图标 */
-    icon?: string;
-    /** 权限码列表 */
-    permissions?: string[];
-    /** 角色列表 */
-    roles?: string[];
-  };
+  /**
+   * 组件路径
+   * - BasicLayout: 使用基础布局（用于有子路由的父级）
+   * - /xxx/xxx: 相对于 views 目录的组件路径
+   */
+  component?: string;
+  /** 路由元数据 */
+  meta: RouteMeta;
+  /** 重定向路径 */
+  redirect?: string;
   /** 子路由 */
   children?: RouteConfig[];
 }
 
 /**
- * 菜单响应数据
+ * 后端返回的菜单项
+ * 用于侧边栏菜单展示
  */
-export interface MenuResponse {
-  /** 菜单列表 */
-  menus: MenuItem[];
-  /** 路由配置列表 */
-  routes: RouteConfig[];
+export interface MenuItem {
+  /** 路由路径（与 RouteConfig.path 对应） */
+  path: string;
+  /** 菜单标题 */
+  title: string;
+  /** 图标（lucide 图标名称） */
+  icon?: string;
+  /** 是否在菜单中隐藏 */
+  hideInMenu?: boolean;
+  /** 菜单排序 */
+  order?: number;
+  /** 子菜单 */
+  children?: MenuItem[];
+  /** i18n 翻译 key */
+  i18nKey?: string;
+  /** 徽标数量 */
+  badge?: number;
 }
 
 /**
- * 侧栏配置
+ * 菜单和路由响应数据
+ * @description 直接返回 RouteConfig 数组，前端自行提取菜单数据
+ */
+export type MenuResponse = RouteConfig[];
+
+/**
+ * 侧边栏菜单项
+ * 用于 Sidebar 组件内部
+ */
+export interface SidebarMenuItem {
+  /** 唯一标识 */
+  key: string;
+  /** 菜单标题 */
+  title: string;
+  /** 路由路径 */
+  path: string;
+  /** 图标名称 */
+  icon?: string;
+  /** 子菜单 */
+  children?: SidebarMenuItem[];
+  /** 是否禁用 */
+  disabled?: boolean;
+  /** 是否默认展开 */
+  defaultExpanded?: boolean;
+  /** i18n 翻译 key */
+  i18nKey?: string;
+  /** 徽标数量 */
+  badge?: number;
+}
+
+/**
+ * 侧边栏配置
  */
 export interface SidebarConfig {
   /** 菜单列表 */
@@ -131,7 +128,7 @@ export interface SidebarConfig {
 export interface MenuGroup {
   /** 分组 key */
   key: string;
-  /** 分组标题 i18n key */
+  /** 分组标题 */
   titleKey: string;
   /** 分组排序 */
   order?: number;

@@ -22,3 +22,6 @@ export type { LoadingType, LoadingOptions, LocalLoadingState } from './useLoadin
 
 export { useTabBar } from './useTabBar';
 export type { UseTabBarOptions, UseTabBarReturn } from './useTabBar';
+
+export { usePermission } from './usePermission';
+export type { PermissionMode } from './usePermission';

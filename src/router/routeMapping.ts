@@ -1,47 +1,61 @@
 /**
  * 路由映射工具
- * @description 使用 Vite 的 import.meta.glob 自动扫描 views 目录，根据后端返回的路径匹配组件
+ * @description 将后端返回的路由配置转换为 Vue Router 路由记录
  */
 
 import type { RouteRecordRaw } from 'vue-router';
-import type { RouteConfig } from '@/types/menu';
+import type { RouteConfig, RouteMeta } from '@/types/menu';
 
 /**
- * 自动扫描所有视图组件
- * key: /src/views/XXX.vue
- * value: () => import('/src/views/XXX.vue')
+ * 自动扫描 views 目录下所有 Vue 组件
  */
-const modules = import.meta.glob('@/views/**/*.vue');
+const modules = import.meta.glob('@/views/**/*.vue', {
+  eager: false,
+  import: 'default',
+});
 
 /**
  * 组件缓存映射
- * 将 component 路径缓存到模块加载函数
+ * key: 标准化的路径（如 /system/user/index）
+ * value: 组件加载函数
  */
 const componentCache = new Map<string, () => Promise<any>>();
 
 /**
+ * 布局组件映射
+ */
+const layoutCache = new Map<string, () => Promise<any>>();
+
+/**
+ * 标准化路径
+ * @param path - 文件路径
+ * @returns 标准化后的路径
+ */
+function normalizePath(path: string): string {
+  return path.replace(/^\//, '').toLowerCase();
+}
+
+/**
  * 初始化组件映射
- * 扫描所有视图组件并建立映射关系
+ * 扫描所有视图组件并建立路径映射
  */
 function initComponentMap() {
-  for (const [path, loader] of Object.entries(modules)) {
-    // 从 /src/views/Users.vue 提取 users
-    // 从 /src/views/demos/TFormDemo.vue 提取 demos/tform-demo
-    const match = path.match(/\/src\/views\/(.+)\.vue$/);
+  for (const [fullPath, loader] of Object.entries(modules)) {
+    // 从 /src/views/system/user/index.vue 提取 system/user/index
+    const match = fullPath.match(/\/src\/views\/(.+)\.vue$/);
     if (match) {
-      const fileName = match[1];
-      // 建立多种格式的映射
-      // Users → /users
-      // UsersAnalysis → /users-analysis
-      // Categories → /categories
-      // demos/TFormDemo → /demos/tform-demo
-      const kebabName = fileName
-        .replace(/([a-z])([A-Z])/g, '$1-$2')
-        .toLowerCase();
-
-      componentCache.set(`/${kebabName}`, loader);
-      componentCache.set(fileName.toLowerCase(), loader);
+      const relativePath = match[1];
+      const normalizedPath = normalizePath(relativePath);
+      componentCache.set(normalizedPath, loader as () => Promise<any>);
     }
+  }
+
+  // 注册布局组件
+  layoutCache.set('basiclayout', () => import('@/layouts/BasicLayout.vue'));
+  layoutCache.set('blanklayout', () => import('@/layouts/BlankLayout.vue'));
+
+  if (import.meta.env.DEV) {
+    console.log('[RouteMapping] 已加载组件:', Array.from(componentCache.keys()));
   }
 }
 
@@ -49,53 +63,98 @@ function initComponentMap() {
 initComponentMap();
 
 /**
- * 将 component 路径转换为组件导入函数
- * @param componentPath - 后端返回的 component 路径（如 /users）
- * @returns 组件导入函数
+ * 获取组件加载函数
+ * @param componentPath - 组件路径（如 /system/user/index 或 BasicLayout）
+ * @returns 组件加载函数
  */
-export function getComponent(componentPath: string): (() => Promise<any>) | undefined {
-  // 直接查找缓存
-  if (componentCache.has(componentPath)) {
-    return componentCache.get(componentPath);
+function getComponentLoader(componentPath: string): (() => Promise<any>) | undefined {
+  if (!componentPath) {
+    return undefined;
   }
 
-  // 尝试多种格式匹配
-  // /users → users
-  const normalizedPath = componentPath.toLowerCase().replace(/^\//, '');
+  // 处理布局组件（如 BasicLayout）
+  const layoutKey = componentPath.toLowerCase().replace(/-/g, '');
+  if (layoutCache.has(layoutKey)) {
+    return layoutCache.get(layoutKey);
+  }
 
+  // 处理普通组件路径
+  const normalizedPath = normalizePath(componentPath);
+
+  // 直接匹配
   if (componentCache.has(normalizedPath)) {
     return componentCache.get(normalizedPath);
   }
 
-  // 尝试查找包含该名称的组件
-  for (const [key, loader] of componentCache.entries()) {
-    if (key.includes(normalizedPath) || normalizedPath.includes(key.replace('/', ''))) {
-      return loader;
-    }
+  // 尝试添加 /index 后缀
+  const indexPath = `${normalizedPath}/index`;
+  if (componentCache.has(indexPath)) {
+    return componentCache.get(indexPath);
   }
 
-  console.warn(`[RouteMapping] Component not found for: ${componentPath}`);
+  // 尝试作为目录查找
+  const dirPath = normalizedPath.replace(/\/index$/, '');
+  if (componentCache.has(dirPath)) {
+    return componentCache.get(dirPath);
+  }
+
+  if (import.meta.env.DEV) {
+    console.warn(`[RouteMapping] 未找到组件: ${componentPath} (标准化: ${normalizedPath})`);
+  }
+
   return undefined;
 }
 
 /**
- * 将路由配置转换为 Vue Router 路由记录
- * @param routes - 路由配置数组
+ * 转换路由元数据
+ * @param meta - 后端返回的元数据
+ * @returns Vue Router 元数据
+ */
+function convertMeta(meta: RouteMeta): Record<string, any> {
+  return {
+    title: meta.title,
+    icon: meta.icon,
+    keepAlive: meta.keepAlive ?? false,
+    hideInMenu: meta.hideInMenu ?? false,
+    order: meta.order ?? 0,
+    requiresAuth: meta.requiresAuth ?? true,
+    permissions: meta.permissions,
+    roles: meta.roles,
+  };
+}
+
+/**
+ * 将后端路由配置转换为 Vue Router 路由记录
+ * @param routes - 后端路由配置数组
  * @returns Vue Router 路由记录数组
  */
 export function convertToRouteRecords(routes: RouteConfig[]): RouteRecordRaw[] {
   return routes.map((route) => {
-    const componentLoader = getComponent(route.component);
-
     const routeRecord: RouteRecordRaw = {
       path: route.path,
       name: route.name,
-      component: componentLoader || (() => import('@/views/NotFound.vue')),
-      meta: route.meta,
+      meta: convertMeta(route.meta),
     };
 
+    // 处理组件
+    if (route.component) {
+      const componentLoader = getComponentLoader(route.component);
+      if (componentLoader) {
+        routeRecord.component = componentLoader;
+      } else if (import.meta.env.DEV) {
+        console.warn(`[RouteMapping] 组件未找到，使用 NotFound 占位: ${route.component}`);
+        routeRecord.component = () => import('@/views/NotFound.vue');
+      }
+    }
+
+    // 处理重定向
+    if (route.redirect) {
+      routeRecord.redirect = route.redirect;
+    }
+
+    // 递归处理子路由
     if (route.children && route.children.length > 0) {
-      (routeRecord as any).children = convertToRouteRecords(route.children);
+      routeRecord.children = convertToRouteRecords(route.children);
     }
 
     return routeRecord;
@@ -103,9 +162,19 @@ export function convertToRouteRecords(routes: RouteConfig[]): RouteRecordRaw[] {
 }
 
 /**
- * 获取所有可用的组件路径（用于调试）
- * @returns 组件路径列表
+ * 检查组件是否存在
+ * @param componentPath - 组件路径
+ * @returns 是否存在
  */
-export function getAvailableComponents(): string[] {
-  return Array.from(componentCache.keys());
+export function hasComponent(componentPath: string): boolean {
+  if (!componentPath) return false;
+
+  const layoutKey = componentPath.toLowerCase().replace(/-/g, '');
+  if (layoutCache.has(layoutKey)) return true;
+
+  const normalizedPath = normalizePath(componentPath);
+  if (componentCache.has(normalizedPath)) return true;
+  if (componentCache.has(`${normalizedPath}/index`)) return true;
+
+  return false;
 }

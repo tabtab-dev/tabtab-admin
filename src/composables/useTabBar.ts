@@ -216,26 +216,36 @@ export function useTabBar(options: UseTabBarOptions): UseTabBarReturn {
   };
 
   // ============ Route Watch ============
+  // 等待菜单加载完成后再创建标签，确保能获取正确的国际化 key 和图标
   watch(
-    () => route.path,
-    (newPath) => {
-      if (!newPath) return;
+    [() => route.path, () => menuStore.isLoaded],
+    ([newPath, isLoaded]) => {
+      if (!newPath || !isLoaded) return;
 
       // Check if tab already exists
       const existingTab = tabBarStore.tabs.find((t) => t.path === newPath);
       if (existingTab) {
+        // 更新现有标签的标题和图标（以防之前加载不正确）
+        const titleKey = menuStore.getRouteTitle(newPath);
+        const menuItem = menuStore.flatMenus.find((m) => m.path === newPath);
+        if (titleKey && titleKey !== existingTab.title) {
+          existingTab.title = titleKey;
+        }
+        if (menuItem?.icon && !existingTab.icon) {
+          existingTab.icon = menuItem.icon;
+        }
         tabBarStore.activateTab(newPath);
         scrollToTab(newPath);
         return;
       }
 
       // Get title and icon from menu
-      const titleKey = menuStore.getRouteTitleKey(newPath);
+      const titleKey = menuStore.getRouteTitle(newPath);
       const menuItem = menuStore.flatMenus.find((m) => m.path === newPath);
 
       tabBarStore.addTab({
         path: newPath,
-        title: t(titleKey),
+        title: titleKey,
         icon: menuItem?.icon,
         affix: newPath === '/dashboard',
       });
@@ -246,15 +256,8 @@ export function useTabBar(options: UseTabBarOptions): UseTabBarReturn {
   );
 
   // ============ Locale Watch ============
-  watch(
-    () => locale.value,
-    () => {
-      tabBarStore.updateAllTabsTitle((path: string) => {
-        const titleKey = menuStore.getRouteTitleKey(path);
-        return t(titleKey);
-      });
-    }
-  );
+  // 语言切换时，标题会自动通过 t() 函数重新翻译，无需手动更新
+  // 保留此 watch 以备后续需要执行其他语言切换相关操作
 
   return {
     // State
