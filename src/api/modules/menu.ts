@@ -7,6 +7,11 @@ import type { MenuResponse } from '@/types/menu';
 import type { PaginationData } from '@/types';
 
 /**
+ * 菜单类型
+ */
+export type MenuType = 'directory' | 'menu' | 'button';
+
+/**
  * 菜单数据（后端原始格式）
  */
 export interface Menu {
@@ -23,6 +28,11 @@ export interface Menu {
   keepAlive: boolean;
   external: boolean;
   permission: string;
+  /**
+   * 菜单类型
+   * @description directory: 目录, menu: 菜单, button: 按钮
+   */
+  type: MenuType;
   createdAt: string;
 }
 
@@ -42,6 +52,11 @@ export interface CreateMenuParams {
   keepAlive?: boolean;
   external?: boolean;
   permission?: string;
+  /**
+   * 菜单类型
+   * @description directory: 目录, menu: 菜单, button: 按钮
+   */
+  type: MenuType;
 }
 
 /**
@@ -60,6 +75,11 @@ export interface UpdateMenuParams {
   keepAlive?: boolean;
   external?: boolean;
   permission?: string;
+  /**
+   * 菜单类型
+   * @description directory: 目录, menu: 菜单, button: 按钮
+   */
+  type?: MenuType;
 }
 
 /**

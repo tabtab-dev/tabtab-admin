@@ -27,6 +27,8 @@ export interface RouteMeta {
   i18nKey?: string;
   /** 徽标数量（菜单上显示数字角标） */
   badge?: number;
+  /** 菜单分组 key，用于侧栏分组显示 */
+  group?: string;
 }
 
 /**
@@ -73,6 +75,8 @@ export interface MenuItem {
   i18nKey?: string;
   /** 徽标数量 */
   badge?: number;
+  /** 菜单分组 key */
+  group?: string;
 }
 
 /**
@@ -104,6 +108,8 @@ export interface SidebarMenuItem {
   i18nKey?: string;
   /** 徽标数量 */
   badge?: number;
+  /** 菜单分组 key */
+  group?: string;
 }
 
 /**

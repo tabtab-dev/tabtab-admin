@@ -44,6 +44,7 @@ export default {
   ttableDemo: '表格组件',
   tmodalDemo: '弹窗组件',
   tdrawerDemo: '抽屉组件',
+  ticonDemo: '图标组件',
   permissionDemo: '权限示例',
   nested: '嵌套菜单',
   level1: 'Level 1',
@@ -52,5 +53,6 @@ export default {
   // 菜单分组
   groupMain: '主要菜单',
   groupAnalytics: '数据分析',
-  groupSystem: '系统',
+  groupSystem: '系统管理',
+  groupDemos: '组件示例',
 } as const;

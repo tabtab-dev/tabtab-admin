@@ -10,6 +10,7 @@ import { computed, ref, watch, onMounted, onUnmounted, shallowRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import TFormList from './TFormList.vue'
 import TFormGroup from './TFormGroup.vue'
+import { TIcon } from '@/components/business/TIcon'
 import type { FormField, FormOption, AsyncOptionsLoader } from './types'
 
 /**
@@ -601,6 +602,22 @@ defineExpose({
         v-bind="field.props?.inputProps"
       />
     </div>
+
+    <!-- Icon 图标选择器 -->
+    <TIcon
+      v-else-if="field.type === 'icon'"
+      v-model="fieldValue"
+      :placeholder="field.placeholder"
+      :disabled="isDisabled"
+      :size="field.props?.size"
+      :show-clear="field.props?.showClear ?? true"
+      :categories="field.props?.categories"
+      :exclude-categories="field.props?.excludeCategories"
+      :popup-width="field.props?.popupWidth"
+      :popup-height="field.props?.popupHeight"
+      :columns="field.props?.columns"
+      :show-category-tabs="field.props?.showCategoryTabs ?? true"
+    />
 
     <!-- List 动态列表 -->
     <TFormList

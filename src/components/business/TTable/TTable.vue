@@ -8,7 +8,7 @@ import { computed, ref, shallowRef, watch, useSlots, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ConfigProvider, Popconfirm } from 'antdv-next'
 import { Button } from '@/components/ui/button'
-import { Pencil, Trash2, Eye, MoreHorizontal, FileText, Settings, Download, Share2, Copy, ExternalLink } from 'lucide-vue-next'
+import { Pencil, Trash2, Eye, MoreHorizontal, FileText, Settings, Download, Share2, Copy, ExternalLink, Shield } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 import { useTTableTheme } from './theme'
 import { getAntdvLocale } from '@/i18n/locales'
@@ -269,7 +269,8 @@ const defaultIconMap: Record<string, any> = {
   '下载': Download,
   '分享': Share2,
   '复制': Copy,
-  '跳转': ExternalLink
+  '跳转': ExternalLink,
+  '权限': Shield
 }
 
 /**

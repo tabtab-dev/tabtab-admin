@@ -19,6 +19,7 @@ export function convertMenuItem(menu: MenuItem, index: number = 0): SidebarMenuI
     hidden: menu.hideInMenu,
     i18nKey: menu.i18nKey,
     badge: menu.badge,
+    group: menu.group,
     children: menu.children?.map((child, idx) => convertMenuItem(child, idx)),
   };
 }
@@ -50,6 +51,7 @@ export const menuGroups: MenuGroup[] = [
   { key: 'main', titleKey: 'menu.groupMain', order: 1 },
   { key: 'analytics', titleKey: 'menu.groupAnalytics', order: 2 },
   { key: 'system', titleKey: 'menu.groupSystem', order: 3 },
+  { key: 'demos', titleKey: 'menu.groupDemos', order: 4 },
 ];
 
 /**
@@ -58,7 +60,9 @@ export const menuGroups: MenuGroup[] = [
  * @returns 分组标题 i18n key
  */
 export function getGroupTitleKey(groupKey: string): string {
-  const group = menuGroups.find((g) => g.key === groupKey);
+  // default 分组映射到 main
+  const key = groupKey === 'default' ? 'main' : groupKey;
+  const group = menuGroups.find((g) => g.key === key);
   return group?.titleKey || 'menu.groupMain';
 }
 
@@ -71,7 +75,8 @@ export function groupMenus(menus: SidebarMenuItem[]): Record<string, SidebarMenu
   const groups: Record<string, SidebarMenuItem[]> = {};
 
   menus.forEach((item) => {
-    const group = 'default';
+    // 使用菜单的 group 字段，如果没有则使用 'default'
+    const group = item.group || 'default';
     if (!groups[group]) {
       groups[group] = [];
     }

@@ -44,6 +44,7 @@ export default {
   ttableDemo: 'Table Component',
   tmodalDemo: 'Modal Component',
   tdrawerDemo: 'Drawer Component',
+  ticonDemo: 'Icon Component',
   permissionDemo: 'Permission Demo',
   nested: 'Nested Menu',
   level1: 'Level 1',
@@ -52,5 +53,6 @@ export default {
   // Menu Groups
   groupMain: 'Main Menu',
   groupAnalytics: 'Analytics',
-  groupSystem: 'System',
+  groupSystem: 'System Management',
+  groupDemos: 'Component Demos',
 } as const;

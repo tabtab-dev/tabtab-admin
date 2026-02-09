@@ -1029,7 +1029,10 @@ const newComponentsFormData = ref({
   viewMode: 'list',
   selectedKeys: [],
   themeColor: '#3b82f6',
-  fileList: []
+  fileList: [],
+  menuIcon: '',
+  actionIcon: '',
+  categoryIcon: ''
 })
 
 /**
@@ -1115,6 +1118,37 @@ const newComponentsSchema = computed<FormSchema>(() => ({
         multiple: true,
         accept: '.jpg,.png,.pdf'
       }
+    },
+    {
+      name: 'menuIcon',
+      type: 'icon',
+      label: '菜单图标',
+      placeholder: '请选择菜单图标',
+      help: '用于系统菜单导航的图标'
+    },
+    {
+      name: 'actionIcon',
+      type: 'icon',
+      label: '操作图标',
+      placeholder: '请选择操作按钮图标',
+      props: {
+        categories: ['arrows', 'media', 'devices'],
+        showCategoryTabs: true
+      },
+      help: '限制可选图标分类'
+    },
+    {
+      name: 'categoryIcon',
+      type: 'icon',
+      label: '分类图标',
+      placeholder: '请选择分类图标',
+      props: {
+        showClear: true,
+        size: 'default',
+        popupWidth: 700,
+        columns: 8
+      },
+      help: '自定义弹窗宽度和列数'
     }
   ],
   actions: {
@@ -1572,6 +1606,10 @@ function handleWatchSubmit(values: Record<string, any>): void {
               <div class="flex items-center gap-2">
                 <Badge variant="outline">upload</Badge>
                 <span>文件上传</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <Badge variant="outline" class="bg-primary/20">icon</Badge>
+                <span>图标选择器</span>
               </div>
             </div>
           </CardContent>

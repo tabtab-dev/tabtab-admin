@@ -120,6 +120,7 @@ function convertMeta(meta: RouteMeta): Record<string, any> {
     requiresAuth: meta.requiresAuth ?? true,
     permissions: meta.permissions,
     roles: meta.roles,
+    group: meta.group,
   };
 }
 

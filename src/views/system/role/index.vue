@@ -14,8 +14,8 @@ import { TModal } from '@/components/business/TModal'
 import { TDrawer } from '@/components/business/TDrawer'
 import { roleApi } from '@/api'
 import { useTableData, useMutation } from '@/composables'
-import { Plus, Shield, Users, Key, Search, Check } from 'lucide-vue-next'
-import { Tag, Tree, Checkbox, Space } from 'antdv-next'
+import { Plus, Shield, Users, Key, Search, Check, Edit, Trash2, Lock } from 'lucide-vue-next'
+import { Tag, Tree, Checkbox, Space, Tooltip } from 'antdv-next'
 import type { TreeProps } from 'antdv-next'
 
 // ==================== 类型定义 ====================
@@ -42,13 +42,20 @@ const {
   data: roles,
   loading,
   searchQuery,
+  currentPage,
+  pageSize,
+  total,
   fetchData,
+  goToPage,
+  setPageSize,
 } = useTableData<Role>({
   apiCall: async (params) => {
     const res = await roleApi.getRoles(params)
     return res || { list: [], total: 0, page: 1, pageSize: 10 }
   },
   apiCallParams: (ctx) => ({
+    page: ctx.page,
+    pageSize: ctx.pageSize,
     search: ctx.searchQuery,
   }),
 })
@@ -90,6 +97,15 @@ const { mutate: deleteRole } = useMutation({
   mutationFn: (id: string) => roleApi.deleteRole(id),
   successMessage: '角色删除成功',
   onSuccess: () => fetchData()
+})
+
+const { mutate: batchDeleteRoles } = useMutation({
+  mutationFn: (ids: string[]) => roleApi.batchDeleteRoles(ids),
+  successMessage: '批量删除成功',
+  onSuccess: () => {
+    tableRef.value?.clearSelection()
+    fetchData()
+  }
 })
 
 const { mutate: updateRolePermissions } = useMutation({
@@ -250,7 +266,7 @@ const tableSchema = computed<TableSchema>(() => ({
       dataIndex: 'permissions',
       width: 100,
       align: 'center',
-      customRender: ({ text }) => (text as string[])?.length || 0
+      slot: 'permissionCount'
     },
     {
       title: '状态',
@@ -261,7 +277,8 @@ const tableSchema = computed<TableSchema>(() => ({
     {
       title: '描述',
       dataIndex: 'description',
-      ellipsis: true
+      ellipsis: true,
+      slot: 'description'
     },
     {
       title: '创建时间',
@@ -273,7 +290,12 @@ const tableSchema = computed<TableSchema>(() => ({
     pageSize: 10,
     show: true,
     showSizeChanger: true,
-    showQuickJumper: true
+    showQuickJumper: true,
+    total: total.value
+  },
+  rowSelection: {
+    type: 'checkbox',
+    show: true
   },
   actions: [
     {
@@ -294,7 +316,7 @@ const tableSchema = computed<TableSchema>(() => ({
       onClick: (record) => handleDeleteRole((record as unknown as Role).id)
     }
   ],
-  actionWidth: 200,
+  actionWidth: 260,
   actionFixed: 'right'
 }))
 
@@ -464,6 +486,33 @@ function handleDeleteRole(id: string): void {
   deleteRole(id)
 }
 
+const selectedRowKeys = ref<(string | number)[]>([])
+const selectedRows = ref<Role[]>([])
+
+function handleSelectChange(keys: (string | number)[], rows: any[]): void {
+  selectedRowKeys.value = keys
+  selectedRows.value = rows as Role[]
+}
+
+function handleBatchDelete(): void {
+  if (selectedRowKeys.value.length === 0) {
+    alert('请先选择要删除的角色')
+    return
+  }
+  if (confirm(`确定要删除选中的 ${selectedRowKeys.value.length} 个角色吗？`)) {
+    batchDeleteRoles(selectedRowKeys.value as string[])
+  }
+}
+
+function handleTableChange(pagination: any): void {
+  if (pagination.current !== undefined) {
+    goToPage(pagination.current)
+  }
+  if (pagination.pageSize !== undefined) {
+    setPageSize(pagination.pageSize)
+  }
+}
+
 function resetAddForm(): void {
   addFormData.value = {
     name: '',
@@ -521,6 +570,17 @@ const permissionTreeData = computed(() => {
   }
   return convert(permissionTree.value)
 })
+
+// 获取所有权限ID（用于全选功能）
+function getAllPermissionIds(item: any): string[] {
+  const ids: string[] = [item.key]
+  if (item.children && item.children.length > 0) {
+    item.children.forEach((child: any) => {
+      ids.push(...getAllPermissionIds(child))
+    })
+  }
+  return ids
+}
 </script>
 
 <template>
@@ -553,13 +613,35 @@ const permissionTreeData = computed(() => {
 
     <!-- 搜索栏 -->
     <div class="bg-muted/30 rounded-lg p-4">
-      <TForm v-model="searchFormData" :schema="searchSchema" />
+      <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+        <div class="flex-1">
+          <TForm v-model="searchFormData" :schema="searchSchema" />
+        </div>
+        <div v-if="selectedRowKeys.length > 0" class="flex items-center gap-2 lg:border-l lg:pl-4">
+          <span class="text-sm text-muted-foreground">已选 {{ selectedRowKeys.length }} 项</span>
+          <Button
+            variant="outline"
+            size="sm"
+            class="h-8 text-xs text-destructive hover:text-destructive"
+            @click="handleBatchDelete"
+          >
+            批量删除
+          </Button>
+        </div>
+      </div>
     </div>
 
     <!-- 角色列表 -->
     <Card class="border-0 shadow-sm">
       <CardHeader class="pb-4">
-        <CardTitle class="text-base font-semibold">角色列表</CardTitle>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <CardTitle class="text-base font-semibold">角色列表</CardTitle>
+            <span class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+              共 {{ roles?.length || 0 }} 个角色
+            </span>
+          </div>
+        </div>
       </CardHeader>
       <CardContent class="pt-0">
         <TTable
@@ -567,6 +649,8 @@ const permissionTreeData = computed(() => {
           v-model:data="roles"
           :schema="tableSchema"
           :loading="loading"
+          @select-change="handleSelectChange"
+          @change="handleTableChange"
         >
           <template #name="slotProps">
             <div class="flex items-center gap-2">
@@ -577,6 +661,10 @@ const permissionTreeData = computed(() => {
 
           <template #userCount="slotProps">
             <Tag color="blue">{{ (slotProps as any).text }}人</Tag>
+          </template>
+
+          <template #permissionCount="slotProps">
+            <Tag color="purple">{{ ((slotProps as any).text as string[])?.length || 0 }}</Tag>
           </template>
 
           <template #status="slotProps">
@@ -591,10 +679,17 @@ const permissionTreeData = computed(() => {
             </Badge>
           </template>
 
+          <template #description="slotProps">
+            <Tooltip v-if="(slotProps as any).text" :title="(slotProps as any).text">
+              <span class="truncate block max-w-[200px]">{{ (slotProps as any).text }}</span>
+            </Tooltip>
+            <span v-else class="text-muted-foreground">-</span>
+          </template>
+
           <template #emptyText>
             <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
-              <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <Search class="w-8 h-8 text-muted-foreground/50" />
+              <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <Shield class="w-8 h-8 text-primary/50" />
               </div>
               <p class="text-base font-medium mb-1">暂无角色数据</p>
               <p class="text-sm text-muted-foreground mb-4">开始添加您的第一个角色吧</p>
@@ -613,7 +708,6 @@ const permissionTreeData = computed(() => {
       v-model:open="isAddDialogOpen"
       title="添加角色"
       width="560"
-      :footer="null"
     >
       <TForm
         v-model="addFormData"
@@ -627,7 +721,6 @@ const permissionTreeData = computed(() => {
       v-model:open="isEditDialogOpen"
       title="编辑角色"
       width="560"
-      :footer="null"
     >
       <TForm
         v-if="editingRole"
@@ -641,19 +734,57 @@ const permissionTreeData = computed(() => {
     <TDrawer
       v-model:open="isPermissionDrawerOpen"
       title="权限分配"
-      width="480"
-      :footer="true"
-      @confirm="handleSavePermissions"
+      width="520"
     >
       <div v-if="currentRole" class="space-y-4">
-        <div class="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-          <Shield class="h-5 w-5 text-primary" />
-          <div>
-            <div class="font-medium">{{ currentRole.name }}</div>
-            <div class="text-sm text-muted-foreground">{{ currentRole.code }}</div>
+        <!-- 角色信息卡片 -->
+        <div class="flex items-center gap-3 p-4 bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg border border-primary/10">
+          <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <Shield class="h-5 w-5 text-primary" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-medium text-base">{{ currentRole.name }}</div>
+            <div class="text-sm text-muted-foreground truncate">{{ currentRole.code }}</div>
+          </div>
+          <Badge
+            :class="{
+              'bg-green-500/10 text-green-500 border-green-500/20': currentRole.status === 'active',
+              'bg-gray-500/10 text-gray-500 border-gray-500/20': currentRole.status === 'inactive'
+            }"
+            variant="outline"
+          >
+            {{ currentRole.status === 'active' ? '启用' : '禁用' }}
+          </Badge>
+        </div>
+
+        <!-- 权限统计 -->
+        <div class="flex items-center justify-between px-1">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium">权限列表</span>
+            <Tag color="blue">{{ permissionTreeData.length }} 个模块</Tag>
+          </div>
+          <div class="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              class="h-7 text-xs"
+              @click="selectedPermissions = permissionTreeData.flatMap(getAllPermissionIds)"
+            >
+              全选
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              class="h-7 text-xs"
+              @click="selectedPermissions = []"
+            >
+              清空
+            </Button>
           </div>
         </div>
-        <div class="border rounded-lg p-4">
+
+        <!-- 权限树 -->
+        <div class="border rounded-lg p-4 bg-muted/20">
           <Tree
             v-model:checked-keys="selectedPermissions"
             :tree-data="permissionTreeData"
@@ -662,10 +793,31 @@ const permissionTreeData = computed(() => {
             @check="handlePermissionCheck"
           />
         </div>
-        <div class="text-sm text-muted-foreground">
-          已选择 {{ selectedPermissions.length }} 个权限
+
+        <!-- 已选权限统计 -->
+        <div class="flex items-center justify-between px-3 py-2 bg-muted/30 rounded-lg">
+          <div class="flex items-center gap-2">
+            <Key class="h-4 w-4 text-muted-foreground" />
+            <span class="text-sm text-muted-foreground">已选择</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-lg font-semibold text-primary">{{ selectedPermissions.length }}</span>
+            <span class="text-sm text-muted-foreground">个权限</span>
+          </div>
         </div>
       </div>
+
+      <!-- 底部按钮 -->
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <Button variant="outline" @click="isPermissionDrawerOpen = false">
+            取消
+          </Button>
+          <Button @click="handleSavePermissions">
+            保存
+          </Button>
+        </div>
+      </template>
     </TDrawer>
   </div>
 </template>

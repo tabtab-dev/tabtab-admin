@@ -692,26 +692,58 @@ initFormData()
 
     <!-- 普通表单布局 -->
     <template v-else>
-      <!-- 表单字段 -->
-      <TFormItem
-        v-for="field in visibleFields"
-        :key="String(field.name)"
-        :field="field"
-        :form-data="formData"
+      <!-- 多列布局容器 -->
+      <div
+        v-if="schema.columns && schema.columns > 1"
+        class="t-form-grid"
+        :style="{
+          display: 'grid',
+          gridTemplateColumns: `repeat(${schema.columns}, 1fr)`,
+          gap: '16px 24px'
+        }"
       >
-        <!-- 自定义插槽透传 -->
-        <template
-          v-if="field.type === 'custom' && field.slot && slots[field.slot]"
-          v-slot:[field.slot]="slotProps"
+        <!-- 表单字段 -->
+        <TFormItem
+          v-for="field in visibleFields"
+          :key="String(field.name)"
+          :field="field"
+          :form-data="formData"
+          style="margin-bottom: 0"
         >
-          <slot :name="field.slot" v-bind="slotProps" />
-        </template>
-      </TFormItem>
+          <!-- 自定义插槽透传 -->
+          <template
+            v-if="field.type === 'custom' && field.slot && slots[field.slot]"
+            v-slot:[field.slot]="slotProps"
+          >
+            <slot :name="field.slot" v-bind="slotProps" />
+          </template>
+        </TFormItem>
+      </div>
+
+      <!-- 单列布局 -->
+      <template v-else>
+        <!-- 表单字段 -->
+        <TFormItem
+          v-for="field in visibleFields"
+          :key="String(field.name)"
+          :field="field"
+          :form-data="formData"
+        >
+          <!-- 自定义插槽透传 -->
+          <template
+            v-if="field.type === 'custom' && field.slot && slots[field.slot]"
+            v-slot:[field.slot]="slotProps"
+          >
+            <slot :name="field.slot" v-bind="slotProps" />
+          </template>
+        </TFormItem>
+      </template>
 
       <!-- 操作按钮 -->
       <a-form-item
         v-if="schema.actions?.showSubmit !== false || schema.actions?.showReset"
         :wrapper-col="actionWrapperCol"
+        :class="{ 't-form-actions-fullwidth': schema.columns && schema.columns > 1 }"
       >
         <div
           :class="cn(

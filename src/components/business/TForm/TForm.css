@@ -332,3 +332,28 @@
 .t-form-search .search-form-item:focus-within .ant-form-item-label > label {
   @apply text-primary;
 }
+
+/* ==================== 多列布局样式 ==================== */
+
+/* 多列网格布局 */
+.t-form .t-form-grid {
+  @apply w-full;
+}
+
+/* 多列布局下的表单项 */
+.t-form .t-form-grid .ant-form-item {
+  @apply mb-0;
+}
+
+/* 多列布局下的操作按钮占据整行 */
+.t-form .t-form-actions-fullwidth {
+  @apply w-full mt-4;
+  grid-column: 1 / -1;
+}
+
+/* 响应式：小屏幕下改为单列 */
+@media (max-width: 640px) {
+  .t-form .t-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

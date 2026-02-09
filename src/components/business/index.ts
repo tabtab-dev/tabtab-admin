@@ -1,12 +1,12 @@
 /**
- * Data 组件库
+ * Business 组件库
  *
- * @description 基于 antdv-next 封装的数据展示与录入组件
- * 包含：TTable（表格）、TForm（表单）、TModal（对话框）
+ * @description 基于 antdv-next 和 lucide-vue-next 封装的数据展示与录入组件
+ * 包含：TTable（表格）、TForm（表单）、TModal（对话框）、TDrawer（抽屉）、TIcon（图标选择器）
  *
  * @example
  * ```ts
- * import { TTable, TForm, TModal } from '@/components/data'
+ * import { TTable, TForm, TModal, TDrawer, TIcon } from '@/components/business'
  * ```
  */
 
@@ -101,3 +101,15 @@ export type {
   DrawerClassNamesType,
   DrawerStylesType
 } from './TDrawer'
+
+// 导出 TIcon 组件及其类型
+export { TIcon, TIconPicker, ICON_CATEGORIES, DEFAULT_CATEGORIES, getCategoryName, getAllIconNames } from './TIcon'
+export type {
+  IconCategory,
+  IconItem,
+  TIconProps,
+  TIconEmits,
+  TIconExpose,
+  TIconPickerProps,
+  TIconPickerEmits,
+} from './TIcon'

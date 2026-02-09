@@ -27,6 +27,7 @@ function generateMenusFromRoutes(routes: RouteConfig[]): MenuItem[] {
         order: route.meta?.order,
         i18nKey: route.meta?.i18nKey,
         badge: route.meta?.badge,
+        group: route.meta?.group,
       };
 
       if (route.children && route.children.length > 0) {

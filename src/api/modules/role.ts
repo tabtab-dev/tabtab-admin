@@ -96,6 +96,14 @@ export const roleApi = {
   deleteRole: (id: string) => request.delete<void>(`/roles/${id}`),
 
   /**
+   * 批量删除角色
+   * @param ids - 角色 ID 列表
+   * @returns 删除结果
+   */
+  batchDeleteRoles: (ids: string[]) =>
+    request.delete<void>('/roles/batch', { data: { ids } }),
+
+  /**
    * 更新角色状态
    * @param id - 角色 ID
    * @param status - 新状态

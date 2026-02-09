@@ -1,48 +1,31 @@
 <script setup lang="ts">
 /**
  * 菜单管理页面
- * @description 管理系统菜单和导航配置
+ * @description 管理系统菜单和导航配置，使用 TTable 树形表格展示
  */
 import { TTable } from '@/components/business/TTable'
 import { TForm } from '@/components/business/TForm'
-import type { TableSchema, TTableExpose } from '@/components/business/TTable'
+import type { TableSchema, TTableExpose, TableRecord } from '@/components/business/TTable'
 import type { FormSchema } from '@/components/business/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TModal } from '@/components/business/TModal'
 import { menuApi } from '@/api'
+import type { Menu as MenuType, MenuType as MenuTypeEnum } from '@/api/modules/menu'
 import { useTableData, useMutation } from '@/composables'
 import { Plus, Menu, FolderTree, Eye, EyeOff, Search, LayoutGrid, ExternalLink } from 'lucide-vue-next'
-import { Tag, Tree, Switch, Space, Tooltip } from 'antdv-next'
-import type { TreeProps } from 'antdv-next'
-
-// ==================== 类型定义 ====================
-interface Menu {
-  id: string
-  name: string
-  title: string
-  path: string
-  component: string
-  icon: string
-  parentId: string | null
-  sort: number
-  status: 'active' | 'inactive'
-  hidden: boolean
-  keepAlive: boolean
-  external: boolean
-  permission: string
-  createdAt: string
-  children?: Menu[]
-}
+import { Switch, Tooltip } from 'antdv-next'
+import { getIcon } from '@/composables/useIcon'
+import { watch } from 'vue'
 
 // ==================== 数据管理 ====================
 const {
-  data: menus,
+  data: flatMenus,
   loading,
   searchQuery,
   fetchData,
-} = useTableData<Menu>({
+} = useTableData<MenuType>({
   apiCall: async (params) => {
     const res = await menuApi.getMenus(params)
     return res || { list: [], total: 0, page: 1, pageSize: 10 }
@@ -51,6 +34,45 @@ const {
     search: ctx.searchQuery,
   }),
 })
+
+/**
+ * 将扁平菜单数据转换为树形结构
+ * @param menus 扁平菜单列表
+ * @returns 树形菜单数据
+ */
+function buildMenuTree(menus: MenuType[]): MenuType[] {
+  const menuMap = new Map<string, MenuType>()
+  const roots: MenuType[] = []
+
+  // 先创建所有节点的副本（不添加 children 字段）
+  menus.forEach(menu => {
+    menuMap.set(menu.id, { ...menu })
+  })
+
+  // 构建树形结构
+  menus.forEach(menu => {
+    const node = menuMap.get(menu.id)!
+    if (menu.parentId && menuMap.has(menu.parentId)) {
+      const parent = menuMap.get(menu.parentId)!
+      if (!parent.children) {
+        parent.children = []
+      }
+      parent.children.push(node)
+      // 按排序值排序
+      parent.children.sort((a, b) => a.sort - b.sort)
+    } else {
+      roots.push(node)
+    }
+  })
+
+  // 根节点也按排序值排序
+  return roots.sort((a, b) => a.sort - b.sort)
+}
+
+/**
+ * 树形菜单数据
+ */
+const treeMenus = computed(() => buildMenuTree(flatMenus.value))
 
 const { mutate: createMenu } = useMutation({
   mutationFn: (values: Record<string, any>) => menuApi.createMenu({
@@ -65,7 +87,8 @@ const { mutate: createMenu } = useMutation({
     hidden: values.hidden || false,
     keepAlive: values.keepAlive || false,
     external: values.external || false,
-    permission: values.permission
+    permission: values.permission,
+    type: values.type || 'menu'
   }),
   successMessage: '菜单创建成功',
   onSuccess: () => {
@@ -89,7 +112,8 @@ const { mutate: updateMenu } = useMutation({
       hidden: values.hidden,
       keepAlive: values.keepAlive,
       external: values.external,
-      permission: values.permission
+      permission: values.permission,
+      type: values.type
     }),
   successMessage: '菜单更新成功',
   onSuccess: () => {
@@ -111,10 +135,6 @@ const { mutate: updateMenuStatus } = useMutation({
   successMessage: '状态更新成功',
   onSuccess: () => fetchData()
 })
-
-// ==================== 视图模式 ====================
-const viewMode = ref<'tree' | 'list'>('tree')
-const expandedKeys = ref<string[]>([])
 
 // ==================== 搜索 ====================
 const searchFormData = ref({
@@ -148,25 +168,31 @@ const searchSchema: FormSchema = {
   }
 }
 
-// ==================== 树形数据转换 ====================
-const treeData = computed(() => {
-  const list = menus.value || []
-  const buildTree = (parentId: string | null): any[] => {
-    return list
-      .filter(item => item.parentId === parentId)
-      .sort((a, b) => a.sort - b.sort)
-      .map(item => ({
-        key: item.id,
-        title: item.title,
-        data: item,
-        children: buildTree(item.id)
-      }))
-  }
-  return buildTree(null)
-})
-
 // ==================== 表格配置 ====================
 const tableRef = ref<TTableExpose>()
+
+/**
+ * 获取图标组件
+ * @param iconName 图标名称
+ * @returns 图标组件
+ */
+function getIconComponent(iconName: string) {
+  return getIcon(iconName) || Menu
+}
+
+/**
+ * 获取菜单类型标签配置
+ * @param type 菜单类型
+ * @returns 标签配置
+ */
+function getMenuTypeConfig(type: MenuTypeEnum) {
+  const config = {
+    directory: { label: '目录', color: 'blue' },
+    menu: { label: '菜单', color: 'green' },
+    button: { label: '按钮', color: 'orange' }
+  }
+  return config[type] || config.menu
+}
 
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
@@ -177,74 +203,85 @@ const tableSchema = computed<TableSchema>(() => ({
       slot: 'title'
     },
     {
+      title: '类型',
+      dataIndex: 'type',
+      width: 80,
+      align: 'center',
+      slot: 'type'
+    },
+    {
       title: '路由路径',
       dataIndex: 'path',
-      width: 180
+      width: 160,
+      ellipsis: true
     },
     {
       title: '组件',
       dataIndex: 'component',
-      width: 150,
+      width: 140,
       ellipsis: true
     },
     {
       title: '图标',
       dataIndex: 'icon',
-      width: 100,
-      align: 'center'
+      width: 70,
+      align: 'center',
+      slot: 'icon'
     },
     {
       title: '排序',
       dataIndex: 'sort',
-      width: 80,
+      width: 60,
       align: 'center'
     },
     {
       title: '状态',
       dataIndex: 'status',
-      width: 100,
+      width: 80,
       slot: 'status'
     },
     {
       title: '可见',
       dataIndex: 'hidden',
-      width: 80,
+      width: 60,
       align: 'center',
       slot: 'hidden'
     },
     {
       title: '缓存',
       dataIndex: 'keepAlive',
-      width: 80,
+      width: 60,
       align: 'center',
       slot: 'keepAlive'
     },
     {
       title: '外链',
       dataIndex: 'external',
-      width: 80,
+      width: 60,
       align: 'center',
       slot: 'external'
     }
   ],
-  pagination: {
-    pageSize: 10,
-    show: true,
-    showSizeChanger: true,
-    showQuickJumper: true
+  // 树形表格配置
+  childrenColumnName: 'children',
+  indentSize: 20,
+  expandable: {
+    defaultExpandAllRows: true
   },
+  // 禁用分页，树形表格通常不需要分页
+  pagination: false,
   actions: [
     {
       text: '编辑',
       type: 'primary',
-      onClick: (record) => handleEditMenu(record as unknown as Menu)
+      onClick: (record) => handleEditMenu(record as MenuType)
     },
     {
       text: '删除',
       type: 'danger',
       confirm: true,
-      confirmText: '确定要删除该菜单吗？此操作不可恢复。',
-      onClick: (record) => handleDeleteMenu((record as unknown as Menu).id)
+      confirmText: '确定要删除该菜单吗？子菜单也会被删除，此操作不可恢复。',
+      onClick: (record) => handleDeleteMenu((record as MenuType).id)
     }
   ],
   actionWidth: 150,
@@ -254,42 +291,45 @@ const tableSchema = computed<TableSchema>(() => ({
 // ==================== 弹窗和表单 ====================
 const isAddDialogOpen = ref(false)
 const isEditDialogOpen = ref(false)
-const editingMenu = ref<Menu | null>(null)
+const editingMenu = ref<MenuType | null>(null)
 
-const addFormData = ref({
-  name: '',
-  title: '',
-  path: '',
-  component: '',
-  icon: '',
-  parentId: null as string | null,
-  sort: 0,
-  status: 'active',
-  hidden: false,
-  keepAlive: false,
-  external: false,
-  permission: ''
-})
+/**
+ * 创建表单初始值
+ * @returns 表单初始值对象
+ */
+function createInitialFormData() {
+  return {
+    name: '',
+    title: '',
+    path: '',
+    component: '',
+    icon: '',
+    parentId: null as string | null,
+    sort: 0,
+    status: 'active' as 'active' | 'inactive',
+    hidden: false,
+    keepAlive: false,
+    external: false,
+    permission: '',
+    type: 'menu' as MenuTypeEnum
+  }
+}
 
-const editFormData = ref({
-  id: '',
-  name: '',
-  title: '',
-  path: '',
-  component: '',
-  icon: '',
-  parentId: null as string | null,
-  sort: 0,
-  status: 'active',
-  hidden: false,
-  keepAlive: false,
-  external: false,
-  permission: ''
+const addFormData = ref(createInitialFormData())
+const editFormData = ref({ id: '', ...createInitialFormData() })
+
+// 监听路由路径变化，自动填充组件路径
+watch(() => addFormData.value.path, (newPath) => {
+  if (newPath && !addFormData.value.component) {
+    // 将 /system/user 转换为 system/user/index
+    const cleanPath = newPath.startsWith('/') ? newPath.slice(1) : newPath
+    addFormData.value.component = cleanPath ? `${cleanPath}/index` : ''
+  }
 })
 
 // 菜单选择选项
 const menuOptions = computed(() => {
-  const list = menus.value || []
+  const list = flatMenus.value || []
   return [
     { label: '顶级菜单', value: null },
     ...list.map(item => ({
@@ -299,47 +339,59 @@ const menuOptions = computed(() => {
   ]
 })
 
-// 图标选项
-const iconOptions = [
-  { label: '仪表盘', value: 'LayoutDashboard' },
-  { label: '用户', value: 'Users' },
-  { label: '购物车', value: 'ShoppingCart' },
-  { label: '包裹', value: 'Package' },
-  { label: '文件', value: 'FileText' },
-  { label: '标签', value: 'Tags' },
-  { label: '文件夹', value: 'FolderTree' },
-  { label: '图层', value: 'Layers' },
-  { label: '盒子', value: 'Box' },
-  { label: '仓库', value: 'Warehouse' },
-  { label: '列表', value: 'ClipboardList' },
-  { label: '建筑', value: 'Building' },
-  { label: '地图标记', value: 'MapPin' },
-  { label: '卡车', value: 'Truck' },
-  { label: '图表', value: 'ChartBar' },
-  { label: '趋势', value: 'TrendingUp' },
-  { label: '美元', value: 'DollarSign' },
-  { label: '用户圆', value: 'UserRound' },
-  { label: '设置', value: 'Settings' },
-  { label: '表单', value: 'Form' },
-  { label: '表格', value: 'Table' },
-  { label: '消息', value: 'MessageSquare' },
-  { label: '面板', value: 'PanelRight' },
-  { label: '盾牌', value: 'Shield' },
-  { label: '菜单', value: 'Menu' },
-  { label: '列表树', value: 'FolderTree' },
-  { label: '眼睛', value: 'Eye' },
-  { label: '网格', value: 'LayoutGrid' },
-  { label: '链接', value: 'ExternalLink' }
+/**
+ * 上级菜单树形选项
+ */
+const menuTreeOptions = computed(() => {
+  const buildTree = (menus: MenuType[]): any[] => {
+    return menus.map(menu => ({
+      title: menu.title,
+      value: menu.id,
+      key: menu.id,
+      children: menu.children ? buildTree(menu.children) : undefined
+    }))
+  }
+
+  const treeData = buildTree(treeMenus.value)
+
+  return [
+    {
+      title: '顶级菜单',
+      value: 0,
+      key: 'root',
+      children: treeData
+    }
+  ]
+})
+
+/**
+ * 菜单类型选项
+ */
+const menuTypeOptions = [
+  { label: '目录', value: 'directory', color: 'blue' },
+  { label: '菜单', value: 'menu', color: 'green' },
+  { label: '按钮', value: 'button', color: 'orange' }
 ]
 
-const addSchema: FormSchema = {
-  layout: 'horizontal',
-  labelCol: { span: 6 },
-  wrapperCol: { span: 18 },
-  fields: [
+/**
+ * 获取表单字段配置
+ * @param isEdit 是否为编辑模式
+ * @returns 表单字段配置数组
+ */
+function getFormFields(isEdit: boolean) {
+  return [
+    {
+      name: 'type',
+      type: 'select' as const,
+      label: '菜单类型',
+      placeholder: '请选择菜单类型',
+      options: menuTypeOptions,
+      disabled: isEdit,
+      rules: [{ required: true, message: '请选择菜单类型' }]
+    },
     {
       name: 'title',
-      type: 'input',
+      type: 'input' as const,
       label: '菜单标题',
       placeholder: '请输入菜单标题',
       rules: [
@@ -349,9 +401,14 @@ const addSchema: FormSchema = {
     },
     {
       name: 'name',
-      type: 'input',
+      type: 'input' as const,
       label: '路由名称',
       placeholder: '请输入路由名称',
+      disabled: isEdit,
+      dependencies: {
+        field: 'type',
+        condition: (value) => value !== 'button'
+      },
       rules: [
         { required: true, message: '路由名称不能为空' },
         { pattern: /^[A-Za-z0-9_-]+$/, message: '名称只能包含字母、数字、下划线和横线' }
@@ -359,9 +416,13 @@ const addSchema: FormSchema = {
     },
     {
       name: 'path',
-      type: 'input',
+      type: 'input' as const,
       label: '路由路径',
       placeholder: '请输入路由路径，如 /system/user',
+      dependencies: {
+        field: 'type',
+        condition: (value) => value !== 'button'
+      },
       rules: [
         { required: true, message: '路由路径不能为空' },
         { pattern: /^\/[A-Za-z0-9/_-]*$/, message: '路径格式不正确' }
@@ -369,43 +430,67 @@ const addSchema: FormSchema = {
     },
     {
       name: 'component',
-      type: 'input',
+      type: 'input' as const,
       label: '组件路径',
-      placeholder: '请输入组件路径，如 /user/index',
+      placeholder: '请输入组件路径，如 system/user/index',
+      dependencies: {
+        field: 'type',
+        condition: (value) => value === 'menu'
+      },
       rules: [
         { required: true, message: '组件路径不能为空' }
       ]
     },
     {
       name: 'parentId',
-      type: 'select',
+      type: 'tree-select' as const,
       label: '上级菜单',
       placeholder: '请选择上级菜单',
-      options: menuOptions.value
+      options: menuTreeOptions.value,
+      disabled: isEdit,
+      props: {
+        treeDefaultExpandAll: true,
+        allowClear: true,
+        showSearch: true,
+        treeNodeFilterProp: 'title'
+      }
     },
     {
       name: 'icon',
-      type: 'select',
+      type: 'icon' as const,
       label: '图标',
       placeholder: '请选择图标',
-      options: iconOptions
+      dependencies: {
+        field: 'type',
+        condition: (value) => value !== 'button'
+      },
+      props: {
+        showClear: true,
+        showCategoryTabs: true,
+        popupWidth: 840,
+        columns: 10
+      }
     },
     {
       name: 'sort',
-      type: 'number',
+      type: 'number' as const,
       label: '排序',
       placeholder: '请输入排序号',
       min: 0
     },
     {
       name: 'permission',
-      type: 'input',
+      type: 'input' as const,
       label: '权限标识',
-      placeholder: '请输入权限标识，如 system:user:view'
+      placeholder: '请输入权限标识，如 system:user:view',
+      dependencies: {
+        field: 'type',
+        condition: (value) => value === 'button'
+      }
     },
     {
       name: 'status',
-      type: 'select',
+      type: 'select' as const,
       label: '状态',
       placeholder: '请选择状态',
       options: [
@@ -416,26 +501,47 @@ const addSchema: FormSchema = {
     },
     {
       name: 'hidden',
-      type: 'switch',
+      type: 'switch' as const,
       label: '隐藏菜单',
       checkedChildren: '是',
-      unCheckedChildren: '否'
+      unCheckedChildren: '否',
+      dependencies: {
+        field: 'type',
+        condition: (value) => value !== 'button'
+      }
     },
     {
       name: 'keepAlive',
-      type: 'switch',
+      type: 'switch' as const,
       label: '缓存页面',
       checkedChildren: '是',
-      unCheckedChildren: '否'
+      unCheckedChildren: '否',
+      dependencies: {
+        field: 'type',
+        condition: (value) => value === 'menu'
+      }
     },
     {
       name: 'external',
-      type: 'switch',
+      type: 'switch' as const,
       label: '外部链接',
       checkedChildren: '是',
-      unCheckedChildren: '否'
+      unCheckedChildren: '否',
+      dependencies: {
+        field: 'type',
+        condition: (value) => value === 'menu'
+      }
     }
-  ],
+  ]
+}
+
+const addSchema = computed<FormSchema>(() => ({
+  layout: 'horizontal',
+  // 每行显示2个组件
+  columns: 2,
+  labelCol: { span: 8 },
+  wrapperCol: { span: 16 },
+  fields: getFormFields(false),
   actions: {
     showSubmit: true,
     showReset: true,
@@ -446,109 +552,15 @@ const addSchema: FormSchema = {
       isAddDialogOpen.value = false
     }
   }
-}
+}))
 
-const editSchema: FormSchema = {
+const editSchema = computed<FormSchema>(() => ({
   layout: 'horizontal',
-  labelCol: { span: 6 },
-  wrapperCol: { span: 18 },
-  fields: [
-    {
-      name: 'title',
-      type: 'input',
-      label: '菜单标题',
-      placeholder: '请输入菜单标题',
-      rules: [
-        { required: true, message: '菜单标题不能为空' },
-        { min: 2, message: '菜单标题至少2个字符' }
-      ]
-    },
-    {
-      name: 'name',
-      type: 'input',
-      label: '路由名称',
-      placeholder: '请输入路由名称',
-      disabled: true
-    },
-    {
-      name: 'path',
-      type: 'input',
-      label: '路由路径',
-      placeholder: '请输入路由路径',
-      rules: [
-        { required: true, message: '路由路径不能为空' }
-      ]
-    },
-    {
-      name: 'component',
-      type: 'input',
-      label: '组件路径',
-      placeholder: '请输入组件路径',
-      rules: [
-        { required: true, message: '组件路径不能为空' }
-      ]
-    },
-    {
-      name: 'parentId',
-      type: 'select',
-      label: '上级菜单',
-      placeholder: '请选择上级菜单',
-      options: menuOptions.value,
-      disabled: true
-    },
-    {
-      name: 'icon',
-      type: 'select',
-      label: '图标',
-      placeholder: '请选择图标',
-      options: iconOptions
-    },
-    {
-      name: 'sort',
-      type: 'number',
-      label: '排序',
-      placeholder: '请输入排序号',
-      min: 0
-    },
-    {
-      name: 'permission',
-      type: 'input',
-      label: '权限标识',
-      placeholder: '请输入权限标识'
-    },
-    {
-      name: 'status',
-      type: 'select',
-      label: '状态',
-      placeholder: '请选择状态',
-      options: [
-        { label: '启用', value: 'active' },
-        { label: '禁用', value: 'inactive' }
-      ],
-      rules: [{ required: true, message: '请选择状态' }]
-    },
-    {
-      name: 'hidden',
-      type: 'switch',
-      label: '隐藏菜单',
-      checkedChildren: '是',
-      unCheckedChildren: '否'
-    },
-    {
-      name: 'keepAlive',
-      type: 'switch',
-      label: '缓存页面',
-      checkedChildren: '是',
-      unCheckedChildren: '否'
-    },
-    {
-      name: 'external',
-      type: 'switch',
-      label: '外部链接',
-      checkedChildren: '是',
-      unCheckedChildren: '否'
-    }
-  ],
+  // 每行显示2个组件
+  columns: 2,
+  labelCol: { span: 8 },
+  wrapperCol: { span: 16 },
+  fields: getFormFields(true),
   actions: {
     showSubmit: true,
     showReset: true,
@@ -559,10 +571,14 @@ const editSchema: FormSchema = {
       isEditDialogOpen.value = false
     }
   }
-}
+}))
 
 // ==================== 事件处理 ====================
-function handleEditMenu(menu: Menu): void {
+/**
+ * 处理编辑菜单
+ * @param menu 菜单数据
+ */
+function handleEditMenu(menu: MenuType): void {
   editingMenu.value = menu
   editFormData.value = {
     id: menu.id,
@@ -577,65 +593,69 @@ function handleEditMenu(menu: Menu): void {
     hidden: menu.hidden,
     keepAlive: menu.keepAlive,
     external: menu.external,
-    permission: menu.permission
+    permission: menu.permission,
+    type: menu.type
   }
   isEditDialogOpen.value = true
 }
 
+/**
+ * 处理添加菜单提交
+ * @param values 表单值
+ */
 function handleAddSubmit(values: Record<string, any>): void {
   createMenu(values)
 }
 
+/**
+ * 处理编辑菜单提交
+ * @param values 表单值
+ */
 function handleEditSubmit(values: Record<string, any>): void {
   if (editingMenu.value) {
     updateMenu({ id: editingMenu.value.id, values })
   }
 }
 
+/**
+ * 处理删除菜单
+ * @param id 菜单ID
+ */
 function handleDeleteMenu(id: string): void {
   deleteMenu(id)
 }
 
-function handleToggleStatus(menu: Menu): void {
+/**
+ * 处理切换菜单状态
+ * @param menu 菜单数据
+ */
+function handleToggleStatus(menu: MenuType): void {
   const newStatus = menu.status === 'active' ? 'inactive' : 'active'
   updateMenuStatus({ id: menu.id, status: newStatus })
 }
 
+/**
+ * 重置添加表单
+ */
 function resetAddForm(): void {
-  addFormData.value = {
-    name: '',
-    title: '',
-    path: '',
-    component: '',
-    icon: '',
-    parentId: null,
-    sort: 0,
-    status: 'active',
-    hidden: false,
-    keepAlive: false,
-    external: false,
-    permission: ''
-  }
-}
-
-// 树节点展开
-const onExpand: TreeProps['onExpand'] = (keys) => {
-  expandedKeys.value = keys as string[]
+  addFormData.value = createInitialFormData()
 }
 
 // 统计卡片
 const statisticsCards = computed(() => {
-  const list = menus.value || []
+  const list = flatMenus.value || []
   const total = list.length
   const active = list.filter(m => m.status === 'active').length
   const visible = list.filter(m => !m.hidden).length
-  const cached = list.filter(m => m.keepAlive).length
+  const directoryCount = list.filter(m => m.type === 'directory').length
+  const menuCount = list.filter(m => m.type === 'menu').length
+  const buttonCount = list.filter(m => m.type === 'button').length
 
   return [
     { title: '菜单总数', value: total, icon: Menu, color: 'text-blue-500' },
-    { title: '启用菜单', value: active, icon: FolderTree, color: 'text-green-500' },
-    { title: '可见菜单', value: visible, icon: Eye, color: 'text-purple-500' },
-    { title: '缓存页面', value: cached, icon: LayoutGrid, color: 'text-orange-500' }
+    { title: '目录', value: directoryCount, icon: FolderTree, color: 'text-cyan-500' },
+    { title: '菜单', value: menuCount, icon: LayoutGrid, color: 'text-green-500' },
+    { title: '按钮', value: buttonCount, icon: Eye, color: 'text-orange-500' }
   ]
 })
 </script>
@@ -670,145 +690,99 @@ const statisticsCards = computed(() => {
 
     <!-- 搜索栏 -->
     <div class="bg-muted/30 rounded-lg p-4">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <TForm v-model="searchFormData" :schema="searchSchema" />
-        <div class="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            :class="viewMode === 'tree' ? 'bg-primary text-primary-foreground' : ''"
-            @click="viewMode = 'tree'"
-          >
-            <FolderTree class="h-4 w-4 mr-1" />
-            树形视图
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            :class="viewMode === 'list' ? 'bg-primary text-primary-foreground' : ''"
-            @click="viewMode = 'list'"
-          >
-            <Menu class="h-4 w-4 mr-1" />
-            列表视图
-          </Button>
-        </div>
-      </div>
+      <TForm v-model="searchFormData" :schema="searchSchema" />
     </div>
 
-    <!-- 树形视图 -->
-    <Card v-if="viewMode === 'tree'" class="border-0 shadow-sm">
+    <!-- 树形表格 -->
+    <Card class="border-0 shadow-sm">
       <CardHeader class="pb-4">
         <CardTitle class="text-base font-semibold">菜单结构</CardTitle>
       </CardHeader>
       <CardContent class="pt-0">
-        <Tree
-          :tree-data="treeData"
-          :expanded-keys="expandedKeys"
-          @expand="onExpand"
-        >
-          <template #title="{ dataRef }">
-            <div class="flex items-center gap-2 py-1">
-              <LayoutGrid v-if="dataRef.data.icon === 'LayoutGrid'" class="h-4 w-4 text-muted-foreground" />
-              <Menu v-else class="h-4 w-4 text-muted-foreground" />
-              <span class="font-medium">{{ dataRef.title }}</span>
-              <Tag v-if="dataRef.data.path" size="small" class="text-xs">
-                {{ dataRef.data.path }}
-              </Tag>
-              <Badge
-                :class="{
-                  'bg-green-500/10 text-green-500': dataRef.data.status === 'active',
-                  'bg-gray-500/10 text-gray-500': dataRef.data.status === 'inactive'
-                }"
-                variant="outline"
-                class="text-xs"
-              >
-                {{ dataRef.data.status === 'active' ? '启用' : '禁用' }}
-              </Badge>
-              <Tooltip v-if="dataRef.data.hidden" title="隐藏菜单">
-                <EyeOff class="h-3 w-3 text-muted-foreground" />
-              </Tooltip>
-              <Tooltip v-if="dataRef.data.keepAlive" title="缓存页面">
-                <LayoutGrid class="h-3 w-3 text-muted-foreground" />
-              </Tooltip>
-              <Tooltip v-if="dataRef.data.external" title="外部链接">
-                <ExternalLink class="h-3 w-3 text-muted-foreground" />
-              </Tooltip>
-              <Space class="ml-auto">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  class="h-6 text-xs"
-                  @click.stop="handleEditMenu(dataRef.data)"
-                >
-                  编辑
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  class="h-6 text-xs text-destructive"
-                  @click.stop="handleDeleteMenu(dataRef.data.id)"
-                >
-                  删除
-                </Button>
-              </Space>
-            </div>
-          </template>
-        </Tree>
-      </CardContent>
-    </Card>
-
-    <!-- 列表视图 -->
-    <Card v-else class="border-0 shadow-sm">
-      <CardHeader class="pb-4">
-        <CardTitle class="text-base font-semibold">菜单列表</CardTitle>
-      </CardHeader>
-      <CardContent class="pt-0">
         <TTable
           ref="tableRef"
-          v-model:data="menus"
+          v-model:data="treeMenus"
           :schema="tableSchema"
           :loading="loading"
         >
-          <template #title="slotProps">
+          <!-- 菜单名称列 -->
+          <template #title="{ text, record }">
             <div class="flex items-center gap-2">
-              <Menu class="h-4 w-4 text-muted-foreground" />
-              <span class="font-medium">{{ (slotProps as any).text }}</span>
+              <component
+                v-if="record"
+                :is="getIconComponent((record as MenuType).icon)"
+                class="h-4 w-4 text-muted-foreground"
+              />
+              <span class="font-medium">{{ text }}</span>
             </div>
           </template>
 
-          <template #status="slotProps">
-            <Badge
-              :class="{
-                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as any).text === 'active',
-                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as any).text === 'inactive'
-              }"
-              variant="outline"
-            >
-              {{ (slotProps as any).text === 'active' ? '启用' : '禁用' }}
-            </Badge>
-          </template>
-
-          <template #hidden="slotProps">
-            <Eye v-if="!(slotProps as any).text" class="h-4 w-4 text-green-500" />
-            <EyeOff v-else class="h-4 w-4 text-gray-400" />
-          </template>
-
-          <template #keepAlive="slotProps">
-            <Switch
-              :checked="(slotProps as any).text"
-              size="small"
-              disabled
-            />
-          </template>
-
-          <template #external="slotProps">
-            <ExternalLink
-              v-if="(slotProps as any).text"
-              class="h-4 w-4 text-blue-500"
+          <!-- 图标列 -->
+          <template #icon="{ text }">
+            <component
+              :is="getIconComponent(text as string)"
+              v-if="text"
+              class="h-4 w-4 text-muted-foreground mx-auto"
             />
             <span v-else class="text-muted-foreground">-</span>
           </template>
 
+          <!-- 类型列 -->
+          <template #type="{ text }">
+            <Badge
+              v-if="text"
+              :class="{
+                'bg-blue-500/10 text-blue-500 border-blue-500/20': text === 'directory',
+                'bg-green-500/10 text-green-500 border-green-500/20': text === 'menu',
+                'bg-orange-500/10 text-orange-500 border-orange-500/20': text === 'button'
+              }"
+              variant="outline"
+            >
+              {{ getMenuTypeConfig(text as MenuTypeEnum).label }}
+            </Badge>
+          </template>
+
+          <!-- 状态列 -->
+          <template #status="{ text, record }">
+            <Badge
+              v-if="record"
+              :class="{
+                'bg-green-500/10 text-green-500 border-green-500/20 cursor-pointer hover:bg-green-500/20': text === 'active',
+                'bg-gray-500/10 text-gray-500 border-gray-500/20 cursor-pointer hover:bg-gray-500/20': text === 'inactive'
+              }"
+              variant="outline"
+              @click="handleToggleStatus(record as MenuType)"
+            >
+              {{ text === 'active' ? '启用' : '禁用' }}
+            </Badge>
+          </template>
+
+          <!-- 可见列 -->
+          <template #hidden="{ text }">
+            <Eye v-if="!text" class="h-4 w-4 text-green-500 mx-auto" />
+            <EyeOff v-else class="h-4 w-4 text-gray-400 mx-auto" />
+          </template>
+
+          <!-- 缓存列 -->
+          <template #keepAlive="{ text }">
+            <Switch
+              :checked="text as boolean"
+              size="small"
+              disabled
+              class="mx-auto"
+            />
+          </template>
+
+          <!-- 外链列 -->
+          <template #external="{ text }">
+            <ExternalLink
+              v-if="text"
+              class="h-4 w-4 text-blue-500 mx-auto"
+            />
+            <span v-else class="text-muted-foreground block text-center">-</span>
+          </template>
+
+          <!-- 空状态 -->
           <template #emptyText>
             <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
               <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
@@ -830,7 +804,7 @@ const statisticsCards = computed(() => {
     <TModal
       v-model:open="isAddDialogOpen"
       title="添加菜单"
-      width="600"
+      width="800"
       :footer="null"
     >
       <TForm
@@ -844,7 +818,7 @@ const statisticsCards = computed(() => {
     <TModal
       v-model:open="isEditDialogOpen"
       title="编辑菜单"
-      width="600"
+      width="800"
       :footer="null"
     >
       <TForm

@@ -31,6 +31,7 @@ export type FormFieldType =
   | 'transfer'
   | 'color-picker'
   | 'segmented'
+  | 'icon'
   | 'group'
   | 'list'
   | 'custom'
@@ -393,6 +394,12 @@ export interface FormSchema<T extends Record<string, any> = Record<string, any>>
   clearOnDestroy?: boolean
   /** 校验提示模板 */
   validateMessages?: Record<string, string>
+  /**
+   * 每行显示的字段数
+   * @description 用于配置表单每行显示多少列，默认1列
+   * @default 1
+   */
+  columns?: number
 }
 
 /**
