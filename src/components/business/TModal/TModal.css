@@ -38,6 +38,14 @@
   padding-top: 1rem;
 }
 
+/* 当 footer 为 null 或空时，隐藏 footer 区域 */
+.t-modal .ant-modal-footer:empty,
+.t-modal .ant-modal-footer:has(> *:empty) {
+  display: none;
+  border-top: none;
+  padding: 0;
+}
+
 .t-modal .ant-modal-close {
   color: var(--muted-foreground);
   transition: color 0.15s ease;

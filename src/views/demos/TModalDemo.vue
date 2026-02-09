@@ -114,6 +114,11 @@ const customFooterOpen = ref(false)
 const centeredOpen = ref(false)
 
 /**
+ * 无底部弹窗状态
+ */
+const noFooterOpen = ref(false)
+
+/**
  * 不同宽度弹窗状态
  */
 const widthOpen = ref(false)
@@ -241,11 +246,34 @@ function closeModalByRef() {
             <TModal
               ref="modalRef"
               title="Ref 控制弹窗"
-              :footer="null"
+              @ok="modalRef?.close()"
             >
               <p>这个弹窗通过 ref 方法控制打开和关闭。</p>
               <p class="text-muted-foreground mt-2">
                 适用于需要在父组件中程序化控制弹窗的场景。
+              </p>
+            </TModal>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>无底部区域</CardTitle>
+            <CardDescription>
+              设置 :footer="null" 隐藏底部按钮区域，不显示分割线
+            </CardDescription>
+          </CardHeader>
+          <CardContent class="space-y-4">
+            <Button variant="outline" @click="noFooterOpen = true">打开无底部弹窗</Button>
+
+            <TModal
+              v-model:open="noFooterOpen"
+              title="无底部区域"
+              :footer="null"
+            >
+              <p>这个弹窗没有底部按钮区域，也不会显示 footer 分割线。</p>
+              <p class="text-muted-foreground mt-2">
+                适用于纯展示内容或自带提交按钮的表单场景。
               </p>
             </TModal>
           </CardContent>

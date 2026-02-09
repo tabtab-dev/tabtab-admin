@@ -196,10 +196,9 @@ const childCountText = computed(() => {
       :aria-expanded="showPopover"
       :aria-haspopup="true"
       :class="[
-        'relative h-10 w-10 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
-        (active || isChildActive) ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30' : 'hover:bg-primary/10 hover:text-primary'
+        'relative h-10 w-10 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-lg',
+        (active || isChildActive) ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' : 'hover:bg-primary/10 hover:text-primary'
       ]"
-      :style="{ borderRadius: 'calc(var(--radius) * 0.8)' }"
     >
       <Icon
         v-if="item.icon"
@@ -316,10 +315,9 @@ const childCountText = computed(() => {
       :aria-haspopup="true"
       :aria-current="getAriaCurrent(item.path)"
       :class="[
-        'w-full justify-between h-9 px-2.5 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden',
+        'w-full justify-between h-9 px-2.5 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden rounded-md',
         (active || isChildActive) ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90' : 'hover:bg-primary/10 hover:text-primary'
       ]"
-      :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }"
       @click="handleParentClick"
     >
       <!-- 激活状态左侧指示器 - 优化后的流动光效 -->
@@ -395,7 +393,7 @@ const childCountText = computed(() => {
         class="ml-3.5 space-y-0.5 overflow-hidden relative py-0.5"
       >
         <!-- 连接线装饰 - 优化后的样式 -->
-        <div class="absolute left-2 top-1.5 bottom-1.5 w-px bg-gradient-to-b from-border/60 via-border/40 to-transparent rounded-full"></div>
+        <div class="absolute left-2 top-1.5 bottom-1.5 w-px bg-gradient-to-b from-border/50 via-border/30 to-transparent rounded-full"></div>
 
         <!-- 递归渲染多级子菜单 -->
         <MenuItemRecursive

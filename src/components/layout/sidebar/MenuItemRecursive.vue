@@ -73,7 +73,7 @@ const isDeepLevel = computed(() => props.level >= 1);
  * 获取按钮样式类 - 根据层级和激活状态返回不同的样式
  */
 const buttonClasses = computed(() => {
-  const baseClasses = 'w-full justify-between h-9 px-3 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden';
+  const baseClasses = 'w-full justify-between h-9 px-3 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden rounded-md';
 
   if (props.item.disabled) {
     return `${baseClasses} opacity-50 cursor-not-allowed`;
@@ -204,7 +204,6 @@ const menuTitle = computed(() => {
       :aria-current="getAriaCurrent(item.path)"
       :disabled="item.disabled"
       :class="buttonClasses"
-      :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }"
       @click="handleClick"
     >
       <!-- 激活状态左侧指示器 - 根据层级显示不同样式 -->
@@ -277,7 +276,7 @@ const menuTitle = computed(() => {
         <!-- 连接线装饰 - 所有层级都显示，深层级使用更淡的颜色 -->
         <div
           class="absolute top-1.5 bottom-1.5 w-px bg-gradient-to-b rounded-full"
-          :class="level >= 1 ? 'left-2 from-border/40 via-border/20 to-transparent' : 'left-2 from-border/60 via-border/40 to-transparent'"
+          :class="level >= 1 ? 'left-2 from-border/30 via-border/20 to-transparent' : 'left-2 from-border/50 via-border/30 to-transparent'"
         />
 
         <!-- 递归渲染子菜单项 -->

@@ -87,10 +87,9 @@ const ariaLabel = computed(() => {
         :aria-label="ariaLabel"
         :aria-current="getAriaCurrent(item.path)"
         :class="[
-          'relative h-10 w-10 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
-          active ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30' : 'hover:bg-primary/10 hover:text-primary'
+          'relative h-10 w-10 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-lg',
+          active ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' : 'hover:bg-primary/10 hover:text-primary'
         ]"
-        :style="{ borderRadius: 'calc(var(--radius) * 0.8)' }"
         @click="handleClick"
       >
         <Icon
@@ -141,10 +140,9 @@ const ariaLabel = computed(() => {
     role="menuitem"
     :aria-current="getAriaCurrent(item.path)"
     :class="[
-      'w-full justify-start gap-2.5 h-9 px-2.5 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden',
+      'w-full justify-start gap-2.5 h-9 px-2.5 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden rounded-md',
       active ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90' : 'hover:bg-primary/10 hover:text-primary'
     ]"
-    :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }"
     @click="handleClick"
   >
     <!-- 激活状态左侧指示器 - 优化后的流动光效 -->

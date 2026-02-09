@@ -20,7 +20,7 @@
     "@vee-validate/zod": "^4.15.1",
     "@vueuse/core": "^14.2.0",
     "alova": "^3.5.0",
-    "antdv-next": "^1.0.1",
+    "antdv-next": "^1.0.2",
     "axios": "^1.13.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

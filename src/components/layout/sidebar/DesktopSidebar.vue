@@ -166,7 +166,7 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
     >
       <!-- 侧边栏头部 Logo 区域 - 优化后的设计 -->
       <div
-        class="flex items-center border-b border-border/40 bg-gradient-to-r from-background to-muted/20 transition-all duration-300 ease-in-out overflow-hidden"
+        class="flex items-center border-b border-border/60 bg-gradient-to-r from-background via-background to-muted/30 transition-all duration-300 ease-in-out overflow-hidden"
         :class="collapsed ? 'justify-center px-2 py-2' : 'gap-3 px-4 py-3.5'"
       >
         <!-- Logo 图标 - 支持主题色切换 -->
@@ -188,13 +188,12 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
             <!-- 分组卡片（仅展开状态显示） - 优化后的设计 -->
             <div
               v-if="!collapsed && items.length > 0"
-              class="bg-muted/30 border border-border/40 p-2 space-y-1"
-              :style="{ borderRadius: 'calc(var(--radius))' }"
+              class="bg-muted/40 border border-border/50 p-2.5 space-y-1.5 rounded-xl"
             >
               <!-- 分组标题 - 优化后的样式 -->
-              <div class="px-2.5 py-1.5 flex items-center gap-2">
-                <div class="h-1.5 w-1.5 rounded-full bg-primary/70"></div>
-                <span class="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              <div class="px-2 py-1 flex items-center gap-2">
+                <div class="h-1.5 w-1.5 rounded-full bg-primary/60"></div>
+                <span class="text-[11px] font-semibold text-muted-foreground/80 uppercase tracking-wider">
                   {{ getGroupTitle(groupKey) }}
                 </span>
               </div>
@@ -249,7 +248,7 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
       </ScrollArea>
 
       <!-- 底部区域 - 优化后的设计 -->
-      <div class="p-3 border-t border-border/40 bg-muted/20">
+      <div class="p-3 border-t border-border/50 bg-muted/30">
         <slot name="footer">
           <!-- 展开状态显示完整信息 -->
           <div
