@@ -38,8 +38,6 @@ const props = defineProps<Props>();
  * 组件事件
  */
 interface Emits {
-  /** 更新折叠状态 */
-  (e: 'update:collapsed', value: boolean): void;
   /** 调整尺寸 */
   (e: 'resize', size: number): void;
   /** 拖拽状态变化 */
