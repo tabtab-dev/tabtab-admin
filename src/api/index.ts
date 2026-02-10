@@ -4,6 +4,7 @@
  */
 
 export { api, httpClient, requestManager, requestCache } from './client';
+export { clearTokenCache } from './client/interceptors';
 export type { Method } from './client';
 
 export type { RequestManagerOptions } from './client/requestManager';

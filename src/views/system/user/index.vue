@@ -3,14 +3,11 @@
  * 用户管理页面
  * @description 系统用户管理，包含用户的增删改查、状态管理等功能
  */
-import { TTable } from '@/components/business/TTable'
-import { TForm } from '@/components/business/TForm'
-import type { TableSchema, TTableExpose } from '@/components/business/TTable'
-import type { FormSchema } from '@/components/business/TForm'
+import { TTable, TForm, TModal, TDataCard, TPageHeader, TBatchActions, TStatusBadge, TEmptyState } from '@/components/business'
+import type { TableSchema, TTableExpose } from '@/components/business'
+import type { FormSchema } from '@/components/business'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { TModal } from '@/components/business/TModal'
 import { usersApi } from '@/api'
 import { useTableData, useMutation } from '@/composables'
 import type { User } from '@/types/models'
@@ -475,16 +472,13 @@ function handleTableChange(pagination: any): void {
 
 <template>
   <div class="space-y-6">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div>
-        <h1 class="text-3xl font-bold tracking-tight">用户管理</h1>
-        <p class="text-muted-foreground mt-1.5 text-sm">管理系统用户账号和权限分配</p>
-      </div>
-      <Button class="gap-2" @click="isAddDialogOpen = true">
-        <Plus class="h-4 w-4" />
-        添加用户
-      </Button>
-    </div>
+    <TPageHeader
+      title="用户管理"
+      subtitle="管理系统用户账号和权限分配"
+      :actions="[
+        { text: '添加用户', type: 'primary', iconName: 'Plus', onClick: () => isAddDialogOpen = true }
+      ]"
+    />
 
     <TModal
       v-model:open="isAddDialogOpen"
@@ -500,36 +494,19 @@ function handleTableChange(pagination: any): void {
     </TModal>
 
     <div class="flex flex-wrap gap-3">
-      <div
+      <TDataCard
         v-for="stat in statisticsCards"
         :key="stat.title"
-        class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
-      >
-        <component :is="stat.icon" :class="['h-4 w-4', stat.color]" />
-        <div class="flex items-baseline gap-2">
-          <span class="text-lg font-semibold">{{ stat.value }}</span>
-          <span class="text-xs text-muted-foreground">{{ stat.title }}</span>
-        </div>
-      </div>
+        :title="stat.title"
+        :value="stat.value"
+        :icon="stat.icon"
+        :color="stat.color"
+        size="sm"
+      />
     </div>
 
     <div class="bg-muted/30 rounded-lg p-4">
-      <div class="flex flex-col lg:flex-row lg:items-center gap-4">
-        <div class="flex-1">
-          <TForm v-model="searchFormData" :schema="searchSchema" />
-        </div>
-        <div v-if="selectedRowKeys.length > 0" class="flex items-center gap-2 lg:border-l lg:pl-4">
-          <span class="text-sm text-muted-foreground">已选 {{ selectedRowKeys.length }} 项</span>
-          <Button
-            variant="outline"
-            size="sm"
-            class="h-8 text-xs text-destructive hover:text-destructive"
-            @click="handleBatchDelete"
-          >
-            批量删除
-          </Button>
-        </div>
-      </div>
+      <TForm v-model="searchFormData" :schema="searchSchema" />
     </div>
 
     <Card class="border-0 shadow-sm">
@@ -541,6 +518,21 @@ function handleTableChange(pagination: any): void {
               共 {{ total }} 人
             </span>
           </div>
+          <TBatchActions
+            :count="selectedRowKeys.length"
+            :total="total"
+            item-name="用户"
+            :actions="[
+              {
+                text: '批量删除',
+                type: 'danger',
+                confirm: true,
+                confirmText: '确定要删除选中的用户吗？此操作不可恢复。',
+                onClick: handleBatchDelete
+              }
+            ]"
+            @clear="tableRef?.clearSelection()"
+          />
         </div>
       </CardHeader>
       <CardContent class="pt-0">
@@ -575,30 +567,23 @@ function handleTableChange(pagination: any): void {
           </template>
 
           <template #status="slotProps">
-            <Badge
-              :class="{
-                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as any).text === USER_STATUS.ACTIVE,
-                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as any).text === USER_STATUS.INACTIVE,
-                'bg-red-500/10 text-red-500 border-red-500/20': (slotProps as any).text === USER_STATUS.SUSPENDED
+            <TStatusBadge
+              :status="(slotProps as any).text"
+              :status-map="{
+                [USER_STATUS.ACTIVE]: { text: '启用', color: 'success' },
+                [USER_STATUS.INACTIVE]: { text: '禁用', color: 'default' },
+                [USER_STATUS.SUSPENDED]: { text: '已暂停', color: 'error' }
               }"
-              variant="outline"
-            >
-              {{ STATUS_CONFIG.USER[(slotProps as any).text as keyof typeof STATUS_CONFIG.USER]?.text || (slotProps as any).text }}
-            </Badge>
+            />
           </template>
 
           <template #emptyText>
-            <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
-              <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <Search class="w-8 h-8 text-muted-foreground/50" />
-              </div>
-              <p class="text-base font-medium mb-1">暂无用户数据</p>
-              <p class="text-sm text-muted-foreground mb-4">开始添加您的第一个用户吧</p>
-              <Button size="sm" @click="isAddDialogOpen = true">
-                <Plus class="h-4 w-4 mr-1" />
-                添加用户
-              </Button>
-            </div>
+            <TEmptyState
+              type="data"
+              title="暂无用户数据"
+              description="开始添加您的第一个用户吧"
+              :action="{ text: '添加用户', type: 'primary', iconName: 'Plus', onClick: () => isAddDialogOpen = true }"
+            />
           </template>
         </TTable>
       </CardContent>

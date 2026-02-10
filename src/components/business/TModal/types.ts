@@ -117,6 +117,28 @@ export interface ModalSchema {
 }
 
 /**
+ * TForm 实例引用类型（用于 TModal 与 TForm 集成）
+ */
+export interface TFormExpose {
+  /** 验证表单 */
+  validate: (nameList?: any[]) => Promise<Record<string, unknown>>
+  /** 验证所有字段 */
+  validateFields: (nameList?: any[]) => Promise<Record<string, unknown>>
+  /** 重置表单 */
+  resetFields: (nameList?: any[]) => void
+  /** 清除验证 */
+  clearValidate: (nameList?: any[]) => void
+  /** 获取单个字段值 */
+  getFieldValue: (name: any) => unknown
+  /** 获取多个字段值 */
+  getFieldsValue: (nameList?: any[] | true) => Record<string, unknown>
+  /** 设置单个字段值 */
+  setFieldValue: (name: any, value: unknown) => void
+  /** 设置多个字段值 */
+  setFieldsValue: (values: Record<string, unknown>) => void
+}
+
+/**
  * TModal 组件 Props
  */
 export interface TModalProps extends Omit<ModalSchema, 'class'> {
@@ -136,6 +158,27 @@ export interface TModalProps extends Omit<ModalSchema, 'class'> {
   classes?: ModalClassNamesType
   /** 用于自定义 Modal 组件内部各语义化结构的行内 style */
   styles?: ModalStylesType
+  /**
+   * 关联的 TForm 实例引用
+   * @description 当提供 formRef 时，点击确定按钮会自动触发表单验证和提交
+   * @example
+   * const formRef = ref<TFormExpose>()
+   * <TModal :form-ref="formRef" @submit="handleSubmit">
+   *   <TForm ref="formRef" />
+   * </TModal>
+   */
+  formRef?: { value?: TFormExpose | null | undefined }
+  /**
+   * 是否在表单验证通过后自动关闭弹窗
+   * @default false
+   */
+  closeOnSubmitSuccess?: boolean
+  /**
+   * 是否显示底部按钮区域
+   * @description 设置为 false 时隐藏底部按钮，优先级高于 footer 插槽
+   * @default true
+   */
+  showFooter?: boolean
 }
 
 /**

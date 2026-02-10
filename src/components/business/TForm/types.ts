@@ -413,6 +413,12 @@ export interface TFormProps<T extends Record<string, any> = Record<string, any>>
   modelValue?: T
   /** 加载状态 */
   loading?: boolean
+  /**
+   * 是否嵌入模式（用于 TModal 内部）
+   * @description 当为 true 时，隐藏表单底部操作按钮，由外部 TModal 控制提交
+   * @default false
+   */
+  embedded?: boolean
 }
 
 /**

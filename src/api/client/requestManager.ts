@@ -68,17 +68,17 @@ export class RequestManager {
       return this.pendingRequests.get(key) as Promise<T>;
     }
 
-    // 创建请求 Promise
-    const requestPromise = this.executeWithRetry<T>(method, key);
+    // 创建请求 Promise，使用 finally 确保无论成功失败都清理
+    const requestPromise = this.executeWithRetry<T>(method, key).finally(() => {
+      // 请求完成后立即清理 pending
+      if (this.options.enableDedupe) {
+        this.pendingRequests.delete(key);
+      }
+    });
 
     // 存储 pending 请求
     if (this.options.enableDedupe) {
       this.pendingRequests.set(key, requestPromise);
-
-      // 清理 pending 请求
-      setTimeout(() => {
-        this.pendingRequests.delete(key);
-      }, this.options.dedupeWindow);
     }
 
     return requestPromise;
@@ -94,27 +94,18 @@ export class RequestManager {
   ): Promise<T> {
     try {
       const result = await method.send();
-      
-      // 请求成功，清理 pending
-      if (this.options.enableDedupe) {
-        this.pendingRequests.delete(key);
-      }
-
       return result;
     } catch (error) {
       // 判断是否可重试
       if (this.shouldRetry(error, attempt)) {
         const delay = this.calculateDelay(attempt);
         console.log(`[RequestManager] 请求重试 (${attempt + 1}/${this.options.maxRetries}): ${key}`);
-        
+
         await this.sleep(delay);
         return this.executeWithRetry<T>(method, key, attempt + 1);
       }
 
-      // 不重试，清理 pending 并抛出错误
-      if (this.options.enableDedupe) {
-        this.pendingRequests.delete(key);
-      }
+      // 不重试，抛出错误（pending 清理由 finally 处理）
       throw error;
     }
   }

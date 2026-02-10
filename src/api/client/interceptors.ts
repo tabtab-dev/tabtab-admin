@@ -36,17 +36,34 @@ function onTokenRefreshed(newToken: string): void {
 }
 
 /**
+ * Token 缓存
+ * @description 缓存 token 避免每次请求都从 localStorage 读取
+ */
+let cachedToken: string | null = null;
+let lastTokenCheck = 0;
+const TOKEN_CACHE_TTL = 5000; // Token 缓存有效期 5 秒
+
+/**
  * 从 localStorage 获取 token
  * 兼容旧的 'token' key 和新的 Pinia 持久化 'app-auth'
  */
 function getTokenFromStorage(): string | null {
+  const now = Date.now();
+
+  // 如果缓存未过期，直接返回缓存的 token
+  if (cachedToken && now - lastTokenCheck < TOKEN_CACHE_TTL) {
+    return cachedToken;
+  }
+
   // 首先尝试从 Pinia 持久化存储读取
   try {
     const authData = localStorage.getItem(STORAGE_KEYS.AUTH);
     if (authData) {
       const parsed = JSON.parse(authData);
       if (parsed?.token) {
-        return parsed.token;
+        cachedToken = parsed.token;
+        lastTokenCheck = now;
+        return cachedToken;
       }
     }
   } catch {
@@ -56,10 +73,24 @@ function getTokenFromStorage(): string | null {
   // 降级：尝试旧的 key（兼容性）
   const oldToken = localStorage.getItem(STORAGE_KEYS.TOKEN);
   if (oldToken) {
-    return oldToken;
+    cachedToken = oldToken;
+    lastTokenCheck = now;
+    return cachedToken;
   }
 
+  // 没有找到 token，清除缓存
+  cachedToken = null;
+  lastTokenCheck = now;
   return null;
+}
+
+/**
+ * 清除 Token 缓存
+ * @description 在登录状态变化时调用
+ */
+export function clearTokenCache(): void {
+  cachedToken = null;
+  lastTokenCheck = 0;
 }
 
 /**
@@ -164,8 +195,9 @@ export const responseErrorInterceptor = (error: AxiosError) => {
 function handleUnauthorized(): void {
   console.log('[Auth] Handling 401 unauthorized');
 
-  // 清除请求缓存
+  // 清除请求缓存和 token 缓存
   requestCache.clear();
+  clearTokenCache();
 
   // 显示提示
   toast.error('登录已过期，请重新登录');

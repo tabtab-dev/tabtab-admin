@@ -222,6 +222,8 @@ export function useTableData<T = any>(options: UseTableDataOptions<T>) {
 
   /**
    * 过滤后的数据
+   * @description 当前直接返回原始数据，因为组件仅支持后端分页/过滤
+   * 如需前端过滤，可在此添加过滤逻辑
    */
   const filteredData = computed(() => {
     return data.value;
@@ -229,6 +231,8 @@ export function useTableData<T = any>(options: UseTableDataOptions<T>) {
 
   /**
    * 分页后的数据
+   * @description 当前直接返回原始数据，因为组件仅支持后端分页
+   * 后端已返回当前页的数据，无需前端再次分页
    */
   const paginatedData = computed(() => {
     return data.value;

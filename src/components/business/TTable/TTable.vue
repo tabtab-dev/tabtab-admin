@@ -4,20 +4,17 @@
  *
  * @description 支持通过 JSON Schema 配置生成表格，样式与 shadcn-vue 主题对齐
  */
-import { computed, ref, shallowRef, watch, useSlots, h } from 'vue'
+import { computed, ref, shallowRef, watch, useSlots } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ConfigProvider, Popconfirm } from 'antdv-next'
-import { Button } from '@/components/ui/button'
-import { Pencil, Trash2, Eye, MoreHorizontal, FileText, Settings, Download, Share2, Copy, ExternalLink, Shield } from 'lucide-vue-next'
+import { ConfigProvider } from 'antdv-next'
 import { cn } from '@/lib/utils'
 import { useTTableTheme } from './theme'
 import { getAntdvLocale } from '@/i18n/locales'
+import { useTableColumns } from '@/composables/useTableColumns'
 import type {
   TableSchema,
-  TableColumn,
   TTableProps,
   TTableExpose,
-  TableAction,
   RowSelectionConfig,
   PaginationConfig,
   TableSorter,
@@ -162,187 +159,15 @@ function getRowKey(record: TableRecord): string | number {
 }
 
 /**
- * 计算是否显示操作列
+ * 使用 useTableColumns 管理列配置
  */
-const showActionColumn = computed(() => {
-  return props.schema.actions && props.schema.actions.length > 0
+const { tableColumns, showActionColumn } = useTableColumns({
+  columns: computed(() => props.schema.columns || []),
+  actions: computed(() => props.schema.actions || []),
+  actionTitle: computed(() => props.schema.actionTitle),
+  actionWidth: computed(() => props.schema.actionWidth || 150),
+  actionFixed: computed(() => props.schema.actionFixed || 'right'),
 })
-
-/**
- * 计算表格列配置
- * @description 将 schema.columns 转换为 antd 的 columns 格式
- */
-const tableColumns = computed(() => {
-  const columns = props.schema.columns.map((col, index) => {
-    const column: Record<string, unknown> = {
-      key: col.key || col.dataIndex || index,
-      dataIndex: col.dataIndex,
-      title: col.title,
-      width: col.width,
-      minWidth: col.minWidth,
-      align: col.align,
-      fixed: col.fixed,
-      ellipsis: col.ellipsis,
-      className: col.className,
-      ...col.props
-    }
-
-    // 排序配置
-    if (col.sorter) {
-      column.sorter = col.sorter
-      if (col.defaultSortOrder) {
-        column.defaultSortOrder = col.defaultSortOrder
-      }
-      if (col.sortDirections) {
-        column.sortDirections = col.sortDirections
-      }
-      if (col.showSorterTooltip !== undefined) {
-        column.showSorterTooltip = col.showSorterTooltip
-      }
-    }
-
-    // 筛选配置
-    if (col.filters) {
-      column.filters = col.filters
-      if (col.filterMode) {
-        column.filterMode = col.filterMode
-      }
-      if (col.filterMultiple !== undefined) {
-        column.filterMultiple = col.filterMultiple
-      }
-      if (col.defaultFilteredValue) {
-        column.defaultFilteredValue = col.defaultFilteredValue
-      }
-      if (col.onFilter) {
-        column.onFilter = col.onFilter
-      }
-    }
-
-    // 自定义渲染
-    if (col.customRender) {
-      column.customRender = col.customRender
-    }
-
-    // 自定义表头渲染
-    if (col.customHeaderRender) {
-      column.customHeaderCell = (column: TableColumn) => {
-        return col.customHeaderRender?.({
-          title: column.title,
-          column: col,
-          index
-        })
-      }
-    }
-
-    return column
-  })
-
-  // 添加操作列
-  if (showActionColumn.value) {
-    columns.push({
-      key: 'action',
-      title: props.schema.actionTitle || t('common.actions'),
-      width: props.schema.actionWidth || 150,
-      fixed: props.schema.actionFixed || 'right',
-      align: 'center',
-      render: (_value: unknown, record: TableRecord, index: number) => {
-        return renderActions(record, index)
-      }
-    })
-  }
-
-  return columns
-})
-
-/**
- * 默认图标映射
- * @description 根据按钮文本自动匹配图标
- */
-const defaultIconMap: Record<string, any> = {
-  '编辑': Pencil,
-  '修改': Pencil,
-  '删除': Trash2,
-  '查看': Eye,
-  '详情': MoreHorizontal,
-  '详情页': FileText,
-  '设置': Settings,
-  '下载': Download,
-  '分享': Share2,
-  '复制': Copy,
-  '跳转': ExternalLink,
-  '权限': Shield
-}
-
-/**
- * 获取按钮图标
- * @param action - 操作按钮配置
- * @returns 图标组件
- */
-function getActionIcon(action: TableAction) {
-  if (action.icon) {
-    return action.icon
-  }
-  return defaultIconMap[action.text] || null
-}
-
-/**
- * 渲染操作按钮
- * @param record - 行数据
- * @param index - 行索引
- */
-function renderActions(record: TableRecord, index: number) {
-  const actions = props.schema.actions || []
-  const visibleActions = actions.filter((action) => {
-    if (typeof action.show === 'function') {
-      return action.show(record, index)
-    }
-    return action.show !== false
-  })
-
-  return visibleActions.map((action, actionIndex) => {
-    const isDisabled = typeof action.disabled === 'function'
-      ? action.disabled(record, index)
-      : action.disabled
-
-    const icon = getActionIcon(action)
-
-    const buttonClass = cn(
-      'h-8 px-3 py-1.5 gap-1.5 text-sm font-medium',
-      action.variant === 'destructive' && 'text-destructive hover:text-destructive hover:bg-destructive/10',
-      action.variant === 'default' && 'text-primary hover:text-primary hover:bg-primary/10',
-      !action.variant && action.type === 'danger' && 'text-destructive hover:text-destructive hover:bg-destructive/10',
-      !action.variant && action.type === 'primary' && 'text-primary hover:text-primary hover:bg-primary/10',
-      !action.variant && !action.type && 'text-foreground hover:text-accent-foreground hover:bg-accent'
-    )
-
-    const button = h(Button, {
-      key: actionIndex,
-      variant: action.variant || 'ghost',
-      size: 'sm',
-      disabled: isDisabled,
-      class: buttonClass,
-      onClick: (e: MouseEvent) => {
-        e.stopPropagation()
-        if (!action.confirm) {
-          action.onClick(record, index)
-        }
-      }
-    }, () => [
-      icon ? h(icon, { class: 'size-4' }) : null,
-      action.text
-    ])
-
-    if (action.confirm) {
-      return h(Popconfirm, {
-        key: actionIndex,
-        title: action.confirmText || '确认执行此操作？',
-        onConfirm: () => action.onClick(record, index)
-      }, () => button)
-    }
-
-    return button
-  })
-}
 
 /**
  * 计算行选择配置

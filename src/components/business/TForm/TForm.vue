@@ -53,7 +53,8 @@ defineOptions({
  */
 const props = withDefaults(defineProps<TFormProps>(), {
   modelValue: () => ({}),
-  loading: false
+  loading: false,
+  embedded: false
 })
 
 /**
@@ -739,9 +740,9 @@ initFormData()
         </TFormItem>
       </template>
 
-      <!-- 操作按钮 -->
+      <!-- 操作按钮 - 嵌入模式下隐藏 -->
       <a-form-item
-        v-if="schema.actions?.showSubmit !== false || schema.actions?.showReset"
+        v-if="!props.embedded && (schema.actions?.showSubmit !== false || schema.actions?.showReset)"
         :wrapper-col="actionWrapperCol"
         :class="{ 't-form-actions-fullwidth': schema.columns && schema.columns > 1 }"
       >

@@ -15,7 +15,26 @@
  *   </TModal>
  *
  * @example
- * 与 TForm 结合：
+ * 与 TForm 结合 - 模式1：TModal 控制提交（推荐用于异步提交场景）
+ *   const formRef = ref<TFormExpose>()
+ *   const open = ref(false)
+ *   const formData = ref({ name: '' })
+ *
+ *   const schema: FormSchema = {
+ *     fields: [{ name: 'name', type: 'input', label: '姓名', rules: [{ required: true }] }]
+ *   }
+ *
+ *   async function handleSubmit(values) {
+ *     await saveData(values)
+ *     open.value = false
+ *   }
+ *
+ *   <TModal v-model:open="open" title="编辑" :form-ref="formRef" @ok="handleSubmit">
+ *     <TForm ref="formRef" v-model="formData" :schema="schema" embedded />
+ *   </TModal>
+ *
+ * @example
+ * 与 TForm 结合 - 模式2：TForm 控制提交（适合简单表单场景）
  *   <TModal v-model:open="open" title="编辑" :footer="null">
  *     <TForm v-model="formData" :schema="schema" @submit="handleSubmit" />
  *   </TModal>
@@ -31,7 +50,7 @@ import { useI18n } from 'vue-i18n'
 import { ConfigProvider, Modal } from 'antdv-next'
 import { cn } from '@/lib/utils'
 import { getAntdvLocale } from '@/i18n/locales'
-import type { TModalProps, TModalEmits, TModalExpose } from './types'
+import type { TModalProps, TModalEmits, TModalExpose, TFormExpose } from './types'
 
 /**
  * 导入主题配置
@@ -92,13 +111,19 @@ const props = withDefaults(defineProps<TModalProps>(), {
   zIndex: 1000,
   focusTriggerAfterClose: true,
   loading: false,
-  forceRender: false
+  forceRender: false,
+  closeOnSubmitSuccess: false,
+  formRef: undefined,
+  showFooter: true
 })
 
 /**
  * Emits 定义
  */
-const emit = defineEmits<TModalEmits>()
+const emit = defineEmits<TModalEmits & {
+  /** 表单提交成功（当提供 formRef 时触发） */
+  submit: [values: Record<string, any>]
+}>()
 
 /**
  * 内部状态
@@ -150,8 +175,29 @@ const themeConfig = useTModalTheme()
  * 处理确定按钮点击
  * @param e - 鼠标事件
  */
-function handleOk(e: MouseEvent): void {
-  emit('ok', e)
+async function handleOk(e: MouseEvent): Promise<void> {
+  // 如果提供了 formRef，先触发表单验证
+  const formInstance = props.formRef?.value
+  if (formInstance) {
+    try {
+      internalConfirmLoading.value = true
+      const values = await formInstance.validate()
+      emit('submit', values)
+      emit('ok', e)
+
+      // 如果配置了提交成功后自动关闭，则关闭弹窗
+      if (props.closeOnSubmitSuccess) {
+        close()
+      }
+    } catch (error) {
+      // 表单验证失败，不触发 ok 事件，保持弹窗打开
+      console.log('表单验证失败:', error)
+    } finally {
+      internalConfirmLoading.value = false
+    }
+  } else {
+    emit('ok', e)
+  }
 }
 
 /**
@@ -251,7 +297,7 @@ defineExpose<TModalExpose>({
       :close-icon="closeIcon"
       :confirm-loading="internalConfirmLoading"
       :z-index="zIndex"
-      :footer="footer"
+      :footer="showFooter ? undefined : null"
       :force-render="forceRender"
       :get-container="getContainer"
       :transition-name="transitionName"
@@ -279,7 +325,7 @@ defineExpose<TModalExpose>({
         <slot name="title" />
       </template>
 
-      <!-- 底部插槽 -->
+      <!-- 底部插槽 - 仅在用户提供了 footer 插槽时渲染 -->
       <template v-if="$slots.footer" #footer="footerParams">
         <slot name="footer" v-bind="footerParams" />
       </template>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { TPageHeader } from '@/components/business';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -70,10 +71,10 @@ const handleSaveSystem = async () => {
 <template>
   <div class="space-y-6">
     <!-- 页面标题 -->
-    <div>
-      <h1 class="text-3xl font-bold tracking-tight">系统设置</h1>
-      <p class="text-muted-foreground mt-1.5 text-sm">管理账户和系统配置</p>
-    </div>
+    <TPageHeader
+      title="系统设置"
+      subtitle="管理账户和系统配置"
+    />
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div class="lg:col-span-2 space-y-6">

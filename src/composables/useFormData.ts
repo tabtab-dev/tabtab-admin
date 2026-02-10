@@ -2,7 +2,9 @@
  * 表单数据管理 Composable
  * @description 封装表单提交、验证等通用逻辑
  */
+import { ref } from 'vue';
 import { useMutation } from './useRequest';
+import { type AppError } from '@/utils/errorHandler';
 
 /**
  * 表单数据配置选项
@@ -15,7 +17,7 @@ export interface UseFormDataOptions<T> {
   /** 提交成功回调 */
   onSuccess?: (response: any) => void;
   /** 提交失败回调 */
-  onError?: (error: Error | null) => void;
+  onError?: (error: AppError) => void;
   /** 提交完成回调 */
   onComplete?: () => void;
   /** 是否重置表单（提交成功后） */
@@ -33,7 +35,7 @@ export interface FormDataState<T> {
   /** 提交状态 */
   submitting: boolean;
   /** 错误信息 */
-  error: Error | null;
+  error: AppError | null;
   /** 是否已修改 */
   isDirty: boolean;
 }

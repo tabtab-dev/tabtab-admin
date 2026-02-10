@@ -145,5 +145,7 @@ export type {
   // 静态方法类型
   ModalStaticConfig,
   ModalStaticRef,
-  UseModalReturn
+  UseModalReturn,
+  // TForm 集成类型
+  TFormExpose
 } from './types'

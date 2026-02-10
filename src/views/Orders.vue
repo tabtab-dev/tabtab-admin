@@ -4,11 +4,9 @@
  *
  * @description 基于 JSON 配置化的订单管理页面
  */
-import { TTable } from '@/components/business/TTable'
-import { TForm } from '@/components/business/TForm'
-import { TModal } from '@/components/business/TModal'
-import type { TableSchema, TTableExpose } from '@/components/business/TTable'
-import type { FormSchema } from '@/components/business/TForm'
+import { TTable, TForm, TModal, TDataCard, TPageHeader, TBatchActions, TStatusBadge, TEmptyState } from '@/components/business'
+import type { TableSchema, TTableExpose } from '@/components/business'
+import type { FormSchema } from '@/components/business'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -456,16 +454,13 @@ function handleTableChange(pagination: any): void {
 <template>
   <div class="space-y-6">
     <!-- 页面标题 -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div>
-        <h1 class="text-3xl font-bold tracking-tight">订单管理</h1>
-        <p class="text-muted-foreground mt-1.5 text-sm">查看和管理所有订单</p>
-      </div>
-      <Button class="gap-2" @click="isAddDialogOpen = true">
-        <Plus class="h-4 w-4" />
-        创建订单
-      </Button>
-    </div>
+    <TPageHeader
+      title="订单管理"
+      subtitle="查看和管理所有订单"
+      :actions="[
+        { text: '创建订单', type: 'primary', iconName: 'Plus', onClick: () => isAddDialogOpen = true }
+      ]"
+    />
 
     <!-- 新增订单弹窗 -->
     <TModal
@@ -485,17 +480,15 @@ function handleTableChange(pagination: any): void {
 
     <!-- 统计卡片 -->
     <div class="flex flex-wrap gap-3">
-      <div
+      <TDataCard
         v-for="stat in statisticsCards"
         :key="stat.title"
-        class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
-      >
-        <component :is="stat.icon" :class="['h-4 w-4', stat.color]" />
-        <div class="flex items-baseline gap-2">
-          <span class="text-lg font-semibold">{{ stat.value }}</span>
-          <span class="text-xs text-muted-foreground">{{ stat.title }}</span>
-        </div>
-      </div>
+        :title="stat.title"
+        :value="stat.value"
+        :icon="stat.icon"
+        :color="stat.color"
+        size="sm"
+      />
     </div>
 
     <!-- 搜索表单 -->
@@ -504,17 +497,20 @@ function handleTableChange(pagination: any): void {
         <div class="flex-1">
           <TForm v-model="searchFormData" :schema="searchSchema" />
         </div>
-        <div v-if="selectedRowKeys.length > 0" class="flex items-center gap-2 lg:border-l lg:pl-4">
-          <span class="text-sm text-muted-foreground">已选 {{ selectedRowKeys.length }} 项</span>
-          <Button
-            variant="outline"
-            size="sm"
-            class="h-8 text-xs text-destructive hover:text-destructive"
-            @click="handleBatchDelete"
-          >
-            批量删除
-          </Button>
-        </div>
+        <TBatchActions
+          :count="selectedRowKeys.length"
+          item-name="订单"
+          :actions="[
+            {
+              text: '批量删除',
+              type: 'danger',
+              confirm: true,
+              confirmText: '确定要删除选中的订单吗？此操作不可恢复。',
+              onClick: handleBatchDelete
+            }
+          ]"
+          @clear="tableRef?.clearSelection()"
+        />
       </div>
     </div>
 
@@ -562,27 +558,25 @@ function handleTableChange(pagination: any): void {
 
           <!-- 自定义状态列 -->
           <template #status="slotProps">
-            <Tag :color="(slotProps as TableSlotProps).text === ORDER_STATUS.PENDING ? 'warning' : (slotProps as TableSlotProps).text === ORDER_STATUS.PROCESSING ? 'processing' : (slotProps as TableSlotProps).text === ORDER_STATUS.COMPLETED ? 'success' : 'error'">
-              <Space>
-                <component :is="(slotProps as TableSlotProps).text === ORDER_STATUS.PENDING ? Clock : (slotProps as TableSlotProps).text === ORDER_STATUS.PROCESSING ? Package : (slotProps as TableSlotProps).text === ORDER_STATUS.COMPLETED ? CheckCircle : XCircle" class="h-3 w-3" />
-                {{ STATUS_CONFIG.ORDER[(slotProps as TableSlotProps).text as keyof typeof STATUS_CONFIG.ORDER]?.text || (slotProps as TableSlotProps).text }}
-              </Space>
-            </Tag>
+            <TStatusBadge
+              :status="(slotProps as TableSlotProps).text"
+              :status-map="{
+                [ORDER_STATUS.PENDING]: { text: '待处理', color: 'pending' },
+                [ORDER_STATUS.PROCESSING]: { text: '处理中', color: 'processing' },
+                [ORDER_STATUS.COMPLETED]: { text: '已完成', color: 'success' },
+                [ORDER_STATUS.CANCELLED]: { text: '已取消', color: 'error' }
+              }"
+            />
           </template>
 
           <!-- 空状态 -->
           <template #emptyText>
-            <div class="flex flex-col items-center justify-center py-12 text-muted-foreground">
-              <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <ShoppingCart class="w-8 h-8 text-muted-foreground/50" />
-              </div>
-              <p class="text-base font-medium mb-1">暂无订单数据</p>
-              <p class="text-sm text-muted-foreground mb-4">开始创建您的第一个订单吧</p>
-              <Button size="sm" @click="isAddDialogOpen = true">
-                <Plus class="h-4 w-4 mr-1" />
-                创建订单
-              </Button>
-            </div>
+            <TEmptyState
+              type="data"
+              title="暂无订单数据"
+              description="开始创建您的第一个订单吧"
+              :action="{ text: '创建订单', type: 'primary', iconName: 'Plus', onClick: () => isAddDialogOpen = true }"
+            />
           </template>
         </TTable>
       </CardContent>

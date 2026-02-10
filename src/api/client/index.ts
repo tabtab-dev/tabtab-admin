@@ -155,6 +155,13 @@ export const api = {
   deleteMethod<T>(url: string, config?: RequestConfig): Method<ApiResponse<T>> {
     return createMethod<T>('DELETE', url, undefined, config);
   },
+
+  /**
+   * 取消所有 pending 请求
+   */
+  cancelAll(): void {
+    requestManager.cancelAll();
+  },
 };
 
 export type { Method } from 'alova';

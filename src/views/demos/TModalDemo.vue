@@ -5,7 +5,7 @@
  * @description 展示 TModal 对话框组件的各种使用场景和配置方式
  */
 import { TModal, TForm, TTable } from '@/components/business'
-import type { TModalExpose, FormSchema, TableSchema } from '@/components/business'
+import type { TModalExpose, TFormExpose, FormSchema, TableSchema } from '@/components/business'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
@@ -22,20 +22,27 @@ const modalRef = ref<TModalExpose>()
  */
 const basicOpen = ref(false)
 
+// ==================== 表单弹窗 - 模式1：TModal 控制提交（推荐）====================
+
 /**
- * 表单弹窗状态
+ * 表单引用 - 用于 TModal 控制提交模式
  */
-const formOpen = ref(false)
-const formData = ref({
+const formRefMode1 = ref<TFormExpose>()
+
+/**
+ * 表单弹窗状态 - 模式1
+ */
+const formMode1Open = ref(false)
+const formMode1Data = ref({
   name: '',
   email: '',
   role: 'viewer'
 })
 
 /**
- * 表单 Schema
+ * 表单 Schema - 模式1
  */
-const formSchema: FormSchema = {
+const formMode1Schema: FormSchema = {
   layout: 'vertical',
   fields: [
     {
@@ -66,6 +73,75 @@ const formSchema: FormSchema = {
       ]
     }
   ]
+}
+
+/**
+ * 处理模式1表单提交
+ * @param values - 表单值
+ */
+async function handleFormMode1Submit(values: any) {
+  console.log('模式1 - TModal 控制提交:', values)
+  // 模拟异步保存
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  console.log('保存成功')
+  formMode1Open.value = false
+}
+
+// ==================== 表单弹窗 - 模式2：TForm 控制提交 ====================
+
+/**
+ * 表单弹窗状态 - 模式2
+ */
+const formMode2Open = ref(false)
+const formMode2Data = ref({
+  name: '',
+  email: '',
+  role: 'viewer'
+})
+
+/**
+ * 表单 Schema - 模式2
+ */
+const formMode2Schema: FormSchema = {
+  layout: 'vertical',
+  fields: [
+    {
+      name: 'name',
+      type: 'input',
+      label: '姓名',
+      placeholder: '请输入姓名',
+      rules: [{ required: true, message: '姓名不能为空' }]
+    },
+    {
+      name: 'email',
+      type: 'input',
+      label: '邮箱',
+      placeholder: '请输入邮箱',
+      rules: [
+        { required: true, message: '邮箱不能为空' },
+        { type: 'email', message: '邮箱格式不正确' }
+      ]
+    },
+    {
+      name: 'role',
+      type: 'select',
+      label: '角色',
+      options: [
+        { label: '管理员', value: 'admin' },
+        { label: '编辑', value: 'editor' },
+        { label: '访客', value: 'viewer' }
+      ]
+    }
+  ]
+}
+
+/**
+ * 处理模式2表单提交
+ * @param values - 表单值
+ */
+function handleFormMode2Submit(values: any) {
+  console.log('模式2 - TForm 控制提交:', values)
+  formMode2Open.value = false
 }
 
 /**
@@ -119,19 +195,17 @@ const centeredOpen = ref(false)
 const noFooterOpen = ref(false)
 
 /**
+ * 自定义底部内容弹窗状态
+ */
+const customFooterContentOpen = ref(false)
+
+/**
  * 不同宽度弹窗状态
  */
 const widthOpen = ref(false)
 const modalWidth = ref(520)
 
-/**
- * 处理表单提交
- * @param values - 表单值
- */
-function handleFormSubmit(values: any) {
-  console.log('表单提交:', values)
-  formOpen.value = false
-}
+
 
 /**
  * 处理异步确认
@@ -309,27 +383,114 @@ function closeModalByRef() {
 
       <!-- 表单弹窗 -->
       <TabsContent value="form" class="space-y-4">
+        <!-- 模式1：TModal 控制提交（推荐） -->
         <Card>
           <CardHeader>
-            <CardTitle>TForm + TModal</CardTitle>
+            <CardTitle class="flex items-center gap-2">
+              模式1：TModal 控制提交
+              <Badge variant="default" class="text-xs">推荐</Badge>
+            </CardTitle>
             <CardDescription>
-              在弹窗中使用 TForm 组件，实现表单编辑功能
+              TModal 显示底部按钮，通过 form-ref 关联 TForm，点击确定自动触发表单验证和提交
             </CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
-            <Button @click="formOpen = true">打开表单弹窗</Button>
+            <Button @click="formMode1Open = true">打开表单弹窗（模式1）</Button>
 
             <TModal
-              v-model:open="formOpen"
+              v-model:open="formMode1Open"
               title="编辑用户信息"
-              :footer="null"
+              :form-ref="formRefMode1"
+              ok-text="保存"
+              @submit="handleFormMode1Submit"
             >
               <TForm
-                v-model="formData"
-                :schema="formSchema"
-                @submit="handleFormSubmit"
+                ref="formRefMode1"
+                v-model="formMode1Data"
+                :schema="formMode1Schema"
+                embedded
               />
             </TModal>
+
+            <!-- 代码示例 -->
+            <div class="p-3 bg-muted rounded-lg text-xs">
+              <p class="font-medium mb-1">使用方式：</p>
+              <pre class="text-muted-foreground overflow-x-auto">
+&lt;TModal v-model:open="open" title="编辑" :form-ref="formRef" @submit="handleSubmit"&gt;
+  &lt;TForm ref="formRef" v-model="formData" :schema="schema" embedded /&gt;
+&lt;/TModal&gt;</pre>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- 模式2：TForm 控制提交 -->
+        <Card>
+          <CardHeader>
+            <CardTitle>模式2：TForm 控制提交</CardTitle>
+            <CardDescription>
+              TModal 隐藏底部（:show-footer="false"），由 TForm 内部控制提交，适合简单表单场景
+            </CardDescription>
+          </CardHeader>
+          <CardContent class="space-y-4">
+            <Button variant="outline" @click="formMode2Open = true">打开表单弹窗（模式2）</Button>
+
+            <TModal
+              v-model:open="formMode2Open"
+              title="编辑用户信息"
+              :show-footer="false"
+            >
+              <TForm
+                v-model="formMode2Data"
+                :schema="formMode2Schema"
+                @submit="handleFormMode2Submit"
+              />
+            </TModal>
+
+            <!-- 代码示例 -->
+            <div class="p-3 bg-muted rounded-lg text-xs">
+              <p class="font-medium mb-1">使用方式：</p>
+              <pre class="text-muted-foreground overflow-x-auto">
+&lt;TModal v-model:open="open" title="编辑" :show-footer="false"&gt;
+  &lt;TForm v-model="formData" :schema="schema" @submit="handleSubmit" /&gt;
+&lt;/TModal&gt;</pre>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- 两种模式对比 -->
+        <Card>
+          <CardHeader>
+            <CardTitle>模式对比</CardTitle>
+            <CardDescription>
+              根据使用场景选择合适的集成方式
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-4 border rounded-lg border-primary/50 bg-primary/5">
+                <h4 class="font-medium mb-2 text-primary flex items-center gap-2">
+                  模式1：TModal 控制提交
+                  <Badge variant="default" class="text-xs">推荐</Badge>
+                </h4>
+                <ul class="space-y-1 text-sm text-muted-foreground list-disc list-inside">
+                  <li>统一使用 TModal 的 confirmLoading 管理 loading</li>
+                  <li>表单验证失败时保持弹窗打开</li>
+                  <li>符合用户习惯（底部操作按钮）</li>
+                  <li>适合异步提交场景</li>
+                  <li>代码结构更清晰</li>
+                </ul>
+              </div>
+              <div class="p-4 border rounded-lg">
+                <h4 class="font-medium mb-2">模式2：TForm 控制提交</h4>
+                <ul class="space-y-1 text-sm text-muted-foreground list-disc list-inside">
+                  <li>表单逻辑自包含</li>
+                  <li>无需处理 form-ref 关联</li>
+                  <li>适合简单快速编辑场景</li>
+                  <li>loading 状态需单独处理</li>
+                  <li>适合独立表单组件</li>
+                </ul>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -354,6 +515,75 @@ function closeModalByRef() {
                 异步操作期间，确定按钮会显示 loading 状态。
               </p>
             </TModal>
+          </CardContent>
+        </Card>
+
+        <!-- showFooter 属性示例 -->
+        <Card>
+          <CardHeader>
+            <CardTitle>showFooter 属性</CardTitle>
+            <CardDescription>
+              使用 showFooter 属性控制底部按钮的显示/隐藏
+            </CardDescription>
+          </CardHeader>
+          <CardContent class="space-y-4">
+            <div class="flex flex-wrap gap-2">
+              <Button variant="outline" @click="noFooterOpen = true">无底部按钮</Button>
+              <Button variant="outline" @click="customFooterContentOpen = true">自定义底部内容</Button>
+            </div>
+
+            <!-- 无底部按钮 -->
+            <TModal
+              v-model:open="noFooterOpen"
+              title="无底部按钮"
+              :show-footer="false"
+            >
+              <p>这个弹窗没有底部按钮区域。</p>
+              <p class="text-muted-foreground mt-2">
+                设置 :show-footer="false" 可隐藏底部按钮。
+              </p>
+            </TModal>
+
+            <!-- 自定义底部内容 -->
+            <TModal
+              v-model:open="customFooterContentOpen"
+              title="自定义底部内容"
+            >
+              <p>这个弹窗使用自定义底部内容。</p>
+
+              <template #footer>
+                <div class="flex justify-end gap-2">
+                  <Button variant="outline" @click="customFooterContentOpen = false">
+                    取消
+                  </Button>
+                  <Button variant="destructive" @click="customFooterContentOpen = false">
+                    删除
+                  </Button>
+                  <Button @click="customFooterContentOpen = false">
+                    保存
+                  </Button>
+                </div>
+              </template>
+            </TModal>
+
+            <!-- 代码示例 -->
+            <div class="p-3 bg-muted rounded-lg text-xs">
+              <p class="font-medium mb-1">使用方式：</p>
+              <pre class="text-muted-foreground overflow-x-auto">
+<!-- 隐藏底部按钮 -->
+&lt;TModal v-model:open="open" title="标题" :show-footer="false"&gt;
+  &lt;p&gt;内容&lt;/p&gt;
+&lt;/TModal&gt;
+
+<!-- 自定义底部内容 -->
+&lt;TModal v-model:open="open" title="标题"&gt;
+  &lt;p&gt;内容&lt;/p&gt;
+  &lt;template #footer&gt;
+    &lt;Button @click="handleCancel"&gt;取消&lt;/Button&gt;
+    &lt;Button type="primary" @click="handleOk"&gt;确定&lt;/Button&gt;
+  &lt;/template&gt;
+&lt;/TModal&gt;</pre>
+            </div>
           </CardContent>
         </Card>
       </TabsContent>
