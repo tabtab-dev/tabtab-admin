@@ -222,4 +222,230 @@ const schema: TableSchema = {
 ```vue
 <script setup lang="ts">
 import { TForm } from '@/components/business/TForm'
-import
+import type { FormSchema } from '@/components/business/TForm'
+
+const schema: FormSchema = {
+  fields: [
+    { name: 'name', type: 'input', label: '姓名', rules: [{ required: true }] },
+    { 
+      name: 'status', 
+      type: 'select', 
+      label: '状态',
+      options: [
+        { label: '启用', value: 'active' },
+        { label: '禁用', value: 'inactive' }
+      ]
+    }
+  ]
+}
+
+const onSubmit = (values: any) => console.log(values)
+</script>
+
+<template>
+  <TForm :schema="schema" @submit="onSubmit" />
+</template>
+```
+
+### TModal — JSON 配置化对话框
+
+基于 antdv-next 的对话框组件，支持表单、表格等内容嵌入，可通过 ref 方法控制。
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { TModal } from '@/components/business/TModal'
+
+const open = ref(false)
+const onSubmit = () => open.value = false
+</script>
+
+<template>
+  <TModal v-model:open="open" title="编辑" @ok="onSubmit">
+    <p>内容</p>
+  </TModal>
+</template>
+```
+
+### TDrawer — JSON 配置化抽屉
+
+基于 antdv-next 的抽屉组件，支持四个方向弹出，可与表单、表格结合使用。
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { TDrawer } from '@/components/business/TDrawer'
+
+const open = ref(false)
+</script>
+
+<template>
+  <TDrawer v-model:open="open" title="详情" placement="right">
+    <p>内容</p>
+  </TDrawer>
+</template>
+```
+
+> 📖 完整 API 文档请查看组件源码：`src/components/business/`
+
+## 🔧 Composables
+
+项目提供了一系列可复用的组合式函数：
+
+```typescript
+// 权限检查
+import { usePermission } from '@/composables/usePermission'
+const { hasPermission, hasRole } = usePermission()
+
+// 表格数据管理
+import { useTableData } from '@/composables/useTableData'
+const { data, loading, pagination, fetchData } = useTableData(apiFn)
+
+// 表单数据处理
+import { useFormData } from '@/composables/useFormData'
+const { formData, resetForm, submitForm } = useFormData(schema)
+
+// 加载状态
+import { useLoading } from '@/composables/useLoading'
+const { loading, withLoading } = useLoading()
+
+// 请求封装
+import { useRequest } from '@/composables/useRequest'
+const { data, loading, error, run } = useRequest(apiFn)
+```
+
+## 🛣️ 路由架构
+
+项目采用动态路由架构，支持从后端获取菜单并动态生成路由：
+
+- **静态路由**: 登录页、404 页面等固定路由
+- **动态路由**: 从后端菜单数据动态生成的业务路由
+- **路由守卫**: 认证检查、权限验证、菜单加载
+- **懒加载**: 所有页面组件使用动态导入，优化首屏性能
+
+```typescript
+// 路由配置示例
+const routes: RouteRecordRaw[] = [
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/views/Login.vue'),
+    meta: { requiresAuth: false, titleKey: 'pages.login.title' }
+  },
+  {
+    path: '/',
+    name: 'Root',
+    component: () => import('@/layouts/AdminLayout.vue'),
+    meta: { requiresAuth: true },
+    redirect: '/dashboard',
+    children: [
+      {
+        path: 'dashboard',
+        name: 'Dashboard',
+        component: () => import('@/views/Dashboard.vue'),
+        meta: { requiresAuth: true, titleKey: 'menu.dashboard' }
+      }
+    ]
+  }
+]
+```
+
+## 🔐 权限系统
+
+基于 RBAC（基于角色的访问控制）的权限管理系统：
+
+- **角色管理**: 定义角色及其权限集合
+- **权限指令**: `v-permission` 指令控制按钮级权限
+- **路由权限**: 页面访问权限控制
+- **菜单权限**: 动态菜单根据权限过滤
+
+```vue
+<!-- 权限指令示例 -->
+<template>
+  <button v-permission="'user:create'">创建用户</button>
+  <button v-permission="['user:edit', 'user:admin']">编辑</button>
+</template>
+```
+
+## 🔌 Mock 服务
+
+项目内置了完整的 Mock 服务，基于自定义 Mock 服务器实现，支持在开发环境中模拟后端 API 响应。
+
+### 支持的 Mock 功能
+
+- 用户认证（登录、登出、获取用户信息）
+- 用户管理（CRUD 操作）
+- 角色管理
+- 组织管理
+- 菜单管理
+- 订单管理
+- 商品管理
+- 分类管理
+- 库存管理
+
+### Mock 文件结构
+
+```
+mock/
+├── data/              # Mock 数据定义
+├── routes/            # Mock 路由配置
+└── server.ts          # Mock 服务器入口
+```
+
+## 📡 API 架构
+
+项目采用模块化的 API 架构，使用 Alova 作为请求库，配合 Axios 适配器。
+
+### 特性
+
+- **模块化设计**: 按业务模块组织 API
+- **请求拦截器**: 统一的请求/响应处理
+- **Mock 支持**: 开发环境自动启用 Mock
+- **类型安全**: 完整的 TypeScript 类型支持
+- **请求管理**: 支持请求取消和重复请求处理
+
+### 使用示例
+
+```typescript
+import { authApi } from '@/api'
+
+// 登录
+const { data } = await authApi.login({
+  username: 'admin',
+  password: '123456'
+})
+
+// 获取用户信息
+const userInfo = await authApi.getUserInfo()
+```
+
+## 📌 开发计划
+
+- [x] 基础布局和导航
+- [x] 主题系统
+- [x] 仪表板页面
+- [x] 用户管理
+- [x] TTable 组件 — JSON 配置化表格
+- [x] TForm 组件 — JSON 配置化表单
+- [x] TModal 组件 — JSON 配置化对话框
+- [x] TDrawer 组件 — JSON 配置化抽屉
+- [x] TIcon 组件 — 图标组件与选择器
+- [x] TPageHeader 组件 — 页面头部
+- [x] TDataCard 组件 — 数据卡片
+- [x] TStatusBadge 组件 — 状态徽章
+- [x] TEmptyState 组件 — 空状态展示
+- [x] TBatchActions 组件 — 批量操作栏
+- [x] 国际化 (i18n) 支持
+- [x] 通知系统
+- [x] Mock 服务
+- [x] 测试框架 (Vitest)
+- [x] RBAC 权限控制
+- [x] 标签栏 (TabBar)
+- [x] 错误边界处理
+- [ ] 更多数据可视化组件
+- [ ] 工作流设计器
+- [ ] 代码生成器
+
+## 📄 许可证
+
+[MIT](LICENSE) © TabTab Admin

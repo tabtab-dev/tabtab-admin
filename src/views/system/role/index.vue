@@ -490,6 +490,12 @@ function handleSelectChange(keys: (string | number)[], rows: any[]): void {
   selectedRows.value = rows as Role[]
 }
 
+function handleClearSelection(): void {
+  selectedRowKeys.value = []
+  selectedRows.value = []
+  tableRef.value?.clearSelection()
+}
+
 function handleBatchDelete(): void {
   if (selectedRowKeys.value.length === 0) {
     alert('请先选择要删除的角色')
@@ -603,32 +609,13 @@ function getAllPermissionIds(item: any): string[] {
     </div>
 
     <!-- 搜索栏 -->
-    <div class="bg-muted/30 rounded-lg p-4">
-      <div class="flex flex-col lg:flex-row lg:items-center gap-4">
-        <div class="flex-1">
-          <TForm v-model="searchFormData" :schema="searchSchema" />
-        </div>
-        <TBatchActions
-          :count="selectedRowKeys.length"
-          :total="total"
-          item-name="角色"
-          :actions="[
-            {
-              text: '批量删除',
-              type: 'danger',
-              confirm: true,
-              confirmText: '确定要删除选中的角色吗？此操作不可恢复。',
-              onClick: handleBatchDelete
-            }
-          ]"
-          @clear="tableRef?.clearSelection()"
-        />
-      </div>
+    <div class="rounded-lg border bg-card px-3 py-3">
+      <TForm v-model="searchFormData" :schema="searchSchema" />
     </div>
 
     <!-- 角色列表 -->
-    <Card class="border-0 shadow-sm">
-      <CardHeader class="pb-4">
+    <Card class="rounded-lg border bg-card">
+      <CardHeader>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <CardTitle class="text-base font-semibold">角色列表</CardTitle>
@@ -636,6 +623,22 @@ function getAllPermissionIds(item: any): string[] {
               共 {{ roles?.length || 0 }} 个角色
             </span>
           </div>
+          <TBatchActions
+            :count="selectedRowKeys.length"
+            :total="total"
+            item-name="角色"
+            class-name="border-0 bg-transparent shadow-none px-0 py-0"
+            :actions="[
+              {
+                text: '批量删除',
+                type: 'danger',
+                confirm: true,
+                confirmText: '确定要删除选中的角色吗？此操作不可恢复。',
+                onClick: handleBatchDelete
+              }
+            ]"
+            @clear="handleClearSelection"
+          />
         </div>
       </CardHeader>
       <CardContent class="pt-0">

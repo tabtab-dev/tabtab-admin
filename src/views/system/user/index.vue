@@ -450,6 +450,12 @@ function handleSelectChange(keys: (string | number)[], rows: any[]): void {
   selectedRows.value = rows as User[]
 }
 
+function handleClearSelection(): void {
+  selectedRowKeys.value = []
+  selectedRows.value = []
+  tableRef.value?.clearSelection()
+}
+
 function handleBatchDelete(): void {
   if (selectedRowKeys.value.length === 0) {
     alert('请先选择要删除的用户')
@@ -505,12 +511,12 @@ function handleTableChange(pagination: any): void {
       />
     </div>
 
-    <div class="bg-muted/30 rounded-lg p-4">
+    <div class="rounded-lg border bg-card px-3 py-3">
       <TForm v-model="searchFormData" :schema="searchSchema" />
     </div>
 
-    <Card class="border-0 shadow-sm">
-      <CardHeader class="pb-4">
+    <Card class="rounded-lg border bg-card">
+      <CardHeader>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <CardTitle class="text-base font-semibold">用户列表</CardTitle>
@@ -522,6 +528,7 @@ function handleTableChange(pagination: any): void {
             :count="selectedRowKeys.length"
             :total="total"
             item-name="用户"
+            class-name="border-0 bg-transparent shadow-none px-0 py-0"
             :actions="[
               {
                 text: '批量删除',
@@ -531,7 +538,7 @@ function handleTableChange(pagination: any): void {
                 onClick: handleBatchDelete
               }
             ]"
-            @clear="tableRef?.clearSelection()"
+            @clear="handleClearSelection"
           />
         </div>
       </CardHeader>

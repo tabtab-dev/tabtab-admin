@@ -485,6 +485,12 @@ function handleSelectChange(keys: (string | number)[], rows: any[]): void {
   selectedRows.value = rows as Product[]
 }
 
+function handleClearSelection(): void {
+  selectedRowKeys.value = []
+  selectedRows.value = []
+  tableRef.value?.clearSelection()
+}
+
 function handleBatchDelete(): void {
   if (selectedRowKeys.value.length === 0) {
     alert('请先选择要删除的商品')
@@ -565,31 +571,13 @@ function handleTableChange(pagination: any): void {
     </div>
 
     <!-- 搜索表单 -->
-    <div class="bg-muted/30 rounded-lg p-4">
-      <div class="flex flex-col lg:flex-row lg:items-center gap-4">
-        <div class="flex-1">
-          <TForm v-model="searchFormData" :schema="searchSchema" />
-        </div>
-        <TBatchActions
-          :count="selectedRowKeys.length"
-          item-name="商品"
-          :actions="[
-            {
-              text: '批量删除',
-              type: 'danger',
-              confirm: true,
-              confirmText: '确定要删除选中的商品吗？此操作不可恢复。',
-              onClick: handleBatchDelete
-            }
-          ]"
-          @clear="tableRef?.clearSelection()"
-        />
-      </div>
+    <div class="rounded-lg border bg-card px-3 py-3">
+      <TForm v-model="searchFormData" :schema="searchSchema" />
     </div>
 
     <!-- 商品表格 -->
-    <Card class="border-0 shadow-sm">
-      <CardHeader class="pb-4">
+    <Card class="rounded-lg border bg-card">
+      <CardHeader>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <CardTitle class="text-base font-semibold">商品列表</CardTitle>
@@ -597,14 +585,31 @@ function handleTableChange(pagination: any): void {
               共 {{ tableData.length }} 件
             </span>
           </div>
-          <div class="flex items-center gap-4 text-sm text-muted-foreground">
-            <div class="flex items-center gap-1">
-              <TrendingUp class="h-4 w-4" />
-              <span>总销量: {{ statistics.value?.totalSales || 0 }}</span>
-            </div>
-            <div class="flex items-center gap-1">
-              <Layers class="h-4 w-4" />
-              <span>总库存: {{ statistics.value?.totalStock || 0 }}</span>
+          <div class="flex items-center gap-4">
+            <TBatchActions
+              :count="selectedRowKeys.length"
+              item-name="商品"
+              class-name="border-0 bg-transparent shadow-none px-0 py-0"
+              :actions="[
+                {
+                  text: '批量删除',
+                  type: 'danger',
+                  confirm: true,
+                  confirmText: '确定要删除选中的商品吗？此操作不可恢复。',
+                  onClick: handleBatchDelete
+                }
+              ]"
+              @clear="handleClearSelection"
+            />
+            <div class="flex items-center gap-4 text-sm text-muted-foreground">
+              <div class="flex items-center gap-1">
+                <TrendingUp class="h-4 w-4" />
+                <span>总销量: {{ statistics.value?.totalSales || 0 }}</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <Layers class="h-4 w-4" />
+                <span>总库存: {{ statistics.value?.totalStock || 0 }}</span>
+              </div>
             </div>
           </div>
         </div>

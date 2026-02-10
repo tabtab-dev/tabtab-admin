@@ -186,17 +186,17 @@ defineExpose<TBatchActionsExpose>({
 
 <template>
   <div
-    v-show="isVisible"
+    v-if="isVisible"
     :class="cn(
-      't-batch-actions flex items-center justify-between gap-4 px-4 py-3 rounded-lg border bg-card',
+      't-batch-actions flex items-center justify-between gap-4 px-3 py-2 rounded-lg border bg-card',
       sticky && 'sticky z-20 shadow-sm',
       className
     )"
     :style="sticky ? { top: `${stickyOffset}px` } : undefined"
   >
     <!-- 左侧：选中数量 -->
-    <div class="flex items-center gap-3">
-      <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium">
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-medium">
         {{ count }}
       </span>
       <span class="text-sm text-muted-foreground">
@@ -225,7 +225,7 @@ defineExpose<TBatchActionsExpose>({
       </Button>
 
       <!-- 分隔线 -->
-      <div v-if="visibleActions.length > 0 && showClear" class="w-px h-4 bg-border mx-1" />
+      <div v-if="visibleActions.length > 0 && showClear" class="w-px h-4 bg-border mx-0.5" />
 
       <!-- 清除按钮 -->
       <Button
@@ -239,26 +239,26 @@ defineExpose<TBatchActionsExpose>({
         {{ clearText }}
       </Button>
     </div>
-
-    <!-- 确认弹窗 -->
-    <TModal
-      v-model:open="confirmModalOpen"
-      :title="pendingAction?.confirmTitle || '确认操作'"
-      width="400"
-      @ok="handleConfirm"
-    >
-      <div class="flex items-start gap-3 py-2">
-        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-destructive/10 shrink-0">
-          <AlertCircle class="w-5 h-5 text-destructive" />
-        </div>
-        <div>
-          <p class="text-sm text-muted-foreground">
-            {{ pendingAction?.confirmText || '确定要执行此操作吗？' }}
-          </p>
-        </div>
-      </div>
-    </TModal>
   </div>
+
+  <!-- 确认弹窗 - 移到外层避免影响布局 -->
+  <TModal
+    v-model:open="confirmModalOpen"
+    :title="pendingAction?.confirmTitle || '确认操作'"
+    width="400"
+    @ok="handleConfirm"
+  >
+    <div class="flex items-center gap-3 py-2">
+      <div class="flex items-center justify-center w-10 h-10 rounded-full bg-destructive/10 shrink-0">
+        <AlertCircle class="w-5 h-5 text-destructive" />
+      </div>
+      <div class="flex-1">
+        <p class="text-sm text-muted-foreground">
+          {{ pendingAction?.confirmText || '确定要执行此操作吗？' }}
+        </p>
+      </div>
+    </div>
+  </TModal>
 </template>
 
 <style scoped>
