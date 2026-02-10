@@ -609,12 +609,12 @@ function getAllPermissionIds(item: any): string[] {
     </div>
 
     <!-- 搜索栏 -->
-    <div class="rounded-lg border bg-card px-3 py-3">
+    <div class="bg-muted/40 border border-border/50 rounded-xl px-3 py-3">
       <TForm v-model="searchFormData" :schema="searchSchema" />
     </div>
 
     <!-- 角色列表 -->
-    <Card class="rounded-lg border bg-card">
+    <Card class="bg-muted/40 border border-border/50 rounded-xl">
       <CardHeader>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">

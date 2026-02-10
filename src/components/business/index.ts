@@ -73,7 +73,9 @@ export type {
 } from './TForm'
 
 // 导出 TModal 组件及其类型
-export { TModal, useTModalTheme, getTModalThemeConfig, oklchToHex as modalOklchToHex } from './TModal'
+export { TModal, useTModalTheme, getTModalThemeConfig } from './TModal'
+// 导出共享的颜色转换函数
+export { oklchToHex, oklchToHex as modalOklchToHex } from './theme-shared'
 export type {
   ModalSchema,
   TModalProps,
@@ -91,7 +93,9 @@ export type {
 } from './TModal'
 
 // 导出 TDrawer 组件及其类型
-export { TDrawer, useTDrawerTheme, getTDrawerThemeConfig, oklchToHex as drawerOklchToHex } from './TDrawer'
+export { TDrawer, useTDrawerTheme, getTDrawerThemeConfig } from './TDrawer'
+// 导出共享的颜色转换函数（别名）
+export { oklchToHex as drawerOklchToHex } from './theme-shared'
 export type {
   DrawerSchema,
   TDrawerProps,

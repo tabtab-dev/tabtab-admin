@@ -511,11 +511,11 @@ function handleTableChange(pagination: any): void {
       />
     </div>
 
-    <div class="rounded-lg border bg-card px-3 py-3">
+    <div class="bg-muted/40 border border-border/50 rounded-xl px-3 py-3">
       <TForm v-model="searchFormData" :schema="searchSchema" />
     </div>
 
-    <Card class="rounded-lg border bg-card">
+    <Card class="bg-muted/40 border border-border/50 rounded-xl">
       <CardHeader>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">

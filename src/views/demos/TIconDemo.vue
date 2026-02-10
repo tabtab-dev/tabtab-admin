@@ -313,27 +313,27 @@ const value = iconRef.value?.getValue()`
                     type="number" 
                     min="4" 
                     max="12"
-                    class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                    class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
                   />
                 </div>
                 <div class="space-y-2">
                   <label class="text-sm font-medium">宽度</label>
-                  <input 
-                    v-model.number="customWidth" 
-                    type="number" 
-                    min="400" 
+                  <input
+                    v-model.number="customWidth"
+                    type="number"
+                    min="400"
                     max="1000"
-                    class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                    class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
                   />
                 </div>
                 <div class="space-y-2">
                   <label class="text-sm font-medium">高度</label>
-                  <input 
-                    v-model.number="customHeight" 
-                    type="number" 
-                    min="300" 
+                  <input
+                    v-model.number="customHeight"
+                    type="number"
+                    min="300"
                     max="700"
-                    class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                    class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
                   />
                 </div>
               </div>

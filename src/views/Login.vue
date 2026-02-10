@@ -220,7 +220,7 @@ const features = [
           variant="ghost"
           size="icon"
           @click="themeStore.toggleMode"
-          class="h-10 w-10 rounded-xl bg-background/80 backdrop-blur-sm border border-border/50 shadow-sm hover:bg-background hover:shadow-md transition-all duration-200"
+         class="h-10 w-10 rounded-xl bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-background transition-all duration-200"
           :title="themeStore.currentMode === 'dark' ? '切换到浅色模式' : '切换到深色模式'"
         >
           <Sun v-if="themeStore.currentMode === 'dark'" class="h-5 w-5 text-foreground" />
@@ -231,7 +231,7 @@ const features = [
       <div class="relative z-10 w-full max-w-[400px] space-y-8">
         <!-- 移动端 Logo -->
         <div class="lg:hidden flex flex-col items-center gap-3 mb-8">
-          <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/25">
+          <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80">
             <Shield class="w-6 h-6 text-primary-foreground" />
           </div>
           <span class="text-xl font-bold text-foreground">TABTAB Admin</span>
@@ -288,7 +288,7 @@ const features = [
 
         <!-- 登录按钮 -->
         <Button
-          class="w-full h-12 font-medium text-base transition-all duration-200 hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5"
+          class="w-full h-12 font-medium text-base transition-all duration-200 hover:-translate-y-0.5"
           :disabled="isLoading"
           @click="handleLoginClick"
         >

@@ -206,7 +206,7 @@ const pendingTasks = ref([
         <ActivityCard title="最近动态" :items="activities" :max-items="6" />
 
         <!-- 本周趋势 -->
-        <Card>
+        <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader class="pb-4">
             <div class="flex items-center justify-between">
               <div>
@@ -242,7 +242,7 @@ const pendingTasks = ref([
         <QuickActions title="快捷入口" :actions="quickActions" />
 
         <!-- 系统状态 -->
-        <Card>
+        <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader class="pb-4">
             <div class="flex items-center justify-between">
               <CardTitle class="text-base">系统状态</CardTitle>
@@ -270,7 +270,7 @@ const pendingTasks = ref([
         </Card>
 
         <!-- 订单状态分布 -->
-        <Card>
+        <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader class="pb-4">
             <CardTitle class="text-base">订单状态</CardTitle>
           </CardHeader>
@@ -303,7 +303,7 @@ const pendingTasks = ref([
       <!-- 右侧列 -->
       <div class="space-y-6">
         <!-- 待处理事项 -->
-        <Card>
+        <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader class="pb-4">
             <div class="flex items-center justify-between">
               <CardTitle class="text-base">待处理事项</CardTitle>
@@ -333,7 +333,7 @@ const pendingTasks = ref([
         </Card>
 
         <!-- 处理效率 -->
-        <Card>
+        <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader class="pb-4">
             <CardTitle class="text-base">平均处理时间</CardTitle>
           </CardHeader>

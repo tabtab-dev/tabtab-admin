@@ -62,3 +62,12 @@
 .t-table.striped .ant-table-tbody > tr:nth-child(even):hover > td {
   @apply bg-muted/50;
 }
+
+/* ==================== 分页器底部间距优化 ==================== */
+
+/**
+ * 移除分页器底部 margin，避免与外层容器（如 Card 的 py-6）叠加导致间距过大
+ */
+.t-table .ant-table-pagination.ant-pagination {
+  @apply mb-0;
+}

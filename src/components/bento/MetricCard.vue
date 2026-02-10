@@ -7,7 +7,7 @@ defineProps<MetricCardData>();
 </script>
 
 <template>
-  <Card class="hover:shadow-md transition-shadow">
+  <Card class="transition-shadow">
     <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
       <CardTitle class="text-sm font-medium text-muted-foreground">
         {{ title }}

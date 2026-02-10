@@ -83,7 +83,7 @@ onMounted(() => {
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card class="border-0 shadow-sm">
+      <Card class="bg-muted/40 border border-border/50 rounded-xl">
         <CardHeader>
           <CardTitle class="text-base">用户行为数据</CardTitle>
         </CardHeader>
@@ -112,7 +112,7 @@ onMounted(() => {
         </CardContent>
       </Card>
 
-      <Card class="border-0 shadow-sm">
+      <Card class="bg-muted/40 border border-border/50 rounded-xl">
         <CardHeader>
           <CardTitle class="text-base">用户增长趋势</CardTitle>
         </CardHeader>

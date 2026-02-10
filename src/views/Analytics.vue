@@ -127,7 +127,7 @@ const userBehavior = ref([
       <Card
         v-for="metric in metrics"
         :key="metric.title"
-        class="border-0 shadow-sm hover:shadow-md transition-shadow"
+        class="bg-muted/40 border border-border/50 rounded-xl"
       >
         <CardContent class="p-4">
           <div class="flex items-start justify-between">
@@ -157,7 +157,7 @@ const userBehavior = ref([
     <!-- 图表区域 -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- 访问趋势 -->
-      <Card class="border-0 shadow-sm">
+      <Card class="bg-muted/40 border border-border/50 rounded-xl">
         <CardHeader class="pb-4">
           <div class="flex items-center justify-between">
             <div>
@@ -213,7 +213,7 @@ const userBehavior = ref([
       </Card>
 
       <!-- 分类占比 -->
-      <Card class="border-0 shadow-sm">
+      <Card class="bg-muted/40 border border-border/50 rounded-xl">
         <CardHeader class="pb-4">
           <div class="flex items-center justify-between">
             <div>
@@ -263,7 +263,7 @@ const userBehavior = ref([
     <!-- 热销商品 & 用户行为 -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- 热销商品 -->
-      <Card class="border-0 shadow-sm">
+      <Card class="bg-muted/40 border border-border/50 rounded-xl">
         <CardHeader class="pb-4">
           <div class="flex items-center justify-between">
             <div>
@@ -314,7 +314,7 @@ const userBehavior = ref([
       </Card>
 
       <!-- 用户行为 -->
-      <Card class="border-0 shadow-sm">
+      <Card class="bg-muted/40 border border-border/50 rounded-xl">
         <CardHeader class="pb-4">
           <div class="flex items-center justify-between">
             <div>

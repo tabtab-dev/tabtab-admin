@@ -82,7 +82,7 @@ const buttonClasses = computed(() => {
   // 根级菜单（level=0）使用主色调选中样式
   if (!isDeepLevel.value) {
     if (active.value || isChildActive.value) {
-      return `${baseClasses} bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90`;
+      return `${baseClasses} bg-primary text-primary-foreground hover:bg-primary/90`;
     }
     return `${baseClasses} hover:bg-primary/10 hover:text-primary`;
   }
@@ -234,7 +234,7 @@ const menuTitle = computed(() => {
         <Badge
           v-if="item.badge"
           variant="destructive"
-          class="h-4 px-1.5 text-[10px] animate-in zoom-in-50 shadow-sm font-medium"
+          class="h-4 px-1.5 text-[10px] animate-in zoom-in-50 font-medium"
           role="status"
         >
           {{ formatBadge(item.badge) }}

@@ -88,7 +88,7 @@ const ariaLabel = computed(() => {
         :aria-current="getAriaCurrent(item.path)"
         :class="[
           'relative h-10 w-10 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-lg',
-          active ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' : 'hover:bg-primary/10 hover:text-primary'
+          active ? 'bg-primary text-primary-foreground' : 'hover:bg-primary/10 hover:text-primary'
         ]"
         @click="handleClick"
       >
@@ -103,7 +103,7 @@ const ariaLabel = computed(() => {
         <Badge
           v-if="item.badge"
           variant="destructive"
-          class="absolute -top-1 -left-1 h-4 min-w-4 !px-1 text-[10px] shadow-sm animate-in zoom-in-50"
+          class="absolute -top-1 -left-1 h-4 min-w-4 !px-1 text-[10px] animate-in zoom-in-50"
           role="status"
           :aria-label="`${item.badge} 条通知`"
         >
@@ -141,7 +141,7 @@ const ariaLabel = computed(() => {
     :aria-current="getAriaCurrent(item.path)"
     :class="[
       'w-full justify-start gap-2.5 h-9 px-2.5 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden rounded-md',
-      active ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90' : 'hover:bg-primary/10 hover:text-primary'
+      active ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'hover:bg-primary/10 hover:text-primary'
     ]"
     @click="handleClick"
   >
@@ -175,7 +175,7 @@ const ariaLabel = computed(() => {
     <Badge
       v-if="item.badge"
       variant="destructive"
-      class="h-4 px-1.5 text-[10px] animate-in zoom-in-50 shadow-sm font-medium"
+      class="h-4 px-1.5 text-[10px] animate-in zoom-in-50 font-medium"
       role="status"
     >
       {{ formatBadge(item.badge) }}

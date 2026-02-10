@@ -681,12 +681,12 @@ const statisticsCards = computed(() => {
     </div>
 
     <!-- 搜索栏 -->
-    <div class="bg-muted/30 rounded-lg p-4">
+    <div class="bg-muted/40 border border-border/50 rounded-xl px-3 py-3">
       <TForm v-model="searchFormData" :schema="searchSchema" />
     </div>
 
     <!-- 树形表格 -->
-    <Card class="border-0 shadow-sm">
+    <Card class="bg-muted/40 border border-border/50 rounded-xl">
       <CardHeader class="pb-4">
         <CardTitle class="text-base font-semibold">菜单结构</CardTitle>
       </CardHeader>

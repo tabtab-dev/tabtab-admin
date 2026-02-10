@@ -24,7 +24,7 @@ const actionStyles = {
   primary: {
     bg: 'bg-primary hover:bg-primary/90',
     text: 'text-primary-foreground',
-    shadow: 'shadow-primary/25'
+    shadow: ''
   },
   default: {
     bg: 'bg-muted hover:bg-muted/80',
@@ -34,13 +34,13 @@ const actionStyles = {
   danger: {
     bg: 'bg-red-500 hover:bg-red-600',
     text: 'text-white',
-    shadow: 'shadow-red-500/25'
+    shadow: ''
   }
 };
 </script>
 
 <template>
-  <Card class="border-0 shadow-sm">
+  <Card class="border border-border/40">
     <CardHeader class="pb-3">
       <CardTitle class="text-base font-semibold">{{ title }}</CardTitle>
     </CardHeader>
@@ -55,7 +55,7 @@ const actionStyles = {
             actionStyles[action.variant || 'default'].bg,
             actionStyles[action.variant || 'default'].text,
             actionStyles[action.variant || 'default'].shadow,
-            'hover:shadow-lg hover:-translate-y-0.5'
+            'hover:-translate-y-0.5'
           ]"
           :style="{ animationDelay: `${index * 50}ms` }"
         >

@@ -3,6 +3,7 @@ import Header from '@/components/layout/Header.vue';
 import TabBar from './TabBar.vue';
 import AppSidebar from '@/components/layout/sidebar/AppSidebar.vue';
 import PageContainer from '@/components/layout/PageContainer.vue';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useThemeStore } from '@/stores/global/theme';
 
 /**
@@ -73,9 +74,13 @@ onUnmounted(() => {
           class="flex-shrink-0"
         />
 
-        <!-- 页面内容容器 -->
-        <div class="flex-1 overflow-auto bg-muted/30 p-6">
-          <PageContainer :refresh-key="refreshKey" />
+        <!-- 页面内容容器 - 使用 shadcn-vue ScrollArea -->
+        <div class="flex-1 bg-muted/30 overflow-hidden">
+          <ScrollArea class="h-full">
+            <div class="p-6">
+              <PageContainer :refresh-key="refreshKey" />
+            </div>
+          </ScrollArea>
         </div>
       </div>
     </AppSidebar>

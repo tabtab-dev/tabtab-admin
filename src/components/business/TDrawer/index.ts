@@ -151,7 +151,9 @@
 export { default as TDrawer } from './TDrawer.vue'
 
 // 导出主题配置
-export { useTDrawerTheme, getTDrawerThemeConfig, oklchToHex } from './theme'
+export { useTDrawerTheme, getTDrawerThemeConfig } from './theme'
+// 从共享主题导出颜色转换函数
+export { oklchToHex } from '../theme-shared'
 
 // 导出类型
 export type {

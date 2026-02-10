@@ -543,7 +543,7 @@ initFormData()
           <button
             type="submit"
             :disabled="loading"
-            class="inline-flex items-center justify-center rounded-md bg-primary px-3 py-[5px] text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+            class="inline-flex items-center justify-center rounded-md bg-primary px-3 py-[5px] text-sm font-medium text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
           >
             <Search class="w-4 h-4 mr-1" />
             {{ searchConfig.searchText }}
@@ -551,7 +551,7 @@ initFormData()
           <button
             v-if="searchConfig.showReset"
             type="button"
-            class="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-[5px] text-sm font-medium text-foreground shadow-sm hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            class="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-[5px] text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             @click="handleReset"
           >
             <RotateCcw class="w-4 h-4 mr-1" />

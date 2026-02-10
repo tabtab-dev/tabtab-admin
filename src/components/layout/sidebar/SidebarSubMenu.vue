@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChevronDown, ChevronRight } from 'lucide-vue-next';
 import { Icon } from '@/components/Icon';
 import { useMenuUtils, formatBadge } from '@/layouts/composables/useMenuUtils';
@@ -67,12 +68,43 @@ const { top, left, width, update: updateBounding } = useElementBounding(buttonRe
 const { y: scrollY } = useWindowScroll();
 
 /**
- * 弹窗位置 - 考虑滚动偏移
+ * 窗口尺寸
  */
-const popoverPosition = computed<PopoverPosition>(() => ({
-  top: top.value - scrollY.value,
-  left: left.value + width.value + 8, // 8px 间距
-}));
+const { height: windowHeight } = useWindowSize();
+
+/**
+ * 计算菜单项总数量（包括嵌套子菜单）
+ */
+const getTotalMenuItemCount = (items: SidebarMenuItem[] | undefined): number => {
+  if (!items || items.length === 0) return 0;
+  let count = items.length;
+  for (const item of items) {
+    if (item.children && item.children.length > 0) {
+      count += getTotalMenuItemCount(item.children);
+    }
+  }
+  return count;
+};
+
+/**
+ * 弹窗位置 - 考虑滚动偏移和视口边界
+ */
+const popoverPosition = computed<PopoverPosition>(() => {
+  const rawTop = top.value - scrollY.value;
+  // 计算所有可能的子菜单项总数（包括嵌套），用于估算最大高度
+  const totalItemCount = getTotalMenuItemCount(props.item.children);
+  // 弹框高度 = 标题(60px) + 最大内容高度(400px) + 底部装饰(10px)
+  const estimatedPopoverHeight = 470;
+  const maxTop = windowHeight.value - estimatedPopoverHeight - 20; // 20px 底部边距
+
+  // 如果弹框底部超出视口，向上调整位置
+  const adjustedTop = maxTop > 0 ? Math.min(rawTop, maxTop) : 10;
+
+  return {
+    top: Math.max(10, adjustedTop), // 确保顶部至少有 10px 边距
+    left: left.value + width.value + 8, // 8px 间距
+  };
+});
 
 /**
  * 滚动时更新位置
@@ -197,7 +229,7 @@ const childCountText = computed(() => {
       :aria-haspopup="true"
       :class="[
         'relative h-10 w-10 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-lg',
-        (active || isChildActive) ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' : 'hover:bg-primary/10 hover:text-primary'
+        (active || isChildActive) ? 'bg-primary text-primary-foreground' : 'hover:bg-primary/10 hover:text-primary'
       ]"
     >
       <Icon
@@ -211,7 +243,7 @@ const childCountText = computed(() => {
       <Badge
         v-if="item.badge"
         variant="destructive"
-        class="absolute -top-1 left-1 h-4 min-w-4 !px-1 text-[10px] shadow-sm animate-in zoom-in-50"
+        class="absolute -top-1 left-1 h-4 min-w-4 !px-1 text-[10px] animate-in zoom-in-50"
         role="status"
       >
         {{ formatBadge(item.badge) }}
@@ -220,7 +252,7 @@ const childCountText = computed(() => {
       <!-- 子菜单数量指示 - 优化后的样式 -->
       <span
         v-else-if="item.children?.length"
-        class="absolute -bottom-1 -right-1 h-4 min-w-4 px-1 text-[10px] font-medium flex items-center justify-center rounded-full border shadow-sm z-10"
+        class="absolute -bottom-1 -right-1 h-4 min-w-4 px-1 text-[10px] font-medium flex items-center justify-center rounded-full border z-10"
         :class="(active || isChildActive) ? 'bg-primary-foreground text-primary border-primary-foreground/50' : 'bg-primary/10 text-primary border-primary/20'"
         aria-hidden="true"
       >
@@ -249,7 +281,7 @@ const childCountText = computed(() => {
           v-if="showPopover"
           role="menu"
           :aria-label="`${menuTitle} 子菜单`"
-          class="fixed w-56 bg-popover/95 backdrop-blur-sm border border-border/50 shadow-2xl shadow-primary/10 z-[9999] overflow-hidden"
+          class="fixed w-56 bg-popover/95 backdrop-blur-sm border border-border/50 z-[9999] overflow-hidden"
           :style="{
             top: `${popoverPosition.top}px`,
             left: `${popoverPosition.left}px`,
@@ -262,7 +294,6 @@ const childCountText = computed(() => {
           <!-- 箭头指示器 -->
           <div
             class="absolute left-0 top-4 w-2 h-2 bg-popover border-l border-b border-border/50 transform -translate-x-1 rotate-45"
-            style="box-shadow: -2px 2px 2px rgba(0,0,0,0.02)"
           />
 
           <!-- 标题区域 - 优化后的设计 -->
@@ -286,17 +317,23 @@ const childCountText = computed(() => {
             </div>
           </div>
 
-          <!-- 子菜单列表 - 多级递归渲染 -->
-          <div class="p-2 space-y-0.5" role="group" :aria-label="`${menuTitle} 子菜单项`">
-            <MenuItemRecursive
-              v-for="child in item.children"
-              :key="child.key"
-              :item="child"
-              :collapsed="false"
-              :level="1"
-              @navigate="handleChildNavigate"
-            />
-          </div>
+          <!-- 子菜单列表 - 多级递归渲染，使用 shadcn-vue ScrollArea -->
+          <ScrollArea :class="item.children && item.children.length > 8 ? 'h-[320px]' : ''">
+            <div
+              class="p-2 space-y-0.5"
+              role="group"
+              :aria-label="`${menuTitle} 子菜单项`"
+            >
+              <MenuItemRecursive
+                v-for="child in item.children"
+                :key="child.key"
+                :item="child"
+                :collapsed="false"
+                :level="1"
+                @navigate="handleChildNavigate"
+              />
+            </div>
+          </ScrollArea>
 
           <!-- 底部装饰线 -->
           <div class="h-1 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent" />
@@ -316,7 +353,7 @@ const childCountText = computed(() => {
       :aria-current="getAriaCurrent(item.path)"
       :class="[
         'w-full justify-between h-9 px-2.5 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden rounded-md',
-        (active || isChildActive) ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90' : 'hover:bg-primary/10 hover:text-primary'
+        (active || isChildActive) ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'hover:bg-primary/10 hover:text-primary'
       ]"
       @click="handleParentClick"
     >
@@ -352,7 +389,7 @@ const childCountText = computed(() => {
         <Badge
           v-if="item.badge"
           variant="destructive"
-          class="h-4 px-1.5 text-[10px] animate-in zoom-in-50 shadow-sm font-medium"
+          class="h-4 px-1.5 text-[10px] animate-in zoom-in-50 font-medium"
           role="status"
         >
           {{ formatBadge(item.badge) }}
@@ -408,3 +445,7 @@ const childCountText = computed(() => {
     </Transition>
   </div>
 </template>
+
+<style scoped>
+/* 使用 shadcn-vue ScrollArea 组件，无需自定义滚动条样式 */
+</style>

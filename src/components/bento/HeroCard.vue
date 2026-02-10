@@ -31,7 +31,7 @@ const trendBgColor = computed(() => {
 
 <template>
   <Card
-    class="relative overflow-hidden border-0 shadow-sm group rounded-xl"
+    class="relative overflow-hidden border border-border/40 group rounded-xl"
   >
     <!-- 渐变背景 -->
     <div class="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-primary/70" />

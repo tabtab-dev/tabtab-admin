@@ -468,7 +468,7 @@ function handleSelectChange(keys: (string | number)[]) {
     </div>
 
     <!-- 搜索表单 -->
-    <div class="bg-muted/30 rounded-lg p-4">
+    <div class="bg-muted/40 border border-border/50 rounded-xl px-3 py-3">
       <div class="flex flex-col lg:flex-row lg:items-center gap-4">
         <div class="flex-1">
           <TForm v-model="searchFormData" :schema="searchSchema" />
@@ -477,7 +477,7 @@ function handleSelectChange(keys: (string | number)[]) {
     </div>
 
     <!-- 数据表格 -->
-    <Card class="border-0 shadow-sm">
+    <Card class="bg-muted/40 border border-border/50 rounded-xl">
       <CardHeader class="pb-4">
         <div class="flex items-center gap-3">
           <CardTitle class="text-base font-semibold">物流公司列表</CardTitle>

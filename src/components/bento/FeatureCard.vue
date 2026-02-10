@@ -28,7 +28,7 @@ const cardClasses = computed(() => {
   };
 
   return [
-    'transition-all duration-300 hover:shadow-md hover:-translate-y-0.5',
+    'transition-all duration-300 hover:-translate-y-0.5',
     variantClasses[props.variant || 'default']
   ].filter(Boolean).join(' ');
 });

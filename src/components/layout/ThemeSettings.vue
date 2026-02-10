@@ -130,7 +130,7 @@ const updateFixedTabBar = (value: boolean) => {
         <button
           v-for="theme in themes"
           :key="theme.key"
-          class="group flex flex-col items-center gap-1.5 p-2 rounded-lg border transition-all duration-200 hover:shadow-sm"
+          class="group flex flex-col items-center gap-1.5 p-2 rounded-lg border transition-all duration-200"
           :class="themeStore.currentTheme === theme.key ? 'border-primary bg-primary/10 ring-1 ring-primary/30' : 'border-border hover:border-primary/50'"
           @click="themeStore.setTheme(theme.key)"
         >

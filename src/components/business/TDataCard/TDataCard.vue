@@ -3,6 +3,7 @@
  * TDataCard - 统计卡片组件
  *
  * @description 用于展示数据统计信息，支持图标、趋势、多种主题色
+ * 样式与 shadcn-vue Card 保持一致：border + rounded-xl
  * @example
  * 基础用法：
  *   <TDataCard title="总用户" :value="1234" icon-name="Users" color="blue" />
@@ -92,7 +93,7 @@ const trendColorClass = computed(() => {
   const direction = props.trend.direction || 'neutral'
   switch (direction) {
     case 'up':
-      return 'text-green-600'
+      return 'text-emerald-600'
     case 'down':
       return 'text-red-600'
     default:
@@ -108,7 +109,7 @@ const trendBgClass = computed(() => {
   const direction = props.trend.direction || 'neutral'
   switch (direction) {
     case 'up':
-      return 'bg-green-50'
+      return 'bg-emerald-50'
     case 'down':
       return 'bg-red-50'
     default:
@@ -143,19 +144,24 @@ defineExpose<TDataCardExpose>({
 <template>
   <div
     :class="cn(
-      't-data-card relative overflow-hidden rounded-lg transition-all duration-200',
-      colorCfg.bg,
-      bordered && `border ${colorCfg.border}`,
+      // 基础样式 - 与 shadcn-vue Card 保持一致
+      'relative overflow-hidden rounded-xl border bg-card text-card-foreground',
+      // 过渡效果
+      'transition-all duration-200',
+      // 边框颜色
+      bordered && colorCfg.border,
+      // 悬停效果
+      clickable && 'cursor-pointer hover:-translate-y-0.5',
+      // 尺寸
       sizeCfg.padding,
-      clickable && 'cursor-pointer hover:shadow-md hover:scale-[1.02]',
-      className
+      props.className
     )"
     @click="handleClick"
   >
     <!-- 加载状态 -->
     <div
       v-if="loading"
-      class="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm"
+      class="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm rounded-xl"
     >
       <div class="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
     </div>
@@ -217,15 +223,3 @@ defineExpose<TDataCardExpose>({
     </div>
   </div>
 </template>
-
-<style scoped>
-.t-data-card {
-  /* 平滑过渡效果 */
-  will-change: transform;
-}
-
-.t-data-card:hover {
-  /* 悬停时轻微上浮 */
-  transform: translateY(-1px);
-}
-</style>

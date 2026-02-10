@@ -7,6 +7,7 @@ import MiniChart from './MiniChart.vue';
 /**
  * StatCard 组件 - 统计指标卡片
  * 带有彩色图标、趋势指示器和迷你图表
+ * 样式与 shadcn-vue Card 保持一致
  */
 interface StatCardProps {
   /** 标题 */
@@ -90,8 +91,9 @@ const isPositive = computed(() => props.trend >= 0);
 </script>
 
 <template>
+  <!-- 使用 shadcn-vue Card 组件，保持风格统一 -->
   <Card
-    class="group relative overflow-hidden border border-border/40 shadow-sm transition-all duration-300 hover:-translate-y-1 rounded-xl"
+    class="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1"
   >
     <!-- 背景渐变 -->
     <div 

@@ -170,7 +170,7 @@ const isExpanded = (key: string): boolean => {
               
               <!-- 用户信息卡片 -->
               <div class="flex items-center gap-3 p-3 bg-muted/30 rounded-xl border border-border/50">
-                <Avatar class="h-10 w-10 ring-2 ring-background shadow-sm">
+                <Avatar class="h-10 w-10 ring-2 ring-background">
                   <AvatarImage v-if="authStore.user?.avatar" :src="authStore.user.avatar" />
                   <AvatarFallback class="bg-primary/10 text-primary text-sm font-semibold">
                     {{ userInitials }}

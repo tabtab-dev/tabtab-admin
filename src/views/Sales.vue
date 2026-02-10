@@ -90,7 +90,7 @@ onMounted(() => {
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card class="border-0 shadow-sm">
+      <Card class="bg-muted/40 border border-border/50 rounded-xl">
         <CardHeader>
           <CardTitle class="text-base">热销商品</CardTitle>
         </CardHeader>
@@ -121,7 +121,7 @@ onMounted(() => {
         </CardContent>
       </Card>
 
-      <Card class="border-0 shadow-sm">
+      <Card class="bg-muted/40 border border-border/50 rounded-xl">
         <CardHeader>
           <CardTitle class="text-base">品类销售占比</CardTitle>
         </CardHeader>

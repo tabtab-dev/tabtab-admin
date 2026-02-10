@@ -183,7 +183,7 @@ const onDragEnd = () => {
                   class="group relative flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md cursor-pointer transition-all duration-200 select-none whitespace-nowrap border"
                   :class="[
                     tabBarStore.activeTab === tab.path
-                      ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                      ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-muted/50 text-muted-foreground border-transparent hover:bg-muted hover:text-foreground hover:border-border',
                     tab.isLoading && 'opacity-70',
                   ]"

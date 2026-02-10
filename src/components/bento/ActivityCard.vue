@@ -54,7 +54,7 @@ const typeStyles = {
 
 <template>
   <Card
-    class="border border-border/40 shadow-sm rounded-xl"
+    class="border border-border/40 rounded-xl"
   >
     <CardHeader class="pb-3">
       <CardTitle class="text-base font-semibold">{{ title }}</CardTitle>

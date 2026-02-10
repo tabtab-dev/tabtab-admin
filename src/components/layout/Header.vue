@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -260,7 +261,7 @@ onUnmounted(() => {
           class="search-container hidden md:flex items-center gap-2 transition-all duration-300 ease-out rounded-xl px-3 py-1.5 border"
           :class="[
             isSearchFocused
-              ? 'bg-background border-primary/30 w-72 shadow-sm ring-2 ring-primary/10'
+              ? 'bg-background border-primary/30 w-72 ring-2 ring-primary/10'
               : 'bg-muted/60 border-transparent w-56 hover:bg-muted hover:border-border/50'
           ]"
         >
@@ -302,7 +303,7 @@ onUnmounted(() => {
         >
           <div
             v-if="isSearchExpanded"
-            class="search-container fixed inset-x-4 top-14 z-50 md:hidden flex items-center gap-2 bg-background border rounded-lg px-3 py-2 shadow-lg"
+            class="search-container fixed inset-x-4 top-14 z-50 md:hidden flex items-center gap-2 bg-background border rounded-lg px-3 py-2"
           >
             <Search class="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <input
@@ -377,9 +378,11 @@ onUnmounted(() => {
                 {{ t('common.header.themeSettingsDesc') }}
               </SheetDescription>
             </SheetHeader>
-            <div class="p-6 overflow-y-auto h-[calc(100vh-80px)]">
-              <ThemeSettings />
-            </div>
+            <ScrollArea class="h-[calc(100vh-80px)]">
+              <div class="p-6">
+                <ThemeSettings />
+              </div>
+            </ScrollArea>
           </SheetContent>
         </Sheet>
 
@@ -436,8 +439,8 @@ onUnmounted(() => {
               </div>
             </div>
 
-            <!-- 通知列表 -->
-            <div class="max-h-[360px] overflow-y-auto">
+            <!-- 通知列表 - 使用 shadcn-vue ScrollArea -->
+            <ScrollArea class="h-[360px]">
               <div v-if="notifications.length === 0" class="flex flex-col items-center justify-center py-8 text-center">
                 <div class="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-3">
                   <Bell class="h-5 w-5 text-muted-foreground" />
@@ -507,7 +510,7 @@ onUnmounted(() => {
                 <div class="flex flex-col items-center gap-1 flex-shrink-0 relative z-10">
                   <div
                     v-if="notification.isRead === false"
-                    class="h-2 w-2 rounded-full bg-primary shadow-sm shadow-primary/30"
+                    class="h-2 w-2 rounded-full bg-primary"
                   />
                   <Button
                     variant="ghost"
@@ -519,7 +522,7 @@ onUnmounted(() => {
                   </Button>
                 </div>
               </div>
-            </div>
+            </ScrollArea>
 
             <!-- 底部查看更多 -->
             <div v-if="notifications.length > 0" class="border-t border-border/50 p-2">
@@ -539,7 +542,7 @@ onUnmounted(() => {
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
             <Button variant="ghost" class="flex items-center gap-2 px-2 h-9 rounded-lg hover:bg-primary/10 hover:text-primary ml-1 transition-all duration-200">
-              <Avatar class="h-7 w-7 ring-2 ring-primary/20 shadow-sm">
+              <Avatar class="h-7 w-7 ring-2 ring-primary/20">
                 <AvatarImage v-if="authStore.user?.avatar" :src="authStore.user.avatar" />
                 <AvatarFallback class="text-xs bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold">
                   {{ authStore.user?.name?.charAt(0) || 'U' }}
@@ -558,7 +561,7 @@ onUnmounted(() => {
             <!-- 用户信息头部 - 优化设计 -->
             <div class="p-3 border-b border-border/50 bg-muted/30">
               <div class="flex items-center gap-3">
-                <Avatar class="h-10 w-10 ring-2 ring-background shadow-sm">
+                <Avatar class="h-10 w-10 ring-2 ring-background">
                   <AvatarImage v-if="authStore.user?.avatar" :src="authStore.user.avatar" />
                   <AvatarFallback class="text-sm bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold">
                     {{ authStore.user?.name?.charAt(0) || 'U' }}

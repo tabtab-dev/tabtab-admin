@@ -186,7 +186,7 @@ function getIconComponent(name: string) {
             <TabsList class="w-max justify-start h-10 bg-transparent p-0 gap-1">
               <TabsTrigger
                 value="all"
-                class="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary text-xs px-3 py-1.5 h-7 rounded-md border border-transparent data-[state=active]:border-border transition-all whitespace-nowrap"
+                class="data-[state=active]:bg-background data-[state=active]:text-primary text-xs px-3 py-1.5 h-7 rounded-md border border-transparent data-[state=active]:border-border transition-all whitespace-nowrap"
               >
                 {{ t('icon.categoryAll', '全部') }}
               </TabsTrigger>
@@ -194,7 +194,7 @@ function getIconComponent(name: string) {
                 v-for="cat in filteredCategories"
                 :key="cat.key"
                 :value="cat.key"
-                class="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary text-xs px-3 py-1.5 h-7 rounded-md border border-transparent data-[state=active]:border-border transition-all whitespace-nowrap"
+                class="data-[state=active]:bg-background data-[state=active]:text-primary text-xs px-3 py-1.5 h-7 rounded-md border border-transparent data-[state=active]:border-border transition-all whitespace-nowrap"
               >
                 {{ t(`icon.category.${cat.key}`, cat.name) }}
               </TabsTrigger>
@@ -245,7 +245,7 @@ function getIconComponent(name: string) {
                     'bg-muted/30 hover:bg-accent hover:border-accent-foreground/30',
                     'transition-all duration-200 ease-out',
                     'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1',
-                    localSelectedIcon === icon.name && 'bg-primary/10 border-primary text-primary shadow-md scale-105'
+                    localSelectedIcon === icon.name && 'bg-primary/10 border-primary text-primary scale-105'
                   )"
                   :title="icon.name"
                   @click="handleSelect(icon.name)"
@@ -277,7 +277,7 @@ function getIconComponent(name: string) {
                 'bg-muted/30 hover:bg-accent hover:border-accent-foreground/30',
                 'transition-all duration-200 ease-out',
                 'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1',
-                localSelectedIcon === icon.name && 'bg-primary/10 border-primary text-primary shadow-md scale-105'
+                localSelectedIcon === icon.name && 'bg-primary/10 border-primary text-primary scale-105'
               )"
               :title="icon.name"
               @click="handleSelect(icon.name)"
@@ -298,7 +298,7 @@ function getIconComponent(name: string) {
           <span class="text-xs text-muted-foreground font-medium shrink-0">{{ t('icon.selected', '已选') }}:</span>
           <div
             v-if="localSelectedIcon"
-            class="flex items-center gap-2 px-2.5 py-1 bg-background rounded-lg border shadow-sm min-w-0"
+            class="flex items-center gap-2 px-2.5 py-1 bg-background rounded-lg border min-w-0"
           >
             <component
               :is="getIconComponent(localSelectedIcon)"
@@ -344,7 +344,6 @@ function getIconComponent(name: string) {
 
 .t-icon-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px -2px hsl(var(--primary) / 0.15);
 }
 
 .t-icon-item:active {

@@ -26,7 +26,7 @@ const cardClasses = computed(() => {
   };
 
   return [
-    'transition-all duration-300 hover:shadow-sm',
+    'transition-all duration-300',
     variantClasses[props.variant || 'default']
   ].filter(Boolean).join(' ');
 });

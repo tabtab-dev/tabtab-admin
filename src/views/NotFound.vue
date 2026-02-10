@@ -16,7 +16,7 @@ const goBack = () => {
 
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-4">
-    <Card class="w-full max-w-md text-center">
+    <Card class="w-full max-w-md text-center bg-muted/40 border border-border/50 rounded-xl">
       <CardHeader>
         <div class="text-6xl mb-4">🔍</div>
         <CardTitle class="text-2xl">404 - 页面未找到</CardTitle>

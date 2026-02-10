@@ -78,7 +78,7 @@ const handleSaveSystem = async () => {
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div class="lg:col-span-2 space-y-6">
-        <Card>
+        <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader>
             <CardTitle class="flex items-center gap-2">
               <User class="h-5 w-5" />
@@ -121,7 +121,7 @@ const handleSaveSystem = async () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader>
             <CardTitle class="flex items-center gap-2">
               <Bell class="h-5 w-5" />
@@ -170,7 +170,7 @@ const handleSaveSystem = async () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader>
             <CardTitle class="flex items-center gap-2">
               <Shield class="h-5 w-5" />
@@ -209,7 +209,7 @@ const handleSaveSystem = async () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader>
             <CardTitle class="flex items-center gap-2">
               <Database class="h-5 w-5" />
@@ -263,7 +263,7 @@ const handleSaveSystem = async () => {
       </div>
 
       <div class="space-y-6">
-        <Card>
+        <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader>
             <CardTitle class="flex items-center gap-2">
               <Palette class="h-5 w-5" />
@@ -302,7 +302,7 @@ const handleSaveSystem = async () => {
                 <button
                   v-for="theme in themeStore.availableThemes"
                   :key="theme.key"
-                  class="group flex flex-col items-center gap-1 p-2 rounded-lg border transition-all duration-200 hover:shadow-sm"
+                  class="group flex flex-col items-center gap-1 p-2 rounded-lg border transition-all duration-200"
                   :class="themeStore.currentTheme === theme.key ? 'border-primary bg-primary/10 ring-1 ring-primary/30' : 'border-border hover:border-primary/50'"
                   @click="themeStore.setTheme(theme.key)"
                 >
@@ -330,7 +330,7 @@ const handleSaveSystem = async () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader>
             <CardTitle>账户信息</CardTitle>
           </CardHeader>
@@ -350,7 +350,7 @@ const handleSaveSystem = async () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader>
             <CardTitle>危险区域</CardTitle>
             <CardDescription>不可逆的操作</CardDescription>

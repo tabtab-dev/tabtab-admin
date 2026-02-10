@@ -189,7 +189,7 @@ defineExpose<TBatchActionsExpose>({
     v-if="isVisible"
     :class="cn(
       't-batch-actions flex items-center justify-between gap-4 px-3 py-2 rounded-lg border bg-card',
-      sticky && 'sticky z-20 shadow-sm',
+      sticky && 'sticky z-20',
       className
     )"
     :style="sticky ? { top: `${stickyOffset}px` } : undefined"

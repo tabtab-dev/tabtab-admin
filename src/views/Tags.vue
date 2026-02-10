@@ -310,7 +310,7 @@ const statisticsCards = computed(() => [
       </div>
     </div>
 
-    <div class="bg-muted/30 rounded-lg p-4">
+    <div class="bg-muted/40 border border-border/50 rounded-xl px-3 py-3">
       <div class="flex flex-col lg:flex-row lg:items-center gap-4">
         <div class="flex-1">
           <TForm v-model="searchFormData" :schema="searchSchema" />
@@ -318,7 +318,7 @@ const statisticsCards = computed(() => [
       </div>
     </div>
 
-    <Card class="border-0 shadow-sm">
+    <Card class="bg-muted/40 border border-border/50 rounded-xl">
       <CardHeader class="pb-4">
         <div class="flex items-center gap-3">
           <CardTitle class="text-base font-semibold">标签列表</CardTitle>
