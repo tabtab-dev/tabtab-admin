@@ -12,6 +12,7 @@ export { default as SidebarSubMenu } from './sidebar/SidebarSubMenu.vue';
 export { default as SidebarBadge } from './sidebar/SidebarBadge.vue';
 export { default as MenuItemRecursive } from './sidebar/MenuItemRecursive.vue';
 export { default as PageBreadcrumb } from './PageBreadcrumb.vue';
+export { PageBreadcrumbDropdown } from './PageBreadcrumbDropdown';
 export { default as PageHeader } from './PageHeader.vue';
 export { default as PageSkeleton } from './PageSkeleton.vue';
 export { default as ErrorBoundary } from './ErrorBoundary.vue';

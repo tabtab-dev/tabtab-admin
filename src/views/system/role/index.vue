@@ -11,8 +11,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { roleApi } from '@/api'
 import { useTableData, useMutation } from '@/composables'
 import { Plus, Shield, Users, Key, Search, Check, Edit, Trash2, Lock } from 'lucide-vue-next'
-import { Tag, Tree, Checkbox, Space, Tooltip } from 'antdv-next'
+import { Tag, Tree, Checkbox, Space, Tooltip, Switch } from 'antdv-next'
 import type { TreeProps } from 'antdv-next'
+import { nextTick } from 'vue'
 
 // ==================== 类型定义 ====================
 interface Role {
@@ -526,21 +527,151 @@ function resetAddForm(): void {
 }
 
 // ==================== 权限分配 ====================
+/** 是否启用父子节点联动模式 */
+const checkStrictly = ref(false)
+/** 半选状态的节点 keys */
+const halfCheckedKeys = ref<string[]>([])
+/** 权限树引用 */
+const permissionTreeRef = ref<any>(null)
+
+/**
+ * 打开权限分配抽屉
+ * @param role - 当前角色
+ */
 function handleOpenPermissionDrawer(role: Role): void {
   currentRole.value = role
+  // 重置联动模式为默认（联动）
+  checkStrictly.value = false
+  halfCheckedKeys.value = []
   selectedPermissions.value = [...(role.permissions || [])]
+  // 默认展开系统管理节点
+  expandedPermissionKeys.value = ['system']
   isPermissionDrawerOpen.value = true
 }
 
-function handlePermissionCheck(checkedKeys: string[]): void {
+/**
+ * 处理权限节点选择
+ * @param checkedKeys - 选中的节点 keys
+ * @param e - 事件对象，包含半选状态信息
+ */
+function handlePermissionCheck(checkedKeys: string[], e: any): void {
   selectedPermissions.value = checkedKeys
+  // 在联动模式下，保存半选状态的节点
+  if (!checkStrictly.value && e?.halfCheckedKeys) {
+    halfCheckedKeys.value = e.halfCheckedKeys
+  }
 }
 
+/**
+ * 切换父子节点联动模式
+ * @param value - 是否启用严格模式（不联动）
+ */
+function handleCheckStrictlyChange(value: boolean): void {
+  checkStrictly.value = value
+  if (value) {
+    // 切换到不联动模式时，清空半选状态
+    halfCheckedKeys.value = []
+  } else {
+    // 切换到联动模式时，重新计算半选状态
+    // 需要等待 Tree 组件重新渲染后计算
+    nextTick(() => {
+      calculateHalfCheckedKeys()
+    })
+  }
+}
+
+/**
+ * 计算半选状态的节点 keys
+ */
+function calculateHalfCheckedKeys(): void {
+  // 获取所有选中的叶子节点
+  const checkedLeafKeys = selectedPermissions.value.filter(key => {
+    const node = findNodeByKey(permissionTreeData.value, key)
+    return node && !node.children
+  })
+
+  // 计算半选状态的父节点
+  const halfChecked = new Set<string>()
+  permissionTreeData.value.forEach(node => {
+    calculateParentHalfChecked(node, checkedLeafKeys, halfChecked)
+  })
+
+  halfCheckedKeys.value = Array.from(halfChecked)
+}
+
+/**
+ * 递归计算父节点的半选状态
+ * @param node - 当前节点
+ * @param checkedKeys - 选中的 keys
+ * @param halfChecked - 半选状态集合
+ * @returns 子节点选中数量
+ */
+function calculateParentHalfChecked(node: any, checkedKeys: string[], halfChecked: Set<string>): number {
+  if (!node.children || node.children.length === 0) {
+    return checkedKeys.includes(node.key) ? 1 : 0
+  }
+
+  let checkedCount = 0
+  let totalChildren = 0
+
+  node.children.forEach((child: any) => {
+    const childChecked = calculateParentHalfChecked(child, checkedKeys, halfChecked)
+    checkedCount += childChecked
+    totalChildren += getAllLeafCount(child)
+  })
+
+  // 如果部分子节点被选中，则当前节点为半选状态
+  if (checkedCount > 0 && checkedCount < totalChildren) {
+    halfChecked.add(node.key)
+  }
+
+  return checkedCount
+}
+
+/**
+ * 获取节点的所有叶子节点数量
+ * @param node - 树节点
+ * @returns 叶子节点数量
+ */
+function getAllLeafCount(node: any): number {
+  if (!node.children || node.children.length === 0) {
+    return 1
+  }
+  return node.children.reduce((sum: number, child: any) => sum + getAllLeafCount(child), 0)
+}
+
+/**
+ * 根据 key 查找节点
+ * @param tree - 树数据
+ * @param key - 节点 key
+ * @returns 找到的节点或 undefined
+ */
+function findNodeByKey(tree: any[], key: string): any | undefined {
+  for (const node of tree) {
+    if (node.key === key) {
+      return node
+    }
+    if (node.children) {
+      const found = findNodeByKey(node.children, key)
+      if (found) return found
+    }
+  }
+  return undefined
+}
+
+/**
+ * 保存权限分配
+ */
 function handleSavePermissions(): void {
   if (currentRole.value) {
+    // 在联动模式下，需要包含半选状态的父节点
+    const permissionsToSave = checkStrictly.value
+      ? selectedPermissions.value
+      : [...selectedPermissions.value, ...halfCheckedKeys.value]
+
     updateRolePermissions({
       id: currentRole.value.id,
-      permissions: selectedPermissions.value
+      permissions: [...new Set(permissionsToSave)]
     })
   }
 }
@@ -574,6 +705,11 @@ const permissionTreeData = computed(() => {
 })
 
 // 获取所有权限ID（用于全选功能）
+/**
+ * 获取所有权限ID（用于全选功能）
+ * @param item - 树节点
+ * @returns 所有子节点的 key 数组
+ */
 function getAllPermissionIds(item: any): string[] {
   const ids: string[] = [item.key]
   if (item.children && item.children.length > 0) {
@@ -583,6 +719,84 @@ function getAllPermissionIds(item: any): string[] {
   }
   return ids
 }
+
+/**
+ * 处理展开/折叠事件
+ * @param expandedKeys - 展开的节点 keys
+ */
+function handleExpand(expandedKeys: string[]): void {
+  expandedPermissionKeys.value = expandedKeys
+}
+
+/**
+ * 展开所有节点
+ */
+function handleExpandAll(): void {
+  const allKeys: string[] = []
+  const collectKeys = (nodes: any[]) => {
+    nodes.forEach(node => {
+      if (node.children && node.children.length > 0) {
+        allKeys.push(node.key)
+        collectKeys(node.children)
+      }
+    })
+  }
+  collectKeys(permissionTreeData.value)
+  expandedPermissionKeys.value = allKeys
+}
+
+/**
+ * 折叠所有节点（只保留根节点）
+ */
+function handleCollapseAll(): void {
+  expandedPermissionKeys.value = []
+}
+
+/**
+ * 全选所有权限
+ * 联动模式下：选中所有父节点，子节点自动联动
+ * 不联动模式下：需要遍历选中所有节点
+ */
+function handleSelectAll(): void {
+  if (checkStrictly.value) {
+    // 不联动模式：选中所有节点（包括子节点）
+    const allIds: string[] = []
+    const collectAllIds = (nodes: any[]) => {
+      nodes.forEach(node => {
+        allIds.push(node.key)
+        if (node.children) {
+          collectAllIds(node.children)
+        }
+      })
+    }
+    collectAllIds(permissionTreeData.value)
+    selectedPermissions.value = allIds
+  } else {
+    // 联动模式：只选中根节点，子节点会自动联动
+    selectedPermissions.value = permissionTreeData.value.map(node => node.key)
+  }
+}
+
+/**
+ * 清空所有选中
+ */
+function handleClearAll(): void {
+  selectedPermissions.value = []
+  halfCheckedKeys.value = []
+}
+
+/**
+ * 计算实际选中的权限数量（包含半选状态的父节点）
+ */
+const actualSelectedCount = computed(() => {
+  if (checkStrictly.value) {
+    // 不联动模式：直接返回选中的数量
+    return selectedPermissions.value.length
+  } else {
+    // 联动模式：包含半选状态的节点
+    return new Set([...selectedPermissions.value, ...halfCheckedKeys.value]).size
+  }
+})
 </script>
 
 <template>
@@ -760,7 +974,23 @@ function getAllPermissionIds(item: any): string[] {
               variant="ghost"
               size="sm"
               class="h-7 text-xs"
-              @click="selectedPermissions = permissionTreeData.flatMap(getAllPermissionIds)"
+              @click="handleExpandAll"
+            >
+              展开全部
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              class="h-7 text-xs"
+              @click="handleCollapseAll"
+            >
+              折叠全部
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              class="h-7 text-xs"
+              @click="handleSelectAll"
             >
               全选
             </Button>
@@ -768,21 +998,40 @@ function getAllPermissionIds(item: any): string[] {
               variant="ghost"
               size="sm"
               class="h-7 text-xs"
-              @click="selectedPermissions = []"
+              @click="handleClearAll"
             >
               清空
             </Button>
           </div>
         </div>
 
+        <!-- 联动模式开关 -->
+        <div class="flex items-center justify-between px-3 py-2 bg-muted/30 rounded-lg">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium">父子节点联动</span>
+            <Tooltip title="开启后，选中父节点会自动选中所有子节点">
+              <span class="text-muted-foreground cursor-help">(?)</span>
+            </Tooltip>
+          </div>
+          <Switch
+            v-model:checked="checkStrictly"
+            checked-children="独立"
+            un-checked-children="联动"
+            @change="handleCheckStrictlyChange"
+          />
+        </div>
+
         <!-- 权限树 -->
         <div class="border rounded-lg p-4 bg-muted/20">
           <Tree
+            ref="permissionTreeRef"
             v-model:checked-keys="selectedPermissions"
             :tree-data="permissionTreeData"
             :expanded-keys="expandedPermissionKeys"
+            :check-strictly="checkStrictly"
             checkable
             @check="handlePermissionCheck"
+            @expand="handleExpand"
           />
         </div>
 
@@ -791,9 +1040,12 @@ function getAllPermissionIds(item: any): string[] {
           <div class="flex items-center gap-2">
             <Key class="h-4 w-4 text-muted-foreground" />
             <span class="text-sm text-muted-foreground">已选择</span>
+            <Tooltip v-if="!checkStrictly && halfCheckedKeys.length > 0" :title="`包含 ${halfCheckedKeys.length} 个半选父节点`">
+              <span class="text-xs text-muted-foreground cursor-help">(?)</span>
+            </Tooltip>
           </div>
           <div class="flex items-center gap-2">
-            <span class="text-lg font-semibold text-primary">{{ selectedPermissions.length }}</span>
+            <span class="text-lg font-semibold text-primary">{{ actualSelectedCount }}</span>
             <span class="text-sm text-muted-foreground">个权限</span>
           </div>
         </div>

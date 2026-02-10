@@ -49,6 +49,7 @@ import {
   Minimize2,
 } from 'lucide-vue-next';
 import PageBreadcrumb from './PageBreadcrumb.vue';
+import { PageBreadcrumbDropdown } from './PageBreadcrumbDropdown';
 import Logo from './Logo.vue';
 
 const { t } = useI18n();
@@ -236,13 +237,14 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <!-- 分隔线 -->
-        <div class="hidden lg:block h-6 w-px bg-border/60 mx-1"></div>
-
-        <!-- 面包屑导航 -->
-        <div v-if="themeStore.layoutConfig.showBreadcrumb" class="hidden md:flex items-center min-w-0">
-          <PageBreadcrumb />
-        </div>
+        <!-- 面包屑导航 - 下拉卡片模式 -->
+        <template v-if="themeStore.layoutConfig.showBreadcrumb">
+          <!-- 分隔线 -->
+          <div class="hidden lg:block h-6 w-px bg-border/60 mx-1"></div>
+          <div class="hidden md:flex items-center min-w-0">
+            <PageBreadcrumbDropdown />
+          </div>
+        </template>
 
         <!-- 移动端页面标题 -->
         <h1 class="md:hidden text-sm font-semibold text-foreground truncate">
