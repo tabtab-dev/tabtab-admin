@@ -152,5 +152,7 @@ export default {
     scrollToStart: 'Scroll to Start',
     scrollToEnd: 'Scroll to End',
     moreActions: 'More Actions',
+    enterFullscreen: 'Enter Fullscreen',
+    exitFullscreen: 'Exit Fullscreen',
   },
 } as const;

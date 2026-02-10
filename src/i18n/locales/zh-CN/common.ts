@@ -152,5 +152,7 @@ export default {
     scrollToStart: '滚动到开头',
     scrollToEnd: '滚动到末尾',
     moreActions: '更多操作',
+    enterFullscreen: '进入全屏',
+    exitFullscreen: '退出全屏',
   },
 } as const;

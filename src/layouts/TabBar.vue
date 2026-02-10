@@ -321,7 +321,7 @@ const onDragEnd = () => {
         <DropdownMenuItem v-if="isSupported()" @click="toggle">
           <Shrink v-if="isFullscreen" class="h-4 w-4 mr-2" />
           <Expand v-else class="h-4 w-4 mr-2" />
-          <span>{{ isFullscreen ? '退出全屏' : '进入全屏' }}</span>
+          <span>{{ isFullscreen ? t('common.tabbar.exitFullscreen') : t('common.tabbar.enterFullscreen') }}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator v-if="isSupported()" />
         <DropdownMenuItem @click="handleCloseAll">
