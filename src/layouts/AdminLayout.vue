@@ -62,13 +62,13 @@ onUnmounted(() => {
     <Header
       v-if="!isFullscreen"
       :sidebar-collapsed="sidebarCollapsed"
-      @toggle-collapse="toggleSidebarCollapse"
     />
 
     <!-- 主体区域：使用 AppSidebar 内部的 ResizablePanelGroup 处理布局 -->
     <AppSidebar
       v-if="!isFullscreen"
       v-model:collapsed="sidebarCollapsed"
+      @toggle-collapse="toggleSidebarCollapse"
       class="overflow-hidden"
     >
       <!-- 主内容区 -->

@@ -165,14 +165,17 @@ export function useTabBar(options: UseTabBarOptions): UseTabBarReturn {
 
   const handleCloseOthers = (path: string) => {
     tabBarStore.closeOtherTabs(path);
+    checkOverflow();
   };
 
   const handleCloseLeft = (path: string) => {
     tabBarStore.closeLeftTabs(path);
+    checkOverflow();
   };
 
   const handleCloseRight = (path: string) => {
     tabBarStore.closeRightTabs(path);
+    checkOverflow();
   };
 
   const handleCloseAll = () => {
@@ -182,6 +185,7 @@ export function useTabBar(options: UseTabBarOptions): UseTabBarReturn {
     if (firstAffix) {
       router.push(firstAffix.path);
     }
+    checkOverflow();
   };
 
   // ============ Drag & Drop ============

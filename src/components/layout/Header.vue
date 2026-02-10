@@ -35,8 +35,6 @@ import {
   User,
   Settings,
   ChevronDown,
-  PanelLeft,
-  PanelRight,
   Palette,
   Command,
   X,
@@ -47,8 +45,11 @@ import {
   AlertTriangle,
   CheckCircle,
   MessageSquare,
+  Maximize2,
+  Minimize2,
 } from 'lucide-vue-next';
 import PageBreadcrumb from './PageBreadcrumb.vue';
+import Logo from './Logo.vue';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -197,13 +198,7 @@ defineProps<{
   sidebarCollapsed?: boolean;
 }>();
 
-/**
- * 组件事件
- */
-defineEmits<{
-  /** 折叠侧栏 */
-  (e: 'toggle-collapse'): void;
-}>();
+// Header 组件不再发出 toggle-collapse 事件，折叠按钮已移至 Sidebar 底部
 
 // 添加事件监听
 onMounted(() => {
@@ -233,16 +228,16 @@ onUnmounted(() => {
           </svg>
         </Button>
 
-        <!-- 桌面端折叠按钮 -->
-        <Button
-          variant="ghost"
-          size="icon"
-          @click="$emit('toggle-collapse')"
-          class="hidden lg:flex hover:bg-muted hover:text-foreground h-8 w-8 rounded-lg flex-shrink-0"
-        >
-          <PanelLeft v-if="!sidebarCollapsed" class="h-4 w-4" />
-          <PanelRight v-else class="h-4 w-4" />
-        </Button>
+        <!-- Logo 区域 - 从侧栏移过来，与侧栏折叠后图标对齐（p-3 = 12px） -->
+        <div class="hidden lg:flex items-center gap-2 flex-shrink-0 -ml-3">
+          <Logo :size="48" :collapsed="false" />
+          <div class="flex flex-col">
+            <span class="text-sm font-bold tracking-tight leading-tight">TabTab Admin</span>
+          </div>
+        </div>
+
+        <!-- 分隔线 -->
+        <div class="hidden lg:block h-6 w-px bg-border/60 mx-1"></div>
 
         <!-- 面包屑导航 -->
         <div v-if="themeStore.layoutConfig.showBreadcrumb" class="hidden md:flex items-center min-w-0">

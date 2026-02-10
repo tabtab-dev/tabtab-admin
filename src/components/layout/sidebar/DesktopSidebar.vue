@@ -12,7 +12,11 @@ import { getGroupTitleKey, groupMenus } from './config';
 import type { SidebarConfig, SidebarMenuItem } from '@/types/menu';
 import SidebarItem from './SidebarItem.vue';
 import SidebarSubMenu from './SidebarSubMenu.vue';
-import Logo from '../Logo.vue';
+import { useAuthStore } from '@/stores/global/auth';
+import {
+  PanelLeft,
+  PanelRight,
+} from 'lucide-vue-next';
 
 const { t } = useI18n();
 
@@ -46,11 +50,14 @@ interface Emits {
   (e: 'toggle-sub-menu', key: string): void;
   /** 导航 */
   (e: 'navigate', path: string): void;
+  /** 切换折叠状态 */
+  (e: 'toggle-collapse'): void;
 }
 
 const emit = defineEmits<Emits>();
 
 const themeStore = useThemeStore();
+const authStore = useAuthStore();
 
 /**
  * 侧边栏面板 ref
@@ -134,6 +141,20 @@ const getGroupTitle = (groupKey: string): string => {
 };
 
 /**
+ * 处理折叠切换
+ */
+const handleToggleCollapse = (): void => {
+  emit('toggle-collapse');
+};
+
+/**
+ * 用户姓名首字母
+ */
+const userInitials = computed(() => {
+  return authStore.user?.name?.charAt(0).toUpperCase() || 'U';
+});
+
+/**
  * 监听主题配置宽度变化，使用 resize() 方法实时调整面板大小
  */
 watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
@@ -162,22 +183,6 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
       :class="{ 'transition-none': isDragging }"
       :style="collapsed ? { flex: `0 0 ${collapsedWidth}px` } : {}"
     >
-      <!-- 侧边栏头部 Logo 区域 - 优化后的设计 -->
-      <div
-        class="flex items-center border-b border-border/60 bg-gradient-to-r from-background via-background to-muted/30 transition-all duration-300 ease-in-out overflow-hidden"
-        :class="collapsed ? 'justify-center px-2 py-2' : 'gap-3 px-4 py-3.5'"
-      >
-        <!-- Logo 图标 - 支持主题色切换 -->
-        <Logo :size="36" :collapsed="collapsed" />
-        <div
-          class="flex flex-col min-w-0 transition-all duration-300 ease-in-out"
-          :class="collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'"
-        >
-          <span class="text-sm font-bold tracking-tight leading-tight truncate">TabTab Admin</span>
-          <span class="text-[10px] text-muted-foreground/80 leading-tight font-medium">管理系统</span>
-        </div>
-      </div>
-
       <!-- 菜单列表 -->
       <ScrollArea class="flex-1 h-0">
         <nav class="p-3 space-y-4 relative z-10">
@@ -245,31 +250,45 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
         </nav>
       </ScrollArea>
 
-      <!-- 底部区域 - 优化后的设计 -->
-      <div class="p-3 border-t border-border/50 bg-muted/30">
+      <!-- 底部区域 - 展开状态：左侧用户信息 + 右侧折叠按钮 -->
+      <div class="border-t border-border/50 bg-muted/30">
         <slot name="footer">
-          <!-- 展开状态显示完整信息 -->
+          <!-- 展开状态 -->
           <div
-            class="flex items-center transition-all duration-300 ease-in-out"
-            :class="collapsed ? 'justify-center' : 'justify-between px-2'"
+            v-if="!collapsed"
+            class="p-3 flex items-center justify-between"
           >
-            <div
-              class="flex items-center"
-              :class="collapsed ? '' : 'gap-2'"
-            >
-              <span class="relative flex h-2 w-2 flex-shrink-0">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span
-                class="text-xs text-muted-foreground font-medium transition-all duration-300 whitespace-nowrap"
-                :class="collapsed ? 'opacity-0 w-0 hidden' : 'opacity-100'"
-              >在线</span>
+            <!-- 左侧：用户信息 -->
+            <div class="flex items-center gap-2 min-w-0">
+              <div class="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <span class="text-sm font-semibold text-primary">{{ userInitials }}</span>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="text-xs font-medium truncate">{{ authStore.user?.name || '用户' }}</span>
+                <span class="text-[10px] text-muted-foreground truncate">{{ authStore.user?.email || 'user@example.com' }}</span>
+              </div>
             </div>
-            <span
-              class="text-[10px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border/40 transition-all duration-300 whitespace-nowrap"
-              :class="collapsed ? 'opacity-0 w-0 hidden' : 'opacity-100'"
-            >v1.0.0</span>
+            <!-- 右侧：折叠按钮 -->
+            <button
+              @click="handleToggleCollapse"
+              class="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted hover:text-foreground transition-colors flex-shrink-0"
+              :title="t('common.sidebar.collapse')"
+            >
+              <PanelLeft class="h-4 w-4" />
+            </button>
+          </div>
+          <!-- 折叠状态：只显示展开按钮 -->
+          <div
+            v-else
+            class="py-3 flex justify-center"
+          >
+            <button
+              @click="handleToggleCollapse"
+              class="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-muted hover:text-foreground transition-colors"
+              :title="t('common.sidebar.expand')"
+            >
+              <PanelRight class="h-5 w-5" />
+            </button>
           </div>
         </slot>
       </div>

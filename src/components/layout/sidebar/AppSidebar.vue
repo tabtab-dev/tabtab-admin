@@ -30,6 +30,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   /** 更新折叠状态 */
   (e: 'update:collapsed', value: boolean): void;
+  /** 切换折叠 */
+  (e: 'toggle-collapse'): void;
 }>();
 
 /**
@@ -65,6 +67,17 @@ const collapsed = computed({
     emit('update:collapsed', value);
   },
 });
+
+/**
+ * 处理折叠切换
+ */
+const handleToggleCollapse = (): void => {
+  // 切换内部状态
+  sidebarState.toggleCollapse();
+  // 同步通知父组件（如果使用了 v-model:collapsed）
+  emit('update:collapsed', sidebarState.collapsed.value);
+  emit('toggle-collapse');
+};
 
 const {
   currentSize,
@@ -124,6 +137,7 @@ const handleNavigate = (path: string): void => {
       @dragging="handleDragging"
       @toggle-sub-menu="toggleSubMenu"
       @navigate="handleNavigate"
+      @toggle-collapse="handleToggleCollapse"
     >
       <slot />
     </DesktopSidebar>
