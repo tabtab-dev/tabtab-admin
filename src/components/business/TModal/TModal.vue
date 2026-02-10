@@ -114,7 +114,7 @@ const props = withDefaults(defineProps<TModalProps>(), {
   forceRender: false,
   closeOnSubmitSuccess: false,
   formRef: undefined,
-  showFooter: true
+  footer: undefined
 })
 
 /**
@@ -297,7 +297,7 @@ defineExpose<TModalExpose>({
       :close-icon="closeIcon"
       :confirm-loading="internalConfirmLoading"
       :z-index="zIndex"
-      :footer="showFooter ? undefined : null"
+      :footer="typeof footer === 'boolean' ? (footer ? undefined : null) : footer"
       :force-render="forceRender"
       :get-container="getContainer"
       :transition-name="transitionName"

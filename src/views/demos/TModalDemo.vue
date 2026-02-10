@@ -428,7 +428,7 @@ function closeModalByRef() {
           <CardHeader>
             <CardTitle>模式2：TForm 控制提交</CardTitle>
             <CardDescription>
-              TModal 隐藏底部（:show-footer="false"），由 TForm 内部控制提交，适合简单表单场景
+              TModal 隐藏底部（:footer="false"），由 TForm 内部控制提交，适合简单表单场景
             </CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
@@ -437,7 +437,7 @@ function closeModalByRef() {
             <TModal
               v-model:open="formMode2Open"
               title="编辑用户信息"
-              :show-footer="false"
+              :footer="false"
             >
               <TForm
                 v-model="formMode2Data"
@@ -450,7 +450,7 @@ function closeModalByRef() {
             <div class="p-3 bg-muted rounded-lg text-xs">
               <p class="font-medium mb-1">使用方式：</p>
               <pre class="text-muted-foreground overflow-x-auto">
-&lt;TModal v-model:open="open" title="编辑" :show-footer="false"&gt;
+&lt;TModal v-model:open="open" title="编辑" :footer="false"&gt;
   &lt;TForm v-model="formData" :schema="schema" @submit="handleSubmit" /&gt;
 &lt;/TModal&gt;</pre>
             </div>
@@ -518,12 +518,12 @@ function closeModalByRef() {
           </CardContent>
         </Card>
 
-        <!-- showFooter 属性示例 -->
+        <!-- footer 属性示例 -->
         <Card>
           <CardHeader>
-            <CardTitle>showFooter 属性</CardTitle>
+            <CardTitle>footer 属性</CardTitle>
             <CardDescription>
-              使用 showFooter 属性控制底部按钮的显示/隐藏
+              使用 footer 属性控制底部按钮的显示/隐藏，与 antdv-next API 保持一致
             </CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
@@ -536,11 +536,11 @@ function closeModalByRef() {
             <TModal
               v-model:open="noFooterOpen"
               title="无底部按钮"
-              :show-footer="false"
+              :footer="false"
             >
               <p>这个弹窗没有底部按钮区域。</p>
               <p class="text-muted-foreground mt-2">
-                设置 :show-footer="false" 可隐藏底部按钮。
+                设置 :footer="false" 可隐藏底部按钮。
               </p>
             </TModal>
 
@@ -571,7 +571,7 @@ function closeModalByRef() {
               <p class="font-medium mb-1">使用方式：</p>
               <pre class="text-muted-foreground overflow-x-auto">
 <!-- 隐藏底部按钮 -->
-&lt;TModal v-model:open="open" title="标题" :show-footer="false"&gt;
+&lt;TModal v-model:open="open" title="标题" :footer="false"&gt;
   &lt;p&gt;内容&lt;/p&gt;
 &lt;/TModal&gt;
 

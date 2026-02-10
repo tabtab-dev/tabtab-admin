@@ -146,8 +146,14 @@ export interface TModalProps extends Omit<ModalSchema, 'class'> {
   open?: boolean
   /** 确认按钮 loading */
   confirmLoading?: boolean
-  /** 底部内容，设为 null 时不显示 */
-  footer?: VueNode | ((params: FooterRenderParams) => VueNode) | null
+  /**
+   * 底部内容
+   * @description 支持多种类型：
+   * - `true` 或 `undefined`：显示默认底部按钮
+   * - `false`：隐藏底部按钮
+   * - `VueNode` 或函数：自定义底部内容
+   */
+  footer?: boolean | VueNode | ((params: FooterRenderParams) => VueNode) | null
   /** 自定义类名 */
   class?: string | Record<string, boolean> | Array<string | Record<string, boolean>>
   /** 根容器 class */
@@ -173,12 +179,6 @@ export interface TModalProps extends Omit<ModalSchema, 'class'> {
    * @default false
    */
   closeOnSubmitSuccess?: boolean
-  /**
-   * 是否显示底部按钮区域
-   * @description 设置为 false 时隐藏底部按钮，优先级高于 footer 插槽
-   * @default true
-   */
-  showFooter?: boolean
 }
 
 /**
