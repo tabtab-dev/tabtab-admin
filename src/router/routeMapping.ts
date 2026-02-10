@@ -121,6 +121,7 @@ function convertMeta(meta: RouteMeta): Record<string, any> {
     permissions: meta.permissions,
     roles: meta.roles,
     group: meta.group,
+    i18nKey: meta.i18nKey,
   };
 }
 

@@ -58,9 +58,10 @@ export function updateHtmlLang(locale: SupportedLocale): void {
 export function updateDocumentTitle(to?: RouteLocationNormalized): void {
   const t = i18n.global.t;
 
-  // 如果有传入路由，使用路由的 titleKey
-  if (to?.meta?.titleKey) {
-    const pageTitle = t(to.meta.titleKey as string);
+  // 优先使用 titleKey，如果没有则使用 i18nKey
+  const titleKey = to?.meta?.titleKey || to?.meta?.i18nKey;
+  if (titleKey) {
+    const pageTitle = t(titleKey as string);
     document.title = `${pageTitle} - ${APP_TITLE}`;
   } else {
     // 否则只显示应用标题
