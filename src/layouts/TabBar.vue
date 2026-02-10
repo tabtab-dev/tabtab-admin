@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useTabBarStore } from '@/stores/global/tabbar';
 import { useTabBar } from '@/composables/useTabBar';
+import { useFullscreen } from '@/composables/useFullscreen';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -33,10 +34,17 @@ import {
   X,
   GripVertical,
   Settings,
+  Expand,
+  Shrink,
 } from 'lucide-vue-next';
 
 const { t, locale } = useI18n();
 const tabBarStore = useTabBarStore();
+
+/**
+ * 使用全屏功能
+ */
+const { isFullscreen, toggle, isSupported } = useFullscreen();
 
 /**
  * 获取标签标题（支持多语言响应式切换）
@@ -310,6 +318,12 @@ const onDragEnd = () => {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" class="w-48">
+        <DropdownMenuItem v-if="isSupported()" @click="toggle">
+          <Shrink v-if="isFullscreen" class="h-4 w-4 mr-2" />
+          <Expand v-else class="h-4 w-4 mr-2" />
+          <span>{{ isFullscreen ? '退出全屏' : '进入全屏' }}</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator v-if="isSupported()" />
         <DropdownMenuItem @click="handleCloseAll">
           <X class="h-4 w-4 mr-2" />
           <span>{{ t('common.tabbar.closeAll') }}</span>

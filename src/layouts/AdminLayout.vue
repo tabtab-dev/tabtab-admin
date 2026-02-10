@@ -5,6 +5,7 @@ import AppSidebar from '@/components/layout/sidebar/AppSidebar.vue';
 import PageContainer from '@/components/layout/PageContainer.vue';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useThemeStore } from '@/stores/global/theme';
+import { isFullscreen } from '@/composables/useFullscreen';
 
 /**
  * 主题 store
@@ -57,14 +58,19 @@ onUnmounted(() => {
 <template>
   <!-- 使用 TailwindCSS 的 grid 布局替代多层 flex 嵌套 -->
   <div class="h-screen bg-background grid grid-rows-[auto_1fr]">
-    <!-- 顶部导航栏 -->
+    <!-- 顶部导航栏 - 全屏时隐藏 -->
     <Header
+      v-if="!isFullscreen"
       :sidebar-collapsed="sidebarCollapsed"
       @toggle-collapse="toggleSidebarCollapse"
     />
 
     <!-- 主体区域：使用 AppSidebar 内部的 ResizablePanelGroup 处理布局 -->
-    <AppSidebar v-model:collapsed="sidebarCollapsed" class="overflow-hidden">
+    <AppSidebar
+      v-if="!isFullscreen"
+      v-model:collapsed="sidebarCollapsed"
+      class="overflow-hidden"
+    >
       <!-- 主内容区 -->
       <div class="h-full flex flex-col min-w-0">
         <!-- 标签栏 - 根据主题配置显示/隐藏 -->
@@ -84,5 +90,17 @@ onUnmounted(() => {
         </div>
       </div>
     </AppSidebar>
+
+    <!-- 全屏模式下的内容区 -->
+    <div
+      v-if="isFullscreen"
+      class="h-full w-full bg-background overflow-hidden"
+    >
+      <ScrollArea class="h-full">
+        <div class="p-6">
+          <PageContainer :refresh-key="refreshKey" />
+        </div>
+      </ScrollArea>
+    </div>
   </div>
 </template>

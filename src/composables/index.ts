@@ -28,3 +28,6 @@ export type { PermissionMode } from './usePermission';
 
 export { useTableColumns } from './useTableColumns';
 export type { UseTableColumnsOptions, UseTableColumnsReturn } from './useTableColumns';
+
+export { useFullscreen, isFullscreen, fullscreenElement } from './useFullscreen';
+export type { UseFullscreenReturn } from './useFullscreen';
