@@ -8,7 +8,6 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useThemeStore } from '@/stores/global/theme';
 import { pxToPercent, useMenuUtils } from '@/layouts/composables/useMenuUtils';
-import { getGroupTitleKey, groupMenus } from './config';
 import type { SidebarConfig, SidebarMenuItem } from '@/types/menu';
 import SidebarItem from './SidebarItem.vue';
 import SidebarSubMenu from './SidebarSubMenu.vue';
@@ -90,11 +89,6 @@ const minSizePercent = computed(() => pxToPercent(props.config.minWidth, window.
 const maxSizePercent = computed(() => pxToPercent(props.config.maxWidth, window.innerWidth));
 
 /**
- * 按分组组织的菜单
- */
-const groupedMenus = computed(() => groupMenus(props.config.menus));
-
-/**
  * 使用菜单工具函数
  */
 const { isActive, isExpanded: checkExpanded } = useMenuUtils({
@@ -129,15 +123,6 @@ const handleToggleSubMenu = (key: string): void => {
  */
 const hasChildren = (item: SidebarMenuItem): boolean => {
   return !!item.children && item.children.length > 0;
-};
-
-/**
- * 获取分组标题
- * @param groupKey 分组 key
- * @returns 翻译后的标题
- */
-const getGroupTitle = (groupKey: string): string => {
-  return t(getGroupTitleKey(groupKey));
 };
 
 /**
@@ -185,67 +170,51 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
     >
       <!-- 菜单列表 -->
       <ScrollArea class="flex-1 h-0">
-        <nav class="p-3 space-y-4 relative z-10">
-          <!-- 按分组渲染菜单 -->
-          <template v-for="(items, groupKey) in groupedMenus" :key="groupKey">
-            <!-- 分组卡片（仅展开状态显示） - 优化后的设计 -->
-            <div
-              v-if="!collapsed && items.length > 0"
-              class="bg-muted/40 border border-border/50 p-2.5 space-y-1.5 rounded-xl"
-            >
-              <!-- 分组标题 - 优化后的样式 -->
-              <div class="px-2 py-1 flex items-center gap-2">
-                <div class="h-1.5 w-1.5 rounded-full bg-primary/60"></div>
-                <span class="text-[11px] font-semibold text-muted-foreground/80 uppercase tracking-wider">
-                  {{ getGroupTitle(groupKey) }}
-                </span>
-              </div>
+        <nav class="p-3 space-y-0.5 relative z-10">
+          <!-- 渲染菜单 -->
+          <template v-for="item in config.menus" :key="item.key">
+            <!-- 展开状态 -->
+            <template v-if="!collapsed">
+              <!-- 有子菜单 -->
+              <SidebarSubMenu
+                v-if="hasChildren(item)"
+                :item="item"
+                :collapsed="collapsed"
+                :active="isActive(item.path)"
+                :expanded="isExpanded(item.key)"
+                @toggle="handleToggleSubMenu(item.key)"
+                @navigate="handleNavigate"
+              />
 
-              <!-- 分组菜单项 -->
-              <template v-for="item in items" :key="item.key">
-                <!-- 有子菜单 -->
-                <SidebarSubMenu
-                  v-if="hasChildren(item)"
-                  :item="item"
-                  :collapsed="collapsed"
-                  :active="isActive(item.path)"
-                  :expanded="isExpanded(item.key)"
-                  @toggle="handleToggleSubMenu(item.key)"
-                  @navigate="handleNavigate"
-                />
+              <!-- 无子菜单 -->
+              <SidebarItem
+                v-else
+                :item="item"
+                :collapsed="collapsed"
+                :active="isActive(item.path)"
+                @navigate="handleNavigate"
+              />
+            </template>
 
-                <!-- 无子菜单 -->
-                <SidebarItem
-                  v-else
-                  :item="item"
-                  :collapsed="collapsed"
-                  :active="isActive(item.path)"
-                  @navigate="handleNavigate"
-                />
-              </template>
-            </div>
-
-            <!-- 折叠状态：只渲染菜单项，不显示分组 -->
-            <div v-else-if="collapsed" class="space-y-2 flex flex-col items-center">
-              <template v-for="item in items" :key="item.key">
-                <SidebarSubMenu
-                  v-if="hasChildren(item)"
-                  :item="item"
-                  :collapsed="collapsed"
-                  :active="isActive(item.path)"
-                  :expanded="isExpanded(item.key)"
-                  @toggle="handleToggleSubMenu(item.key)"
-                  @navigate="handleNavigate"
-                />
-                <SidebarItem
-                  v-else
-                  :item="item"
-                  :collapsed="collapsed"
-                  :active="isActive(item.path)"
-                  @navigate="handleNavigate"
-                />
-              </template>
-            </div>
+            <!-- 折叠状态 -->
+            <template v-else>
+              <SidebarSubMenu
+                v-if="hasChildren(item)"
+                :item="item"
+                :collapsed="collapsed"
+                :active="isActive(item.path)"
+                :expanded="isExpanded(item.key)"
+                @toggle="handleToggleSubMenu(item.key)"
+                @navigate="handleNavigate"
+              />
+              <SidebarItem
+                v-else
+                :item="item"
+                :collapsed="collapsed"
+                :active="isActive(item.path)"
+                @navigate="handleNavigate"
+              />
+            </template>
           </template>
         </nav>
       </ScrollArea>

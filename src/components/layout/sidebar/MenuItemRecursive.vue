@@ -194,7 +194,13 @@ const menuTitle = computed(() => {
 </script>
 
 <template>
-  <div class="space-y-0.5">
+  <div class="relative">
+    <!-- 左侧连接线 - 每个菜单项都有 -->
+    <div 
+      v-if="level >= 1"
+      class="absolute left-0 top-1/2 -translate-y-1/2 w-3 h-px bg-border/60"
+    />
+    
     <!-- 菜单项 -->
     <Button
       :variant="active || isChildActive ? 'default' : 'ghost'"
@@ -269,14 +275,13 @@ const menuTitle = computed(() => {
         v-if="hasChildren && isExpanded && !collapsed"
         role="menu"
         :aria-label="`${item.title} 子菜单`"
-        class="space-y-0.5 overflow-hidden relative py-0.5"
+        class="space-y-0 overflow-hidden relative"
         :class="level >= 1 ? 'bg-muted/20 rounded-lg my-1' : ''"
         :style="indentStyle"
       >
-        <!-- 连接线装饰 - 所有层级都显示，深层级使用更淡的颜色 -->
+        <!-- 垂直主干线 - 靠左、颜色深 -->
         <div
-          class="absolute top-1.5 bottom-1.5 w-px bg-gradient-to-b rounded-full"
-          :class="level >= 1 ? 'left-2 from-border/30 via-border/20 to-transparent' : 'left-2 from-border/50 via-border/30 to-transparent'"
+          class="absolute left-0 top-2 bottom-2 w-px bg-border/60 rounded-full"
         />
 
         <!-- 递归渲染子菜单项 -->

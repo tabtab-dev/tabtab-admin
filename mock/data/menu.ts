@@ -35,7 +35,6 @@ export const routeData: RouteConfig[] = [
       hideInMenu: false,
       order: 10,
       i18nKey: 'menu.system',
-      group: 'system',
     },
     children: [
       {
@@ -49,7 +48,6 @@ export const routeData: RouteConfig[] = [
           hideInMenu: false,
           order: 10,
           i18nKey: 'menu.systemUser',
-          group: 'system',
         },
       },
       {
@@ -63,7 +61,6 @@ export const routeData: RouteConfig[] = [
           hideInMenu: false,
           order: 20,
           i18nKey: 'menu.systemRole',
-          group: 'system',
         },
       },
       {
@@ -77,7 +74,6 @@ export const routeData: RouteConfig[] = [
           hideInMenu: false,
           order: 30,
           i18nKey: 'menu.systemMenu',
-          group: 'system',
         },
       },
       {
@@ -91,7 +87,6 @@ export const routeData: RouteConfig[] = [
           hideInMenu: false,
           order: 40,
           i18nKey: 'menu.systemOrganization',
-          group: 'system',
         },
       },
     ],
@@ -313,7 +308,6 @@ export const routeData: RouteConfig[] = [
       hideInMenu: false,
       order: 50,
       i18nKey: 'menu.demos',
-      group: 'demos',
     },
     children: [
       {
@@ -327,7 +321,6 @@ export const routeData: RouteConfig[] = [
           hideInMenu: false,
           order: 10,
           i18nKey: 'menu.tformDemo',
-          group: 'demos',
         },
       },
       {
@@ -341,7 +334,6 @@ export const routeData: RouteConfig[] = [
           hideInMenu: false,
           order: 20,
           i18nKey: 'menu.ttableDemo',
-          group: 'demos',
         },
       },
       {
@@ -355,7 +347,6 @@ export const routeData: RouteConfig[] = [
           hideInMenu: false,
           order: 30,
           i18nKey: 'menu.tmodalDemo',
-          group: 'demos',
         },
       },
       {
@@ -369,7 +360,6 @@ export const routeData: RouteConfig[] = [
           hideInMenu: false,
           order: 40,
           i18nKey: 'menu.tdrawerDemo',
-          group: 'demos',
         },
       },
       {
@@ -383,7 +373,6 @@ export const routeData: RouteConfig[] = [
           hideInMenu: false,
           order: 45,
           i18nKey: 'menu.ticonDemo',
-          group: 'demos',
         },
       },
       {
@@ -397,7 +386,6 @@ export const routeData: RouteConfig[] = [
           hideInMenu: false,
           order: 46,
           i18nKey: 'menu.tdatacardDemo',
-          group: 'demos',
         },
       },
       {
@@ -411,7 +399,6 @@ export const routeData: RouteConfig[] = [
           hideInMenu: false,
           order: 47,
           i18nKey: 'menu.tstatusbadgeDemo',
-          group: 'demos',
         },
       },
       {
@@ -425,7 +412,6 @@ export const routeData: RouteConfig[] = [
           hideInMenu: false,
           order: 48,
           i18nKey: 'menu.tpageheaderDemo',
-          group: 'demos',
         },
       },
       {
@@ -439,7 +425,6 @@ export const routeData: RouteConfig[] = [
           hideInMenu: false,
           order: 49,
           i18nKey: 'menu.temptystateDemo',
-          group: 'demos',
         },
       },
       {
@@ -453,7 +438,6 @@ export const routeData: RouteConfig[] = [
           hideInMenu: false,
           order: 50,
           i18nKey: 'menu.tbatchactionsDemo',
-          group: 'demos',
         },
       },
       {
@@ -467,7 +451,6 @@ export const routeData: RouteConfig[] = [
           hideInMenu: false,
           order: 50,
           i18nKey: 'menu.permissionDemo',
-          group: 'demos',
         },
       },
       {
@@ -482,7 +465,6 @@ export const routeData: RouteConfig[] = [
           hideInMenu: false,
           order: 60,
           i18nKey: 'menu.nested',
-          group: 'demos',
         },
         children: [
           {
@@ -496,7 +478,6 @@ export const routeData: RouteConfig[] = [
               hideInMenu: false,
               order: 10,
               i18nKey: 'menu.level1',
-              group: 'demos',
             },
           },
           {
@@ -510,7 +491,6 @@ export const routeData: RouteConfig[] = [
               hideInMenu: false,
               order: 20,
               i18nKey: 'menu.level2',
-              group: 'demos',
             },
           },
         ],
@@ -547,7 +527,6 @@ function generateMenusFromRoutes(routes: RouteConfig[]): MenuItem[] {
         hideInMenu: route.meta.hideInMenu,
         order: route.meta.order,
         i18nKey: route.meta.i18nKey,
-        group: route.meta.group,
       };
 
       if (route.children && route.children.length > 0) {

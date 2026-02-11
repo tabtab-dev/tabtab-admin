@@ -14,18 +14,6 @@ const filteredMenus = computed(() =>
   menuStore.flatMenus.filter(menu => !menu.hidden)
 );
 
-const groupedMenus = computed(() => {
-  const groups: Record<string, typeof filteredMenus.value> = {};
-
-  filteredMenus.value.forEach(menu => {
-    const groupKey = menu.group || 'other';
-    groups[groupKey] ??= [];
-    groups[groupKey].push(menu);
-  });
-
-  return groups;
-});
-
 const handleSelect = (path: string) => {
   router.push(path);
   open.value = false;
@@ -44,26 +32,24 @@ const handleSelect = (path: string) => {
         </div>
       </CommandEmpty>
 
-      <template v-for="(menus, groupKey) in groupedMenus" :key="groupKey">
-        <CommandGroup v-if="menus.length > 0" :heading="groupKey === 'other' ? undefined : t(`menu.group${groupKey.charAt(0).toUpperCase() + groupKey.slice(1)}`)">
-          <CommandItem
-            v-for="menu in menus"
-            :key="menu.key"
-            :value="menu.path"
-            @select="handleSelect(menu.path)"
-          >
-            <component
-              :is="getIcon(menu.icon)"
-              v-if="menu.icon"
-              class="h-4 w-4 mr-2 text-muted-foreground"
-            />
-            <span>{{ t(menu.i18nKey) }}</span>
-            <span class="ml-auto text-xs text-muted-foreground truncate max-w-[120px]">
-              {{ menu.path }}
-            </span>
-          </CommandItem>
-        </CommandGroup>
-      </template>
+      <CommandGroup>
+        <CommandItem
+          v-for="menu in filteredMenus"
+          :key="menu.key"
+          :value="menu.path"
+          @select="handleSelect(menu.path)"
+        >
+          <component
+            :is="getIcon(menu.icon)"
+            v-if="menu.icon"
+            class="h-4 w-4 mr-2 text-muted-foreground"
+          />
+          <span>{{ t(menu.i18nKey) }}</span>
+          <span class="ml-auto text-xs text-muted-foreground truncate max-w-[120px]">
+            {{ menu.path }}
+          </span>
+        </CommandItem>
+      </CommandGroup>
     </CommandList>
   </CommandDialog>
 </template>

@@ -427,10 +427,10 @@ const childCountText = computed(() => {
         v-if="expanded"
         role="menu"
         :aria-label="`${menuTitle} 子菜单`"
-        class="ml-3.5 space-y-0.5 overflow-hidden relative py-0.5"
+        class="ml-4 space-y-0 overflow-hidden relative"
       >
-        <!-- 连接线装饰 - 优化后的样式 -->
-        <div class="absolute left-2 top-1.5 bottom-1.5 w-px bg-gradient-to-b from-border/50 via-border/30 to-transparent rounded-full"></div>
+        <!-- 垂直主干线 -->
+        <div class="absolute left-0 top-2 bottom-2 w-px bg-border/60 rounded-full"></div>
 
         <!-- 递归渲染多级子菜单 -->
         <MenuItemRecursive
