@@ -108,6 +108,9 @@ export default {
   breadcrumb: {
     home: '首页',
     ellipsis: '...',
+    selectModule: '选择功能模块',
+    moduleCount: '共 {count} 个模块',
+    clickToEnter: '点击进入',
   },
 
   // 主题设置
@@ -131,18 +134,28 @@ export default {
     reset: '重置为默认设置',
     colors: {
       default: '默认',
+      slate: '岩灰',
+      stone: '石色',
       blue: '蓝色',
       green: '绿色',
       purple: '紫色',
       orange: '橙色',
       red: '红色',
+      rose: '玫瑰',
       pink: '粉色',
       teal: '青绿',
       indigo: '靛蓝',
       yellow: '黄色',
       cyan: '青色',
-      amber: '琥珀金',
+      amber: '琥珀',
+      lime: '青柠',
+      emerald: '翠绿',
+      sky: '天空',
+      violet: '紫罗兰',
+      fuchsia: '洋红',
     },
+    exportConfig: '复制主题配置',
+    exportConfigSuccess: '配置已复制',
   },
 
   // 标签栏

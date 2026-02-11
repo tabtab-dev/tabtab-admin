@@ -108,6 +108,9 @@ export default {
   breadcrumb: {
     home: 'Home',
     ellipsis: '...',
+    selectModule: 'Select Module',
+    moduleCount: '{count} modules',
+    clickToEnter: 'Click to enter',
   },
 
   // Theme
@@ -131,18 +134,28 @@ export default {
     reset: 'Reset to Default',
     colors: {
       default: 'Default',
+      slate: 'Slate',
+      stone: 'Stone',
       blue: 'Blue',
       green: 'Green',
       purple: 'Purple',
       orange: 'Orange',
       red: 'Red',
+      rose: 'Rose',
       pink: 'Pink',
       teal: 'Teal',
       indigo: 'Indigo',
       yellow: 'Yellow',
       cyan: 'Cyan',
       amber: 'Amber',
+      lime: 'Lime',
+      emerald: 'Emerald',
+      sky: 'Sky',
+      violet: 'Violet',
+      fuchsia: 'Fuchsia',
     },
+    exportConfig: 'Copy Theme Config',
+    exportConfigSuccess: 'Config Copied',
   },
 
   // Tab Bar

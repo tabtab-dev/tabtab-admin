@@ -6,28 +6,42 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Sun, Moon, Monitor, Palette, Layout, Type, CircleDot, PanelLeft, PanelTop, FolderTree } from 'lucide-vue-next';
+
+import { Sun, Moon, Monitor, Palette, Layout, Type, CircleDot, PanelLeft, PanelTop, FolderTree, Download, Check } from 'lucide-vue-next';
 
 const { t } = useI18n();
 const themeStore = useThemeStore();
 
 /**
- * 主题列表
+ * 复制成功状态
  */
-const themes = [
-  { key: 'default', nameKey: 'common.theme.colors.default', color: 'bg-neutral-500' },
-  { key: 'blue', nameKey: 'common.theme.colors.blue', color: 'bg-blue-500' },
-  { key: 'green', nameKey: 'common.theme.colors.green', color: 'bg-emerald-500' },
-  { key: 'purple', nameKey: 'common.theme.colors.purple', color: 'bg-purple-500' },
-  { key: 'orange', nameKey: 'common.theme.colors.orange', color: 'bg-orange-500' },
-  { key: 'red', nameKey: 'common.theme.colors.red', color: 'bg-red-500' },
-  { key: 'pink', nameKey: 'common.theme.colors.pink', color: 'bg-pink-500' },
-  { key: 'teal', nameKey: 'common.theme.colors.teal', color: 'bg-teal-500' },
-  { key: 'indigo', nameKey: 'common.theme.colors.indigo', color: 'bg-indigo-500' },
-  { key: 'yellow', nameKey: 'common.theme.colors.yellow', color: 'bg-yellow-500' },
-  { key: 'cyan', nameKey: 'common.theme.colors.cyan', color: 'bg-cyan-500' },
-  { key: 'amber', nameKey: 'common.theme.colors.amber', color: 'bg-amber-500' },
-];
+const copied = ref(false);
+
+/**
+ * 主题颜色映射（用于显示色块）
+ */
+const themeColorMap: Record<string, string> = {
+  default: 'bg-neutral-500',
+  slate: 'bg-slate-500',
+  stone: 'bg-stone-500',
+  red: 'bg-red-500',
+  rose: 'bg-rose-500',
+  orange: 'bg-orange-500',
+  amber: 'bg-amber-500',
+  yellow: 'bg-yellow-500',
+  lime: 'bg-lime-500',
+  green: 'bg-green-500',
+  emerald: 'bg-emerald-500',
+  teal: 'bg-teal-500',
+  cyan: 'bg-cyan-500',
+  sky: 'bg-sky-500',
+  blue: 'bg-blue-500',
+  indigo: 'bg-indigo-500',
+  violet: 'bg-violet-500',
+  purple: 'bg-purple-500',
+  fuchsia: 'bg-fuchsia-500',
+  pink: 'bg-pink-500',
+};
 
 /**
  * 字体大小选项
@@ -93,6 +107,69 @@ const updateShowBreadcrumb = (value: boolean) => {
 const updateFixedTabBar = (value: boolean) => {
   themeStore.updateLayoutConfig({ fixedTabBar: value });
 };
+
+/**
+ * 生成主题配置代码
+ * @returns 可用于 theme.config.ts 的配置代码
+ */
+const generateThemeConfigCode = (): string => {
+  const currentLayout = themeStore.layoutConfig;
+
+  const configCode = `/**
+ * 导出的用户主题配置
+ * 复制此内容到 src/config/theme.config.ts 的 exportedUserConfig 对象中
+ */
+export const exportedUserConfig = {
+  // 主题配置（可选：添加自定义主题或覆盖默认主题）
+  themeConfigs: {
+    // 示例：自定义主题
+    // myCustomTheme: {
+    //   name: '我的主题',
+    //   primary: 'oklch(0.6 0.2 250)',
+    //   primaryForeground: 'oklch(0.985 0 0)',
+    // },
+  } as Record<string, {
+    name: string;
+    primary: string;
+    primaryForeground?: string;
+    accent?: string;
+    accentForeground?: string;
+    darkPrimary?: string;
+  }>,
+
+  // 布局配置（当前设置）
+  layoutConfig: {
+    sidebarWidth: ${currentLayout.sidebarWidth},
+    sidebarCollapsedWidth: ${currentLayout.sidebarCollapsedWidth},
+    sidebarCollapsed: ${currentLayout.sidebarCollapsed},
+    headerHeight: ${currentLayout.headerHeight},
+    radius: ${currentLayout.radius},
+    fontSize: '${currentLayout.fontSize}',
+    animations: ${currentLayout.animations},
+    showTabBar: ${currentLayout.showTabBar},
+    showBreadcrumb: ${currentLayout.showBreadcrumb},
+    fixedTabBar: ${currentLayout.fixedTabBar},
+  } as Partial<LayoutConfig>,
+};`;
+
+  return configCode;
+};
+
+/**
+ * 复制配置到剪贴板
+ */
+const copyConfig = async () => {
+  const code = generateThemeConfigCode();
+  try {
+    await navigator.clipboard.writeText(code);
+    copied.value = true;
+    setTimeout(() => {
+      copied.value = false;
+    }, 2000);
+  } catch (err) {
+    console.error('复制失败:', err);
+  }
+};
 </script>
 
 <template>
@@ -128,17 +205,17 @@ const updateFixedTabBar = (value: boolean) => {
       </div>
       <div class="grid grid-cols-5 gap-2">
         <button
-          v-for="theme in themes"
+          v-for="theme in themeStore.availableThemes"
           :key="theme.key"
           class="group flex flex-col items-center gap-1.5 p-2 rounded-lg border transition-all duration-200"
           :class="themeStore.currentTheme === theme.key ? 'border-primary bg-primary/10 ring-1 ring-primary/30' : 'border-border hover:border-primary/50'"
           @click="themeStore.setTheme(theme.key)"
         >
-          <div 
-            class="w-6 h-6 rounded-full transition-transform duration-200 group-hover:scale-110" 
-            :class="theme.color" 
+          <div
+            class="w-6 h-6 rounded-full transition-transform duration-200 group-hover:scale-110"
+            :class="themeColorMap[theme.key] || 'bg-gray-500'"
           />
-          <span class="text-xs" :class="themeStore.currentTheme === theme.key ? 'text-primary font-medium' : 'text-muted-foreground'">{{ t(theme.nameKey) }}</span>
+          <span class="text-xs" :class="themeStore.currentTheme === theme.key ? 'text-primary font-medium' : 'text-muted-foreground'">{{ t(`common.theme.colors.${theme.key}`) }}</span>
         </button>
       </div>
     </div>
@@ -272,12 +349,23 @@ const updateFixedTabBar = (value: boolean) => {
     </div>
 
     <!-- 重置按钮 -->
-    <Button 
-      variant="outline" 
-      class="w-full transition-all duration-200 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30" 
+    <Button
+      variant="outline"
+      class="w-full transition-all duration-200 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
       @click="themeStore.resetLayoutConfig"
     >
       <span class="mr-2">↺</span> {{ t('common.theme.reset') }}
+    </Button>
+
+    <!-- 导出配置按钮 -->
+    <Button
+      variant="outline"
+      class="w-full transition-all duration-200 hover:bg-primary/10 hover:text-primary hover:border-primary/30"
+      @click="copyConfig"
+    >
+      <Check v-if="copied" class="h-4 w-4 mr-2" />
+      <Download v-else class="h-4 w-4 mr-2" />
+      {{ copied ? t('common.theme.exportConfigSuccess') : t('common.theme.exportConfig') }}
     </Button>
   </div>
 </template>

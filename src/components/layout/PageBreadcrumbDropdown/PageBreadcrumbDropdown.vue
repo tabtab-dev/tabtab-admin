@@ -79,18 +79,8 @@ const findSiblingsInMenuTree = (menus: MenuItem[], targetPath: string): MenuItem
  * @returns 描述文本
  */
 const getMenuDescription = (menu: MenuItem): string => {
-  const descMap: Record<string, string> = {
-    'menu.dashboard': '系统概览与统计',
-    'menu.users': '管理系统用户',
-    'menu.roles': '角色权限配置',
-    'menu.permissions': '功能权限管理',
-    'menu.settings': '系统参数设置',
-    'menu.profile': '个人信息管理',
-    'menu.system': '系统配置中心',
-    'menu.logs': '操作日志审计',
-  };
-  
-  return descMap[menu.i18nKey] || descMap[menu.path] || '点击进入';
+  // 优先使用菜单自身的描述，否则返回默认提示
+  return menu.description || t('breadcrumb.clickToEnter');
 };
 
 /**
@@ -230,22 +220,22 @@ const getGridCols = (childrenCount: number): string => {
                 <Icon
                   v-if="item.icon"
                   :name="item.icon"
-                  class="h-3.5 w-3.5 relative z-10"
+                  class="h-3.5 w-3.5 relative z-10 flex-shrink-0"
                   :class="item.isCurrent ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'"
                 />
-                <House v-else-if="index === 0" class="h-3.5 w-3.5 relative z-10" />
-                <span class="relative z-10">{{ item.title }}</span>
-                <ChevronDown 
-                  class="h-3 w-3 relative z-10 transition-transform duration-200 group-data-[state=open]:rotate-180" 
+                <House v-else-if="index === 0" class="h-3.5 w-3.5 relative z-10 flex-shrink-0" />
+                <span class="relative z-10 max-w-[100px] truncate" :title="item.title">{{ item.title }}</span>
+                <ChevronDown
+                  class="h-3 w-3 relative z-10 flex-shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180"
                   :class="item.isCurrent ? 'text-primary' : 'text-muted-foreground/70'"
                 />
               </button>
             </DropdownMenuTrigger>
             
             <!-- Bento 网格下拉面板 -->
-            <DropdownMenuContent 
-              align="start" 
-              class="w-[320px] p-0 overflow-hidden bg-popover border border-border shadow-2xl rounded-2xl" 
+            <DropdownMenuContent
+              align="start"
+              class="min-w-[360px] w-auto max-w-[480px] p-0 overflow-hidden bg-popover border border-border shadow-2xl rounded-2xl"
               :side-offset="6"
             >
               <!-- 面板头部 - 渐变背景 -->
@@ -262,9 +252,9 @@ const getGridCols = (childrenCount: number): string => {
                     />
                     <House v-else class="h-4 w-4 text-primary" />
                   </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-sm font-semibold text-foreground truncate">{{ item.title }}</p>
-                    <p class="text-xs text-muted-foreground">选择功能模块</p>
+                  <div class="flex-1 min-w-0 max-w-[200px]">
+                    <p class="text-sm font-semibold text-foreground truncate" :title="item.title">{{ item.title }}</p>
+                    <p class="text-xs text-muted-foreground">{{ t('breadcrumb.selectModule') }}</p>
                   </div>
                   <Sparkles class="h-4 w-4 text-primary/50" />
                 </div>
@@ -297,11 +287,17 @@ const getGridCols = (childrenCount: number): string => {
                     </div>
                     
                     <!-- 文字内容 -->
-                    <div class="relative flex-1 min-w-0">
-                      <p class="text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-200 truncate">
+                    <div class="relative flex-1 min-w-0 w-full">
+                      <p
+                        class="text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-200 truncate"
+                        :title="child.title"
+                      >
                         {{ child.title }}
                       </p>
-                      <p class="text-[11px] text-muted-foreground/80 line-clamp-1 mt-0.5">
+                      <p
+                        class="text-[11px] text-muted-foreground/80 line-clamp-2 mt-0.5 leading-tight"
+                        :title="child.description"
+                      >
                         {{ child.description }}
                       </p>
                     </div>
@@ -317,7 +313,7 @@ const getGridCols = (childrenCount: number): string => {
               <!-- 面板底部 -->
               <div class="px-4 py-2 bg-muted/50 border-t border-border/50">
                 <p class="text-[11px] text-muted-foreground/70 text-center">
-                  共 {{ item.children?.length }} 个模块
+                  {{ t('breadcrumb.moduleCount', { count: item.children?.length || 0 }) }}
                 </p>
               </div>
             </DropdownMenuContent>
@@ -326,33 +322,33 @@ const getGridCols = (childrenCount: number): string => {
           <!-- 当前页面（无下拉）- 使用柔和的背景色 -->
           <div
             v-else-if="item.isCurrent"
-            class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium bg-muted/80 text-foreground border border-border/60 shadow-sm"
+            class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium bg-muted/80 text-foreground border border-border/60 shadow-sm max-w-[200px]"
           >
             <Icon
               v-if="item.icon"
               :name="item.icon"
-              class="h-3.5 w-3.5 text-primary"
+              class="h-3.5 w-3.5 text-primary flex-shrink-0"
             />
-            <House v-else-if="index === 0" class="h-3.5 w-3.5 text-primary" />
-            <span>{{ item.title }}</span>
+            <House v-else-if="index === 0" class="h-3.5 w-3.5 text-primary flex-shrink-0" />
+            <span class="truncate" :title="item.title">{{ item.title }}</span>
           </div>
 
           <!-- 普通可点击项 -->
           <button
             v-else
-            class="group relative inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 overflow-hidden"
+            class="group relative inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 overflow-hidden max-w-[150px]"
             @click="handleBreadcrumbClick(item)"
           >
             <!-- 悬停光效 -->
             <div class="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            
+
             <Icon
               v-if="item.icon"
               :name="item.icon"
-              class="h-3.5 w-3.5 relative z-10 text-muted-foreground group-hover:text-foreground transition-colors"
+              class="h-3.5 w-3.5 relative z-10 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0"
             />
-            <House v-else-if="index === 0" class="h-3.5 w-3.5 relative z-10" />
-            <span class="relative z-10">{{ item.title }}</span>
+            <House v-else-if="index === 0" class="h-3.5 w-3.5 relative z-10 flex-shrink-0" />
+            <span class="relative z-10 truncate" :title="item.title">{{ item.title }}</span>
           </button>
         </li>
       </template>

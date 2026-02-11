@@ -298,7 +298,7 @@ const handleSaveSystem = async () => {
             <!-- 主题配色 -->
             <div class="space-y-2">
               <Label class="text-sm text-muted-foreground">主题配色</Label>
-              <div class="grid grid-cols-4 gap-2">
+              <div class="grid grid-cols-5 gap-2">
                 <button
                   v-for="theme in themeStore.availableThemes"
                   :key="theme.key"
@@ -310,17 +310,25 @@ const handleSaveSystem = async () => {
                     class="w-5 h-5 rounded-full transition-transform duration-200 group-hover:scale-110"
                     :class="{
                       'bg-neutral-500': theme.key === 'default',
+                      'bg-slate-500': theme.key === 'slate',
+                      'bg-stone-500': theme.key === 'stone',
                       'bg-blue-500': theme.key === 'blue',
-                      'bg-emerald-500': theme.key === 'green',
+                      'bg-green-500': theme.key === 'green',
+                      'bg-emerald-500': theme.key === 'emerald',
                       'bg-purple-500': theme.key === 'purple',
+                      'bg-violet-500': theme.key === 'violet',
+                      'bg-fuchsia-500': theme.key === 'fuchsia',
                       'bg-orange-500': theme.key === 'orange',
+                      'bg-amber-500': theme.key === 'amber',
                       'bg-red-500': theme.key === 'red',
+                      'bg-rose-500': theme.key === 'rose',
                       'bg-pink-500': theme.key === 'pink',
                       'bg-teal-500': theme.key === 'teal',
                       'bg-indigo-500': theme.key === 'indigo',
                       'bg-yellow-500': theme.key === 'yellow',
+                      'bg-lime-500': theme.key === 'lime',
                       'bg-cyan-500': theme.key === 'cyan',
-                      'bg-amber-500': theme.key === 'amber',
+                      'bg-sky-500': theme.key === 'sky',
                     }"
                   />
                   <span class="text-xs" :class="themeStore.currentTheme === theme.key ? 'text-primary font-medium' : 'text-muted-foreground'">{{ theme.name }}</span>
