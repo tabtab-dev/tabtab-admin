@@ -71,7 +71,7 @@ const menuItems = computed(() => [
     icon: 'User',
     visible: true,
     variant: 'primary' as const,
-    onClick: () => router.push('/settings/profile'),
+    onClick: () => router.push('/profile'),
   },
   {
     id: 'settings',

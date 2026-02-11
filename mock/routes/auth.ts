@@ -9,8 +9,20 @@ import {
   findUserById,
   generateToken,
   parseToken,
+  updateUser,
 } from '../data/auth';
-import { createResponse } from '../utils/response';
+import { createResponse, createErrorResponse } from '../utils/response';
+
+/**
+ * 从请求头获取当前用户 ID
+ * @param req - 请求对象
+ * @returns 用户 ID 或 null
+ */
+function getCurrentUserId(req: IncomingMessage): string | null {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.replace('Bearer ', '');
+  return parseToken(token);
+}
 
 /**
  * 认证模块路由映射
@@ -55,11 +67,7 @@ export const authRoutes: Record<string, (req: IncomingMessage & { body?: any }, 
    * GET /mock-api/auth/me
    */
   'GET /mock-api/auth/me': (req, res) => {
-    // 从请求头获取 token
-    const authHeader = req.headers.authorization || '';
-    const token = authHeader.replace('Bearer ', '');
-
-    const userId = parseToken(token);
+    const userId = getCurrentUserId(req);
 
     if (!userId) {
       res.statusCode = 200;
@@ -80,14 +88,75 @@ export const authRoutes: Record<string, (req: IncomingMessage & { body?: any }, 
   },
 
   /**
+   * 更新当前用户个人资料
+   * PUT /mock-api/auth/profile
+   */
+  'PUT /mock-api/auth/profile': (req, res) => {
+    const userId = getCurrentUserId(req);
+
+    if (!userId) {
+      res.statusCode = 200;
+      res.end(JSON.stringify(createResponse(null, 401, '未授权')));
+      return;
+    }
+
+    const data = req.body || {};
+
+    // 验证姓名
+    if (data.name !== undefined && (!data.name || data.name.trim().length < 2)) {
+      res.statusCode = 200;
+      res.end(JSON.stringify(createErrorResponse('姓名长度至少为2个字符')));
+      return;
+    }
+
+    // 验证手机号
+    if (data.phone && !/^1[3-9]\d{9}$/.test(data.phone)) {
+      res.statusCode = 200;
+      res.end(JSON.stringify(createErrorResponse('请输入有效的手机号码')));
+      return;
+    }
+
+    const updatedUser = updateUser(userId, data);
+
+    if (!updatedUser) {
+      res.statusCode = 200;
+      res.end(JSON.stringify(createResponse(null, 404, '用户不存在')));
+      return;
+    }
+
+    res.statusCode = 200;
+    res.end(JSON.stringify(createResponse(updatedUser)));
+  },
+
+  /**
+   * 上传当前用户头像
+   * POST /mock-api/auth/avatar
+   */
+  'POST /mock-api/auth/avatar': (req, res) => {
+    const userId = getCurrentUserId(req);
+
+    if (!userId) {
+      res.statusCode = 200;
+      res.end(JSON.stringify(createResponse(null, 401, '未授权')));
+      return;
+    }
+
+    // Mock 头像上传，返回一个随机的头像 URL
+    const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${Date.now()}`;
+
+    // 更新用户头像
+    updateUser(userId, { avatar: avatarUrl });
+
+    res.statusCode = 200;
+    res.end(JSON.stringify(createResponse({ avatarUrl })));
+  },
+
+  /**
    * 刷新 Token
    * POST /mock-api/auth/refresh
    */
   'POST /mock-api/auth/refresh': (req, res) => {
-    const authHeader = req.headers.authorization || '';
-    const token = authHeader.replace('Bearer ', '');
-
-    const userId = parseToken(token);
+    const userId = getCurrentUserId(req);
 
     if (!userId) {
       res.statusCode = 200;
@@ -113,6 +182,29 @@ export const authRoutes: Record<string, (req: IncomingMessage & { body?: any }, 
    * POST /mock-api/auth/change-password
    */
   'POST /mock-api/auth/change-password': (req, res) => {
+    const userId = getCurrentUserId(req);
+
+    if (!userId) {
+      res.statusCode = 200;
+      res.end(JSON.stringify(createResponse(null, 401, '未授权')));
+      return;
+    }
+
+    const { oldPassword, newPassword } = req.body || {};
+
+    if (!oldPassword || !newPassword) {
+      res.statusCode = 200;
+      res.end(JSON.stringify(createErrorResponse('请输入当前密码和新密码')));
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      res.statusCode = 200;
+      res.end(JSON.stringify(createErrorResponse('新密码长度至少为6位')));
+      return;
+    }
+
+    // Mock 环境模拟密码修改成功
     res.statusCode = 200;
     res.end(JSON.stringify(createResponse(null)));
   },

@@ -7,6 +7,7 @@ export default {
   orders: '订单管理',
   products: '商品管理',
   analytics: '数据分析',
+  profile: '个人资料',
   settings: '系统设置',
 
   // 系统管理

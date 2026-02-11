@@ -27,4 +27,32 @@ export interface User extends BaseModel {
   permissions: string[];
   /** 最后登录时间 */
   lastLogin?: string;
+  /** 电话 */
+  phone?: string;
+  /** 地址 */
+  address?: string;
+  /** 部门 */
+  department?: string;
+  /** 职位 */
+  position?: string;
+  /** 个人简介 */
+  bio?: string;
+}
+
+/** 更新个人资料参数 */
+export interface UpdateProfileParams {
+  /** 用户名 */
+  name?: string;
+  /** 电话 */
+  phone?: string;
+  /** 地址 */
+  address?: string;
+  /** 部门 */
+  department?: string;
+  /** 职位 */
+  position?: string;
+  /** 个人简介 */
+  bio?: string;
+  /** 头像 */
+  avatar?: string;
 }

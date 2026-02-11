@@ -4,7 +4,7 @@
  */
 
 export type { BaseModel } from './base';
-export type { User, UserRole, UserStatus } from './user';
+export type { User, UserRole, UserStatus, UpdateProfileParams } from './user';
 export type { Product, ProductStatus } from './product';
 export type { Order, OrderStatus } from './order';
 export type { Category, CategoryStatus, Tag } from './category';

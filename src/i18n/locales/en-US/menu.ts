@@ -7,6 +7,7 @@ export default {
   orders: 'Order Management',
   products: 'Product Management',
   analytics: 'Analytics',
+  profile: 'Profile',
   settings: 'System Settings',
 
   // System Management

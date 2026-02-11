@@ -23,6 +23,8 @@ export {
   type ChangePasswordParams,
 } from './modules/auth';
 
+export type { UpdateProfileParams } from '@/types';
+
 export {
   usersApi,
   type CreateUserParams,

@@ -174,4 +174,14 @@ export default {
     enterFullscreen: 'Enter Fullscreen',
     exitFullscreen: 'Exit Fullscreen',
   },
+
+  // Sidebar
+  sidebar: {
+    collapse: 'Collapse Sidebar',
+    expand: 'Expand Sidebar',
+    signedInAs: 'Signed in as',
+    profile: 'Profile',
+    settings: 'Settings',
+    logout: 'Logout',
+  },
 } as const;

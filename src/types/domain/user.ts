@@ -5,7 +5,7 @@
 /**
  * 用户角色
  */
-export type UserRole = 'admin' | 'user' | 'guest';
+export type UserRole = 'admin' | 'user' | 'guest' | 'editor' | 'viewer';
 
 /**
  * 用户状态
@@ -25,6 +25,29 @@ export interface User {
   permissions: string[];
   createdAt: string;
   updatedAt: string;
+  /** 电话 */
+  phone?: string;
+  /** 地址 */
+  address?: string;
+  /** 部门 */
+  department?: string;
+  /** 职位 */
+  position?: string;
+  /** 个人简介 */
+  bio?: string;
+}
+
+/**
+ * 更新个人资料参数
+ */
+export interface UpdateProfileParams {
+  name?: string;
+  phone?: string;
+  address?: string;
+  department?: string;
+  position?: string;
+  bio?: string;
+  avatar?: string;
 }
 
 /**

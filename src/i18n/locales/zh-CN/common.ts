@@ -174,4 +174,14 @@ export default {
     enterFullscreen: '进入全屏',
     exitFullscreen: '退出全屏',
   },
+
+  // 侧边栏
+  sidebar: {
+    collapse: '收起侧栏',
+    expand: '展开侧栏',
+    signedInAs: '登录账号',
+    profile: '个人资料',
+    settings: '设置',
+    logout: '退出登录',
+  },
 } as const;

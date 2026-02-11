@@ -498,6 +498,19 @@ export const routeData: RouteConfig[] = [
     ],
   },
   {
+    path: '/profile',
+    name: 'profile',
+    component: '/Profile',
+    meta: {
+      title: '个人资料',
+      icon: 'User',
+      keepAlive: false,
+      hideInMenu: false,
+      order: 55,
+      i18nKey: 'menu.profile',
+    },
+  },
+  {
     path: '/settings',
     name: 'settings',
     component: '/Settings',

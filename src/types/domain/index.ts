@@ -12,6 +12,7 @@ export type {
   CreateUserParams,
   UpdateUserParams,
   ChangePasswordParams,
+  UpdateProfileParams,
 } from './user';
 
 // 产品相关类型

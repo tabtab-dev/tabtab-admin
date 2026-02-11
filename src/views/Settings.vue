@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref, reactive } from 'vue';
+import { message } from 'antdv-next';
 import { TPageHeader } from '@/components/business';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,12 +8,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useAuthStore } from '@/stores/global/auth';
 import { useThemeStore } from '@/stores/global/theme';
-import { Save, Bell, Shield, Palette, Database, User, Mail } from 'lucide-vue-next';
+import {
+  Save,
+  Bell,
+  Shield,
+  Palette,
+  Database,
+  Loader2,
+} from 'lucide-vue-next';
 
-const authStore = useAuthStore();
 const themeStore = useThemeStore();
 
 /** 外观模式选项配置 */
@@ -20,13 +26,7 @@ const modeOptions = [
   { value: 'dark' as const, label: '深色', icon: '🌙' },
 ] as const;
 
-const profileForm = ref({
-  name: authStore.user?.name || '',
-  email: authStore.user?.email || '',
-  phone: '',
-  avatar: ''
-});
-
+/** 通知设置 */
 const notificationSettings = ref({
   emailNotifications: true,
   pushNotifications: false,
@@ -34,12 +34,14 @@ const notificationSettings = ref({
   marketingEmails: false
 });
 
+/** 安全设置 */
 const securitySettings = ref({
   twoFactorAuth: false,
   loginAlerts: true,
   sessionTimeout: 30
 });
 
+/** 系统设置 */
 const systemSettings = ref({
   siteName: '管理后台',
   siteUrl: 'https://admin.example.com',
@@ -47,30 +49,62 @@ const systemSettings = ref({
   timezone: 'Asia/Shanghai'
 });
 
-const isLoading = ref(false);
+/** 加载状态 */
+const loadingStates = reactive({
+  notifications: false,
+  security: false,
+  system: false,
+});
 
-const handleSaveProfile = async () => {
-  isLoading.value = true;
-  await new Promise(resolve => setTimeout(resolve, 500));
-  isLoading.value = false;
-};
-
+/**
+ * 保存通知设置
+ */
 const handleSaveNotifications = async () => {
-  isLoading.value = true;
-  await new Promise(resolve => setTimeout(resolve, 500));
-  isLoading.value = false;
+  loadingStates.notifications = true;
+  try {
+    // TODO: 调用通知设置 API
+    await new Promise(resolve => setTimeout(resolve, 500));
+    message.success('通知设置保存成功');
+  } catch (error) {
+    console.error('保存通知设置失败:', error);
+    message.error('保存失败，请稍后重试');
+  } finally {
+    loadingStates.notifications = false;
+  }
 };
 
+/**
+ * 保存安全设置
+ */
 const handleSaveSecurity = async () => {
-  isLoading.value = true;
-  await new Promise(resolve => setTimeout(resolve, 500));
-  isLoading.value = false;
+  loadingStates.security = true;
+  try {
+    // TODO: 调用安全设置 API
+    await new Promise(resolve => setTimeout(resolve, 500));
+    message.success('安全设置保存成功');
+  } catch (error) {
+    console.error('保存安全设置失败:', error);
+    message.error('保存失败，请稍后重试');
+  } finally {
+    loadingStates.security = false;
+  }
 };
 
+/**
+ * 保存系统配置
+ */
 const handleSaveSystem = async () => {
-  isLoading.value = true;
-  await new Promise(resolve => setTimeout(resolve, 500));
-  isLoading.value = false;
+  loadingStates.system = true;
+  try {
+    // TODO: 调用系统配置 API
+    await new Promise(resolve => setTimeout(resolve, 500));
+    message.success('系统配置保存成功');
+  } catch (error) {
+    console.error('保存系统配置失败:', error);
+    message.error('保存失败，请稍后重试');
+  } finally {
+    loadingStates.system = false;
+  }
 };
 </script>
 
@@ -79,54 +113,12 @@ const handleSaveSystem = async () => {
     <!-- 页面标题 -->
     <TPageHeader
       title="系统设置"
-      subtitle="管理账户和系统配置"
+      subtitle="管理系统配置和偏好设置"
     />
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div class="lg:col-span-2 space-y-6">
-        <Card class="bg-muted/40 border border-border/50 rounded-xl">
-          <CardHeader>
-            <CardTitle class="flex items-center gap-2">
-              <User class="h-5 w-5" />
-              个人资料
-            </CardTitle>
-            <CardDescription>更新您的个人信息</CardDescription>
-          </CardHeader>
-          <CardContent class="space-y-4">
-            <div class="flex items-center gap-4">
-              <Avatar class="h-20 w-20">
-                <AvatarImage v-if="profileForm.avatar" :src="profileForm.avatar" />
-                <AvatarFallback class="text-2xl">{{ profileForm.name?.charAt(0) || 'U' }}</AvatarFallback>
-              </Avatar>
-              <div>
-                <Button variant="outline" size="sm">更换头像</Button>
-                <p class="text-xs text-muted-foreground mt-2">推荐尺寸: 200x200px</p>
-              </div>
-            </div>
-            <Separator />
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="space-y-2">
-                <Label for="name">姓名</Label>
-                <Input id="name" v-model="profileForm.name" />
-              </div>
-              <div class="space-y-2">
-                <Label for="email">邮箱</Label>
-                <Input id="email" v-model="profileForm.email" type="email" />
-              </div>
-              <div class="space-y-2">
-                <Label for="phone">电话</Label>
-                <Input id="phone" v-model="profileForm.phone" type="tel" />
-              </div>
-            </div>
-            <div class="flex justify-end">
-              <Button @click="handleSaveProfile" :disabled="isLoading">
-                <Save class="h-4 w-4 mr-2" />
-                {{ isLoading ? '保存中...' : '保存更改' }}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
+        <!-- 通知设置卡片 -->
         <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader>
             <CardTitle class="flex items-center gap-2">
@@ -168,14 +160,19 @@ const handleSaveSystem = async () => {
               <Switch v-model:checked="notificationSettings.marketingEmails" />
             </div>
             <div class="flex justify-end">
-              <Button @click="handleSaveNotifications" :disabled="isLoading">
-                <Save class="h-4 w-4 mr-2" />
-                {{ isLoading ? '保存中...' : '保存更改' }}
+              <Button
+                @click="handleSaveNotifications"
+                :disabled="loadingStates.notifications"
+              >
+                <Loader2 v-if="loadingStates.notifications" class="h-4 w-4 mr-2 animate-spin" />
+                <Save v-else class="h-4 w-4 mr-2" />
+                {{ loadingStates.notifications ? '保存中...' : '保存更改' }}
               </Button>
             </div>
           </CardContent>
         </Card>
 
+        <!-- 安全设置卡片 -->
         <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader>
             <CardTitle class="flex items-center gap-2">
@@ -203,18 +200,29 @@ const handleSaveSystem = async () => {
             <Separator />
             <div class="space-y-2">
               <Label for="timeout">会话超时 (分钟)</Label>
-              <Input id="timeout" v-model.number="securitySettings.sessionTimeout" type="number" />
+              <Input
+                id="timeout"
+                v-model.number="securitySettings.sessionTimeout"
+                type="number"
+                min="5"
+                max="120"
+              />
               <p class="text-xs text-muted-foreground">自动登出前的空闲时间</p>
             </div>
             <div class="flex justify-end">
-              <Button @click="handleSaveSecurity" :disabled="isLoading">
-                <Save class="h-4 w-4 mr-2" />
-                {{ isLoading ? '保存中...' : '保存更改' }}
+              <Button
+                @click="handleSaveSecurity"
+                :disabled="loadingStates.security"
+              >
+                <Loader2 v-if="loadingStates.security" class="h-4 w-4 mr-2 animate-spin" />
+                <Save v-else class="h-4 w-4 mr-2" />
+                {{ loadingStates.security ? '保存中...' : '保存更改' }}
               </Button>
             </div>
           </CardContent>
         </Card>
 
+        <!-- 系统配置卡片 -->
         <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader>
             <CardTitle class="flex items-center gap-2">
@@ -259,16 +267,22 @@ const handleSaveSystem = async () => {
               </div>
             </div>
             <div class="flex justify-end">
-              <Button @click="handleSaveSystem" :disabled="isLoading">
-                <Save class="h-4 w-4 mr-2" />
-                {{ isLoading ? '保存中...' : '保存更改' }}
+              <Button
+                @click="handleSaveSystem"
+                :disabled="loadingStates.system"
+              >
+                <Loader2 v-if="loadingStates.system" class="h-4 w-4 mr-2 animate-spin" />
+                <Save v-else class="h-4 w-4 mr-2" />
+                {{ loadingStates.system ? '保存中...' : '保存更改' }}
               </Button>
             </div>
           </CardContent>
         </Card>
       </div>
 
+      <!-- 右侧边栏 -->
       <div class="space-y-6">
+        <!-- 主题设置卡片 -->
         <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader>
             <CardTitle class="flex items-center gap-2">
@@ -319,38 +333,6 @@ const handleSaveSystem = async () => {
                 </button>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card class="bg-muted/40 border border-border/50 rounded-xl">
-          <CardHeader>
-            <CardTitle>账户信息</CardTitle>
-          </CardHeader>
-          <CardContent class="space-y-3">
-            <div class="flex items-center gap-3 text-sm">
-              <Mail class="h-4 w-4 text-muted-foreground" />
-              <span>{{ authStore.user?.email }}</span>
-            </div>
-            <div class="flex items-center gap-3 text-sm">
-              <Shield class="h-4 w-4 text-muted-foreground" />
-              <span>角色: {{ authStore.user?.role }}</span>
-            </div>
-            <Separator />
-            <Button variant="outline" class="w-full">
-              修改密码
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card class="bg-muted/40 border border-border/50 rounded-xl">
-          <CardHeader>
-            <CardTitle>危险区域</CardTitle>
-            <CardDescription>不可逆的操作</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="destructive" class="w-full">
-              删除账户
-            </Button>
           </CardContent>
         </Card>
       </div>

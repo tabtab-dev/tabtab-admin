@@ -3,7 +3,7 @@
  * @description 登录、登出、获取用户信息等接口
  */
 import { request } from '../client';
-import type { User } from '@/types';
+import type { User, UpdateProfileParams } from '@/types';
 
 /**
  * 登录请求参数
@@ -54,6 +54,14 @@ export const authApi = {
   getCurrentUser: () => request.get<User>('/auth/me'),
 
   /**
+   * 更新当前用户个人资料
+   * @param data - 更新参数
+   * @returns 更新后的用户信息
+   */
+  updateProfile: (data: UpdateProfileParams) =>
+    request.put<User>('/auth/profile', data),
+
+  /**
    * 刷新 Token
    * @returns 新的 Token
    */
@@ -89,4 +97,19 @@ export const authApi = {
       code,
       newPassword,
     }),
+
+  /**
+   * 上传当前用户头像
+   * @param file - 头像文件
+   * @returns 头像 URL
+   */
+  uploadAvatar: (file: File) => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    return request.post<{ avatarUrl: string }>('/auth/avatar', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
 };
