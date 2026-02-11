@@ -5,12 +5,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useAuthStore } from '@/stores/global/auth';
 import { useAppStore } from '@/stores/global/app';
 import { useThemeStore } from '@/stores/global/theme';
 import { useMenuStore } from '@/stores/global/menu';
@@ -31,10 +27,6 @@ import {
   Search,
   Moon,
   Sun,
-  LogOut,
-  User,
-  Settings,
-  ChevronDown,
   Palette,
   Command,
   X,
@@ -50,12 +42,11 @@ import {
 } from 'lucide-vue-next';
 import PageBreadcrumb from './PageBreadcrumb.vue';
 import { PageBreadcrumbDropdown } from './PageBreadcrumbDropdown';
+import { UserMenu } from './UserMenu';
 import Logo from './Logo.vue';
 
 const { t } = useI18n();
-const router = useRouter();
 const route = useRoute();
-const authStore = useAuthStore();
 const appStore = useAppStore();
 const themeStore = useThemeStore();
 const menuStore = useMenuStore();
@@ -131,14 +122,6 @@ const {
 const currentRouteTitle = computed(() => {
   return menuStore.getRouteTitle(route.path);
 });
-
-/**
- * 处理登出
- */
-const handleLogout = async () => {
-  await authStore.logout();
-  router.push('/login');
-};
 
 /**
  * 处理搜索
@@ -535,89 +518,8 @@ onUnmounted(() => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <!-- 用户菜单 - 优化后的设计 -->
-        <DropdownMenu>
-          <DropdownMenuTrigger as-child>
-            <Button variant="ghost" class="flex items-center gap-2 px-2 h-9 rounded-lg hover:bg-primary/10 hover:text-primary ml-1 transition-all duration-200">
-              <Avatar class="h-7 w-7 ring-2 ring-primary/20">
-                <AvatarImage v-if="authStore.user?.avatar" :src="authStore.user.avatar" />
-                <AvatarFallback class="text-xs bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold">
-                  {{ authStore.user?.name?.charAt(0) || 'U' }}
-                </AvatarFallback>
-              </Avatar>
-              <div class="hidden md:flex flex-col items-start min-w-0">
-                <span class="text-sm font-medium leading-tight truncate max-w-[100px]">
-                  {{ authStore.user?.name || t('common.header.user') }}
-                </span>
-                <span class="text-[10px] text-muted-foreground leading-tight">{{ t('common.header.admin') }}</span>
-              </div>
-              <ChevronDown class="h-3.5 w-3.5 text-muted-foreground/70 hidden md:block" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" class="w-56" :side-offset="8">
-            <!-- 用户信息头部 - 优化设计 -->
-            <div class="p-3 border-b border-border/50 bg-muted/30">
-              <div class="flex items-center gap-3">
-                <Avatar class="h-10 w-10 ring-2 ring-background">
-                  <AvatarImage v-if="authStore.user?.avatar" :src="authStore.user.avatar" />
-                  <AvatarFallback class="text-sm bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold">
-                    {{ authStore.user?.name?.charAt(0) || 'U' }}
-                  </AvatarFallback>
-                </Avatar>
-                <div class="flex flex-col min-w-0">
-                  <p class="text-sm font-semibold truncate">{{ authStore.user?.name || t('common.header.user') }}</p>
-                  <p class="text-xs text-muted-foreground truncate">{{ authStore.user?.email || 'user@example.com' }}</p>
-                </div>
-              </div>
-            </div>
-            <DropdownMenuItem
-              @click="router.push('/settings')"
-              class="cursor-pointer py-2.5 focus:bg-primary focus:text-primary-foreground group"
-            >
-              <div
-                class="h-8 w-8 flex items-center justify-center mr-3 transition-colors"
-                :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }"
-                :class="'bg-primary/10 group-focus:bg-primary-foreground/20'"
-              >
-                <User class="h-4 w-4 text-primary group-focus:text-primary-foreground" />
-              </div>
-              <div>
-                <p class="text-sm font-medium">{{ t('common.header.profile') }}</p>
-                <p class="text-xs text-muted-foreground group-focus:text-primary-foreground/70">{{ t('common.header.profileDesc') }}</p>
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              @click="router.push('/settings')"
-              class="cursor-pointer py-2.5 focus:bg-primary focus:text-primary-foreground group"
-            >
-              <div
-                class="h-8 w-8 flex items-center justify-center mr-3 transition-colors"
-                :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }"
-                :class="'bg-muted group-focus:bg-primary-foreground/20'"
-              >
-                <Settings class="h-4 w-4 text-muted-foreground group-focus:text-primary-foreground" />
-              </div>
-              <div>
-                <p class="text-sm font-medium">{{ t('common.header.settings') }}</p>
-                <p class="text-xs text-muted-foreground group-focus:text-primary-foreground/70">{{ t('common.header.settingsDesc') }}</p>
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              @click.stop="handleLogout"
-              class="cursor-pointer py-2.5 focus:bg-red-500 focus:text-white group"
-            >
-              <div
-                class="h-8 w-8 flex items-center justify-center mr-3 transition-colors"
-                :style="{ borderRadius: 'calc(var(--radius) * 0.6)' }"
-                :class="'bg-red-100 group-focus:bg-white/20'"
-              >
-                <LogOut class="h-4 w-4 text-red-500 group-focus:text-white" />
-              </div>
-              <span class="font-medium text-red-500 group-focus:text-white">{{ t('common.header.logout') }}</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <!-- 用户菜单 - Bento 风格设计 -->
+        <UserMenu />
       </div>
     </div>
 

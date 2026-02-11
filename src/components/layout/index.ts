@@ -19,3 +19,4 @@ export { default as ErrorBoundary } from './ErrorBoundary.vue';
 export { default as Logo } from './Logo.vue';
 export { default as LanguageSwitch } from './LanguageSwitch.vue';
 export { default as ThemeSettings } from './ThemeSettings.vue';
+export { UserMenu } from './UserMenu';

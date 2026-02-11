@@ -96,6 +96,12 @@ export default {
     switchToDark: 'Dark mode',
     themeSettings: 'Theme',
     themeSettingsDesc: 'Customize your interface appearance and layout preferences',
+    themeDesc: 'Toggle light/dark theme',
+    language: 'Language',
+    logoutDesc: 'Securely sign out',
+    userMenuFooter: 'TabTab Admin · Made Simple',
+    adminRole: 'Admin',
+    userRole: 'User',
   },
 
   // Breadcrumb

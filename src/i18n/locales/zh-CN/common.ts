@@ -96,6 +96,12 @@ export default {
     switchToDark: '切换到深色模式',
     themeSettings: '主题设置',
     themeSettingsDesc: '自定义您的界面外观和布局偏好',
+    themeDesc: '切换明暗主题',
+    language: '语言设置',
+    logoutDesc: '安全退出系统',
+    userMenuFooter: 'TabTab Admin · 让管理更简单',
+    adminRole: '管理员',
+    userRole: '普通用户',
   },
 
   // 面包屑
