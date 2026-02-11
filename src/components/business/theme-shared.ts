@@ -24,6 +24,8 @@ export const colorMap: Record<string, string> = {
   'oklch(0.708 0 0)': '#a3a3a3',
   'oklch(0.577 0.245 27.325)': '#dc2626',
   'oklch(0.269 0 0)': '#404040',
+  // 默认主题 - 暗黑模式专用
+  'oklch(0.65 0 0)': '#a1a1a1',
   // 蓝色主题
   'oklch(0.546 0.245 262.881)': '#2563eb',
   // 绿色主题

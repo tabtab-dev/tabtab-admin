@@ -38,8 +38,8 @@ const baseDarkColors = {
 };
 
 // 主题色配置（只定义每个主题特有的颜色）
-const themeConfigs: Record<string, { name: string; primary: string; primaryForeground?: string; accent?: string; accentForeground?: string }> = {
-  default: { name: '默认', primary: 'oklch(0.205 0 0)', primaryForeground: 'oklch(0.985 0 0)' },
+const themeConfigs: Record<string, { name: string; primary: string; primaryForeground?: string; accent?: string; accentForeground?: string; darkPrimary?: string }> = {
+  default: { name: '默认', primary: 'oklch(0.205 0 0)', primaryForeground: 'oklch(0.985 0 0)', darkPrimary: 'oklch(0.65 0 0)' },
   blue: { name: '蓝色', primary: 'oklch(0.546 0.245 262.881)' },
   green: { name: '绿色', primary: 'oklch(0.527 0.154 150.069)' },
   purple: { name: '紫色', primary: 'oklch(0.558 0.288 302.321)' },
@@ -56,6 +56,7 @@ const themeConfigs: Record<string, { name: string; primary: string; primaryForeg
 // 生成完整主题配置
 function generateThemeColors(config: typeof themeConfigs[string]): { light: ThemeColors; dark: ThemeColors } {
   const primary = config.primary;
+  const darkPrimary = config.darkPrimary || primary;
   const primaryForeground = config.primaryForeground || 'oklch(0.985 0 0)';
   const accent = config.accent || primary;
   const accentForeground = config.accentForeground || primaryForeground;
@@ -71,11 +72,11 @@ function generateThemeColors(config: typeof themeConfigs[string]): { light: Them
     },
     dark: {
       ...baseDarkColors,
-      primary,
+      primary: darkPrimary,
       primaryForeground,
-      accent,
+      accent: config.darkPrimary ? darkPrimary : accent,
       accentForeground,
-      ring: primary,
+      ring: darkPrimary,
     },
   };
 }
