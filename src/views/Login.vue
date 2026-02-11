@@ -5,8 +5,8 @@ import { TForm } from '@/components/business/TForm';
 import type { FormSchema, TFormExpose } from '@/components/business/TForm';
 import { useAuthFlow } from '@/composables/useAuthFlow';
 import { useThemeStore } from '@/stores/global/theme';
+import Logo from '@/components/layout/Logo.vue';
 import {
-  Shield,
   ArrowRight,
   Zap,
   BarChart3,
@@ -17,7 +17,8 @@ import {
   Sun,
   Moon,
   Mail,
-  Lock
+  Lock,
+  Loader2
 } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -144,12 +145,17 @@ const features = [
   <div class="relative min-h-screen w-full flex bg-background overflow-hidden">
     <!-- 左侧品牌展示区 -->
     <div class="hidden lg:flex lg:w-1/2 xl:w-[55%] relative overflow-hidden">
-      <!-- 动态背景层 -->
-      <div class="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-primary/70">
+      <!-- 动态背景层 - 使用主题主色 -->
+      <div 
+        class="absolute inset-0 bg-gradient-to-br from-primary via-primary/95 to-primary/75 transition-colors duration-500"
+        :style="{ 
+          background: `linear-gradient(135deg, ${themeStore.currentColors?.primary || 'oklch(0.205 0 0)'} 0%, ${themeStore.currentColors?.primary || 'oklch(0.205 0 0)'}ee 50%, ${themeStore.currentColors?.primary || 'oklch(0.205 0 0)'}cc 100%)`
+        }"
+      >
         <!-- 动态光晕效果 -->
-        <div class="absolute top-0 left-0 w-[600px] h-[600px] bg-white/10 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2" />
-        <div class="absolute bottom-0 right-0 w-[500px] h-[500px] bg-accent/20 rounded-full blur-[100px] translate-x-1/3 translate-y-1/3" />
-        <div class="absolute top-1/2 left-1/2 w-[400px] h-[400px] bg-secondary/20 rounded-full blur-[80px] -translate-x-1/2 -translate-y-1/2" />
+        <div class="absolute top-0 left-0 w-[600px] h-[600px] bg-white/10 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+        <div class="absolute bottom-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-[100px] translate-x-1/3 translate-y-1/3" />
+        <div class="absolute top-1/2 left-1/2 w-[400px] h-[400px] bg-white/5 rounded-full blur-[80px] -translate-x-1/2 -translate-y-1/2" />
       </div>
 
       <!-- 网格装饰 -->
@@ -158,17 +164,23 @@ const features = [
       <!-- 内容区 -->
       <div class="relative z-10 flex flex-col justify-between w-full p-12 xl:p-16">
         <!-- Logo -->
-        <div class="flex items-center gap-3">
-          <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20">
-            <Shield class="w-5 h-5 text-white" />
+        <div class="flex items-center gap-3 animate-fade-in">
+          <div 
+            class="flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg"
+            :style="{ borderRadius: `calc(var(--radius) * 1.5)` }"
+          >
+            <Logo :size="40" />
           </div>
           <span class="text-xl font-bold text-white tracking-tight">TABTAB</span>
         </div>
 
         <!-- 主文案 -->
-        <div class="space-y-8">
+        <div class="space-y-8 animate-fade-in-up">
           <div class="space-y-4">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-sm">
+            <div 
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-sm"
+              :style="{ borderRadius: `calc(var(--radius) * 2)` }"
+            >
               <Sparkles class="w-4 h-4" />
               <span>全新版本 1.0 现已发布</span>
             </div>
@@ -186,9 +198,14 @@ const features = [
             <div
               v-for="(feature, index) in features"
               :key="index"
-              class="flex items-center gap-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors"
+              class="flex items-center gap-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-[1.02]"
+              :style="{ borderRadius: `calc(var(--radius) * 1.5)` }"
+              :class="`animate-fade-in-up animation-delay-${index + 1}`"
             >
-              <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/10">
+              <div 
+                class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/10"
+                :style="{ borderRadius: `calc(var(--radius))` }"
+              >
                 <component :is="feature.icon" class="w-4 h-4 text-white" />
               </div>
               <span class="text-sm text-white/90 font-medium">{{ feature.text }}</span>
@@ -197,7 +214,7 @@ const features = [
         </div>
 
         <!-- 底部信息 -->
-        <div class="flex items-center gap-6 text-white/50 text-sm">
+        <div class="flex items-center gap-6 text-white/50 text-sm animate-fade-in">
           <span>© 2026 TABTAB</span>
           <span class="w-1 h-1 rounded-full bg-white/30" />
           <a href="#" class="hover:text-white/80 transition-colors">隐私政策</a>
@@ -208,10 +225,16 @@ const features = [
 
     <!-- 右侧登录表单区 -->
     <div class="w-full lg:w-1/2 xl:w-[45%] flex items-center justify-center p-6 sm:p-8 lg:p-12 relative">
-      <!-- 背景装饰 -->
-      <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute top-20 right-20 w-64 h-64 bg-primary/5 rounded-full blur-[80px]" />
-        <div class="absolute bottom-20 left-20 w-48 h-48 bg-accent/5 rounded-full blur-[60px]" />
+      <!-- 背景装饰 - 使用主题色 -->
+      <div class="absolute inset-0 pointer-events-none overflow-hidden">
+        <div 
+          class="absolute top-20 right-20 w-64 h-64 rounded-full blur-[80px] opacity-50 transition-colors duration-500"
+          :style="{ backgroundColor: themeStore.currentColors?.primary || 'oklch(0.205 0 0)' }"
+        />
+        <div 
+          class="absolute bottom-20 left-20 w-48 h-48 rounded-full blur-[60px] opacity-30 transition-colors duration-500"
+          :style="{ backgroundColor: themeStore.currentColors?.accent || themeStore.currentColors?.primary || 'oklch(0.205 0 0)' }"
+        />
       </div>
 
       <!-- 主题切换按钮 -->
@@ -220,7 +243,8 @@ const features = [
           variant="ghost"
           size="icon"
           @click="themeStore.toggleMode"
-         class="h-10 w-10 rounded-xl bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-background transition-all duration-200"
+          class="h-10 w-10 rounded-xl bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-background transition-all duration-200 shadow-sm"
+          :style="{ borderRadius: `calc(var(--radius) * 1.5)` }"
           :title="themeStore.currentMode === 'dark' ? '切换到浅色模式' : '切换到深色模式'"
         >
           <Sun v-if="themeStore.currentMode === 'dark'" class="h-5 w-5 text-foreground" />
@@ -228,42 +252,57 @@ const features = [
         </Button>
       </div>
 
-      <div class="relative z-10 w-full max-w-[400px] space-y-8">
+      <div class="relative z-10 w-full max-w-[400px] space-y-6">
         <!-- 移动端 Logo -->
-        <div class="lg:hidden flex flex-col items-center gap-3 mb-8">
-          <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80">
-            <Shield class="w-6 h-6 text-primary-foreground" />
+        <div class="lg:hidden flex flex-col items-center gap-3 mb-8 animate-fade-in">
+          <div 
+            class="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg"
+            :style="{ borderRadius: `calc(var(--radius) * 1.5)` }"
+          >
+            <Logo :size="48" />
           </div>
           <span class="text-xl font-bold text-foreground">TABTAB Admin</span>
         </div>
 
         <!-- 登录表单标题 -->
-        <div class="space-y-2">
+        <div class="space-y-2 animate-fade-in-up">
           <h2 class="text-2xl font-bold text-foreground">欢迎回来</h2>
           <p class="text-muted-foreground">请输入您的账户信息以继续</p>
         </div>
 
         <!-- 错误提示 -->
-        <div
-          v-if="errorMessage"
-          class="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 rounded-lg border border-destructive/20"
+        <Transition
+          enter-active-class="transition-all duration-300 ease-out"
+          enter-from-class="opacity-0 -translate-y-2"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition-all duration-200 ease-in"
+          leave-from-class="opacity-100 translate-y-0"
+          leave-to-class="opacity-0 -translate-y-2"
         >
-          <div class="w-1 h-1 rounded-full bg-destructive" />
-          {{ errorMessage }}
-        </div>
+          <div
+            v-if="errorMessage"
+            class="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20"
+            :style="{ borderRadius: `calc(var(--radius))` }"
+          >
+            <div class="w-1.5 h-1.5 rounded-full bg-destructive flex-shrink-0" />
+            {{ errorMessage }}
+          </div>
+        </Transition>
 
         <!-- TForm 登录表单 -->
-        <TForm
-          ref="formRef"
-          v-model="formData"
-          :schema="loginSchema"
-          :loading="isLoading"
-          @submit="handleLogin"
-          @finish-failed="handleFinishFailed"
-        />
+        <div class="animate-fade-in-up animation-delay-1">
+          <TForm
+            ref="formRef"
+            v-model="formData"
+            :schema="loginSchema"
+            :loading="isLoading"
+            @submit="handleLogin"
+            @finish-failed="handleFinishFailed"
+          />
+        </div>
 
         <!-- 记住我和忘记密码 -->
-        <div class="flex items-center justify-between -mt-2">
+        <div class="flex items-center justify-between animate-fade-in-up animation-delay-2">
           <div class="flex items-center space-x-2">
             <Checkbox
               id="remember"
@@ -279,7 +318,7 @@ const features = [
           </div>
           <a
             href="#"
-            class="text-xs text-muted-foreground hover:text-primary transition-colors"
+            class="text-sm text-muted-foreground hover:text-primary transition-colors"
             @click.prevent
           >
             忘记密码？
@@ -288,31 +327,13 @@ const features = [
 
         <!-- 登录按钮 -->
         <Button
-          class="w-full h-12 font-medium text-base transition-all duration-200 hover:-translate-y-0.5"
+          class="w-full h-11 font-medium text-base transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md animate-fade-in-up animation-delay-2"
           :disabled="isLoading"
+          :style="{ borderRadius: `calc(var(--radius))` }"
           @click="handleLoginClick"
         >
           <span v-if="isLoading" class="flex items-center gap-2">
-            <svg
-              class="animate-spin h-4 w-4"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-              />
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
+            <Loader2 class="animate-spin h-4 w-4" />
             登录中...
           </span>
           <span v-else class="flex items-center gap-2">
@@ -322,12 +343,15 @@ const features = [
         </Button>
 
         <!-- 演示账户 -->
-        <div class="p-4 rounded-xl bg-muted/50 border border-border/50">
+        <div 
+          class="p-4 bg-muted/50 border border-border/50 animate-fade-in-up animation-delay-3"
+          :style="{ borderRadius: `calc(var(--radius) * 1.5)` }"
+        >
           <div class="flex items-center gap-2 mb-2">
             <CheckCircle2 class="w-4 h-4 text-primary" />
             <span class="text-sm font-medium text-foreground">演示账户</span>
           </div>
-          <p class="text-xs text-muted-foreground">
+          <p class="text-xs text-muted-foreground leading-relaxed">
             邮箱: <span class="text-foreground font-medium">admin@example.com</span>
             <br />
             密码: <span class="text-foreground font-medium">任意密码</span>
@@ -337,3 +361,69 @@ const features = [
     </div>
   </div>
 </template>
+
+<style scoped>
+/* 入场动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animation-delay-1 {
+  animation-delay: 0.1s;
+}
+
+.animation-delay-2 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-3 {
+  animation-delay: 0.3s;
+}
+
+/* 减少动画偏好 */
+.reduce-motion .animate-fade-in,
+.reduce-motion .animate-fade-in-up {
+  animation: none;
+  opacity: 1;
+  transform: none;
+}
+
+/* 光晕脉冲动画 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.15;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 4s ease-in-out infinite;
+}
+</style>
