@@ -184,7 +184,11 @@ export const useThemeStore = defineStore(
     });
 
     const availableThemes = computed(() =>
-      Object.entries(presetThemes).map(([key, value]) => ({ key, name: value.name }))
+      Object.entries(presetThemes).map(([key, value]) => ({
+        key,
+        name: value.name,
+        primaryColor: value.colors.light.primary,
+      }))
     );
 
     const applyThemeColors = () => {

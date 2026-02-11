@@ -79,8 +79,8 @@ const findSiblingsInMenuTree = (menus: MenuItem[], targetPath: string): MenuItem
  * @returns 描述文本
  */
 const getMenuDescription = (menu: MenuItem): string => {
-  // 优先使用菜单自身的描述，否则返回默认提示
-  return menu.description || t('breadcrumb.clickToEnter');
+  // 返回默认提示文本
+  return t('common.breadcrumb.clickToEnter');
 };
 
 /**
@@ -254,7 +254,7 @@ const getGridCols = (childrenCount: number): string => {
                   </div>
                   <div class="flex-1 min-w-0 max-w-[200px]">
                     <p class="text-sm font-semibold text-foreground truncate" :title="item.title">{{ item.title }}</p>
-                    <p class="text-xs text-muted-foreground">{{ t('breadcrumb.selectModule') }}</p>
+                    <p class="text-xs text-muted-foreground">{{ t('common.breadcrumb.selectModule') }}</p>
                   </div>
                   <Sparkles class="h-4 w-4 text-primary/50" />
                 </div>
@@ -313,7 +313,7 @@ const getGridCols = (childrenCount: number): string => {
               <!-- 面板底部 -->
               <div class="px-4 py-2 bg-muted/50 border-t border-border/50">
                 <p class="text-[11px] text-muted-foreground/70 text-center">
-                  {{ t('breadcrumb.moduleCount', { count: item.children?.length || 0 }) }}
+                  {{ t('common.breadcrumb.moduleCount', { count: item.children?.length || 0 }) }}
                 </p>
               </div>
             </DropdownMenuContent>

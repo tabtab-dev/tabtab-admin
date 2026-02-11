@@ -14,6 +14,12 @@ import { Save, Bell, Shield, Palette, Database, User, Mail } from 'lucide-vue-ne
 const authStore = useAuthStore();
 const themeStore = useThemeStore();
 
+/** 外观模式选项配置 */
+const modeOptions = [
+  { value: 'light' as const, label: '浅色', icon: '☀️' },
+  { value: 'dark' as const, label: '深色', icon: '🌙' },
+] as const;
+
 const profileForm = ref({
   name: authStore.user?.name || '',
   email: authStore.user?.email || '',
@@ -277,20 +283,14 @@ const handleSaveSystem = async () => {
               <Label class="text-sm text-muted-foreground">外观模式</Label>
               <div class="grid grid-cols-2 gap-3">
                 <Button
-                  :variant="themeStore.currentMode === 'light' ? 'default' : 'outline'"
-                  @click="themeStore.setMode('light')"
+                  v-for="mode in modeOptions"
+                  :key="mode.value"
+                  :variant="themeStore.currentMode === mode.value ? 'default' : 'outline'"
+                  @click="themeStore.setMode(mode.value)"
                   class="h-16 flex flex-col gap-1"
                 >
-                  <span class="text-xl">☀️</span>
-                  <span class="text-xs">浅色</span>
-                </Button>
-                <Button
-                  :variant="themeStore.currentMode === 'dark' ? 'default' : 'outline'"
-                  @click="themeStore.setMode('dark')"
-                  class="h-16 flex flex-col gap-1"
-                >
-                  <span class="text-xl">🌙</span>
-                  <span class="text-xs">深色</span>
+                  <span class="text-xl">{{ mode.icon }}</span>
+                  <span class="text-xs">{{ mode.label }}</span>
                 </Button>
               </div>
             </div>
@@ -308,30 +308,14 @@ const handleSaveSystem = async () => {
                 >
                   <div
                     class="w-5 h-5 rounded-full transition-transform duration-200 group-hover:scale-110"
-                    :class="{
-                      'bg-neutral-500': theme.key === 'default',
-                      'bg-slate-500': theme.key === 'slate',
-                      'bg-stone-500': theme.key === 'stone',
-                      'bg-blue-500': theme.key === 'blue',
-                      'bg-green-500': theme.key === 'green',
-                      'bg-emerald-500': theme.key === 'emerald',
-                      'bg-purple-500': theme.key === 'purple',
-                      'bg-violet-500': theme.key === 'violet',
-                      'bg-fuchsia-500': theme.key === 'fuchsia',
-                      'bg-orange-500': theme.key === 'orange',
-                      'bg-amber-500': theme.key === 'amber',
-                      'bg-red-500': theme.key === 'red',
-                      'bg-rose-500': theme.key === 'rose',
-                      'bg-pink-500': theme.key === 'pink',
-                      'bg-teal-500': theme.key === 'teal',
-                      'bg-indigo-500': theme.key === 'indigo',
-                      'bg-yellow-500': theme.key === 'yellow',
-                      'bg-lime-500': theme.key === 'lime',
-                      'bg-cyan-500': theme.key === 'cyan',
-                      'bg-sky-500': theme.key === 'sky',
-                    }"
+                    :style="{ backgroundColor: theme.primaryColor }"
                   />
-                  <span class="text-xs" :class="themeStore.currentTheme === theme.key ? 'text-primary font-medium' : 'text-muted-foreground'">{{ theme.name }}</span>
+                  <span
+                    class="text-xs"
+                    :class="themeStore.currentTheme === theme.key ? 'text-primary font-medium' : 'text-muted-foreground'"
+                  >
+                    {{ theme.name }}
+                  </span>
                 </button>
               </div>
             </div>
