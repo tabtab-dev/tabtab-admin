@@ -4,7 +4,6 @@
 
 import type { Method } from 'alova';
 import type { AxiosResponse, AxiosError } from 'axios';
-import { toast } from 'vue-sonner';
 import router from '@/router';
 import { requestCache } from './requestManager';
 import { STORAGE_KEYS } from '@/constants/common';
@@ -116,6 +115,7 @@ export const requestInterceptor = (method: Method) => {
 /**
  * 响应成功拦截器
  * 处理成功响应，根据业务状态码判断
+ * @description 只抛出错误，不显示 toast，由调用方统一处理错误提示
  */
 export const responseSuccessInterceptor = (response: AxiosResponse) => {
   const { data } = response;
@@ -127,11 +127,8 @@ export const responseSuccessInterceptor = (response: AxiosResponse) => {
       // Token 过期，使用路由导航
       handleUnauthorized();
       throw new AuthError(data.message || '登录已过期，请重新登录');
-    } else {
-      // 显示错误提示
-      toast.error(data.message || '请求失败');
     }
-    // 抛出错误，让调用方 catch
+    // 抛出错误，让调用方 catch 并处理错误提示
     throw new ApiError(data.message || '请求失败', `API_${data.code}`, data.code, data);
   }
 
@@ -142,6 +139,7 @@ export const responseSuccessInterceptor = (response: AxiosResponse) => {
 /**
  * 响应错误拦截器
  * 处理网络错误和服务器错误
+ * @description 只抛出错误，不显示 toast，由调用方统一处理错误提示
  */
 export const responseErrorInterceptor = (error: AxiosError) => {
   if (error.response) {
@@ -167,7 +165,7 @@ export const responseErrorInterceptor = (error: AxiosError) => {
       });
     }
 
-    toast.error(errorMessage);
+    // 抛出错误，让调用方 catch 并处理错误提示
     throw new ApiError(errorMessage, `HTTP_${status}`, status, error.response.data);
   } else if (error.request) {
     // 请求发出但没有收到响应
@@ -175,7 +173,6 @@ export const responseErrorInterceptor = (error: AxiosError) => {
       url: error.config?.url,
       method: error.config?.method
     });
-    toast.error('网络错误，请检查网络连接');
     throw new NetworkError('网络错误，请检查网络连接');
   } else {
     // 请求配置出错
@@ -183,7 +180,6 @@ export const responseErrorInterceptor = (error: AxiosError) => {
       message: error.message,
       config: error.config
     });
-    toast.error(`请求配置错误: ${error.message}`);
     throw new ApiError(`请求配置错误: ${error.message}`, 'CONFIG_ERROR');
   }
 };
@@ -198,9 +194,6 @@ function handleUnauthorized(): void {
   // 清除请求缓存和 token 缓存
   requestCache.clear();
   clearTokenCache();
-
-  // 显示提示
-  toast.error('登录已过期，请重新登录');
 
   // 延迟清除登录状态和导航，避免在初始化过程中清除状态
   setTimeout(() => {
