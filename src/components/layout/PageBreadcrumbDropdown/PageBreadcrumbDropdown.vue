@@ -226,8 +226,6 @@ const getGridCols = (childrenCount: number): string => {
             >
               <!-- 面板头部 -->
               <div class="relative px-3 py-2.5 bg-muted/30 border-b border-border/50">
-                <!-- 左侧渐变色装饰 -->
-                <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary/70 via-primary/50 to-primary/20"></div>
                 <div class="flex items-center gap-2.5">
                   <div class="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                     <Icon
