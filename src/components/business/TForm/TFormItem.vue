@@ -11,6 +11,7 @@ import { useI18n } from 'vue-i18n'
 import TFormList from './TFormList.vue'
 import TFormGroup from './TFormGroup.vue'
 import { TIcon } from '@/components/business/TIcon'
+import { TTree } from '@/components/business/TTree'
 import type { FormField, FormOption, AsyncOptionsLoader } from './types'
 
 /**
@@ -543,6 +544,15 @@ defineExpose({
       :tree-data="finalOptions"
       :virtual="virtualScrollConfig?.enabled"
       style="width: 100%"
+      v-bind="field.props"
+    />
+
+    <!-- Tree 树形控件 -->
+    <TTree
+      v-else-if="field.type === 'tree'"
+      v-model="fieldValue"
+      :tree-data="finalOptions as any[]"
+      :disabled="isDisabled"
       v-bind="field.props"
     />
 

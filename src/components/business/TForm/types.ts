@@ -25,6 +25,7 @@ export type FormFieldType =
   | 'time-range-picker'
   | 'cascader'
   | 'tree-select'
+  | 'tree'
   | 'auto-complete'
   | 'mention'
   | 'upload'

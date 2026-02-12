@@ -168,6 +168,33 @@ export function handleError(
 }
 
 /**
+ * 表单验证错误信息接口
+ */
+interface FormValidateErrorInfo {
+  errorFields?: Array<{
+    name: string | string[];
+    errors: string[];
+    warnings?: string[];
+  }>;
+  outOfDate?: boolean;
+  values?: Record<string, unknown>;
+}
+
+/**
+ * 检查是否为表单验证错误
+ * @param error - 错误对象
+ * @returns 是否为表单验证错误
+ */
+function isFormValidationError(error: unknown): error is FormValidateErrorInfo {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'errorFields' in error &&
+    Array.isArray((error as FormValidateErrorInfo).errorFields)
+  );
+}
+
+/**
  * 标准化错误
  * 将各种错误类型转换为 AppError
  */
@@ -185,6 +212,20 @@ export function normalizeError(error: unknown): AppError {
   // 字符串错误
   if (typeof error === 'string') {
     return new AppError(error, 'ERROR', 'error');
+  }
+
+  // 表单验证错误
+  if (isFormValidationError(error)) {
+    const firstError = error.errorFields?.[0];
+    const errorMessage = firstError?.errors?.[0] || '表单验证失败';
+    const fields: Record<string, string[]> = {};
+
+    error.errorFields?.forEach((field) => {
+      const fieldName = Array.isArray(field.name) ? field.name.join('.') : String(field.name);
+      fields[fieldName] = field.errors || [];
+    });
+
+    return new ValidationError(errorMessage, fields, 'FORM_VALIDATION_ERROR');
   }
 
   // 其他类型

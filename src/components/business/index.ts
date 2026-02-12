@@ -175,3 +175,21 @@ export type {
   TBatchActionsEmits,
   TBatchActionsExpose
 } from './TBatchActions'
+
+// 导出 TTree 组件及其类型
+export { TTree } from './TTree'
+export type {
+  TreeNode,
+  FieldNamesConfig,
+  TreeNodeEvent,
+  TreeCheckEvent,
+  TreeExpandEvent,
+  TreeSelectEvent,
+  TreeDragEvent,
+  TreeToolbarConfig,
+  TreeSearchConfig,
+  TreeStatisticsConfig,
+  TTreeProps,
+  TTreeEmits,
+  TTreeExpose
+} from './TTree'

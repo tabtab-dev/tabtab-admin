@@ -367,14 +367,20 @@ defineExpose<TFormExpose>({
    * 验证表单
    */
   validate: (nameList) => {
-    return formRef.value?.validateFields(nameList) || Promise.resolve({})
+    if (nameList && nameList.length > 0) {
+      return formRef.value?.validateFields(nameList) || Promise.resolve({})
+    }
+    return formRef.value?.validate() || Promise.resolve({})
   },
 
   /**
    * 验证所有字段
    */
   validateFields: (nameList) => {
-    return formRef.value?.validateFields(nameList) || Promise.resolve({})
+    if (nameList && nameList.length > 0) {
+      return formRef.value?.validateFields(nameList) || Promise.resolve({})
+    }
+    return formRef.value?.validate() || Promise.resolve({})
   },
 
   /**
