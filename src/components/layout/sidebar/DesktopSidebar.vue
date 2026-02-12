@@ -214,7 +214,7 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
       :max-size="maxSizePercent"
       :default-size="panelSize"
       @resize="(size: number) => $emit('resize', size)"
-      class="flex flex-col border-r bg-background relative"
+      class="flex flex-col border-r border-border/30 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 relative"
       :class="{ 'transition-none': isDragging }"
       :style="collapsed ? { flex: `0 0 ${collapsedWidth}px` } : {}"
     >
@@ -284,7 +284,7 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
           <!-- 渐变分隔线 -->
           <div class="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
           
-          <div class="bg-gradient-to-t from-muted/50 to-transparent pt-1">
+          <div class="border-t border-border/30 bg-muted/40 backdrop-blur-md pt-1">
             <slot name="footer">
               <!-- 展开状态 -->
               <div

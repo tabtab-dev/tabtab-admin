@@ -19,3 +19,43 @@ html {
   --sidebar-collapsed-width: 72px;
   --header-height: 56px;
 }
+
+/* 毛玻璃效果工具类 */
+.glass {
+  background-color: oklch(1 0 0 / 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.dark .glass {
+  background-color: oklch(0.145 0 0 / 0.7);
+}
+
+.glass-light {
+  background-color: oklch(1 0 0 / 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.dark .glass-light {
+  background-color: oklch(0.205 0 0 / 0.6);
+}
+
+.glass-heavy {
+  background-color: oklch(1 0 0 / 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.dark .glass-heavy {
+  background-color: oklch(0.145 0 0 / 0.8);
+}
+
+/* 毛玻璃边框效果 */
+.glass-border {
+  border: 1px solid oklch(0 0 0 / 0.1);
+}
+
+.dark .glass-border {
+  border: 1px solid oklch(1 0 0 / 0.1);
+}

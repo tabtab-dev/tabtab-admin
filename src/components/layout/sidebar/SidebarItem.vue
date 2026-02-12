@@ -141,7 +141,7 @@ const ariaLabel = computed(() => {
     :aria-current="getAriaCurrent(item.path)"
     :class="[
       'w-full justify-start gap-2.5 h-10 sm:h-9 px-3 sm:px-2.5 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden rounded-lg touch-manipulation',
-      active ? 'bg-primary/10 text-primary shadow-sm' : 'hover:bg-muted/60 hover:shadow-sm'
+      active ? 'bg-primary/10 text-primary shadow-sm' : 'hover:bg-accent hover:shadow-sm'
     ]"
     @click="handleClick"
   >

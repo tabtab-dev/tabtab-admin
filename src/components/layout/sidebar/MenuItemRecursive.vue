@@ -74,7 +74,7 @@ const buttonClasses = computed(() => {
   if (isChildActive.value) {
     return `${baseClasses} bg-muted/50 text-foreground shadow-sm`;
   }
-  return `${baseClasses} hover:bg-muted/60 hover:shadow-sm`;
+  return `${baseClasses} hover:bg-accent hover:shadow-sm`;
 });
 
 /**

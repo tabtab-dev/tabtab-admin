@@ -9,7 +9,7 @@ import { Icon } from '@/components/Icon';
 import { useMenuStore } from '@/stores/global/menu';
 import type { MenuItem } from '@/types/menu';
 import type { BreadcrumbItemData, BreadcrumbChildItem } from './types';
-import { ChevronDown, House, Sparkles } from 'lucide-vue-next';
+import { ChevronDown, House } from 'lucide-vue-next';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -189,14 +189,17 @@ const getGridCols = (childrenCount: number): string => {
 
 <template>
   <nav aria-label="breadcrumb" class="flex items-center">
-    <ol class="flex items-center gap-0.5">
+    <ol class="flex items-center gap-1">
       <template v-for="(item, index) in breadcrumbs" :key="item.path">
-        <!-- 分隔符 - 更精致的设计 -->
+        <!-- 分隔符 - 斜杠样式 -->
         <li 
           v-if="index > 0" 
-          class="flex items-center px-1"
+          class="flex items-center text-muted-foreground/40 select-none"
+          aria-hidden="true"
         >
-          <div class="h-4 w-px bg-gradient-to-b from-transparent via-border to-transparent" />
+          <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
         </li>
 
         <li class="flex items-center">
@@ -204,19 +207,13 @@ const getGridCols = (childrenCount: number): string => {
           <DropdownMenu v-if="item.children && item.children.length > 0">
             <DropdownMenuTrigger as-child>
               <button
-                class="group relative inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 overflow-hidden"
+                class="group relative inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[13px] font-medium transition-all duration-200 overflow-hidden"
                 :class="[
                   item.isCurrent
-                    ? 'bg-muted/80 text-foreground border border-border/60 shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                    ? 'bg-primary/8 text-foreground border border-primary/20'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                 ]"
               >
-                <!-- 悬停光效 -->
-                <div 
-                  v-if="!item.isCurrent"
-                  class="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
-                />
-                
                 <Icon
                   v-if="item.icon"
                   :name="item.icon"
@@ -227,7 +224,7 @@ const getGridCols = (childrenCount: number): string => {
                 <span class="relative z-10 max-w-[100px] truncate" :title="item.title">{{ item.title }}</span>
                 <ChevronDown
                   class="h-3 w-3 relative z-10 flex-shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180"
-                  :class="item.isCurrent ? 'text-primary' : 'text-muted-foreground/70'"
+                  :class="item.isCurrent ? 'text-primary/60' : 'text-muted-foreground/60'"
                 />
               </button>
             </DropdownMenuTrigger>
@@ -235,16 +232,13 @@ const getGridCols = (childrenCount: number): string => {
             <!-- Bento 网格下拉面板 -->
             <DropdownMenuContent
               align="start"
-              class="min-w-[360px] w-auto max-w-[480px] p-0 overflow-hidden bg-popover border border-border shadow-2xl rounded-2xl"
-              :side-offset="6"
+              class="min-w-[340px] w-auto max-w-[440px] p-0 overflow-hidden bg-popover border border-border/80 shadow-xl rounded-xl"
+              :side-offset="4"
             >
-              <!-- 面板头部 - 渐变背景 -->
-              <div class="relative px-4 py-3 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-b border-border/50">
-                <!-- 装饰光点 -->
-                <div class="absolute top-0 right-4 w-16 h-16 bg-primary/20 rounded-full blur-2xl" />
-                
-                <div class="relative flex items-center gap-3">
-                  <div class="h-9 w-9 rounded-xl bg-background shadow-sm border border-border/50 flex items-center justify-center">
+              <!-- 面板头部 -->
+              <div class="relative px-3 py-2.5 bg-muted/30 border-b border-border/50">
+                <div class="flex items-center gap-2.5">
+                  <div class="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                     <Icon
                       v-if="item.icon"
                       :name="item.icon"
@@ -252,77 +246,68 @@ const getGridCols = (childrenCount: number): string => {
                     />
                     <House v-else class="h-4 w-4 text-primary" />
                   </div>
-                  <div class="flex-1 min-w-0 max-w-[200px]">
-                    <p class="text-sm font-semibold text-foreground truncate" :title="item.title">{{ item.title }}</p>
-                    <p class="text-xs text-muted-foreground">{{ t('common.breadcrumb.selectModule') }}</p>
+                  <div class="flex-1 min-w-0 max-w-[180px]">
+                    <p class="text-[13px] font-medium text-foreground truncate" :title="item.title">{{ item.title }}</p>
+                    <p class="text-[11px] text-muted-foreground">{{ t('common.breadcrumb.selectModule') }}</p>
                   </div>
-                  <Sparkles class="h-4 w-4 text-primary/50" />
                 </div>
               </div>
 
               <!-- Bento 网格卡片 -->
-              <div class="p-3 bg-popover">
+              <div class="p-2.5 bg-popover">
                 <div 
-                  class="grid gap-2"
+                  class="grid gap-1.5"
                   :class="getGridCols(item.children?.length || 0)"
                 >
                   <button
                     v-for="(child, childIndex) in item.children"
                     :key="child.path"
-                    class="group relative flex flex-col items-start gap-2 p-3 rounded-xl bg-muted/50 hover:bg-primary/10 border border-border/50 hover:border-primary/30 transition-all duration-200 text-left overflow-hidden"
+                    class="group flex flex-col items-start gap-1.5 p-2.5 rounded-lg bg-muted/30 hover:bg-primary/8 border border-transparent hover:border-primary/20 transition-all duration-200 text-left"
                     :style="{ animationDelay: `${childIndex * 50}ms` }"
                     @click="handleBentoCardClick(child.path)"
                   >
-                    <!-- 悬停背景渐变 -->
-                    <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                    
                     <!-- 图标容器 -->
-                    <div class="relative h-9 w-9 rounded-lg bg-background shadow-sm border border-border/60 flex items-center justify-center group-hover:border-primary/40 group-hover:shadow-md transition-all duration-200">
+                    <div class="h-7 w-7 rounded-md bg-background border border-border/50 flex items-center justify-center group-hover:border-primary/30 group-hover:bg-primary/5 transition-all duration-200">
                       <Icon
                         v-if="child.icon"
                         :name="child.icon"
-                        class="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-200"
+                        class="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors duration-200"
                       />
-                      <House v-else class="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+                      <House v-else class="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
                     </div>
                     
                     <!-- 文字内容 -->
-                    <div class="relative flex-1 min-w-0 w-full">
+                    <div class="flex-1 min-w-0 w-full">
                       <p
-                        class="text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-200 truncate"
+                        class="text-[13px] font-medium text-foreground group-hover:text-primary transition-colors duration-200 truncate"
                         :title="child.title"
                       >
                         {{ child.title }}
                       </p>
                       <p
-                        class="text-[11px] text-muted-foreground/80 line-clamp-2 mt-0.5 leading-tight"
+                        class="text-[11px] text-muted-foreground/70 line-clamp-1 mt-0.5 leading-tight"
                         :title="child.description"
                       >
                         {{ child.description }}
                       </p>
-                    </div>
-
-                    <!-- 悬停指示器 -->
-                    <div class="absolute top-2 right-2 flex items-center gap-1">
-                      <div class="h-1.5 w-1.5 rounded-full bg-primary/0 group-hover:bg-primary transition-all duration-200" />
                     </div>
                   </button>
                 </div>
               </div>
 
               <!-- 面板底部 -->
-              <div class="px-4 py-2 bg-muted/50 border-t border-border/50">
-                <p class="text-[11px] text-muted-foreground/70 text-center">
+              <div class="px-3 py-1.5 bg-muted/30 border-t border-border/50">
+                <p class="text-[10px] text-muted-foreground/60 text-center">
                   {{ t('common.breadcrumb.moduleCount', { count: item.children?.length || 0 }) }}
                 </p>
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <!-- 当前页面（无下拉）- 使用柔和的背景色 -->
+          <!-- 当前页面（无下拉）- 柔和的高亮 -->
           <div
             v-else-if="item.isCurrent"
-            class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium bg-muted/80 text-foreground border border-border/60 shadow-sm max-w-[200px]"
+            class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[13px] font-medium bg-primary/8 text-foreground border border-primary/20 max-w-[200px]"
           >
             <Icon
               v-if="item.icon"
@@ -336,19 +321,16 @@ const getGridCols = (childrenCount: number): string => {
           <!-- 普通可点击项 -->
           <button
             v-else
-            class="group relative inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 overflow-hidden max-w-[150px]"
+            class="group inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[13px] font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 max-w-[150px]"
             @click="handleBreadcrumbClick(item)"
           >
-            <!-- 悬停光效 -->
-            <div class="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
             <Icon
               v-if="item.icon"
               :name="item.icon"
-              class="h-3.5 w-3.5 relative z-10 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0"
+              class="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0"
             />
-            <House v-else-if="index === 0" class="h-3.5 w-3.5 relative z-10 flex-shrink-0" />
-            <span class="relative z-10 truncate" :title="item.title">{{ item.title }}</span>
+            <House v-else-if="index === 0" class="h-3.5 w-3.5 flex-shrink-0" />
+            <span class="truncate" :title="item.title">{{ item.title }}</span>
           </button>
         </li>
       </template>

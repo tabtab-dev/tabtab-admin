@@ -197,7 +197,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header class="h-12 sm:h-14 border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+  <header class="h-12 sm:h-14 border-b border-border/30 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
     <div class="flex items-center justify-between h-full px-3 sm:px-4 lg:px-6">
       <div class="flex items-center gap-3 flex-1 min-w-0">
         <!-- 移动端菜单按钮 -->
