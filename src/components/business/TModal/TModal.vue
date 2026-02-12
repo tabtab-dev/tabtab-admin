@@ -45,7 +45,7 @@
  *     <TTable :schema="tableSchema" :data="userData" />
  *   </TModal>
  */
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, unref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ConfigProvider, Modal } from 'antdv-next'
 import { cn } from '@/lib/utils'
@@ -176,8 +176,9 @@ const themeConfig = useTModalTheme()
  * @param e - 鼠标事件
  */
 async function handleOk(e: MouseEvent): Promise<void> {
-  // 如果提供了 formRef，先触发表单验证
-  const formInstance = props.formRef?.value
+  // 如果提供了 formRef，先触发表单验证和提交
+  // 使用 unref 获取 ref 的值，支持 Ref<T> 和 { value: T } 两种形式
+  const formInstance = props.formRef ? unref(props.formRef) : undefined
   if (formInstance) {
     try {
       internalConfirmLoading.value = true

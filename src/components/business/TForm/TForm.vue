@@ -24,6 +24,7 @@
 import { computed, reactive, ref, watch, useSlots, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ConfigProvider } from 'antdv-next'
+import type { FormInstance as AntdFormInstance } from 'antdv-next'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import 'dayjs/locale/en'
@@ -34,7 +35,7 @@ import TFormItem from './TFormItem.vue'
 import { useTFormTheme } from './theme'
 import { useSearchForm, useFormMeta } from './composables'
 import { getAntdvLocale } from '@/i18n/locales'
-import type { FormSchema, TFormProps, TFormEmits, TFormExpose, FormField, NamePath, FieldWatch, FormInstance, FormValidateErrorInfo } from './types'
+import type { FormSchema, TFormProps, TFormEmits, TFormExpose, FormField, NamePath, FieldWatch, FormValidateErrorInfo } from './types'
 
 /**
  * 导入样式
@@ -101,7 +102,7 @@ const slots = useSlots()
 /**
  * Form 实例引用
  */
-const formRef = ref<FormInstance | null>(null)
+const formRef = ref<AntdFormInstance | null>(null)
 
 /**
  * 内部表单数据
@@ -367,20 +368,26 @@ defineExpose<TFormExpose>({
    * 验证表单
    */
   validate: (nameList) => {
-    if (nameList && nameList.length > 0) {
-      return formRef.value?.validateFields(nameList) || Promise.resolve({})
+    if (!formRef.value) {
+      return Promise.reject(new Error('表单实例未初始化'))
     }
-    return formRef.value?.validate() || Promise.resolve({})
+    if (nameList && nameList.length > 0) {
+      return formRef.value.validateFields(nameList)
+    }
+    return formRef.value.validateFields()
   },
 
   /**
    * 验证所有字段
    */
   validateFields: (nameList) => {
-    if (nameList && nameList.length > 0) {
-      return formRef.value?.validateFields(nameList) || Promise.resolve({})
+    if (!formRef.value) {
+      return Promise.reject(new Error('表单实例未初始化'))
     }
-    return formRef.value?.validate() || Promise.resolve({})
+    if (nameList && nameList.length > 0) {
+      return formRef.value.validateFields(nameList)
+    }
+    return formRef.value.validateFields()
   },
 
   /**

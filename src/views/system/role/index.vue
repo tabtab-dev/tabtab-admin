@@ -323,6 +323,10 @@ const isEditDialogOpen = ref(false)
 const isPermissionDrawerOpen = ref(false)
 const editingRole = ref<Role | null>(null)
 const currentRole = ref<Role | null>(null)
+
+// 表单 ref，用于 TModal 触发表单验证
+const addFormRef = ref()
+const editFormRef = ref()
 const selectedPermissions = ref<string[]>([])
 const expandedPermissionKeys = ref<string[]>(['system'])
 
@@ -738,11 +742,14 @@ const statisticsCards = computed(() => {
       v-model:open="isAddDialogOpen"
       title="添加角色"
       width="560"
+      :form-ref="addFormRef"
+      @submit="handleAddSubmit"
     >
       <TForm
+        ref="addFormRef"
         v-model="addFormData"
         :schema="addSchema"
-        @submit="handleAddSubmit"
+        embedded
       />
     </TModal>
 
@@ -751,12 +758,15 @@ const statisticsCards = computed(() => {
       v-model:open="isEditDialogOpen"
       title="编辑角色"
       width="560"
+      :form-ref="editFormRef"
+      @submit="handleEditSubmit"
     >
       <TForm
         v-if="editingRole"
+        ref="editFormRef"
         v-model="editFormData"
         :schema="editSchema"
-        @submit="handleEditSubmit"
+        embedded
       />
     </TModal>
 
