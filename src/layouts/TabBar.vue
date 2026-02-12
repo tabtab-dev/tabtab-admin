@@ -185,7 +185,7 @@ const handleTouchEnd = () => {
 </script>
 
 <template>
-  <div class="flex items-center h-9 sm:h-10 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-border/30 px-1 sm:px-2 gap-0.5 sm:gap-1">
+  <div class="flex items-center h-9 sm:h-10 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 border-b border-border/30 px-1 sm:px-2 gap-0.5 sm:gap-1">
     <!-- Left Scroll Controls -->
     <div v-show="isOverflowing" class="flex items-center gap-0.5 flex-shrink-0">
       <TooltipProvider>

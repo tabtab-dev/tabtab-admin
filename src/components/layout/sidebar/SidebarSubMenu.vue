@@ -281,11 +281,10 @@ const childCountText = computed(() => {
           v-if="showPopover"
           role="menu"
           :aria-label="`${menuTitle} 子菜单`"
-          class="fixed w-56 bg-popover/95 backdrop-blur-sm border border-border/50 z-[9999] overflow-hidden"
+          class="fixed w-56 bg-popover/95 backdrop-blur-sm border border-border/50 z-[9999] overflow-hidden rounded-xl"
           :style="{
             top: `${popoverPosition.top}px`,
             left: `${popoverPosition.left}px`,
-            borderRadius: 'calc(var(--radius) * 0.9)',
             boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(var(--primary), 0.05)'
           }"
           @mouseenter="stopHidePopover(); showPopover = true"

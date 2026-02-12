@@ -82,12 +82,12 @@ const borderRadius = computed(() => {
         <rect x="28" y="0" width="14" height="70" rx="7" fill="white" shape-rendering="geometricPrecision" />
       </g>
 
-      <!-- 第二个 T - 深色 -->
-      <g transform="translate(80, 55)">
+      <!-- 第二个 T - 使用主题前景色 -->
+      <g transform="translate(80, 55)" class="logo-t-secondary">
         <!-- 横线 -->
-        <rect x="0" y="0" width="70" height="14" rx="7" fill="#1a1a2e" shape-rendering="geometricPrecision" />
+        <rect x="0" y="0" width="70" height="14" rx="7" shape-rendering="geometricPrecision" />
         <!-- 竖线 -->
-        <rect x="28" y="0" width="14" height="70" rx="7" fill="#1a1a2e" shape-rendering="geometricPrecision" />
+        <rect x="28" y="0" width="14" height="70" rx="7" shape-rendering="geometricPrecision" />
       </g>
     </svg>
   </div>
@@ -127,5 +127,11 @@ const borderRadius = computed(() => {
 .logo-gradient-stop-2 {
   stop-color: var(--primary);
   stop-opacity: 0.85;
+}
+
+/* 第二个 T 使用主题前景色，支持深浅模式切换 */
+.logo-t-secondary rect {
+  fill: var(--foreground);
+  opacity: 0.9;
 }
 </style>

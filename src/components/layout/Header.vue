@@ -197,9 +197,15 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header class="h-12 sm:h-14 border-b border-border/30 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-    <div class="flex items-center justify-between h-full px-3 sm:px-4 lg:px-6">
+  <header class="h-12 sm:h-14 border-b border-border/30 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 sticky top-0 z-50">
+    <div class="flex items-center justify-between h-full px-2">
       <div class="flex items-center gap-3 flex-1 min-w-0">
+        <!-- Logo 区域 - 放在最左边 -->
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <Logo :size="48" :collapsed="false" />
+          <span class="hidden sm:inline text-sm font-bold tracking-tight">TabTab Admin</span>
+        </div>
+
         <!-- 移动端菜单按钮 -->
         <Button
           variant="ghost"
@@ -211,14 +217,6 @@ onUnmounted(() => {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </Button>
-
-        <!-- Logo 区域 - 从侧栏移过来，与侧栏折叠后图标对齐（p-3 = 12px） -->
-        <div class="hidden lg:flex items-center gap-2 flex-shrink-0 -ml-3">
-          <Logo :size="48" :collapsed="false" />
-          <div class="flex flex-col">
-            <span class="text-sm font-bold tracking-tight leading-tight">TabTab Admin</span>
-          </div>
-        </div>
 
         <!-- 面包屑导航 - 下拉卡片模式 -->
         <template v-if="themeStore.layoutConfig.showBreadcrumb">
