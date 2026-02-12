@@ -2,6 +2,11 @@
  * 库存领域类型定义
  */
 
+import type { WAREHOUSE_STATUS } from '@/constants';
+
+/** 仓库状态类型 */
+export type WarehouseStatus = typeof WAREHOUSE_STATUS[keyof typeof WAREHOUSE_STATUS];
+
 /**
  * 仓库基础信息
  */
@@ -12,7 +17,7 @@ export interface Warehouse {
   address?: string;
   contactName?: string;
   contactPhone?: string;
-  isActive: boolean;
+  status: WarehouseStatus;
   createdAt: string;
   updatedAt: string;
 }
@@ -32,6 +37,23 @@ export interface Stock {
   minStockLevel: number;
   maxStockLevel?: number;
   updatedAt: string;
+}
+
+/**
+ * 库存项模型
+ */
+export interface StockItem {
+  id: string;
+  productName: string;
+  sku: string;
+  warehouseId: string;
+  warehouseName: string;
+  quantity: number;
+  reserved: number;
+  available: number;
+  minStock: number;
+  maxStock: number;
+  lastUpdated: string;
 }
 
 /**

@@ -2,10 +2,10 @@
  * 产品领域类型定义
  */
 
-/**
- * 产品状态
- */
-export type ProductStatus = 'active' | 'inactive' | 'draft' | 'archived';
+import type { PRODUCT_STATUS } from '@/constants';
+
+/** 产品状态类型 */
+export type ProductStatus = typeof PRODUCT_STATUS[keyof typeof PRODUCT_STATUS];
 
 /**
  * 产品基础信息
@@ -23,6 +23,7 @@ export interface Product {
   images: string[];
   tags: string[];
   sku: string;
+  sales: number;
   createdAt: string;
   updatedAt: string;
 }

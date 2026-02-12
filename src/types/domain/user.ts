@@ -2,15 +2,13 @@
  * 用户领域类型定义
  */
 
-/**
- * 用户角色
- */
-export type UserRole = 'admin' | 'user' | 'guest' | 'editor' | 'viewer';
+import type { USER_ROLES, USER_STATUS } from '@/constants';
 
-/**
- * 用户状态
- */
-export type UserStatus = 'active' | 'inactive' | 'suspended';
+/** 用户角色类型 */
+export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
+
+/** 用户状态类型 */
+export type UserStatus = typeof USER_STATUS[keyof typeof USER_STATUS];
 
 /**
  * 用户基础信息
@@ -35,6 +33,8 @@ export interface User {
   position?: string;
   /** 个人简介 */
   bio?: string;
+  /** 最后登录时间 */
+  lastLogin?: string;
 }
 
 /**

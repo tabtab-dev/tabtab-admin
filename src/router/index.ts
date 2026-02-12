@@ -16,7 +16,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/views/Login.vue'),
+    component: () => import('@/views/auth/index.vue'),
     meta: { requiresAuth: false, titleKey: 'pages.login.title' }
   },
   {
@@ -29,8 +29,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'dashboard',
         name: 'Dashboard',
-        // 使用懒加载，与生产环境保持一致
-        component: () => import('@/views/Dashboard.vue'),
+        component: () => import('@/views/dashboard/index.vue'),
         meta: { requiresAuth: true, titleKey: 'menu.dashboard' }
       }
     ]

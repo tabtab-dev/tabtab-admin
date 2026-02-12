@@ -10,7 +10,7 @@ import type { FormSchema } from '@/components/business/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import type { Warehouse } from '@/types/models'
+import type { Warehouse } from '@/types'
 import { inventoryApi } from '@/api'
 import { useTableData, useMutation } from '@/composables'
 import {

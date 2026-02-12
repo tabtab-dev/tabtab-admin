@@ -9,7 +9,7 @@ import type { TableSchema, TTableExpose } from '@/components/business'
 import type { FormSchema } from '@/components/business'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { Product } from '@/types/models'
+import type { Product } from '@/types'
 import { productsApi } from '@/api'
 import { useTableData, useMutation } from '@/composables'
 import {

@@ -10,7 +10,7 @@ import type { FormSchema } from '@/components/business/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-import type { Tag } from '@/types/models'
+import type { Tag } from '@/types'
 import { categoriesApi } from '@/api'
 import { useTableData } from '@/composables'
 import {

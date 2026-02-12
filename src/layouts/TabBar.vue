@@ -60,10 +60,16 @@ const getTabTitle = (titleKey: string): string => {
 const scrollContainerRef = ref<HTMLElement | null>(null);
 const tabsContainerRef = ref<HTMLElement | null>(null);
 
-
-
 // Dragging state - 用于控制拖拽时的动画
 const isDragging = ref(false);
+
+// 触摸滑动状态
+const touchStartX = ref(0);
+const touchStartY = ref(0);
+const touchEndX = ref(0);
+const isTouchScrolling = ref(false);
+const minSwipeDistance = 30; // 最小滑动距离
+const maxVerticalDistance = 50; // 最大垂直滑动距离
 
 // Use the tab bar composable
 const {
@@ -118,10 +124,68 @@ const onDragEnd = () => {
   isDragging.value = false;
   handleDragEnd();
 };
+
+/**
+ * 处理触摸开始
+ * @param e - 触摸事件
+ */
+const handleTouchStart = (e: TouchEvent) => {
+  touchStartX.value = e.touches[0]?.clientX ?? 0;
+  touchStartY.value = e.touches[0]?.clientY ?? 0;
+  touchEndX.value = touchStartX.value;
+  isTouchScrolling.value = false;
+};
+
+/**
+ * 处理触摸移动
+ * @param e - 触摸事件
+ */
+const handleTouchMove = (e: TouchEvent) => {
+  touchEndX.value = e.touches[0]?.clientX ?? 0;
+  const currentY = e.touches[0]?.clientY ?? 0;
+  const verticalDistance = Math.abs(currentY - touchStartY.value);
+
+  // 如果垂直滑动超过阈值，不处理水平滑动
+  if (verticalDistance > maxVerticalDistance) {
+    isTouchScrolling.value = false;
+    return;
+  }
+
+  // 标记为触摸滑动状态
+  isTouchScrolling.value = true;
+};
+
+/**
+ * 处理触摸结束 - 实现滑动切换标签
+ */
+const handleTouchEnd = () => {
+  if (!isTouchScrolling.value) return;
+
+  const swipeDistance = touchStartX.value - touchEndX.value;
+
+  // 左滑 - 切换到下一个标签
+  if (swipeDistance > minSwipeDistance) {
+    const currentIndex = tabBarStore.tabs.findIndex(t => t.path === tabBarStore.activeTab);
+    if (currentIndex < tabBarStore.tabs.length - 1) {
+      const nextTab = tabBarStore.tabs[currentIndex + 1];
+      handleTabClick(nextTab.path);
+    }
+  }
+  // 右滑 - 切换到上一个标签
+  else if (swipeDistance < -minSwipeDistance) {
+    const currentIndex = tabBarStore.tabs.findIndex(t => t.path === tabBarStore.activeTab);
+    if (currentIndex > 0) {
+      const prevTab = tabBarStore.tabs[currentIndex - 1];
+      handleTabClick(prevTab.path);
+    }
+  }
+
+  isTouchScrolling.value = false;
+};
 </script>
 
 <template>
-  <div class="flex items-center h-10 bg-background border-b border-border px-2 gap-1">
+  <div class="flex items-center h-9 sm:h-10 bg-background border-b border-border px-1 sm:px-2 gap-0.5 sm:gap-1">
     <!-- Left Scroll Controls -->
     <div v-show="isOverflowing" class="flex items-center gap-0.5 flex-shrink-0">
       <TooltipProvider>
@@ -130,11 +194,11 @@ const onDragEnd = () => {
             <Button
               variant="ghost"
               size="icon"
-              class="h-7 w-7"
+              class="h-6 w-6 sm:h-7 sm:w-7"
               :disabled="!canScrollLeft"
               @click="scrollToStart"
             >
-              <ChevronsLeft class="h-4 w-4" />
+              <ChevronsLeft class="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">
@@ -149,11 +213,11 @@ const onDragEnd = () => {
             <Button
               variant="ghost"
               size="icon"
-              class="h-7 w-7"
+              class="h-6 w-6 sm:h-7 sm:w-7"
               :disabled="!canScrollLeft"
               @click="scrollLeft"
             >
-              <ChevronLeft class="h-4 w-4" />
+              <ChevronLeft class="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">
@@ -163,10 +227,13 @@ const onDragEnd = () => {
       </TooltipProvider>
     </div>
 
-    <!-- Tabs Container -->
+    <!-- Tabs Container - 支持触摸滑动切换标签 -->
     <div
       ref="scrollContainerRef"
       class="flex-1 h-full overflow-hidden"
+      @touchstart="handleTouchStart"
+      @touchmove="handleTouchMove"
+      @touchend="handleTouchEnd"
     >
       <div
         ref="tabsContainerRef"
@@ -188,7 +255,7 @@ const onDragEnd = () => {
                 <div
                   :data-tab-path="tab.path"
                   draggable="true"
-                  class="group relative flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md cursor-pointer transition-all duration-200 select-none whitespace-nowrap border"
+                  class="group relative flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-md cursor-pointer transition-all duration-200 select-none whitespace-nowrap border touch-manipulation"
                   :class="[
                     tabBarStore.activeTab === tab.path
                       ? 'bg-primary text-primary-foreground border-primary'
@@ -200,9 +267,9 @@ const onDragEnd = () => {
                   @dragover="handleDragOver($event, tab.path)"
                   @dragend="onDragEnd"
                 >
-                  <!-- Drag Handle -->
+                  <!-- Drag Handle - 移动端隐藏拖拽图标 -->
                   <GripVertical
-                    class="h-3 w-3 opacity-0 group-hover:opacity-50 cursor-grab active:cursor-grabbing transition-opacity"
+                    class="h-3 w-3 opacity-0 group-hover:opacity-50 cursor-grab active:cursor-grabbing transition-opacity hidden sm:block"
                     :class="tabBarStore.activeTab === tab.path ? 'text-primary-foreground/70' : 'text-muted-foreground'"
                   />
 
@@ -220,12 +287,12 @@ const onDragEnd = () => {
                   />
 
                   <!-- Title -->
-                  <span class="max-w-[120px] truncate">{{ getTabTitle(tab.title) }}</span>
+                  <span class="max-w-[80px] sm:max-w-[120px] truncate">{{ getTabTitle(tab.title) }}</span>
 
-                  <!-- Close Button -->
+                  <!-- Close Button - 移动端始终显示，桌面端 hover 显示 -->
                   <button
                     v-if="!tab.affix"
-                    class="ml-0.5 rounded-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-primary-foreground/20 p-0.5"
+                    class="ml-0.5 rounded-sm opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all p-0.5 min-w-[20px] min-h-[20px] flex items-center justify-center"
                     :class="tabBarStore.activeTab === tab.path ? 'hover:bg-primary-foreground/20' : 'hover:bg-foreground/10'"
                     @click.stop="handleCloseTab(tab.path)"
                   >
@@ -271,11 +338,11 @@ const onDragEnd = () => {
             <Button
               variant="ghost"
               size="icon"
-              class="h-7 w-7"
+              class="h-6 w-6 sm:h-7 sm:w-7"
               :disabled="!canScrollRight"
               @click="scrollRight"
             >
-              <ChevronRight class="h-4 w-4" />
+              <ChevronRight class="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">
@@ -290,11 +357,11 @@ const onDragEnd = () => {
             <Button
               variant="ghost"
               size="icon"
-              class="h-7 w-7"
+              class="h-6 w-6 sm:h-7 sm:w-7"
               :disabled="!canScrollRight"
               @click="scrollToEnd"
             >
-              <ChevronsRight class="h-4 w-4" />
+              <ChevronsRight class="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">
@@ -310,10 +377,10 @@ const onDragEnd = () => {
         <Button
           variant="ghost"
           size="icon"
-          class="h-7 w-7 flex-shrink-0"
+          class="h-6 w-6 sm:h-7 sm:w-7 flex-shrink-0"
           :title="t('common.tabbar.moreActions')"
         >
-          <Ellipsis class="h-4 w-4" />
+          <Ellipsis class="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </Button>
       </DropdownMenuTrigger>
 

@@ -352,36 +352,50 @@ const childCountText = computed(() => {
       :aria-haspopup="true"
       :aria-current="getAriaCurrent(item.path)"
       :class="[
-        'w-full justify-between h-9 px-2.5 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden rounded-md',
-        (active || isChildActive) ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'hover:bg-primary/10 hover:text-primary'
+        'w-full justify-between h-10 sm:h-9 px-3 sm:px-2.5 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden rounded-lg touch-manipulation',
+        (active || isChildActive) ? 'bg-primary/10 text-primary shadow-sm' : 'hover:bg-muted/60 hover:shadow-sm'
       ]"
       @click="handleParentClick"
     >
-      <!-- 激活状态左侧指示器 - 优化后的流动光效 -->
+      <!-- 激活状态左侧指示器 - 全高度渐变条 -->
       <span
         v-if="active || isChildActive"
-        class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-gradient-to-b"
-        :class="active ? 'from-primary-foreground/40 via-primary-foreground/60 to-primary-foreground/40' : 'from-primary/30 via-primary/50 to-primary/30'"
+        class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary to-primary rounded-r-full"
+        aria-hidden="true"
+      />
+
+      <!-- 激活状态背景光效 -->
+      <span
+        v-if="active || isChildActive"
+        class="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent"
         aria-hidden="true"
       />
 
       <!-- 悬停时的背景光效 -->
       <span
         v-if="!(active || isChildActive)"
-        class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"
+        class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/3 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"
         aria-hidden="true"
       />
 
       <div class="flex items-center gap-2.5 relative z-10 flex-1 min-w-0">
-        <Icon
-          v-if="item.icon"
-          :name="item.icon"
+        <!-- 图标容器 -->
+        <div
           :class="[
-            'h-[18px] w-[18px] flex-shrink-0 transition-colors duration-200',
-            (active || isChildActive) ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-foreground'
+            'h-7 w-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200',
+            (active || isChildActive) ? 'bg-primary/15' : 'bg-muted/50 group-hover:bg-primary/10'
           ]"
-          aria-hidden="true"
-        />
+        >
+          <Icon
+            v-if="item.icon"
+            :name="item.icon"
+            :class="[
+              'h-4 w-4 transition-colors duration-200',
+              (active || isChildActive) ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
+            ]"
+            aria-hidden="true"
+          />
+        </div>
         <span class="truncate font-medium text-sm">{{ menuTitle }}</span>
       </div>
 
@@ -389,48 +403,58 @@ const childCountText = computed(() => {
         <Badge
           v-if="item.badge"
           variant="destructive"
-          class="h-4 px-1.5 text-[10px] animate-in zoom-in-50 font-medium"
+          class="h-4 px-1.5 text-[10px] animate-in zoom-in-50 font-medium shadow-sm"
           role="status"
         >
           {{ formatBadge(item.badge) }}
         </Badge>
 
-        <ChevronDown
-          v-if="expanded"
+        <div
           :class="[
-            'h-3.5 w-3.5 transition-transform duration-200',
-            (active || isChildActive) ? 'text-primary-foreground/70' : 'text-muted-foreground group-hover:text-foreground'
+            'h-5 w-5 rounded flex items-center justify-center transition-all duration-200',
+            (active || isChildActive) ? 'bg-primary/10' : 'bg-muted/50 group-hover:bg-primary/5'
           ]"
-          aria-hidden="true"
-        />
-        <ChevronRight
-          v-else
-          :class="[
-            'h-3.5 w-3.5 transition-transform duration-200',
-            (active || isChildActive) ? 'text-primary-foreground/70' : 'text-muted-foreground group-hover:text-foreground'
-          ]"
-          aria-hidden="true"
-        />
+        >
+          <ChevronDown
+            v-if="expanded"
+            :class="[
+              'h-3.5 w-3.5 transition-transform duration-200',
+              (active || isChildActive) ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
+            ]"
+            aria-hidden="true"
+          />
+          <ChevronRight
+            v-else
+            :class="[
+              'h-3.5 w-3.5 transition-transform duration-200',
+              (active || isChildActive) ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
+            ]"
+            aria-hidden="true"
+          />
+        </div>
       </div>
     </Button>
 
     <!-- 子菜单 - 优化后的展开动画 -->
     <Transition
       enter-active-class="transition-all duration-250 ease-out"
-      enter-from-class="opacity-0 -translate-y-1"
-      enter-to-class="opacity-100 translate-y-0"
+      enter-from-class="opacity-0 max-h-0"
+      enter-to-class="opacity-100 max-h-[500px]"
       leave-active-class="transition-all duration-200 ease-in"
-      leave-from-class="opacity-100 translate-y-0"
-      leave-to-class="opacity-0 -translate-y-1"
+      leave-from-class="opacity-100 max-h-[500px]"
+      leave-to-class="opacity-0 max-h-0"
     >
       <div
         v-if="expanded"
         role="menu"
         :aria-label="`${menuTitle} 子菜单`"
-        class="ml-4 space-y-0 overflow-hidden relative"
+        class="ml-3 mt-1 space-y-0.5 overflow-hidden relative"
       >
-        <!-- 垂直主干线 -->
-        <div class="absolute left-0 top-2 bottom-2 w-px bg-border/60 rounded-full"></div>
+        <!-- 子菜单容器背景 -->
+        <div class="absolute inset-0 bg-muted/30 rounded-lg" />
+        
+        <!-- 垂直主干线 - 渐变虚线效果 -->
+        <div class="absolute left-3 top-2 bottom-2 w-px bg-gradient-to-b from-primary/40 via-primary/20 to-primary/40 rounded-full" />
 
         <!-- 递归渲染多级子菜单 -->
         <MenuItemRecursive

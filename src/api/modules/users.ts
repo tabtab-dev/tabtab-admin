@@ -3,40 +3,7 @@
  * @description 用户的增删改查等接口
  */
 import { request } from '../client';
-import type { User, PaginationData } from '@/types';
-
-/**
- * 创建用户参数
- */
-export interface CreateUserParams {
-  name: string;
-  email: string;
-  role: User['role'];
-  status?: User['status'];
-  avatar?: string;
-}
-
-/**
- * 更新用户参数
- */
-export interface UpdateUserParams {
-  name?: string;
-  email?: string;
-  role?: User['role'];
-  status?: User['status'];
-  avatar?: string;
-}
-
-/**
- * 查询用户列表参数
- */
-export interface GetUsersParams {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-  role?: User['role'];
-  status?: User['status'];
-}
+import type { User, PaginationData, GetUsersParams, CreateUserParams, UpdateUserParams } from '@/types';
 
 /**
  * 用户 API

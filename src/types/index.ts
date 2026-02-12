@@ -6,11 +6,8 @@
 // 基础类型
 export * from './base';
 
-// 领域模型类型（新业务类型定义）
+// 领域模型类型
 export * from './domain';
-
-// 旧模型类型（保持兼容，逐步迁移到 domain）
-export * from './models';
 
 // 通用类型
 export * from './common';

@@ -13,7 +13,7 @@ export const routeData: RouteConfig[] = [
   {
     path: '/dashboard',
     name: 'dashboard',
-    component: '/Dashboard',
+    component: '/dashboard/index',
     meta: {
       title: '仪表盘',
       icon: 'LayoutDashboard',
@@ -108,7 +108,7 @@ export const routeData: RouteConfig[] = [
       {
         path: '/products/list',
         name: 'products:list',
-        component: '/Products',
+        component: '/commerce/Products',
         meta: {
           title: '商品列表',
           icon: 'FileText',
@@ -121,7 +121,7 @@ export const routeData: RouteConfig[] = [
       {
         path: '/products/categories',
         name: 'products:categories',
-        component: '/Categories',
+        component: '/commerce/Categories',
         meta: {
           title: '分类管理',
           icon: 'Tags',
@@ -134,7 +134,7 @@ export const routeData: RouteConfig[] = [
       {
         path: '/products/inventory',
         name: 'products:inventory',
-        component: '/Inventory',
+        component: '/inventory/index',
         meta: {
           title: '库存管理',
           icon: 'Warehouse',
@@ -147,7 +147,7 @@ export const routeData: RouteConfig[] = [
       {
         path: '/products/warehouse',
         name: 'products:warehouse',
-        component: '/Warehouse',
+        component: '/inventory/Warehouse',
         meta: {
           title: '仓库管理',
           icon: 'Building2',
@@ -160,7 +160,7 @@ export const routeData: RouteConfig[] = [
       {
         path: '/products/stock',
         name: 'products:stock',
-        component: '/Stock',
+        component: '/inventory/Stock',
         meta: {
           title: '库存盘点',
           icon: 'ClipboardList',
@@ -173,7 +173,7 @@ export const routeData: RouteConfig[] = [
       {
         path: '/products/tags',
         name: 'products:tags',
-        component: '/Tags',
+        component: '/commerce/Tags',
         meta: {
           title: '标签管理',
           icon: 'Tag',
@@ -203,7 +203,7 @@ export const routeData: RouteConfig[] = [
       {
         path: '/orders/list',
         name: 'orders:list',
-        component: '/Orders',
+        component: '/commerce/Orders',
         meta: {
           title: '订单列表',
           icon: 'FileText',
@@ -216,7 +216,7 @@ export const routeData: RouteConfig[] = [
       {
         path: '/orders/logistics',
         name: 'orders:logistics',
-        component: '/Logistics',
+        component: '/inventory/Logistics',
         meta: {
           title: '物流管理',
           icon: 'Truck',
@@ -245,7 +245,7 @@ export const routeData: RouteConfig[] = [
       {
         path: '/analytics/overview',
         name: 'analytics:overview',
-        component: '/Analytics',
+        component: '/analytics/index',
         meta: {
           title: '数据概览',
           icon: 'BarChart3',
@@ -258,7 +258,7 @@ export const routeData: RouteConfig[] = [
       {
         path: '/analytics/traffic',
         name: 'analytics:traffic',
-        component: '/Traffic',
+        component: '/analytics/Traffic',
         meta: {
           title: '流量分析',
           icon: 'TrendingUp',
@@ -271,7 +271,7 @@ export const routeData: RouteConfig[] = [
       {
         path: '/analytics/sales',
         name: 'analytics:sales',
-        component: '/Sales',
+        component: '/analytics/Sales',
         meta: {
           title: '销售分析',
           icon: 'DollarSign',
@@ -284,7 +284,7 @@ export const routeData: RouteConfig[] = [
       {
         path: '/analytics/users',
         name: 'analytics:users',
-        component: '/UsersAnalysis',
+        component: '/analytics/UsersAnalysis',
         meta: {
           title: '用户分析',
           icon: 'UserRound',
@@ -500,7 +500,7 @@ export const routeData: RouteConfig[] = [
   {
     path: '/profile',
     name: 'profile',
-    component: '/Profile',
+    component: '/profile/index',
     meta: {
       title: '个人资料',
       icon: 'User',
@@ -513,7 +513,7 @@ export const routeData: RouteConfig[] = [
   {
     path: '/settings',
     name: 'settings',
-    component: '/Settings',
+    component: '/settings/index',
     meta: {
       title: '系统设置',
       icon: 'Settings2',

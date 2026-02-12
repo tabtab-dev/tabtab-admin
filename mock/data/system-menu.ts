@@ -12,7 +12,7 @@ export const systemMenusData: Menu[] = [
     name: 'Dashboard',
     title: '仪表盘',
     path: '/dashboard',
-    component: '/dashboard',
+    component: '/dashboard/index',
     icon: 'LayoutDashboard',
     parentId: null,
     sort: 1,

@@ -2,6 +2,11 @@
  * 分类和标签领域类型定义
  */
 
+import type { CATEGORY_STATUS } from '@/constants';
+
+/** 分类状态类型 */
+export type CategoryStatus = typeof CATEGORY_STATUS[keyof typeof CATEGORY_STATUS];
+
 /**
  * 分类基础信息
  */
@@ -12,7 +17,7 @@ export interface Category {
   icon?: string;
   parentId?: string;
   sortOrder: number;
-  isActive: boolean;
+  status: CategoryStatus;
   productCount?: number;
   createdAt: string;
   updatedAt: string;

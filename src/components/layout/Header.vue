@@ -197,8 +197,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header class="h-14 border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-    <div class="flex items-center justify-between h-full px-4 lg:px-6">
+  <header class="h-12 sm:h-14 border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+    <div class="flex items-center justify-between h-full px-3 sm:px-4 lg:px-6">
       <div class="flex items-center gap-3 flex-1 min-w-0">
         <!-- 移动端菜单按钮 -->
         <Button
@@ -230,12 +230,12 @@ onUnmounted(() => {
         </template>
 
         <!-- 移动端页面标题 -->
-        <h1 class="md:hidden text-sm font-semibold text-foreground truncate">
+        <h1 class="md:hidden text-xs sm:text-sm font-semibold text-foreground truncate">
           {{ $t(currentRouteTitle) }}
         </h1>
       </div>
 
-      <div class="flex items-center gap-1.5 flex-shrink-0">
+      <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
         <!-- 搜索框 - 桌面端 -->
         <div
           class="search-container hidden md:flex items-center gap-2 transition-all duration-300 ease-out rounded-xl px-3 py-1.5 border"

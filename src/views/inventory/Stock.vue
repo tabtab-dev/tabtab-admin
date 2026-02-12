@@ -10,7 +10,7 @@ import type { FormSchema } from '@/components/business/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import type { StockItem } from '@/types/models'
+import type { StockItem } from '@/types'
 import { inventoryApi } from '@/api'
 import { useTableData } from '@/composables'
 import {

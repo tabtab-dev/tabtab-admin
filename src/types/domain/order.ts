@@ -2,10 +2,10 @@
  * 订单领域类型定义
  */
 
-/**
- * 订单状态
- */
-export type OrderStatus = 'pending' | 'paid' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
+import type { ORDER_STATUS } from '@/constants';
+
+/** 订单状态类型 */
+export type OrderStatus = typeof ORDER_STATUS[keyof typeof ORDER_STATUS];
 
 /**
  * 订单项

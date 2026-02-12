@@ -140,34 +140,49 @@ const ariaLabel = computed(() => {
     role="menuitem"
     :aria-current="getAriaCurrent(item.path)"
     :class="[
-      'w-full justify-start gap-2.5 h-9 px-2.5 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden rounded-md',
-      active ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'hover:bg-primary/10 hover:text-primary'
+      'w-full justify-start gap-2.5 h-10 sm:h-9 px-3 sm:px-2.5 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden rounded-lg touch-manipulation',
+      active ? 'bg-primary/10 text-primary shadow-sm' : 'hover:bg-muted/60 hover:shadow-sm'
     ]"
     @click="handleClick"
   >
     <!-- 激活状态左侧指示器 - 优化后的流动光效 -->
     <span
       v-if="active"
-      class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-gradient-to-b from-primary-foreground/40 via-primary-foreground/60 to-primary-foreground/40 rounded-r-full"
+      class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary to-primary rounded-r-full"
+      aria-hidden="true"
+    />
+
+    <!-- 激活状态背景光效 -->
+    <span
+      v-if="active"
+      class="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent"
       aria-hidden="true"
     />
 
     <!-- 悬停时的背景光效 -->
     <span
       v-if="!active"
-      class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"
+      class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/3 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"
       aria-hidden="true"
     />
 
-    <Icon
-      v-if="item.icon"
-      :name="item.icon"
+    <!-- 图标容器 -->
+    <div
       :class="[
-        'h-[18px] w-[18px] flex-shrink-0 transition-colors duration-200',
-        active ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-foreground'
+        'h-7 w-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200',
+        active ? 'bg-primary/15' : 'bg-muted/50 group-hover:bg-primary/10'
       ]"
-      aria-hidden="true"
-    />
+    >
+      <Icon
+        v-if="item.icon"
+        :name="item.icon"
+        :class="[
+          'h-4 w-4 transition-colors duration-200',
+          active ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
+        ]"
+        aria-hidden="true"
+      />
+    </div>
 
     <span class="flex-1 text-left truncate font-medium text-sm">{{ menuTitle }}</span>
 
@@ -175,7 +190,7 @@ const ariaLabel = computed(() => {
     <Badge
       v-if="item.badge"
       variant="destructive"
-      class="h-4 px-1.5 text-[10px] animate-in zoom-in-50 font-medium"
+      class="h-4 px-1.5 text-[10px] animate-in zoom-in-50 font-medium shadow-sm"
       role="status"
     >
       {{ formatBadge(item.badge) }}

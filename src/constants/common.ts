@@ -36,12 +36,18 @@ export const USER_ROLES = {
   VIEWER: 'viewer',
 } as const;
 
+/** 用户角色类型 */
+export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
+
 /** 用户状态 */
 export const USER_STATUS = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
   SUSPENDED: 'suspended',
 } as const;
+
+/** 用户状态类型 */
+export type UserStatus = typeof USER_STATUS[keyof typeof USER_STATUS];
 
 /** 订单状态 */
 export const ORDER_STATUS = {
@@ -51,6 +57,9 @@ export const ORDER_STATUS = {
   CANCELLED: 'cancelled',
 } as const;
 
+/** 订单状态类型 */
+export type OrderStatus = typeof ORDER_STATUS[keyof typeof ORDER_STATUS];
+
 /** 产品状态 */
 export const PRODUCT_STATUS = {
   ACTIVE: 'active',
@@ -58,17 +67,26 @@ export const PRODUCT_STATUS = {
   OUT_OF_STOCK: 'out-of-stock',
 } as const;
 
+/** 产品状态类型 */
+export type ProductStatus = typeof PRODUCT_STATUS[keyof typeof PRODUCT_STATUS];
+
 /** 仓库状态 */
 export const WAREHOUSE_STATUS = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
 } as const;
 
+/** 仓库状态类型 */
+export type WarehouseStatus = typeof WAREHOUSE_STATUS[keyof typeof WAREHOUSE_STATUS];
+
 /** 分类状态 */
 export const CATEGORY_STATUS = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
 } as const;
+
+/** 分类状态类型 */
+export type CategoryStatus = typeof CATEGORY_STATUS[keyof typeof CATEGORY_STATUS];
 
 /** 盘点状态 */
 export const STOCK_CHECK_STATUS = {

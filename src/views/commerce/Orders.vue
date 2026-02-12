@@ -10,7 +10,7 @@ import type { FormSchema } from '@/components/business'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-import type { Order } from '@/types/models'
+import type { Order } from '@/types'
 import { ordersApi } from '@/api'
 import { useTableData, useMutation } from '@/composables'
 import {

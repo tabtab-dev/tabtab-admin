@@ -214,13 +214,22 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
       :max-size="maxSizePercent"
       :default-size="panelSize"
       @resize="(size: number) => $emit('resize', size)"
-      class="flex flex-col border-r bg-background"
+      class="flex flex-col border-r bg-background relative"
       :class="{ 'transition-none': isDragging }"
       :style="collapsed ? { flex: `0 0 ${collapsedWidth}px` } : {}"
     >
+      <!-- 菜单区域背景装饰 -->
+      <div
+        v-if="!collapsed"
+        class="absolute inset-0 pointer-events-none"
+      >
+        <div class="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-primary/3 to-transparent" />
+        <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-muted/20 to-transparent" />
+      </div>
+
       <!-- 菜单列表 -->
-      <ScrollArea class="flex-1 h-0">
-        <nav class="p-3 space-y-0.5 relative z-10">
+      <ScrollArea class="flex-1 h-0 relative z-10">
+        <nav class="p-3 space-y-1 relative z-10">
           <!-- 渲染菜单 -->
           <template v-for="item in config.menus" :key="item.key">
             <!-- 展开状态 -->
@@ -271,134 +280,143 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
 
       <!-- 底部区域 - 优化后的设计 -->
       <TooltipProvider>
-        <div class="border-t border-border/50 bg-muted/30">
-          <slot name="footer">
-            <!-- 展开状态 -->
-            <div
-              v-if="!collapsed"
-              class="p-3 flex items-center justify-between gap-2"
-            >
-              <!-- 左侧：用户信息下拉菜单 -->
-              <DropdownMenu v-model:open="isUserMenuOpen">
-                <DropdownMenuTrigger as-child>
-                  <button
-                    class="group flex items-center gap-2 min-w-0 flex-1 rounded-lg p-1.5 hover:bg-muted/80 transition-all duration-200"
-                  >
-                    <!-- 用户头像 -->
-                    <Avatar class="h-8 w-8 flex-shrink-0 ring-2 ring-primary/20 transition-all duration-200 group-hover:ring-primary/40">
-                      <AvatarFallback class="text-sm font-semibold bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
-                        {{ userInitials }}
-                      </AvatarFallback>
-                    </Avatar>
-                    <!-- 用户信息 -->
-                    <div class="flex flex-col min-w-0 text-left">
-                      <span class="text-xs font-medium truncate group-hover:text-primary transition-colors duration-200">
-                        {{ authStore.user?.name || '用户' }}
-                      </span>
-                      <span class="text-[10px] text-muted-foreground truncate">
-                        {{ authStore.user?.email || 'user@example.com' }}
-                      </span>
+        <div class="relative">
+          <!-- 渐变分隔线 -->
+          <div class="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          
+          <div class="bg-gradient-to-t from-muted/50 to-transparent pt-1">
+            <slot name="footer">
+              <!-- 展开状态 -->
+              <div
+                v-if="!collapsed"
+                class="p-3 flex items-center justify-between gap-2"
+              >
+                <!-- 左侧：用户信息下拉菜单 -->
+                <DropdownMenu v-model:open="isUserMenuOpen">
+                  <DropdownMenuTrigger as-child>
+                    <button
+                      class="group flex items-center gap-2.5 min-w-0 flex-1 rounded-xl p-2 hover:bg-muted/60 transition-all duration-200"
+                    >
+                      <!-- 用户头像 -->
+                      <div class="relative">
+                        <Avatar class="h-9 w-9 flex-shrink-0 ring-2 ring-primary/20 transition-all duration-200 group-hover:ring-primary/40 group-hover:shadow-md">
+                          <AvatarFallback class="text-sm font-semibold bg-gradient-to-br from-primary to-primary/70 text-primary-foreground">
+                            {{ userInitials }}
+                          </AvatarFallback>
+                        </Avatar>
+                        <!-- 在线状态指示点 -->
+                        <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-background" />
+                      </div>
+                      <!-- 用户信息 -->
+                      <div class="flex flex-col min-w-0 text-left">
+                        <span class="text-sm font-medium truncate group-hover:text-primary transition-colors duration-200">
+                          {{ authStore.user?.name || '用户' }}
+                        </span>
+                        <span class="text-[11px] text-muted-foreground truncate">
+                          {{ authStore.user?.email || 'user@example.com' }}
+                        </span>
+                      </div>
+                      <!-- 下拉指示器 -->
+                      <ChevronUp class="h-4 w-4 text-muted-foreground/50 flex-shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" class="w-56" :side-offset="8">
+                    <div class="px-2 py-1.5">
+                      <p class="text-xs font-medium text-muted-foreground">{{ t('common.sidebar.signedInAs') }}</p>
+                      <p class="text-sm font-semibold truncate">{{ authStore.user?.email || 'user@example.com' }}</p>
                     </div>
-                    <!-- 下拉指示器 -->
-                    <ChevronUp class="h-3.5 w-3.5 text-muted-foreground/50 flex-shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" class="w-56" :side-offset="8">
-                  <div class="px-2 py-1.5">
-                    <p class="text-xs font-medium text-muted-foreground">{{ t('common.sidebar.signedInAs') }}</p>
-                    <p class="text-sm font-semibold truncate">{{ authStore.user?.email || 'user@example.com' }}</p>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem @click="handleGoToProfile" class="gap-2 cursor-pointer">
-                    <User class="h-4 w-4" />
-                    <span>{{ t('common.sidebar.profile') }}</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem @click="handleGoToSettings" class="gap-2 cursor-pointer">
-                    <Settings class="h-4 w-4" />
-                    <span>{{ t('common.sidebar.settings') }}</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem @click="handleLogout" class="gap-2 cursor-pointer text-destructive focus:text-destructive">
-                    <LogOut class="h-4 w-4" />
-                    <span>{{ t('common.sidebar.logout') }}</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem @click="handleGoToProfile" class="gap-2 cursor-pointer">
+                      <User class="h-4 w-4" />
+                      <span>{{ t('common.sidebar.profile') }}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem @click="handleGoToSettings" class="gap-2 cursor-pointer">
+                      <Settings class="h-4 w-4" />
+                      <span>{{ t('common.sidebar.settings') }}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem @click="handleLogout" class="gap-2 cursor-pointer text-destructive focus:text-destructive">
+                      <LogOut class="h-4 w-4" />
+                      <span>{{ t('common.sidebar.logout') }}</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-              <!-- 右侧：折叠按钮 -->
-              <Tooltip>
-                <TooltipTrigger as-child>
-                  <button
-                    @click="handleToggleCollapse"
-                    class="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted hover:text-primary transition-all duration-200 flex-shrink-0 hover:scale-105 active:scale-95"
-                  >
-                    <PanelLeft class="h-4 w-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <span>{{ t('common.sidebar.collapse') }}</span>
-                </TooltipContent>
-              </Tooltip>
-            </div>
+                <!-- 右侧：折叠按钮 -->
+                <Tooltip>
+                  <TooltipTrigger as-child>
+                    <button
+                      @click="handleToggleCollapse"
+                      class="h-9 w-9 flex items-center justify-center rounded-xl bg-muted/50 hover:bg-muted hover:text-primary transition-all duration-200 flex-shrink-0 hover:shadow-sm"
+                    >
+                      <PanelLeft class="h-4 w-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <span>{{ t('common.sidebar.collapse') }}</span>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
 
-            <!-- 折叠状态：用户头像 + 展开按钮 -->
-            <div
-              v-else
-              class="py-3 px-2 flex flex-col items-center gap-3"
-            >
-              <!-- 用户头像下拉菜单 -->
-              <DropdownMenu v-model:open="isUserMenuOpen">
-                <DropdownMenuTrigger as-child>
-                  <button
-                    class="group relative"
-                  >
-                    <Avatar class="h-9 w-9 ring-2 ring-primary/20 transition-all duration-200 group-hover:ring-primary/50 group-hover:scale-105">
-                      <AvatarFallback class="text-sm font-semibold bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
-                        {{ userInitials }}
-                      </AvatarFallback>
-                    </Avatar>
-                    <!-- 在线状态指示点 -->
-                    <span class="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-background" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" side="right" class="w-56" :side-offset="8">
-                  <div class="px-2 py-1.5">
-                    <p class="text-xs font-medium text-muted-foreground">{{ t('common.sidebar.signedInAs') }}</p>
-                    <p class="text-sm font-semibold truncate">{{ authStore.user?.email || 'user@example.com' }}</p>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem @click="handleGoToProfile" class="gap-2 cursor-pointer">
-                    <User class="h-4 w-4" />
-                    <span>{{ t('common.sidebar.profile') }}</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem @click="handleGoToSettings" class="gap-2 cursor-pointer">
-                    <Settings class="h-4 w-4" />
-                    <span>{{ t('common.sidebar.settings') }}</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem @click="handleLogout" class="gap-2 cursor-pointer text-destructive focus:text-destructive">
-                    <LogOut class="h-4 w-4" />
-                    <span>{{ t('common.sidebar.logout') }}</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <!-- 折叠状态：用户头像 + 展开按钮 -->
+              <div
+                v-else
+                class="py-3 px-2 flex flex-col items-center gap-3"
+              >
+                <!-- 用户头像下拉菜单 -->
+                <DropdownMenu v-model:open="isUserMenuOpen">
+                  <DropdownMenuTrigger as-child>
+                    <button
+                      class="group relative"
+                    >
+                      <Avatar class="h-10 w-10 ring-2 ring-primary/20 transition-all duration-200 group-hover:ring-primary/50 group-hover:shadow-lg">
+                        <AvatarFallback class="text-sm font-semibold bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
+                          {{ userInitials }}
+                        </AvatarFallback>
+                      </Avatar>
+                      <!-- 在线状态指示点 -->
+                      <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-background" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" side="right" class="w-56" :side-offset="8">
+                    <div class="px-2 py-1.5">
+                      <p class="text-xs font-medium text-muted-foreground">{{ t('common.sidebar.signedInAs') }}</p>
+                      <p class="text-sm font-semibold truncate">{{ authStore.user?.email || 'user@example.com' }}</p>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem @click="handleGoToProfile" class="gap-2 cursor-pointer">
+                      <User class="h-4 w-4" />
+                      <span>{{ t('common.sidebar.profile') }}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem @click="handleGoToSettings" class="gap-2 cursor-pointer">
+                      <Settings class="h-4 w-4" />
+                      <span>{{ t('common.sidebar.settings') }}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem @click="handleLogout" class="gap-2 cursor-pointer text-destructive focus:text-destructive">
+                      <LogOut class="h-4 w-4" />
+                      <span>{{ t('common.sidebar.logout') }}</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-              <!-- 展开按钮 -->
-              <Tooltip>
-                <TooltipTrigger as-child>
-                  <button
-                    @click="handleToggleCollapse"
-                    class="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted hover:text-primary transition-all duration-200 hover:scale-105 active:scale-95"
-                  >
-                    <PanelRight class="h-4 w-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <span>{{ t('common.sidebar.expand') }}</span>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          </slot>
+                <!-- 展开按钮 -->
+                <Tooltip>
+                  <TooltipTrigger as-child>
+                    <button
+                      @click="handleToggleCollapse"
+                      class="h-9 w-9 flex items-center justify-center rounded-xl bg-muted/50 hover:bg-muted hover:text-primary transition-all duration-200 hover:shadow-sm"
+                    >
+                      <PanelRight class="h-4 w-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <span>{{ t('common.sidebar.expand') }}</span>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </slot>
+          </div>
         </div>
       </TooltipProvider>
     </ResizablePanel>

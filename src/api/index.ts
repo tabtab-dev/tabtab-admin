@@ -25,12 +25,8 @@ export {
 
 export type { UpdateProfileParams } from '@/types';
 
-export {
-  usersApi,
-  type CreateUserParams,
-  type UpdateUserParams,
-  type GetUsersParams,
-} from './modules/users';
+export { usersApi } from './modules/users';
+export type { CreateUserParams, UpdateUserParams, GetUsersParams } from '@/types';
 
 export {
   menuApi,
@@ -56,36 +52,17 @@ export {
   type GetRolesParams,
 } from './modules/role';
 
-export {
-  productsApi,
-  type CreateProductParams,
-  type UpdateProductParams,
-  type GetProductsParams,
-} from './modules/products';
+export { productsApi } from './modules/products';
+export type { CreateProductParams, UpdateProductParams, GetProductsParams } from '@/types';
 
-export {
-  ordersApi,
-  type CreateOrderParams,
-  type UpdateOrderParams,
-  type GetOrdersParams,
-} from './modules/orders';
+export { ordersApi } from './modules/orders';
+export type { CreateOrderParams, UpdateOrderParams, GetOrdersParams } from '@/types';
 
-export {
-  categoriesApi,
-  type CreateCategoryParams,
-  type UpdateCategoryParams,
-  type GetCategoriesParams,
-  type CreateTagParams,
-  type UpdateTagParams,
-} from './modules/categories';
+export { categoriesApi } from './modules/categories';
+export type { CreateCategoryParams, UpdateCategoryParams, GetCategoriesParams, CreateTagParams, UpdateTagParams } from '@/types';
 
-export {
-  inventoryApi,
-  type CreateWarehouseParams,
-  type UpdateWarehouseParams,
-  type GetWarehousesParams,
-  type GetStockParams,
-} from './modules/inventory';
+export { inventoryApi } from './modules/inventory';
+export type { CreateWarehouseParams, UpdateWarehouseParams, GetWarehousesParams, GetStockParams } from '@/types';
 
 export {
   analyticsApi,

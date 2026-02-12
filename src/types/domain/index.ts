@@ -38,6 +38,7 @@ export type {
 // 分类和标签相关类型
 export type {
   Category,
+  CategoryStatus,
   Tag,
   GetCategoriesParams,
   CreateCategoryParams,
@@ -49,7 +50,9 @@ export type {
 // 库存相关类型
 export type {
   Warehouse,
+  WarehouseStatus,
   Stock,
+  StockItem,
   StockMovement,
   GetWarehousesParams,
   GetStockParams,

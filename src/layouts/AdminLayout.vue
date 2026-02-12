@@ -83,7 +83,7 @@ onUnmounted(() => {
         <!-- 页面内容容器 - 使用 shadcn-vue ScrollArea -->
         <div class="flex-1 bg-muted/30 overflow-hidden">
           <ScrollArea class="h-full">
-            <div class="p-6">
+            <div class="p-3 sm:p-4 md:p-5 lg:p-6">
               <PageContainer :refresh-key="refreshKey" />
             </div>
           </ScrollArea>
@@ -97,7 +97,7 @@ onUnmounted(() => {
       class="h-full w-full bg-background overflow-hidden"
     >
       <ScrollArea class="h-full">
-        <div class="p-6">
+        <div class="p-3 sm:p-4 md:p-5 lg:p-6">
           <PageContainer :refresh-key="refreshKey" />
         </div>
       </ScrollArea>
