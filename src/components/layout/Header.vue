@@ -43,7 +43,6 @@ import {
 import PageBreadcrumb from './PageBreadcrumb.vue';
 import { PageBreadcrumbDropdown } from './PageBreadcrumbDropdown';
 import { UserMenu } from './UserMenu';
-import Logo from './Logo.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -200,12 +199,6 @@ onUnmounted(() => {
   <header class="h-12 sm:h-14 border-b border-border/30 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 sticky top-0 z-50">
     <div class="flex items-center justify-between h-full px-2">
       <div class="flex items-center gap-3 flex-1 min-w-0">
-        <!-- Logo 区域 - 放在最左边 -->
-        <div class="flex items-center gap-2 flex-shrink-0">
-          <Logo :size="48" :collapsed="false" />
-          <span class="hidden sm:inline text-sm font-bold tracking-tight">TabTab Admin</span>
-        </div>
-
         <!-- 移动端菜单按钮 -->
         <Button
           variant="ghost"
@@ -220,8 +213,6 @@ onUnmounted(() => {
 
         <!-- 面包屑导航 - 下拉卡片模式 -->
         <template v-if="themeStore.layoutConfig.showBreadcrumb">
-          <!-- 分隔线 -->
-          <div class="hidden lg:block h-6 w-px bg-border/60 mx-1"></div>
           <div class="hidden md:flex items-center min-w-0">
             <PageBreadcrumbDropdown />
           </div>

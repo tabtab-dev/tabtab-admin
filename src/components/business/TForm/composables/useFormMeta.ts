@@ -5,8 +5,21 @@
  * @example
  *   const { meta, updateMeta, markTouched, resetMeta } = useFormMeta()
  */
-import { reactive, ref } from 'vue'
+import { reactive, ref, toRaw } from 'vue'
 import type { FormMeta } from '../types'
+
+/**
+ * 获取原始值 - 处理 Vue Proxy 对象
+ * @param data - 可能是 Proxy 的数据
+ * @returns 原始数据
+ */
+function getRawValue<T>(data: T): T {
+  try {
+    return toRaw(data)
+  } catch {
+    return data
+  }
+}
 
 /**
  * 深拷贝对象 - 使用 JSON 方法，处理函数和特殊对象
@@ -15,13 +28,12 @@ import type { FormMeta } from '../types'
  */
 function deepClone<T>(data: T): T {
   try {
-    // 尝试使用 JSON 方法进行深拷贝
-    // 这样可以处理包含函数的情况（函数会被忽略）
-    return JSON.parse(JSON.stringify(data))
+    const rawData = getRawValue(data)
+    return JSON.parse(JSON.stringify(rawData))
   } catch (e) {
-    // 如果失败（如循环引用），返回原数据的浅拷贝
     console.warn('[useFormMeta] 深拷贝失败，使用浅拷贝', e)
-    return Array.isArray(data) ? [...data] as T : { ...data }
+    const rawData = getRawValue(data)
+    return Array.isArray(rawData) ? [...rawData] as T : { ...rawData } as T
   }
 }
 
@@ -32,45 +44,51 @@ function deepClone<T>(data: T): T {
  * @returns 是否相等
  */
 function isEqual(a: Record<string, any>, b: Record<string, any>): boolean {
-  const keysA = Object.keys(a)
-  const keysB = Object.keys(b)
+  try {
+    const rawA = getRawValue(a)
+    const rawB = getRawValue(b)
 
-  if (keysA.length !== keysB.length) return false
+    const keysA = Object.keys(rawA)
+    const keysB = Object.keys(rawB)
 
-  for (const key of keysA) {
-    if (!keysB.includes(key)) return false
-    const valA = a[key]
-    const valB = b[key]
+    if (keysA.length !== keysB.length) return false
 
-    // 处理日期对象
-    if (valA instanceof Date && valB instanceof Date) {
-      if (valA.getTime() !== valB.getTime()) return false
-      continue
-    }
+    for (const key of keysA) {
+      if (!keysB.includes(key)) return false
+      const valA = rawA[key]
+      const valB = rawB[key]
 
-    // 处理基本类型和数组
-    if (typeof valA !== typeof valB) return false
-
-    if (typeof valA === 'object' && valA !== null && valB !== null) {
-      if (Array.isArray(valA) && Array.isArray(valB)) {
-        if (valA.length !== valB.length) return false
-        for (let i = 0; i < valA.length; i++) {
-          if (typeof valA[i] === 'object' && valA[i] !== null) {
-            if (!isEqual(valA[i], valB[i])) return false
-          } else if (valA[i] !== valB[i]) {
-            return false
-          }
-        }
+      if (valA instanceof Date && valB instanceof Date) {
+        if (valA.getTime() !== valB.getTime()) return false
         continue
       }
-      if (!isEqual(valA, valB)) return false
-      continue
+
+      if (typeof valA !== typeof valB) return false
+
+      if (typeof valA === 'object' && valA !== null && valB !== null) {
+        if (Array.isArray(valA) && Array.isArray(valB)) {
+          if (valA.length !== valB.length) return false
+          for (let i = 0; i < valA.length; i++) {
+            if (typeof valA[i] === 'object' && valA[i] !== null) {
+              if (!isEqual(valA[i], valB[i])) return false
+            } else if (valA[i] !== valB[i]) {
+              return false
+            }
+          }
+          continue
+        }
+        if (!isEqual(valA, valB)) return false
+        continue
+      }
+
+      if (valA !== valB) return false
     }
 
-    if (valA !== valB) return false
+    return true
+  } catch (e) {
+    console.warn('[useFormMeta] 比较对象失败', e)
+    return false
   }
-
-  return true
 }
 
 /**

@@ -11,46 +11,80 @@ import type { ThemeConfig } from 'antdv-next'
 /**
  * 颜色转换映射表
  * @description 将 oklch 颜色值映射到 hex 格式（antdv-next 需要）
+ * 注意：此映射表仅用于特殊情况，常规颜色会通过 oklchToHex 动态转换
  */
 export const colorMap: Record<string, string> = {
-  // 默认主题 - 浅色模式
-  'oklch(0.205 0 0)': '#171717',
-  'oklch(0.985 0 0)': '#fafafa',
-  'oklch(0.97 0 0)': '#f5f5f5',
-  'oklch(0.145 0 0)': '#262626',
-  'oklch(1 0 0)': '#ffffff',
-  'oklch(0.556 0 0)': '#737373',
-  'oklch(0.922 0 0)': '#e5e5e5',
-  'oklch(0.708 0 0)': '#a3a3a3',
-  'oklch(0.577 0.245 27.325)': '#dc2626',
-  'oklch(0.269 0 0)': '#404040',
-  // 默认主题 - 暗黑模式专用
-  'oklch(0.65 0 0)': '#a1a1a1',
-  // 蓝色主题
-  'oklch(0.546 0.245 262.881)': '#2563eb',
-  // 绿色主题
-  'oklch(0.527 0.154 150.069)': '#16a34a',
-  // 紫色主题
-  'oklch(0.558 0.288 302.321)': '#9333ea',
-  // 橙色主题
-  'oklch(0.646 0.222 41.116)': '#ea580c',
-  // 粉色主题
-  'oklch(0.606 0.285 349.5)': '#db2777',
-  // 青绿主题
-  'oklch(0.6 0.118 184.704)': '#0891b2',
-  // 靛蓝主题
-  'oklch(0.511 0.262 276.5)': '#4f46e5',
-  // 黄色主题
-  'oklch(0.769 0.188 70.08)': '#ca8a04',
-  // 青色主题
-  'oklch(0.696 0.17 162.48)': '#059669',
-  // 琥珀金主题
-  'oklch(0.75 0.18 85)': '#d97706',
   // 带透明度的白色变体
   'oklch(1 0 0 / 10%)': 'rgba(255, 255, 255, 0.1)',
   'oklch(1 0 0 / 15%)': 'rgba(255, 255, 255, 0.15)',
-  // 红色变体（用于错误/危险状态）
-  'oklch(0.704 0.191 22.216)': '#ef4444',
+}
+
+/**
+ * 将 OKLCH 颜色空间转换为 sRGB
+ * @param L - 亮度 (0-1)
+ * @param C - 色度 (0-0.4 左右)
+ * @param H - 色相 (0-360)
+ * @returns [r, g, b] 每个值范围 0-1
+ */
+function oklchToRgb(L: number, C: number, H: number): [number, number, number] {
+  const H_rad = (H * Math.PI) / 180
+
+  const a = C * Math.cos(H_rad)
+  const b = C * Math.sin(H_rad)
+
+  const L_ = L + 0.3963377774 * a + 0.2158037573 * b
+  const M_ = L - 0.1055613458 * a - 0.0638541728 * b
+  const S_ = L - 0.0894841775 * a - 1.291485548 * b
+
+  const L__ = L_ ** 3
+  const M__ = M_ ** 3
+  const S__ = S_ ** 3
+
+  const X = 1.2269304363 * L__ - 0.55781499655 * M__ + 0.281391050177 * S__
+  const Y = -0.040575762624 * L__ + 1.11228682939 * M__ - 0.071711066661 * S__
+  const Z = -0.076372949746 * L__ - 0.42149332396 * M__ + 1.58692402442 * S__
+
+  const R_lin = 3.240969941904521 * X - 1.537383177570093 * Y - 0.498610760293 * Z
+  const G_lin = -0.96924363628087 * X + 1.8759675015077202 * Y + 0.041555057407175 * Z
+  const B_lin = 0.055630079696993 * X - 0.20397695888897 * Y + 1.0569715142428786 * Z
+
+  const toSrgb = (v: number) => (v > 0.0031308 ? 1.055 * v ** (1 / 2.4) - 0.055 : 12.92 * v)
+
+  return [toSrgb(R_lin), toSrgb(G_lin), toSrgb(B_lin)]
+}
+
+/**
+ * 将 RGB 值转换为 Hex 字符串
+ * @param r - 红色 (0-1)
+ * @param g - 绿色 (0-1)
+ * @param b - 蓝色 (0-1)
+ * @returns Hex 颜色字符串
+ */
+function rgbToHex(r: number, g: number, b: number): string {
+  const toHex = (v: number) => {
+    const clamped = Math.max(0, Math.min(1, v))
+    return Math.round(clamped * 255)
+      .toString(16)
+      .padStart(2, '0')
+  }
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`
+}
+
+/**
+ * 解析 OKLCH 颜色字符串
+ * @param oklchColor - oklch 格式的颜色值
+ * @returns { L, C, H, alpha } 或 null
+ */
+function parseOklch(oklchColor: string): { L: number; C: number; H: number; alpha: number } | null {
+  const match = oklchColor.match(/oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+%?))?\s*\)/)
+  if (!match) return null
+
+  return {
+    L: parseFloat(match[1]),
+    C: parseFloat(match[2]),
+    H: parseFloat(match[3]),
+    alpha: match[4] ? (match[4].endsWith('%') ? parseFloat(match[4]) / 100 : parseFloat(match[4])) : 1,
+  }
 }
 
 /**
@@ -59,22 +93,27 @@ export const colorMap: Record<string, string> = {
  * @returns hex 格式的颜色值
  */
 export function oklchToHex(oklchColor: string): string {
-  // 直接查找映射表
   if (colorMap[oklchColor]) {
     return colorMap[oklchColor]
   }
 
-  // 处理带透明度的颜色
-  if (oklchColor.includes('/')) {
-    const baseColor = oklchColor.split(' /')[0].trim()
-    if (colorMap[baseColor]) {
-      return colorMap[baseColor]
-    }
+  const parsed = parseOklch(oklchColor)
+  if (!parsed) {
+    return oklchColor
   }
 
-  // 如果无法转换，返回原始值（antdv 可能无法识别，但不会报错）
-  console.warn(`[Theme] 无法转换颜色: ${oklchColor}，请添加到 colorMap`)
-  return oklchColor
+  const { L, C, H, alpha } = parsed
+
+  if (alpha < 1) {
+    const [r, g, b] = oklchToRgb(L, C, H)
+    const rInt = Math.round(Math.max(0, Math.min(1, r)) * 255)
+    const gInt = Math.round(Math.max(0, Math.min(1, g)) * 255)
+    const bInt = Math.round(Math.max(0, Math.min(1, b)) * 255)
+    return `rgba(${rInt}, ${gInt}, ${bInt}, ${alpha})`
+  }
+
+  const [r, g, b] = oklchToRgb(L, C, H)
+  return rgbToHex(r, g, b)
 }
 
 /**

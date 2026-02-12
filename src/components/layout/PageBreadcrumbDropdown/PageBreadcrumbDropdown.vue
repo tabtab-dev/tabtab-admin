@@ -191,17 +191,6 @@ const getGridCols = (childrenCount: number): string => {
   <nav aria-label="breadcrumb" class="flex items-center">
     <ol class="flex items-center gap-1">
       <template v-for="(item, index) in breadcrumbs" :key="item.path">
-        <!-- 分隔符 - 斜杠样式 -->
-        <li 
-          v-if="index > 0" 
-          class="flex items-center text-muted-foreground/40 select-none"
-          aria-hidden="true"
-        >
-          <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 18l6-6-6-6" />
-          </svg>
-        </li>
-
         <li class="flex items-center">
           <!-- 有子菜单的项 - 使用 Bento 下拉面板 -->
           <DropdownMenu v-if="item.children && item.children.length > 0">
@@ -237,6 +226,8 @@ const getGridCols = (childrenCount: number): string => {
             >
               <!-- 面板头部 -->
               <div class="relative px-3 py-2.5 bg-muted/30 border-b border-border/50">
+                <!-- 左侧渐变色装饰 -->
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary/70 via-primary/50 to-primary/20"></div>
                 <div class="flex items-center gap-2.5">
                   <div class="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                     <Icon

@@ -42,7 +42,7 @@ export interface TBatchActionsProps {
   /** 选中的数量 */
   count: number
   /** 操作按钮列表 */
-  actions: BatchAction[]
+  actions?: BatchAction[]
   /** 总数（用于显示 已选 X / 共 Y 项） */
   total?: number
   /** 自定义类名 */

@@ -34,6 +34,7 @@ import {
   User,
   ChevronUp,
 } from 'lucide-vue-next';
+import Logo from '../Logo.vue';
 
 const { t } = useI18n();
 
@@ -227,6 +228,42 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
         <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-muted/20 to-transparent" />
       </div>
 
+      <!-- Logo 区域 -->
+      <div 
+        class="relative z-10 border-b border-border/30"
+        :class="collapsed ? 'p-2' : 'p-3'"
+      >
+        <div 
+          class="flex items-center transition-all duration-200"
+          :class="collapsed ? 'justify-center' : 'gap-3'"
+        >
+          <Logo :size="collapsed ? 36 : 40" :collapsed="collapsed" />
+          <div v-if="!collapsed" class="flex flex-col min-w-0">
+            <span class="text-sm font-bold tracking-tight truncate">TabTab Admin</span>
+            <span class="text-[10px] text-muted-foreground truncate">管理系统</span>
+          </div>
+        </div>
+        <!-- 折叠按钮 - Logo 下方 -->
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger as-child>
+              <button
+                @click="handleToggleCollapse"
+                class="mt-2 w-full h-8 flex items-center justify-center rounded-lg bg-muted/50 hover:bg-muted hover:text-primary transition-all duration-200"
+                :class="collapsed ? 'px-0' : 'gap-2'"
+              >
+                <PanelLeft v-if="!collapsed" class="h-4 w-4" />
+                <PanelRight v-else class="h-4 w-4" />
+                <span v-if="!collapsed" class="text-xs text-muted-foreground">{{ t('common.sidebar.collapse') }}</span>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent v-if="collapsed" side="right">
+              <span>{{ t('common.sidebar.expand') }}</span>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+
       <!-- 菜单列表 -->
       <ScrollArea class="flex-1 h-0 relative z-10">
         <nav class="p-3 space-y-1 relative z-10">
@@ -289,17 +326,17 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
               <!-- 展开状态 -->
               <div
                 v-if="!collapsed"
-                class="p-3 flex items-center justify-between gap-2"
+                class="px-3 py-2"
               >
-                <!-- 左侧：用户信息下拉菜单 -->
+                <!-- 用户信息下拉菜单 -->
                 <DropdownMenu v-model:open="isUserMenuOpen">
                   <DropdownMenuTrigger as-child>
                     <button
-                      class="group flex items-center gap-2.5 min-w-0 flex-1 rounded-xl p-2 hover:bg-muted/60 transition-all duration-200"
+                      class="group flex items-center gap-2.5 min-w-0 w-full rounded-xl p-2 hover:bg-muted/60 transition-all duration-200"
                     >
                       <!-- 用户头像 -->
-                      <div class="relative">
-                        <Avatar class="h-9 w-9 flex-shrink-0 ring-2 ring-primary/20 transition-all duration-200 group-hover:ring-primary/40 group-hover:shadow-md">
+                      <div class="relative flex-shrink-0">
+                        <Avatar class="h-9 w-9 ring-2 ring-primary/20 transition-all duration-200 group-hover:ring-primary/40 group-hover:shadow-md">
                           <AvatarFallback class="text-sm font-semibold bg-gradient-to-br from-primary to-primary/70 text-primary-foreground">
                             {{ userInitials }}
                           </AvatarFallback>
@@ -308,7 +345,7 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
                         <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-background" />
                       </div>
                       <!-- 用户信息 -->
-                      <div class="flex flex-col min-w-0 text-left">
+                      <div class="flex flex-col min-w-0 flex-1 text-left">
                         <span class="text-sm font-medium truncate group-hover:text-primary transition-colors duration-200">
                           {{ authStore.user?.name || '用户' }}
                         </span>
@@ -341,27 +378,12 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-
-                <!-- 右侧：折叠按钮 -->
-                <Tooltip>
-                  <TooltipTrigger as-child>
-                    <button
-                      @click="handleToggleCollapse"
-                      class="h-9 w-9 flex items-center justify-center rounded-xl bg-muted/50 hover:bg-muted hover:text-primary transition-all duration-200 flex-shrink-0 hover:shadow-sm"
-                    >
-                      <PanelLeft class="h-4 w-4" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">
-                    <span>{{ t('common.sidebar.collapse') }}</span>
-                  </TooltipContent>
-                </Tooltip>
               </div>
 
-              <!-- 折叠状态：用户头像 + 展开按钮 -->
+              <!-- 折叠状态：用户头像 -->
               <div
                 v-else
-                class="py-3 px-2 flex flex-col items-center gap-3"
+                class="py-3 px-2 flex flex-col items-center"
               >
                 <!-- 用户头像下拉菜单 -->
                 <DropdownMenu v-model:open="isUserMenuOpen">
@@ -399,21 +421,6 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-
-                <!-- 展开按钮 -->
-                <Tooltip>
-                  <TooltipTrigger as-child>
-                    <button
-                      @click="handleToggleCollapse"
-                      class="h-9 w-9 flex items-center justify-center rounded-xl bg-muted/50 hover:bg-muted hover:text-primary transition-all duration-200 hover:shadow-sm"
-                    >
-                      <PanelRight class="h-4 w-4" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">
-                    <span>{{ t('common.sidebar.expand') }}</span>
-                  </TooltipContent>
-                </Tooltip>
               </div>
             </slot>
           </div>

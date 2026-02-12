@@ -58,7 +58,7 @@
 | **核心框架** | [Vue 3](https://vuejs.org/) · [TypeScript](https://www.typescriptlang.org/) |
 | **构建工具** | [Vite](https://vitejs.dev/) (Rolldown) |
 | **样式方案** | [Tailwind CSS v4](https://tailwindcss.com/) |
-| **UI 组件** | [shadcn-vue](https://www.shadcn-vue.com/) · [Reka UI](https://reka-ui.com/) · [antdv-next](https://www.antdv.com/) |
+| **UI 组件** | [shadcn-vue](https://www.shadcn-vue.com/) · [Reka UI](https://reka-ui.com/) · [antdv-next](https://antdv-next.com/) |
 | **状态管理** | [Pinia](https://pinia.vuejs.org/) · pinia-plugin-persistedstate |
 | **路由方案** | [Vue Router 4](https://router.vuejs.org/) |
 | **国际化** | [Vue I18n](https://vue-i18n.intlify.dev/) |
