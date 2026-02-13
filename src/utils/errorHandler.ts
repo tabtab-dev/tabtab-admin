@@ -18,8 +18,8 @@ export class AppError extends Error {
   constructor(
     message: string,
     public code: string = 'UNKNOWN_ERROR',
-    public level: ErrorLevel = 'error',
-    public details?: Record<string, any>
+    public level: ErrorLevel,
+    public details?: Record<string, unknown>
   ) {
     super(message);
     this.name = 'AppError';
@@ -181,17 +181,119 @@ interface FormValidateErrorInfo {
 }
 
 /**
+ * antdv-next 验证错误元素
+ */
+interface AntdvValidationErrorItem {
+  errors: string[];
+  rule?: {
+    message?: string;
+    [key: string]: any;
+  };
+  [key: string]: any;
+}
+
+/**
  * 检查是否为表单验证错误
  * @param error - 错误对象
  * @returns 是否为表单验证错误
  */
 function isFormValidationError(error: unknown): error is FormValidateErrorInfo {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'errorFields' in error &&
-    Array.isArray((error as FormValidateErrorInfo).errorFields)
-  );
+  if (typeof error !== 'object' || error === null) {
+    return false;
+  }
+
+  const err = error as Record<string, unknown>;
+
+  if ('errorFields' in err) {
+    const errorFields = err.errorFields;
+    if (Array.isArray(errorFields)) {
+      if (errorFields.length > 0) {
+        const first = errorFields[0];
+        if (typeof first === 'object' && first !== null && 'errors' in first) {
+          return true;
+        }
+      }
+      return true;
+    }
+  }
+
+  if ('errors' in err && Array.isArray((err as any).errors)) {
+    return true;
+  }
+
+  if (Array.isArray(err)) {
+    const first = err[0];
+    if (first && typeof first === 'object' && 'errors' in first && Array.isArray((first as any).errors)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * 提取表单验证错误信息
+ * @param error - 错误对象
+ * @returns 错误消息和字段错误映射
+ */
+function extractFormValidationError(error: unknown): { message: string; fields: Record<string, string[]> } {
+  const err = error as Record<string, unknown>;
+
+  if ('errorFields' in err && Array.isArray(err.errorFields)) {
+    const firstError = (err.errorFields as Array<{ name?: string | string[]; errors?: string[] }>)?.[0];
+    const errorMessage = firstError?.errors?.[0] || '表单验证失败';
+    const fields: Record<string, string[]> = {};
+
+    (err.errorFields as Array<{ name?: string | string[]; errors?: string[] }>)?.forEach((field) => {
+      const fieldName = Array.isArray(field.name) ? field.name.join('.') : String(field.name || 'unknown');
+      fields[fieldName] = field.errors || [];
+    });
+
+    return { message: errorMessage, fields };
+  }
+
+  if ('errors' in err && Array.isArray(err.errors)) {
+    const errorMessage = (err.errors as string[])?.[0] || '表单验证失败';
+    return {
+      message: errorMessage,
+      fields: { form: err.errors as string[] }
+    };
+  }
+
+  if (Array.isArray(err)) {
+    const errorItems = err as AntdvValidationErrorItem[];
+    const fields: Record<string, string[]> = {};
+    let message = '表单验证失败';
+
+    // 先收集所有有 errors 的错误
+    for (let index = 0; index < errorItems.length; index++) {
+      const item = errorItems[index];
+      const errorTexts = item.errors || [];
+      
+      if (errorTexts.length > 0) {
+        fields[`field_${index}`] = errorTexts;
+        if (!message || message === '表单验证失败') {
+          message = errorTexts[0];
+        }
+      }
+    }
+
+    // 如果没有找到有 errors 的，使用 rule.message
+    if (message === '表单验证失败') {
+      for (let index = 0; index < errorItems.length; index++) {
+        const item = errorItems[index];
+        if (item.rule?.message) {
+          fields[`field_${index}`] = [item.rule.message];
+          message = item.rule.message;
+          break;
+        }
+      }
+    }
+
+    return { message, fields };
+  }
+
+  return { message: '表单验证失败', fields: {} };
 }
 
 /**
@@ -204,6 +306,12 @@ export function normalizeError(error: unknown): AppError {
     return error;
   }
 
+  // 表单验证错误（需要在 Error 检查之前，因为验证错误可能是 Error 的子类）
+  if (isFormValidationError(error)) {
+    const { message, fields } = extractFormValidationError(error);
+    return new ValidationError(message, fields, 'FORM_VALIDATION_ERROR');
+  }
+
   // 标准 Error 对象
   if (error instanceof Error) {
     return new AppError(error.message, 'ERROR', 'error', { originalError: error });
@@ -214,23 +322,17 @@ export function normalizeError(error: unknown): AppError {
     return new AppError(error, 'ERROR', 'error');
   }
 
-  // 表单验证错误
-  if (isFormValidationError(error)) {
-    const firstError = error.errorFields?.[0];
-    const errorMessage = firstError?.errors?.[0] || '表单验证失败';
-    const fields: Record<string, string[]> = {};
+  // 其他类型 - 尝试提取错误消息
+  const errObj = error as Record<string, unknown>;
+  const extractedMessage =
+    errObj?.message ||
+    errObj?.msg ||
+    errObj?.error ||
+    errObj?.errorMessage ||
+    '发生未知错误';
 
-    error.errorFields?.forEach((field) => {
-      const fieldName = Array.isArray(field.name) ? field.name.join('.') : String(field.name);
-      fields[fieldName] = field.errors || [];
-    });
-
-    return new ValidationError(errorMessage, fields, 'FORM_VALIDATION_ERROR');
-  }
-
-  // 其他类型
   return new AppError(
-    '发生未知错误',
+    String(extractedMessage),
     'UNKNOWN_ERROR',
     'error',
     { originalError: error }
@@ -241,7 +343,10 @@ export function normalizeError(error: unknown): AppError {
  * 显示错误提示
  */
 function showErrorToast(error: AppError): void {
-  // 根据错误级别显示不同的提示
+  if (error instanceof ValidationError) {
+    return;
+  }
+  
   switch (error.level) {
     case 'info':
       toast.info(error.message);
@@ -285,7 +390,22 @@ export function setupGlobalErrorHandler(): void {
 
   // 处理 Promise 未捕获的错误
   window.addEventListener('unhandledrejection', (event) => {
-    handleError(event.reason, {
+    const reason = event.reason;
+    
+    // 如果是表单验证错误，设置级别为 warning，不显示 toast
+    if (isFormValidationError(reason)) {
+      const appError = normalizeError(reason);
+      appError.level = 'warning';
+      
+      if (import.meta.env.DEV) {
+        console.log('[ErrorHandler] Form validation error (suppressed toast):', appError);
+      }
+      reportError(appError);
+      event.preventDefault();
+      return;
+    }
+    
+    handleError(reason, {
       showToast: true,
       report: true,
     });
