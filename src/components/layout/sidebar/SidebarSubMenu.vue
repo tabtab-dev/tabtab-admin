@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ChevronDown, ChevronRight } from 'lucide-vue-next';
+import { ChevronDown } from 'lucide-vue-next';
 import { Icon } from '@/components/Icon';
 import { useMenuUtils, formatBadge } from '@/layouts/composables/useMenuUtils';
 import MenuItemRecursive from './MenuItemRecursive.vue';
@@ -341,7 +341,7 @@ const childCountText = computed(() => {
     </Teleport>
   </div>
 
-  <!-- 展开状态：树形结构 - 优化后的设计 -->
+  <!-- 展开状态：树形结构 -->
   <div v-else class="space-y-0.5">
     <!-- 父菜单 -->
     <Button
@@ -351,95 +351,51 @@ const childCountText = computed(() => {
       :aria-haspopup="true"
       :aria-current="getAriaCurrent(item.path)"
       :class="[
-        'w-full justify-between h-10 sm:h-9 px-3 sm:px-2.5 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden rounded-lg touch-manipulation',
-        (active || isChildActive) ? 'bg-primary/10 text-primary shadow-sm' : 'hover:bg-accent hover:shadow-sm'
+        'w-full justify-between h-9 px-3 group transition-colors duration-150 rounded-lg',
+        (active || isChildActive) ? 'bg-primary/10 text-primary' : 'hover:bg-muted'
       ]"
       @click="handleParentClick"
     >
-      <!-- 激活状态左侧指示器 - 全高度渐变条 -->
-      <span
-        v-if="active || isChildActive"
-        class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary to-primary rounded-r-full"
-        aria-hidden="true"
-      />
-
-      <!-- 激活状态背景光效 -->
-      <span
-        v-if="active || isChildActive"
-        class="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent"
-        aria-hidden="true"
-      />
-
-      <!-- 悬停时的背景光效 -->
-      <span
-        v-if="!(active || isChildActive)"
-        class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/3 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"
-        aria-hidden="true"
-      />
-
-      <div class="flex items-center gap-2.5 relative z-10 flex-1 min-w-0">
-        <!-- 图标容器 -->
-        <div
+      <div class="flex items-center gap-2 flex-1 min-w-0">
+        <Icon
+          v-if="item.icon"
+          :name="item.icon"
           :class="[
-            'h-7 w-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200',
-            (active || isChildActive) ? 'bg-primary/15' : 'bg-muted/50 group-hover:bg-primary/10'
+            'h-4 w-4',
+            (active || isChildActive) ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
           ]"
-        >
-          <Icon
-            v-if="item.icon"
-            :name="item.icon"
-            :class="[
-              'h-4 w-4 transition-colors duration-200',
-              (active || isChildActive) ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
-            ]"
-            aria-hidden="true"
-          />
-        </div>
-        <span class="truncate font-medium text-sm">{{ menuTitle }}</span>
+          aria-hidden="true"
+        />
+        <span class="truncate text-sm">{{ menuTitle }}</span>
       </div>
 
-      <div class="flex items-center gap-1.5 relative z-10">
+      <div class="flex items-center gap-1.5 flex-shrink-0">
         <Badge
           v-if="item.badge"
           variant="destructive"
-          class="h-4 px-1.5 text-[10px] animate-in zoom-in-50 font-medium shadow-sm"
+          class="h-4 px-1.5 text-[10px] font-medium"
           role="status"
         >
           {{ formatBadge(item.badge) }}
         </Badge>
 
-        <div
+        <ChevronDown
           :class="[
-            'h-5 w-5 rounded flex items-center justify-center transition-all duration-200',
-            (active || isChildActive) ? 'bg-primary/10' : 'bg-muted/50 group-hover:bg-primary/5'
+            'h-3.5 w-3.5 transition-transform duration-200',
+            expanded ? 'rotate-0' : '-rotate-90',
+            (active || isChildActive) ? 'text-primary' : 'text-muted-foreground'
           ]"
-        >
-          <ChevronDown
-            v-if="expanded"
-            :class="[
-              'h-3.5 w-3.5 transition-transform duration-200',
-              (active || isChildActive) ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
-            ]"
-            aria-hidden="true"
-          />
-          <ChevronRight
-            v-else
-            :class="[
-              'h-3.5 w-3.5 transition-transform duration-200',
-              (active || isChildActive) ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
-            ]"
-            aria-hidden="true"
-          />
-        </div>
+          aria-hidden="true"
+        />
       </div>
     </Button>
 
-    <!-- 子菜单 - 优化后的展开动画 -->
+    <!-- 子菜单 - 简洁展开动画 -->
     <Transition
-      enter-active-class="transition-all duration-250 ease-out"
+      enter-active-class="transition-all duration-200 ease-out"
       enter-from-class="opacity-0 max-h-0"
       enter-to-class="opacity-100 max-h-[500px]"
-      leave-active-class="transition-all duration-200 ease-in"
+      leave-active-class="transition-all duration-150 ease-in"
       leave-from-class="opacity-100 max-h-[500px]"
       leave-to-class="opacity-0 max-h-0"
     >
@@ -447,14 +403,8 @@ const childCountText = computed(() => {
         v-if="expanded"
         role="menu"
         :aria-label="`${menuTitle} 子菜单`"
-        class="ml-3 mt-1 space-y-0.5 overflow-hidden relative"
+        class="ml-4 mt-1 space-y-0.5 overflow-hidden relative border-l border-border/50 pl-3"
       >
-        <!-- 子菜单容器背景 -->
-        <div class="absolute inset-0 bg-muted/30 rounded-lg" />
-        
-        <!-- 垂直主干线 - 渐变虚线效果 -->
-        <div class="absolute left-3 top-2 bottom-2 w-px bg-gradient-to-b from-primary/40 via-primary/20 to-primary/40 rounded-full" />
-
         <!-- 递归渲染多级子菜单 -->
         <MenuItemRecursive
           v-for="child in item.children"

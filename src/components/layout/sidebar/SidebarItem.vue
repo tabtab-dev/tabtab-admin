@@ -77,7 +77,7 @@ const ariaLabel = computed(() => {
 </script>
 
 <template>
-  <!-- 折叠状态：显示 Tooltip - 优化后的设计 -->
+  <!-- 折叠状态：显示 Tooltip -->
   <Tooltip v-if="collapsed">
     <TooltipTrigger as-child>
       <Button
@@ -87,8 +87,8 @@ const ariaLabel = computed(() => {
         :aria-label="ariaLabel"
         :aria-current="getAriaCurrent(item.path)"
         :class="[
-          'relative h-10 w-10 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-lg',
-          active ? 'bg-primary text-primary-foreground' : 'hover:bg-primary/10 hover:text-primary'
+          'relative h-10 w-10 transition-colors duration-150 rounded-lg',
+          active ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
         ]"
         @click="handleClick"
       >
@@ -99,23 +99,15 @@ const ariaLabel = computed(() => {
           aria-hidden="true"
         />
 
-        <!-- 徽标 - 折叠状态下显示在左上角 - 使用 shadcn-vue Badge 组件 -->
         <Badge
           v-if="item.badge"
           variant="destructive"
-          class="absolute -top-1 -left-1 h-4 min-w-4 !px-1 text-[10px] animate-in zoom-in-50"
+          class="absolute -top-1 -left-1 h-4 min-w-4 !px-1 text-[10px]"
           role="status"
           :aria-label="`${item.badge} 条通知`"
         >
           {{ formatBadge(item.badge) }}
         </Badge>
-
-        <!-- 激活状态指示点 -->
-        <span
-          v-if="active"
-          class="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 bg-primary-foreground rounded-full border-2 border-background"
-          aria-hidden="true"
-        />
       </Button>
     </TooltipTrigger>
 
@@ -133,64 +125,34 @@ const ariaLabel = computed(() => {
     </TooltipContent>
   </Tooltip>
 
-  <!-- 展开状态：显示完整按钮 - 优化后的设计 -->
+  <!-- 展开状态：显示完整按钮 -->
   <Button
     v-else
     :variant="variant"
     role="menuitem"
     :aria-current="getAriaCurrent(item.path)"
     :class="[
-      'w-full justify-start gap-2.5 h-10 sm:h-9 px-3 sm:px-2.5 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden rounded-lg touch-manipulation',
-      active ? 'bg-primary/10 text-primary shadow-sm' : 'hover:bg-accent hover:shadow-sm'
+      'w-full justify-start gap-2 h-9 px-3 group transition-colors duration-150 rounded-lg',
+      active ? 'bg-primary/10 text-primary' : 'hover:bg-muted'
     ]"
     @click="handleClick"
   >
-    <!-- 激活状态左侧指示器 - 优化后的流动光效 -->
-    <span
-      v-if="active"
-      class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary to-primary rounded-r-full"
-      aria-hidden="true"
-    />
-
-    <!-- 激活状态背景光效 -->
-    <span
-      v-if="active"
-      class="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent"
-      aria-hidden="true"
-    />
-
-    <!-- 悬停时的背景光效 -->
-    <span
-      v-if="!active"
-      class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/3 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"
-      aria-hidden="true"
-    />
-
-    <!-- 图标容器 -->
-    <div
+    <Icon
+      v-if="item.icon"
+      :name="item.icon"
       :class="[
-        'h-7 w-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200',
-        active ? 'bg-primary/15' : 'bg-muted/50 group-hover:bg-primary/10'
+        'h-4 w-4',
+        active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
       ]"
-    >
-      <Icon
-        v-if="item.icon"
-        :name="item.icon"
-        :class="[
-          'h-4 w-4 transition-colors duration-200',
-          active ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
-        ]"
-        aria-hidden="true"
-      />
-    </div>
+      aria-hidden="true"
+    />
 
-    <span class="flex-1 text-left truncate font-medium text-sm">{{ menuTitle }}</span>
+    <span class="flex-1 text-left truncate text-sm">{{ menuTitle }}</span>
 
-    <!-- 徽标 - 展开状态下显示为 Badge - 优化后的动画 -->
     <Badge
       v-if="item.badge"
       variant="destructive"
-      class="h-4 px-1.5 text-[10px] animate-in zoom-in-50 font-medium shadow-sm"
+      class="h-4 px-1.5 text-[10px] font-medium"
       role="status"
     >
       {{ formatBadge(item.badge) }}

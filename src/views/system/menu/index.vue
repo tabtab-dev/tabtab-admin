@@ -78,7 +78,7 @@ const { mutate: createMenu } = useMutation({
     path: values.path,
     component: values.component,
     icon: values.icon,
-    parentId: values.parentId,
+    parentId: values.parentId || null,
     sort: values.sort || 0,
     status: values.status,
     hidden: values.hidden || false,
@@ -103,7 +103,7 @@ const { mutate: updateMenu } = useMutation({
       path: values.path,
       component: values.component,
       icon: values.icon,
-      parentId: values.parentId,
+      parentId: values.parentId || null,
       sort: values.sort,
       status: values.status,
       hidden: values.hidden,
@@ -354,7 +354,7 @@ const menuTreeOptions = computed(() => {
   return [
     {
       title: '顶级菜单',
-      value: 0,
+      value: '',
       key: 'root',
       children: treeData
     }

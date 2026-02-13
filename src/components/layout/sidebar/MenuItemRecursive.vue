@@ -58,64 +58,45 @@ const hasChildren = computed(() => {
 });
 
 /**
- * 获取按钮样式类 - 根据层级和激活状态返回不同的样式
+ * 获取按钮样式类
  */
 const buttonClasses = computed(() => {
-  const baseClasses = 'w-full justify-between h-9 px-3 group transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden rounded-lg touch-manipulation';
+  const baseClasses = 'w-full justify-between h-9 px-3 group transition-colors duration-150 rounded-lg';
 
   if (props.item.disabled) {
     return `${baseClasses} opacity-50 cursor-not-allowed`;
   }
 
-  // 深层级菜单（level>=1，即二级及以上）
   if (active.value) {
-    return `${baseClasses} bg-primary/10 text-primary shadow-sm`;
+    return `${baseClasses} bg-primary/10 text-primary`;
   }
   if (isChildActive.value) {
-    return `${baseClasses} bg-muted/50 text-foreground shadow-sm`;
+    return `${baseClasses} bg-muted/50`;
   }
-  return `${baseClasses} hover:bg-accent hover:shadow-sm`;
-});
-
-/**
- * 获取左侧指示器样式 - 根据层级返回不同的指示器样式
- */
-const indicatorClasses = computed(() => {
-  // 深层级使用圆点指示器
-  if (active.value) {
-    return 'absolute left-2 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-primary shadow-sm';
-  }
-  if (isChildActive.value) {
-    return 'absolute left-2 top-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full bg-primary/50';
-  }
-  return null;
+  return `${baseClasses} hover:bg-muted`;
 });
 
 /**
  * 获取图标样式类
  */
 const iconClasses = computed(() => {
-  const baseClasses = 'h-4 w-4 transition-colors duration-200';
-
   if (active.value) {
-    return `${baseClasses} text-primary`;
+    return 'h-4 w-4 text-primary';
   }
   if (isChildActive.value) {
-    return `${baseClasses} text-primary/70 group-hover:text-primary`;
+    return 'h-4 w-4 text-muted-foreground';
   }
-  return `${baseClasses} text-muted-foreground group-hover:text-primary`;
+  return 'h-4 w-4 text-muted-foreground group-hover:text-foreground';
 });
 
 /**
  * 获取展开/收起图标样式类
  */
 const expandIconClasses = computed(() => {
-  const baseClasses = 'h-3.5 w-3.5 transition-transform duration-200';
-
   if (active.value || isChildActive.value) {
-    return `${baseClasses} text-primary`;
+    return 'h-3.5 w-3.5 text-primary';
   }
-  return `${baseClasses} text-muted-foreground group-hover:text-foreground`;
+  return 'h-3.5 w-3.5 text-muted-foreground';
 });
 
 /**
@@ -145,13 +126,7 @@ const menuTitle = computed(() => {
 </script>
 
 <template>
-  <div class="relative pl-5">
-    <!-- 左侧连接线 - 每个菜单项都有 -->
-    <div 
-      v-if="level >= 1"
-      class="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-px bg-gradient-to-r from-primary/30 to-transparent"
-    />
-    
+  <div class="relative">
     <!-- 菜单项 -->
     <Button
       :variant="active || isChildActive ? 'default' : 'ghost'"
@@ -163,83 +138,47 @@ const menuTitle = computed(() => {
       :class="buttonClasses"
       @click="handleClick"
     >
-      <!-- 激活状态左侧指示器 -->
-      <span
-        v-if="indicatorClasses"
-        :class="indicatorClasses"
-        aria-hidden="true"
-      />
-
-      <!-- 激活状态背景光效 -->
-      <span
-        v-if="active"
-        class="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent"
-        aria-hidden="true"
-      />
-
-      <!-- 悬停时的背景光效 - 仅非激活状态显示 -->
-      <span
-        v-if="!active && !isChildActive"
-        class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/3 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"
-        aria-hidden="true"
-      />
-
-      <div class="flex items-center gap-2 relative z-10 flex-1 min-w-0">
-        <!-- 图标容器 -->
-        <div
+      <div class="flex items-center gap-2 flex-1 min-w-0">
+        <!-- 图标 -->
+        <Icon
           v-if="item.icon"
-          :class="[
-            'h-6 w-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-200',
-            active ? 'bg-primary/15' : 'bg-muted/50 group-hover:bg-primary/10'
-          ]"
-        >
-          <Icon
-            :name="item.icon"
-            :class="iconClasses"
-            aria-hidden="true"
-          />
-        </div>
-        <span class="truncate font-medium text-sm">{{ menuTitle }}</span>
+          :name="item.icon"
+          :class="iconClasses"
+          aria-hidden="true"
+        />
+        <span class="truncate text-sm">{{ menuTitle }}</span>
       </div>
 
-      <div class="flex items-center gap-1.5 relative z-10 flex-shrink-0">
+      <div class="flex items-center gap-1.5 flex-shrink-0">
         <Badge
           v-if="item.badge"
           variant="destructive"
-          class="h-4 px-1.5 text-[10px] animate-in zoom-in-50 font-medium shadow-sm"
+          class="h-4 px-1.5 text-[10px] font-medium"
           role="status"
         >
           {{ formatBadge(item.badge) }}
         </Badge>
 
-        <!-- 展开/收起图标容器 -->
-        <div
-          v-if="hasChildren && !collapsed"
-          :class="[
-            'h-5 w-5 rounded flex items-center justify-center transition-all duration-200',
-            (active || isChildActive) ? 'bg-primary/10' : 'bg-muted/50 group-hover:bg-primary/5'
-          ]"
-        >
-          <ChevronDown
-            v-if="isExpanded"
-            :class="expandIconClasses"
-            aria-hidden="true"
-          />
-          <ChevronRight
-            v-else
-            :class="expandIconClasses"
-            aria-hidden="true"
-          />
-        </div>
+        <!-- 展开/收起图标 -->
+        <ChevronDown
+          v-if="hasChildren && !collapsed && isExpanded"
+          :class="expandIconClasses"
+          aria-hidden="true"
+        />
+        <ChevronRight
+          v-else-if="hasChildren && !collapsed"
+          :class="expandIconClasses"
+          aria-hidden="true"
+        />
       </div>
     </Button>
 
-    <!-- 子菜单 - 递归渲染 -->
+    <!-- 子菜单 -->
     <Transition
-      enter-active-class="transition-all duration-250 ease-out"
+      enter-active-class="transition-all duration-200 ease-out"
       enter-from-class="opacity-0 max-h-0"
       enter-to-class="opacity-100 max-h-[500px]"
-      leave-active-class="transition-all duration-200 ease-in"
+      leave-active-class="transition-all duration-150 ease-in"
       leave-from-class="opacity-100 max-h-[500px]"
       leave-to-class="opacity-0 max-h-0"
     >
@@ -247,14 +186,8 @@ const menuTitle = computed(() => {
         v-if="hasChildren && isExpanded && !collapsed"
         role="menu"
         :aria-label="`${item.title} 子菜单`"
-        class="mt-1 space-y-0.5 overflow-hidden relative"
+        class="ml-4 mt-1 space-y-0.5 overflow-hidden border-l border-border/50 pl-3"
       >
-        <!-- 子菜单容器背景 -->
-        <div class="absolute inset-0 bg-muted/20 rounded-lg" />
-        
-        <!-- 垂直主干线 - 渐变效果 -->
-        <div class="absolute left-3 top-2 bottom-2 w-px bg-gradient-to-b from-primary/30 via-primary/15 to-primary/30 rounded-full" />
-
         <!-- 递归渲染子菜单项 -->
         <MenuItemRecursive
           v-for="child in item.children"
@@ -270,7 +203,6 @@ const menuTitle = computed(() => {
 </template>
 
 <script lang="ts">
-// 自引用组件
 export default {
   name: 'MenuItemRecursive'
 }
