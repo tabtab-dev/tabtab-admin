@@ -569,7 +569,7 @@ function handleTableChange(pagination: any): void {
 
           <template #role="slotProps">
             <Tag :color="(slotProps as any).text === USER_ROLES.ADMIN ? 'red' : (slotProps as any).text === USER_ROLES.EDITOR ? 'blue' : 'default'">
-              {{ STATUS_CONFIG.USER[(slotProps as any).text as keyof typeof STATUS_CONFIG.USER]?.text || (slotProps as any).text }}
+              {{ (slotProps as any).text === USER_ROLES.ADMIN ? '管理员' : (slotProps as any).text === USER_ROLES.EDITOR ? '编辑' : '查看者' }}
             </Tag>
           </template>
 

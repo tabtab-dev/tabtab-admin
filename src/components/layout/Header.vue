@@ -39,6 +39,7 @@ import {
   MessageSquare,
   Maximize2,
   Minimize2,
+  Home,
 } from 'lucide-vue-next';
 import PageBreadcrumb from './PageBreadcrumb.vue';
 import { PageBreadcrumbDropdown } from './PageBreadcrumbDropdown';
@@ -46,6 +47,7 @@ import { UserMenu } from './UserMenu';
 
 const { t } = useI18n();
 const route = useRoute();
+const router = useRouter();
 const appStore = useAppStore();
 const themeStore = useThemeStore();
 const menuStore = useMenuStore();
@@ -121,6 +123,13 @@ const {
 const currentRouteTitle = computed(() => {
   return menuStore.getRouteTitle(route.path);
 });
+
+/**
+ * 跳转到首页
+ */
+const goToHome = () => {
+  router.push('/');
+};
 
 /**
  * 处理搜索
@@ -217,6 +226,19 @@ onUnmounted(() => {
             <PageBreadcrumbDropdown />
           </div>
         </template>
+
+        <!-- 面包屑隐藏时，显示页面标题 -->
+        <div v-if="!themeStore.layoutConfig.showBreadcrumb" class="hidden md:flex items-center gap-2 min-w-0">
+          <div 
+            class="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 cursor-pointer hover:bg-primary/20 transition-colors"
+            @click="goToHome"
+          >
+            <Home class="h-3.5 w-3.5 text-primary" />
+          </div>
+          <h1 class="text-sm font-semibold text-foreground truncate">
+            {{ $t(currentRouteTitle) }}
+          </h1>
+        </div>
 
         <!-- 移动端页面标题 -->
         <h1 class="md:hidden text-xs sm:text-sm font-semibold text-foreground truncate">

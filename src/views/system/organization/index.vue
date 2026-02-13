@@ -12,7 +12,7 @@ import { organizationApi } from '@/api'
 import type { Organization } from '@/api/modules/organization'
 import { useTableData, useMutation } from '@/composables'
 import { Plus, Building, Users, Network, Search, Eye, EyeOff } from 'lucide-vue-next'
-import { Switch, Tooltip } from 'antdv-next'
+import { Switch, Tooltip, Badge } from 'antdv-next'
 
 // ==================== 数据管理 ====================
 const {

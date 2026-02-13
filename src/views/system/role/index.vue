@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { roleApi } from '@/api'
 import { useTableData, useMutation } from '@/composables'
 import { Plus, Shield, Users, Key, Search, Check, Edit, Trash2, Lock } from 'lucide-vue-next'
-import { Tag, Checkbox, Space, Tooltip, Switch } from 'antdv-next'
+import { Tag, Checkbox, Space, Tooltip, Switch, Badge } from 'antdv-next'
 import { nextTick } from 'vue'
 
 // ==================== 类型定义 ====================

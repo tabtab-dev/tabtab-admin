@@ -31,6 +31,8 @@ export const customThemeConfigs: Record<string, {
  * 覆盖默认布局配置
  */
 export const customLayoutConfig: Partial<LayoutConfig> = {
+  // 默认显示面包屑
+  showBreadcrumb: true,
   // 示例：自定义布局
   // sidebarWidth: 300,
   // radius: 0.75,
