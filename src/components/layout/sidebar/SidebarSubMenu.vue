@@ -352,7 +352,7 @@ const childCountText = computed(() => {
       :aria-current="getAriaCurrent(item.path)"
       :class="[
         'w-full justify-between h-9 px-3 group transition-colors duration-150 rounded-lg',
-        (active || isChildActive) ? 'bg-primary/10 text-primary' : 'hover:bg-muted'
+        (active || isChildActive) ? 'bg-primary/10 text-primary' : 'hover:bg-accent hover:text-accent-foreground'
       ]"
       @click="handleParentClick"
     >

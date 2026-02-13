@@ -73,7 +73,7 @@ const buttonClasses = computed(() => {
   if (isChildActive.value) {
     return `${baseClasses} bg-muted/50`;
   }
-  return `${baseClasses} hover:bg-muted`;
+  return `${baseClasses} hover:bg-accent hover:text-accent-foreground`;
 });
 
 /**

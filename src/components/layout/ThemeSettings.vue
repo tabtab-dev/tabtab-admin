@@ -113,46 +113,23 @@ const updateFixedTabBar = (value: boolean) => {
  * @returns 可用于 theme.config.ts 的配置代码
  */
 const generateThemeConfigCode = (): string => {
-  const currentLayout = themeStore.layoutConfig;
-
-  const configCode = `/**
- * 导出的用户主题配置
- * 复制此内容到 src/config/theme.config.ts 的 exportedUserConfig 对象中
- */
-export const exportedUserConfig = {
-  // 主题配置（可选：添加自定义主题或覆盖默认主题）
-  themeConfigs: {
-    // 示例：自定义主题
-    // myCustomTheme: {
-    //   name: '我的主题',
-    //   primary: 'oklch(0.6 0.2 250)',
-    //   primaryForeground: 'oklch(0.985 0 0)',
-    // },
-  } as Record<string, {
-    name: string;
-    primary: string;
-    primaryForeground?: string;
-    accent?: string;
-    accentForeground?: string;
-    darkPrimary?: string;
-  }>,
-
-  // 布局配置（当前设置）
-  layoutConfig: {
-    sidebarWidth: ${currentLayout.sidebarWidth},
-    sidebarCollapsedWidth: ${currentLayout.sidebarCollapsedWidth},
-    sidebarCollapsed: ${currentLayout.sidebarCollapsed},
-    headerHeight: ${currentLayout.headerHeight},
-    radius: ${currentLayout.radius},
-    fontSize: '${currentLayout.fontSize}',
-    animations: ${currentLayout.animations},
-    showTabBar: ${currentLayout.showTabBar},
-    showBreadcrumb: ${currentLayout.showBreadcrumb},
-    fixedTabBar: ${currentLayout.fixedTabBar},
-  } as Partial<LayoutConfig>,
-};`;
-
-  return configCode;
+  const layout = themeStore.layoutConfig;
+  const config = {
+    theme: themeStore.currentTheme,
+    mode: themeStore.currentMode,
+    layout: {
+      sidebarWidth: layout.sidebarWidth,
+      sidebarCollapsed: layout.sidebarCollapsed,
+      radius: layout.radius,
+      fontSize: layout.fontSize,
+      animations: layout.animations,
+      showTabBar: layout.showTabBar,
+      showBreadcrumb: layout.showBreadcrumb,
+      fixedTabBar: layout.fixedTabBar,
+    },
+    customThemes: {},
+  };
+  return JSON.stringify(config, null, 2);
 };
 
 /**

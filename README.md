@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="#-预览">预览</a> •
+  <a href="https://demo.tabtab.dev" target="_blank">在线演示</a> •
   <a href="#-功能特性">功能</a> •
   <a href="#-快速开始">快速开始</a> •
   <a href="#-项目结构">结构</a> •
@@ -63,8 +63,8 @@
 | **路由方案** | [Vue Router 4](https://router.vuejs.org/) |
 | **国际化** | [Vue I18n](https://vue-i18n.intlify.dev/) |
 | **工具库** | [VueUse](https://vueuse.org/) |
-| **表单验证** | [VeeValidate](https://vee-validate.logaretm.com/) · [Zod](https://zod.dev/) |
-| **数据表格** | [TanStack Table](https://tanstack.com/table) |
+| **表单验证** | [Antdv-next Form](https://antdv-next.com/)|
+| **数据表格** | [Antdv-next Table](https://antdv-next.com/)|
 | **HTTP 请求** | [Alova](https://alova.js.org/) · Axios |
 | **通知组件** | [vue-sonner](https://vue-sonner.vercel.app/) |
 | **测试框架** | [Vitest](https://vitest.dev/) |
