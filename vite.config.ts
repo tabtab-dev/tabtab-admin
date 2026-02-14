@@ -5,11 +5,10 @@ import tailwindcss from "@tailwindcss/vite";
 import Components from "unplugin-vue-components/vite";
 import AutoImport from "unplugin-auto-import/vite";
 import { AntdvNextResolver } from "@antdv-next/auto-import-resolver";
-import { mockPlugin } from "./mock/server";
+import { viteMockServe } from "vite-plugin-mock";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
-  const isMockEnabled = mode === "development" && env.VITE_USE_MOCK === "true";
 
   return {
     plugins: [
@@ -24,7 +23,10 @@ export default defineConfig(({ mode }) => {
         imports: ["vue", "vue-router", "vue-i18n", "@vueuse/core"],
         dts: "src/auto-imports.d.ts",
       }),
-      isMockEnabled && mockPlugin(),
+      viteMockServe({
+        mockPath: 'mock',
+        enable: true,
+      }),
     ],
 
     resolve: {

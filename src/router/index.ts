@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 import type { RouteRecordRaw, NavigationGuardNext, RouteLocationNormalized } from 'vue-router';
 import { checkAuthentication } from './guards';
 import { useMenuStore } from '@/stores/global/menu';
@@ -43,7 +43,8 @@ const routes: RouteRecordRaw[] = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(),
+  // 使用 Hash 模式，支持 GitHub Pages 部署
+  history: createWebHashHistory(),
   routes,
   // 滚动行为配置
   scrollBehavior(to, from, savedPosition) {
