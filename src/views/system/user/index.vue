@@ -292,56 +292,64 @@ const editFormData = ref<{
   status: USER_STATUS.ACTIVE
 })
 
-const addSchema: FormSchema = {
-  layout: 'horizontal',
+// 共享的表单字段配置
+const userFormFields = [
+  {
+    name: 'name',
+    type: 'input',
+    label: '姓名',
+    placeholder: '请输入姓名',
+    rules: [
+      { required: true, message: '姓名不能为空' },
+      { min: 2, message: '姓名至少2个字符' }
+    ]
+  },
+  {
+    name: 'email',
+    type: 'input',
+    label: '邮箱',
+    placeholder: '请输入邮箱',
+    rules: [
+      { required: true, message: '邮箱不能为空' },
+      { type: 'email', message: '邮箱格式不正确' }
+    ]
+  },
+  {
+    name: 'role',
+    type: 'select',
+    label: '角色',
+    placeholder: '请选择角色',
+    options: [
+      { label: '管理员', value: USER_ROLES.ADMIN },
+      { label: '编辑', value: USER_ROLES.EDITOR },
+      { label: '查看者', value: USER_ROLES.VIEWER }
+    ],
+    rules: [{ required: true, message: '请选择角色' }]
+  },
+  {
+    name: 'status',
+    type: 'select',
+    label: '状态',
+    placeholder: '请选择状态',
+    options: [
+      { label: STATUS_CONFIG.USER.ACTIVE.text, value: STATUS_CONFIG.USER.ACTIVE.value },
+      { label: STATUS_CONFIG.USER.INACTIVE.text, value: STATUS_CONFIG.USER.INACTIVE.value },
+      { label: STATUS_CONFIG.USER.SUSPENDED.text, value: STATUS_CONFIG.USER.SUSPENDED.value }
+    ],
+    rules: [{ required: true, message: '请选择状态' }]
+  }
+]
+
+// 共享的表单布局配置
+const formLayoutConfig = {
+  layout: 'horizontal' as const,
   labelCol: { span: 6 },
-  wrapperCol: { span: 18 },
-  fields: [
-    {
-      name: 'name',
-      type: 'input',
-      label: '姓名',
-      placeholder: '请输入姓名',
-      rules: [
-        { required: true, message: '姓名不能为空' },
-        { min: 2, message: '姓名至少2个字符' }
-      ]
-    },
-    {
-      name: 'email',
-      type: 'input',
-      label: '邮箱',
-      placeholder: '请输入邮箱',
-      rules: [
-        { required: true, message: '邮箱不能为空' },
-        { type: 'email', message: '邮箱格式不正确' }
-      ]
-    },
-    {
-      name: 'role',
-      type: 'select',
-      label: '角色',
-      placeholder: '请选择角色',
-      options: [
-        { label: '管理员', value: USER_ROLES.ADMIN },
-        { label: '编辑', value: USER_ROLES.EDITOR },
-        { label: '查看者', value: USER_ROLES.VIEWER }
-      ],
-      rules: [{ required: true, message: '请选择角色' }]
-    },
-    {
-      name: 'status',
-      type: 'select',
-      label: '状态',
-      placeholder: '请选择状态',
-      options: [
-        { label: STATUS_CONFIG.USER.ACTIVE.text, value: STATUS_CONFIG.USER.ACTIVE.value },
-        { label: STATUS_CONFIG.USER.INACTIVE.text, value: STATUS_CONFIG.USER.INACTIVE.value },
-        { label: STATUS_CONFIG.USER.SUSPENDED.text, value: STATUS_CONFIG.USER.SUSPENDED.value }
-      ],
-      rules: [{ required: true, message: '请选择状态' }]
-    }
-  ],
+  wrapperCol: { span: 18 }
+}
+
+const addSchema: FormSchema = {
+  ...formLayoutConfig,
+  fields: userFormFields,
   actions: {
     showSubmit: true,
     showReset: true,
@@ -355,55 +363,8 @@ const addSchema: FormSchema = {
 }
 
 const editSchema: FormSchema = {
-  layout: 'horizontal',
-  labelCol: { span: 6 },
-  wrapperCol: { span: 18 },
-  fields: [
-    {
-      name: 'name',
-      type: 'input',
-      label: '姓名',
-      placeholder: '请输入姓名',
-      rules: [
-        { required: true, message: '姓名不能为空' },
-        { min: 2, message: '姓名至少2个字符' }
-      ]
-    },
-    {
-      name: 'email',
-      type: 'input',
-      label: '邮箱',
-      placeholder: '请输入邮箱',
-      rules: [
-        { required: true, message: '邮箱不能为空' },
-        { type: 'email', message: '邮箱格式不正确' }
-      ]
-    },
-    {
-      name: 'role',
-      type: 'select',
-      label: '角色',
-      placeholder: '请选择角色',
-      options: [
-        { label: '管理员', value: USER_ROLES.ADMIN },
-        { label: '编辑', value: USER_ROLES.EDITOR },
-        { label: '查看者', value: USER_ROLES.VIEWER }
-      ],
-      rules: [{ required: true, message: '请选择角色' }]
-    },
-    {
-      name: 'status',
-      type: 'select',
-      label: '状态',
-      placeholder: '请选择状态',
-      options: [
-        { label: STATUS_CONFIG.USER.ACTIVE.text, value: STATUS_CONFIG.USER.ACTIVE.value },
-        { label: STATUS_CONFIG.USER.INACTIVE.text, value: STATUS_CONFIG.USER.INACTIVE.value },
-        { label: STATUS_CONFIG.USER.SUSPENDED.text, value: STATUS_CONFIG.USER.SUSPENDED.value }
-      ],
-      rules: [{ required: true, message: '请选择状态' }]
-    }
-  ],
+  ...formLayoutConfig,
+  fields: userFormFields,
   actions: {
     showSubmit: true,
     showReset: true,

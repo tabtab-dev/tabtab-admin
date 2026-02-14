@@ -2,6 +2,7 @@
  * 格式化工具函数
  * @description 提供常用的格式化工具函数
  */
+import dayjs from 'dayjs';
 
 /**
  * 格式化日期
@@ -10,22 +11,7 @@
  * @returns 格式化后的日期字符串
  */
 export function formatDate(date: Date | number | string, format: string = 'YYYY-MM-DD HH:mm:ss'): string {
-  const d = typeof date === 'number' || typeof date === 'string' ? new Date(date) : date;
-  
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  const hours = String(d.getHours()).padStart(2, '0');
-  const minutes = String(d.getMinutes()).padStart(2, '0');
-  const seconds = String(d.getSeconds()).padStart(2, '0');
-
-  return format
-    .replace('YYYY', String(year))
-    .replace('MM', month)
-    .replace('DD', day)
-    .replace('HH', hours)
-    .replace('mm', minutes)
-    .replace('ss', seconds);
+  return dayjs(date).format(format);
 }
 
 /**
