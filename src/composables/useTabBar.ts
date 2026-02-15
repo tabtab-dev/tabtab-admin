@@ -2,9 +2,8 @@
  * TabBar Composable
  * @description 专业的标签栏逻辑管理
  */
-import { ref, computed, watch, nextTick } from 'vue';
+import { ref, computed, watch, nextTick, type ComputedRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
 import { useScroll, useResizeObserver } from '@vueuse/core';
 import { useTabBarStore } from '@/stores/global/tabbar';
 import { useMenuStore } from '@/stores/global/menu';
@@ -19,9 +18,9 @@ export interface UseTabBarOptions {
 export interface UseTabBarReturn {
   // State
   isOverflowing: ReturnType<typeof ref<boolean>>;
-  canScrollLeft: ReturnType<typeof computed<boolean>>;
-  canScrollRight: ReturnType<typeof computed<boolean>>;
-  scrollProgress: ReturnType<typeof computed<number>>;
+  canScrollLeft: ComputedRef<boolean>;
+  canScrollRight: ComputedRef<boolean>;
+  scrollProgress: ComputedRef<number>;
 
   // Actions
   scrollToTab: (path: string) => void;
