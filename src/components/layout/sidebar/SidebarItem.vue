@@ -142,7 +142,7 @@ const ariaLabel = computed(() => {
       :name="item.icon"
       :class="[
         'h-4 w-4',
-        active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
+        active ? 'text-primary' : 'text-muted-foreground group-hover:text-accent-foreground'
       ]"
       aria-hidden="true"
     />

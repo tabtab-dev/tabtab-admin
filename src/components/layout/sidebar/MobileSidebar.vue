@@ -131,7 +131,7 @@ const isExpanded = (key: string): boolean => {
 </script>
 
 <template>
-  <div class="lg:hidden flex flex-1">
+  <div class="lg:hidden flex flex-1 min-w-0">
     <Sheet 
       :open="appStore.mobileSidebarOpen" 
       @update:open="appStore.setMobileSidebar"
@@ -227,7 +227,7 @@ const isExpanded = (key: string): boolean => {
     </Sheet>
 
     <!-- 移动端内容区域 -->
-    <main class="flex-1 bg-background">
+    <main class="flex-1 min-w-0 bg-background">
       <slot />
     </main>
   </div>

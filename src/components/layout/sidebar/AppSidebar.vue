@@ -124,7 +124,7 @@ const handleNavigate = (path: string): void => {
 </script>
 
 <template>
-  <div class="h-full flex">
+  <div class="h-full flex min-w-0">
     <!-- 桌面端侧栏 - 仅在桌面端渲染 -->
     <DesktopSidebar
       v-if="isDesktop"

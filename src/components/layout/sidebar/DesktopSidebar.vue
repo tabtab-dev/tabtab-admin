@@ -438,7 +438,7 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
 
     <!-- 内容面板 - 自动填充剩余空间 -->
     <ResizablePanel :min-size="50">
-      <main class="h-full bg-background">
+      <main class="h-full min-w-0 bg-background">
         <slot />
       </main>
     </ResizablePanel>

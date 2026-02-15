@@ -49,39 +49,56 @@ export function useTabBar(options: UseTabBarOptions): UseTabBarReturn {
   const { scrollContainerRef, tabsContainerRef } = options;
   const route = useRoute();
   const router = useRouter();
-  const { t, locale } = useI18n();
   const tabBarStore = useTabBarStore();
   const menuStore = useMenuStore();
 
   // ============ Scroll State ============
   const isOverflowing = ref(false);
+  const isAtStart = ref(true);
+  const isAtEnd = ref(true);
 
   // Use VueUse useScroll for better scroll handling
-  const { x: scrollX, arrivedState } = useScroll(scrollContainerRef, {
+  // 注意：监听的是 tabsContainerRef（真正滚动的容器），而不是 scrollContainerRef（外层 overflow-hidden 容器）
+  const { x: scrollX } = useScroll(tabsContainerRef, {
     behavior: 'smooth',
   });
 
-  // Check overflow function
+  // Check overflow and scroll position
   const checkOverflow = () => {
     nextTick(() => {
       const container = scrollContainerRef.value;
       const content = tabsContainerRef.value;
       if (!container || !content) {
         isOverflowing.value = false;
+        isAtStart.value = true;
+        isAtEnd.value = true;
         return;
       }
       isOverflowing.value = content.scrollWidth > container.clientWidth;
+      
+      // 手动计算滚动位置状态
+      const maxScroll = content.scrollWidth - container.clientWidth;
+      const currentScroll = content.scrollLeft;
+      isAtStart.value = currentScroll <= 0;
+      isAtEnd.value = currentScroll >= maxScroll - 1; // 1px 容差
     });
   };
 
-  // Use resize observer for container changes only
+  // Use resize observer for container changes
   useResizeObserver(scrollContainerRef, checkOverflow);
+  // 同时监听内容容器的变化（标签增减时触发）
+  useResizeObserver(tabsContainerRef, checkOverflow);
 
   // Watch tabs length changes
   watch(() => tabBarStore.tabs.length, checkOverflow, { immediate: true });
 
-  const canScrollLeft = computed(() => isOverflowing.value && !arrivedState.left);
-  const canScrollRight = computed(() => isOverflowing.value && !arrivedState.right);
+  // 监听滚动位置变化
+  watch(scrollX, () => {
+    checkOverflow();
+  });
+
+  const canScrollLeft = computed(() => isOverflowing.value && !isAtStart.value);
+  const canScrollRight = computed(() => isOverflowing.value && !isAtEnd.value);
 
   const scrollProgress = computed(() => {
     if (!isOverflowing.value) return 0;
@@ -99,17 +116,18 @@ export function useTabBar(options: UseTabBarOptions): UseTabBarReturn {
   const scrollToTab = (path: string) => {
     nextTick(() => {
       const tabElement = tabsContainerRef.value?.querySelector(`[data-tab-path="${path}"]`) as HTMLElement;
-      if (tabElement && scrollContainerRef.value) {
+      // 使用 tabsContainerRef（真正滚动的容器）
+      if (tabElement && tabsContainerRef.value && scrollContainerRef.value) {
         const containerRect = scrollContainerRef.value.getBoundingClientRect();
         const tabRect = tabElement.getBoundingClientRect();
-        const currentScroll = scrollContainerRef.value.scrollLeft;
+        const currentScroll = tabsContainerRef.value.scrollLeft;
 
         // Calculate center position
         const tabCenter = tabRect.left + tabRect.width / 2 - containerRect.left;
         const containerCenter = containerRect.width / 2;
         const newScroll = currentScroll + tabCenter - containerCenter;
 
-        scrollContainerRef.value.scrollTo({
+        tabsContainerRef.value.scrollTo({
           left: newScroll,
           behavior: 'smooth',
         });
@@ -118,30 +136,30 @@ export function useTabBar(options: UseTabBarOptions): UseTabBarReturn {
   };
 
   const scrollLeft = () => {
-    scrollContainerRef.value?.scrollBy({
+    tabsContainerRef.value?.scrollBy({
       left: -scrollOffset,
       behavior: 'smooth',
     });
   };
 
   const scrollRight = () => {
-    scrollContainerRef.value?.scrollBy({
+    tabsContainerRef.value?.scrollBy({
       left: scrollOffset,
       behavior: 'smooth',
     });
   };
 
   const scrollToStart = () => {
-    scrollContainerRef.value?.scrollTo({
+    tabsContainerRef.value?.scrollTo({
       left: 0,
       behavior: 'smooth',
     });
   };
 
   const scrollToEnd = () => {
-    if (scrollContainerRef.value) {
-      scrollContainerRef.value.scrollTo({
-        left: scrollContainerRef.value.scrollWidth,
+    if (tabsContainerRef.value) {
+      tabsContainerRef.value.scrollTo({
+        left: tabsContainerRef.value.scrollWidth,
         behavior: 'smooth',
       });
     }

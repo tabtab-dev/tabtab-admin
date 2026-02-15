@@ -185,7 +185,7 @@ const handleTouchEnd = () => {
 </script>
 
 <template>
-  <div class="flex items-center h-9 sm:h-10 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 border-b border-border/30 px-1 sm:px-2 gap-0.5 sm:gap-1">
+  <div class="relative flex items-center w-full min-w-0 h-9 sm:h-10 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 border-b border-border/30 px-1 sm:px-2 gap-0.5 sm:gap-1">
     <!-- Left Scroll Controls -->
     <div v-show="isOverflowing" class="flex items-center gap-0.5 flex-shrink-0">
       <TooltipProvider>
@@ -230,14 +230,14 @@ const handleTouchEnd = () => {
     <!-- Tabs Container - 支持触摸滑动切换标签 -->
     <div
       ref="scrollContainerRef"
-      class="flex-1 h-full overflow-hidden"
+      class="flex-1 min-w-0 h-full overflow-hidden"
       @touchstart="handleTouchStart"
       @touchmove="handleTouchMove"
       @touchend="handleTouchEnd"
     >
       <div
         ref="tabsContainerRef"
-        class="flex items-center gap-1 h-full min-w-max overflow-x-auto overflow-y-hidden"
+        class="flex items-center gap-1 h-full overflow-x-auto overflow-y-hidden"
         style="scrollbar-width: none; -ms-overflow-style: none;"
       >
         <TransitionGroup

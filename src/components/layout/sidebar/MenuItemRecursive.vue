@@ -86,7 +86,7 @@ const iconClasses = computed(() => {
   if (isChildActive.value) {
     return 'h-4 w-4 text-muted-foreground';
   }
-  return 'h-4 w-4 text-muted-foreground group-hover:text-foreground';
+  return 'h-4 w-4 text-muted-foreground group-hover:text-accent-foreground';
 });
 
 /**
