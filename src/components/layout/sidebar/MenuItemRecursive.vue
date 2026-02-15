@@ -68,10 +68,10 @@ const buttonClasses = computed(() => {
   }
 
   if (active.value) {
-    return `${baseClasses} bg-primary/10 text-primary`;
+    return `${baseClasses} bg-primary/10 text-primary hover:bg-primary/15`;
   }
   if (isChildActive.value) {
-    return `${baseClasses} bg-muted/50`;
+    return `${baseClasses} bg-muted/50 hover:bg-muted/70`;
   }
   return `${baseClasses} hover:bg-accent hover:text-accent-foreground`;
 });
