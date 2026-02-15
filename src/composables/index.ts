@@ -31,3 +31,6 @@ export type { UseTableColumnsOptions, UseTableColumnsReturn } from './useTableCo
 
 export { useFullscreen, isFullscreen, fullscreenElement } from './useFullscreen';
 export type { UseFullscreenReturn } from './useFullscreen';
+
+export { useResponsive, useResponsiveValue, useResponsiveProp } from './useResponsive';
+export type { Breakpoint, Breakpoints, ResponsiveConfig } from './useResponsive';

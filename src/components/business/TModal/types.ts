@@ -141,44 +141,27 @@ export interface TFormExpose {
 /**
  * TModal 组件 Props
  */
+export interface ModalResponsiveConfig {
+  enabled?: boolean
+  fullWidthOnMobile?: boolean
+  fullScreenOnMobile?: boolean
+  mobileBreakpoint?: 'xs' | 'sm' | 'md'
+  mobileWidth?: string | number
+  mobileMaxWidth?: string | number
+}
+
 export interface TModalProps extends Omit<ModalSchema, 'class'> {
-  /** 对话框是否可见（v-model:open） */
   open?: boolean
-  /** 确认按钮 loading */
   confirmLoading?: boolean
-  /**
-   * 底部内容
-   * @description 支持多种类型：
-   * - `true` 或 `undefined`：显示默认底部按钮
-   * - `false`：隐藏底部按钮
-   * - `VueNode` 或函数：自定义底部内容
-   */
   footer?: boolean | VueNode | ((params: FooterRenderParams) => VueNode) | null
-  /** 自定义类名 */
   class?: string | Record<string, boolean> | Array<string | Record<string, boolean>>
-  /** 根容器 class */
   rootClass?: string
-  /** 根容器样式 */
   rootStyle?: CSSProperties
-  /** 用于自定义 Modal 组件内部各语义化结构的 class */
   classes?: ModalClassNamesType
-  /** 用于自定义 Modal 组件内部各语义化结构的行内 style */
   styles?: ModalStylesType
-  /**
-   * 关联的 TForm 实例引用
-   * @description 当提供 formRef 时，点击确定按钮会自动触发表单验证和提交
-   * @example
-   * const formRef = ref<TFormExpose>()
-   * <TModal :form-ref="formRef" @submit="handleSubmit">
-   *   <TForm ref="formRef" />
-   * </TModal>
-   */
   formRef?: { value?: TFormExpose | null | undefined }
-  /**
-   * 是否在表单验证通过后自动关闭弹窗
-   * @default false
-   */
   closeOnSubmitSuccess?: boolean
+  responsive?: ModalResponsiveConfig
 }
 
 /**

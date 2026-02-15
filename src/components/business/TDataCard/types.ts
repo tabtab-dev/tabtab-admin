@@ -35,35 +35,31 @@ export interface TrendConfig {
 /**
  * TDataCard Props
  */
+export interface DataCardResponsiveConfig {
+  enabled?: boolean
+  mobileBreakpoint?: 'xs' | 'sm' | 'md'
+  mobileSize?: CardSize
+  hideIconOnMobile?: boolean
+  hideTrendOnMobile?: boolean
+  compactOnMobile?: boolean
+}
+
 export interface TDataCardProps {
-  /** 卡片标题 */
   title: string
-  /** 数值 */
   value: number | string
-  /** 图标组件 */
   icon?: Component
-  /** 图标名称（使用 lucide 图标） */
   iconName?: string
-  /** 主题色 */
   color?: CardColor
-  /** 尺寸 */
   size?: CardSize
-  /** 趋势配置 */
   trend?: TrendConfig
-  /** 加载状态 */
   loading?: boolean
-  /** 自定义类名 */
   className?: string
-  /** 前缀（如 ¥、$） */
   prefix?: string
-  /** 后缀（如 %、个） */
   suffix?: string
-  /** 是否显示边框 */
   bordered?: boolean
-  /** 是否可点击 */
   clickable?: boolean
-  /** 描述文本 */
   description?: string
+  responsive?: DataCardResponsiveConfig
 }
 
 /**

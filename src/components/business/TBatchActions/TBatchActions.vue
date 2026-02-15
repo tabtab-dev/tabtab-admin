@@ -31,10 +31,11 @@
 import { computed, ref } from 'vue'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { X, AlertCircle } from 'lucide-vue-next'
+import { X, AlertCircle, MoreHorizontal } from 'lucide-vue-next'
 import * as icons from 'lucide-vue-next'
 import { TModal } from '@/components/business/TModal'
-import type { TBatchActionsProps, TBatchActionsEmits, TBatchActionsExpose, BatchAction } from './types'
+import { useResponsive } from '@/composables/useResponsive'
+import type { TBatchActionsProps, TBatchActionsEmits, TBatchActionsExpose, BatchAction, BatchActionsResponsiveConfig } from './types'
 
 /**
  * 组件选项
@@ -58,6 +59,35 @@ const props = withDefaults(defineProps<TBatchActionsProps>(), {
  * Emits 定义
  */
 const emit = defineEmits<TBatchActionsEmits>()
+
+const { smallerThan } = useResponsive()
+
+const responsiveConfig = computed<BatchActionsResponsiveConfig>(() => {
+  return props.responsive || { enabled: true }
+})
+
+const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== false)
+
+const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
+
+const isMobileView = computed(() => {
+  if (!isResponsiveEnabled.value) return false
+  return smallerThan(mobileBreakpoint.value)
+})
+
+const primaryActions = computed(() => {
+  if (isMobileView.value && responsiveConfig.value.collapseActionsOnMobile) {
+    return visibleActions.value.slice(0, 1)
+  }
+  return visibleActions.value
+})
+
+const showActionText = computed(() => {
+  if (isMobileView.value && responsiveConfig.value.hideTextOnMobile) {
+    return false
+  }
+  return true
+})
 
 /**
  * 确认弹窗状态
@@ -190,6 +220,7 @@ defineExpose<TBatchActionsExpose>({
     :class="cn(
       't-batch-actions flex items-center justify-between gap-4 px-3 py-2 rounded-lg border bg-card ml-auto',
       sticky && 'sticky z-20',
+      { 't-batch-actions-mobile': isMobileView, 't-batch-actions-compact': isMobileView && responsiveConfig.compactOnMobile },
       className
     )"
     :style="sticky ? { top: `${stickyOffset}px` } : undefined"
@@ -208,7 +239,7 @@ defineExpose<TBatchActionsExpose>({
     <div class="flex items-center gap-2">
       <!-- 操作按钮 -->
       <Button
-        v-for="(action, index) in visibleActions"
+        v-for="(action, index) in primaryActions"
         :key="index"
         :variant="getButtonVariant(action.type)"
         :disabled="isButtonDisabled(action)"
@@ -221,11 +252,11 @@ defineExpose<TBatchActionsExpose>({
           v-if="getIconComponent(action)"
           class="w-3.5 h-3.5"
         />
-        {{ action.text }}
+        <span v-if="showActionText">{{ action.text }}</span>
       </Button>
 
       <!-- 分隔线 -->
-      <div v-if="visibleActions.length > 0 && showClear" class="w-px h-4 bg-border mx-0.5" />
+      <div v-if="primaryActions.length > 0 && showClear" class="w-px h-4 bg-border mx-0.5" />
 
       <!-- 清除按钮 -->
       <Button
@@ -236,7 +267,7 @@ defineExpose<TBatchActionsExpose>({
         @click="handleClear"
       >
         <X class="w-3.5 h-3.5" />
-        {{ clearText }}
+        <span v-if="showActionText">{{ clearText }}</span>
       </Button>
     </div>
   </div>

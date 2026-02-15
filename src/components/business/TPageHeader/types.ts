@@ -44,27 +44,27 @@ export interface BreadcrumbItem {
 /**
  * TPageHeader Props
  */
+export interface PageHeaderResponsiveConfig {
+  enabled?: boolean
+  mobileBreakpoint?: 'xs' | 'sm' | 'md'
+  hideSubtitleOnMobile?: boolean
+  hideBreadcrumbsOnMobile?: boolean
+  collapseActionsOnMobile?: boolean
+  mobileTitleSize?: 'sm' | 'default' | 'lg'
+}
+
 export interface TPageHeaderProps {
-  /** 页面标题 */
   title: string
-  /** 副标题/描述 */
   subtitle?: string
-  /** 面包屑配置 */
   breadcrumbs?: BreadcrumbItem[]
-  /** 操作按钮列表 */
   actions?: PageAction[]
-  /** 是否显示返回按钮 */
   showBack?: boolean
-  /** 返回按钮回调（默认返回上一页） */
   onBack?: () => void
-  /** 自定义类名 */
   className?: string
-  /** 标题下方内容插槽 */
   showExtra?: boolean
-  /** 是否粘性定位 */
   sticky?: boolean
-  /** 粘性定位偏移量 */
   stickyOffset?: number
+  responsive?: PageHeaderResponsiveConfig
 }
 
 /**

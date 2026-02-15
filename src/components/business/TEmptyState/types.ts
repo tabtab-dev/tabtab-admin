@@ -34,29 +34,27 @@ export interface EmptyAction {
 /**
  * TEmptyState Props
  */
+export interface EmptyStateResponsiveConfig {
+  enabled?: boolean
+  mobileBreakpoint?: 'xs' | 'sm' | 'md'
+  mobileSize?: EmptySize
+  hideDescriptionOnMobile?: boolean
+  compactOnMobile?: boolean
+}
+
 export interface TEmptyStateProps {
-  /** 空状态类型 */
   type?: EmptyType
-  /** 尺寸 */
   size?: EmptySize
-  /** 标题 */
   title?: string
-  /** 描述文本 */
   description?: string
-  /** 自定义图标组件 */
   icon?: Component
-  /** 图标名称（lucide 图标） */
   iconName?: string
-  /** 操作按钮配置 */
   action?: EmptyAction
-  /** 自定义类名 */
   className?: string
-  /** 是否显示边框 */
   bordered?: boolean
-  /** 是否显示背景 */
   showBackground?: boolean
-  /** 自定义图片 URL */
   image?: string
+  responsive?: EmptyStateResponsiveConfig
 }
 
 /**

@@ -50,7 +50,8 @@ import { useI18n } from 'vue-i18n'
 import { ConfigProvider, Modal } from 'antdv-next'
 import { cn } from '@/lib/utils'
 import { getAntdvLocale } from '@/i18n/locales'
-import type { TModalProps, TModalEmits, TModalExpose, TFormExpose } from './types'
+import { useResponsive } from '@/composables/useResponsive'
+import type { TModalProps, TModalEmits, TModalExpose, TFormExpose, ModalResponsiveConfig } from './types'
 
 /**
  * 导入主题配置
@@ -73,6 +74,50 @@ defineOptions({
  * i18n
  */
 const { locale } = useI18n()
+
+const { smallerThan, isMobile } = useResponsive()
+
+const responsiveConfig = computed<ModalResponsiveConfig>(() => {
+  return props.responsive || { enabled: true }
+})
+
+const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== false)
+
+const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
+
+const isMobileView = computed(() => {
+  if (!isResponsiveEnabled.value) return false
+  return smallerThan(mobileBreakpoint.value)
+})
+
+const responsiveWidth = computed(() => {
+  if (!isMobileView.value) return props.width
+
+  if (responsiveConfig.value.fullScreenOnMobile) {
+    return '100%'
+  }
+
+  if (responsiveConfig.value.fullWidthOnMobile) {
+    return responsiveConfig.value.mobileMaxWidth || 'calc(100vw - 32px)'
+  }
+
+  return responsiveConfig.value.mobileWidth || props.width
+})
+
+const responsiveStyles = computed(() => {
+  if (!isMobileView.value || !responsiveConfig.value.fullScreenOnMobile) {
+    return props.styles
+  }
+
+  return {
+    ...props.styles,
+    body: {
+      ...props.styles?.body,
+      maxHeight: 'calc(100vh - 200px)',
+      overflowY: 'auto',
+    },
+  }
+})
 
 /**
  * antdv locale
@@ -283,7 +328,7 @@ defineExpose<TModalExpose>({
     <Modal
       :open="internalOpen"
       :title="title"
-      :width="width"
+      :width="responsiveWidth"
       :centered="centered"
       :mask="mask"
       :mask-closable="maskClosable"
@@ -308,9 +353,9 @@ defineExpose<TModalExpose>({
       :modal-render="modalRender"
       :root-class="rootClass"
       :root-style="rootStyle"
-      :classes="classes"
-      :styles="styles"
-      :class="cn('t-modal', modalClass)"
+      :classes="responsiveStyles ? { ...classes, ...responsiveStyles } : classes"
+      :styles="responsiveStyles"
+      :class="cn('t-modal', { 't-modal-mobile': isMobileView, 't-modal-fullscreen': isMobileView && responsiveConfig.fullScreenOnMobile }, modalClass)"
       :wrap-class-name="wrapClassName"
       @ok="handleOk"
       @cancel="handleCancel"

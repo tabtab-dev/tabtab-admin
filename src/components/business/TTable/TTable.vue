@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 import { useTTableTheme } from './theme'
 import { getAntdvLocale } from '@/i18n/locales'
 import { useTableColumns } from '@/composables/useTableColumns'
+import { useResponsive } from '@/composables/useResponsive'
 import type {
   TableSchema,
   TTableProps,
@@ -21,7 +22,8 @@ import type {
   TableRecord,
   TableFilters,
   TablePagination,
-  SortOrder
+  SortOrder,
+  ResponsiveConfig
 } from './types'
 
 /**
@@ -59,6 +61,21 @@ const emit = defineEmits([
  * i18n
  */
 const { t, locale } = useI18n()
+
+const { currentBreakpoint, isMobile, smallerThan } = useResponsive()
+
+const responsiveConfig = computed<ResponsiveConfig>(() => {
+  return props.schema.responsive || { enabled: true }
+})
+
+const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== false)
+
+const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
+
+const isMobileView = computed(() => {
+  if (!isResponsiveEnabled.value) return false
+  return smallerThan(mobileBreakpoint.value)
+})
 
 /**
  * TTable 主题配置
@@ -169,6 +186,84 @@ const { tableColumns, showActionColumn } = useTableColumns({
   actionFixed: computed(() => props.schema.actionFixed || 'right'),
 })
 
+const filteredColumns = computed(() => {
+  if (!isResponsiveEnabled.value || !isMobileView.value) {
+    return tableColumns.value
+  }
+
+  if (responsiveConfig.value.enableHorizontalScrollOnMobile !== false) {
+    return tableColumns.value
+  }
+
+  const hideColumns = responsiveConfig.value.hideColumnsOnMobile || []
+  const breakpointOrder = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'] as const
+
+  return tableColumns.value.filter(col => {
+    const colKey = col.key || col.dataIndex
+    if (colKey && hideColumns.includes(String(colKey))) {
+      return false
+    }
+
+    const colWithResponsive = col as any
+    if (colWithResponsive.hiddenOn) {
+      const currentIndex = breakpointOrder.indexOf(currentBreakpoint.value)
+      const shouldHide = colWithResponsive.hiddenOn.some((bp: string) => {
+        const bpIndex = breakpointOrder.indexOf(bp as any)
+        return bpIndex >= currentIndex
+      })
+      if (shouldHide) return false
+    }
+
+    if (colWithResponsive.showOn) {
+      const currentIndex = breakpointOrder.indexOf(currentBreakpoint.value)
+      const shouldShow = colWithResponsive.showOn.some((bp: string) => {
+        const bpIndex = breakpointOrder.indexOf(bp as any)
+        return bpIndex <= currentIndex
+      })
+      if (!shouldShow) return false
+    }
+
+    return true
+  })
+})
+
+const responsiveScroll = computed(() => {
+  const originalScroll = props.schema.scroll || {}
+
+  if (!isResponsiveEnabled.value || !isMobileView.value) {
+    return originalScroll
+  }
+
+  if (responsiveConfig.value.enableHorizontalScrollOnMobile !== false) {
+    if (responsiveConfig.value.scrollXOnMobile !== undefined) {
+      return {
+        ...originalScroll,
+        x: responsiveConfig.value.scrollXOnMobile,
+      }
+    }
+
+    const totalMinWidth = tableColumns.value.reduce((sum, col) => {
+      const colWidth = col.width
+      const colMinWidth = col.minWidth
+      
+      if (typeof colWidth === 'number') {
+        return sum + colWidth
+      }
+      if (typeof colMinWidth === 'number') {
+        return sum + colMinWidth
+      }
+      return sum + 120
+    }, 0)
+
+    return {
+      ...originalScroll,
+      x: Math.max(totalMinWidth, 600),
+    }
+  }
+
+  return originalScroll
+})
+
 /**
  * 计算行选择配置
  */
@@ -209,7 +304,7 @@ const pagination = computed(() => {
 
   const config = props.schema.pagination || {}
 
-  return {
+  const basePagination = {
     current: state.value.pagination.current,
     pageSize: state.value.pagination.pageSize,
     total: state.value.pagination.total,
@@ -221,6 +316,20 @@ const pagination = computed(() => {
     simple: config.simple,
     ...config
   }
+
+  if (isResponsiveEnabled.value && isMobileView.value) {
+    if (responsiveConfig.value.simplePaginationOnMobile !== false) {
+      return {
+        ...basePagination,
+        simple: true,
+        showQuickJumper: false,
+        showSizeChanger: false,
+        showTotal: false,
+      }
+    }
+  }
+
+  return basePagination
 })
 
 /**
@@ -444,14 +553,14 @@ watch(
     <a-table
       ref="tableRef"
       :data-source="tableData"
-      :columns="tableColumns"
+      :columns="filteredColumns"
       :row-key="rowKey"
       :loading="loading || schema.loading"
       :size="schema.size || 'middle'"
       :bordered="schema.bordered"
       :pagination="pagination"
       :row-selection="rowSelection"
-      :scroll="schema.scroll"
+      :scroll="responsiveScroll"
       :show-header="schema.showHeader !== false"
       :table-layout="schema.tableLayout"
       :virtual="schema.virtual"

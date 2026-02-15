@@ -22,7 +22,8 @@
 import { computed } from 'vue'
 import { cn } from '@/lib/utils'
 import { getVariantConfig, getSizeConfig, statusColorConfig } from './theme'
-import type { TStatusBadgeProps, TStatusBadgeEmits, TStatusBadgeExpose, StatusType, StatusConfig } from './types'
+import { useResponsive } from '@/composables/useResponsive'
+import type { TStatusBadgeProps, TStatusBadgeEmits, TStatusBadgeExpose, StatusType, StatusConfig, StatusBadgeResponsiveConfig } from './types'
 
 /**
  * 组件选项
@@ -45,6 +46,33 @@ const props = withDefaults(defineProps<TStatusBadgeProps>(), {
  * Emits 定义
  */
 const emit = defineEmits<TStatusBadgeEmits>()
+
+const { smallerThan } = useResponsive()
+
+const responsiveConfig = computed<StatusBadgeResponsiveConfig>(() => {
+  return props.responsive || { enabled: true }
+})
+
+const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== false)
+
+const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
+
+const isMobileView = computed(() => {
+  if (!isResponsiveEnabled.value) return false
+  return smallerThan(mobileBreakpoint.value)
+})
+
+const responsiveSize = computed(() => {
+  if (!isMobileView.value) return props.size
+  return responsiveConfig.value.mobileSize || 'sm'
+})
+
+const showText = computed(() => {
+  if (isMobileView.value && responsiveConfig.value.hideTextOnMobile) {
+    return false
+  }
+  return true
+})
 
 /**
  * 默认状态映射
@@ -130,7 +158,7 @@ const variantStyle = computed(() => {
  * 尺寸配置
  */
 const sizeCfg = computed(() => {
-  return getSizeConfig(props.size)
+  return getSizeConfig(responsiveSize.value)
 })
 
 /**
@@ -200,7 +228,7 @@ defineExpose<TStatusBadgeExpose>({
     />
 
     <!-- 状态文本 -->
-    <span class="truncate">
+    <span v-if="showText" class="truncate">
       {{ statusConfig.text }}
     </span>
   </span>

@@ -117,15 +117,19 @@ export interface DrawerSchema {
 /**
  * TDrawer 组件 Props
  */
+export interface DrawerResponsiveConfig {
+  enabled?: boolean
+  fullWidthOnMobile?: boolean
+  mobileBreakpoint?: 'xs' | 'sm' | 'md'
+  mobileSize?: 'default' | 'large' | number
+}
+
 export interface TDrawerProps extends Omit<DrawerSchema, 'class'> {
-  /** 抽屉是否可见（v-model:open） */
   open?: boolean
-  /** 自定义类名 */
   class?: string | Record<string, boolean> | Array<string | Record<string, boolean>>
-  /** 用于自定义 Drawer 组件内部各语义化结构的 class */
   classes?: DrawerClassNamesType
-  /** 用于自定义 Drawer 组件内部各语义化结构的行内 style */
   styles?: DrawerStylesType
+  responsive?: DrawerResponsiveConfig
 }
 
 /**

@@ -32,7 +32,8 @@ import { ConfigProvider, Drawer } from 'antdv-next'
 import { useScrollLock } from '@vueuse/core'
 import { cn } from '@/lib/utils'
 import { getAntdvLocale } from '@/i18n/locales'
-import type { TDrawerProps, TDrawerEmits, TDrawerExpose } from './types'
+import { useResponsive } from '@/composables/useResponsive'
+import type { TDrawerProps, TDrawerEmits, TDrawerExpose, DrawerResponsiveConfig } from './types'
 
 /**
  * 导入主题配置
@@ -55,6 +56,31 @@ defineOptions({
  * i18n
  */
 const { locale } = useI18n()
+
+const { smallerThan, isMobile } = useResponsive()
+
+const responsiveConfig = computed<DrawerResponsiveConfig>(() => {
+  return props.responsive || { enabled: true }
+})
+
+const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== false)
+
+const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
+
+const isMobileView = computed(() => {
+  if (!isResponsiveEnabled.value) return false
+  return smallerThan(mobileBreakpoint.value)
+})
+
+const responsiveSize = computed(() => {
+  if (!isMobileView.value) return props.size
+
+  if (responsiveConfig.value.fullWidthOnMobile) {
+    return 'large'
+  }
+
+  return responsiveConfig.value.mobileSize || props.size
+})
 
 /**
  * antdv locale
@@ -256,7 +282,7 @@ defineExpose<TDrawerExpose>({
       :open="internalOpen"
       :title="title"
       :placement="placement"
-      :size="size"
+      :size="responsiveSize"
       :mask="mask"
       :mask-closable="maskClosable"
       :keyboard="keyboard"
@@ -275,7 +301,7 @@ defineExpose<TDrawerExpose>({
       :root-style="rootStyle"
       :classes="classes"
       :styles="styles"
-      :class="cn('t-drawer', drawerClass)"
+      :class="cn('t-drawer', { 't-drawer-mobile': isMobileView, 't-drawer-fullwidth': isMobileView && responsiveConfig.fullWidthOnMobile }, drawerClass)"
       @close="handleClose"
       @update:open="handleOpenChange"
       @after-open-change="handleAfterOpenChange"

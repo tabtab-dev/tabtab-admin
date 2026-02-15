@@ -23,7 +23,8 @@ import { cn } from '@/lib/utils'
 import * as icons from 'lucide-vue-next'
 import { TrendingUp, TrendingDown, Minus } from 'lucide-vue-next'
 import { getColorConfig, getSizeConfig } from './theme'
-import type { TDataCardProps, TDataCardEmits, TDataCardExpose } from './types'
+import { useResponsive } from '@/composables/useResponsive'
+import type { TDataCardProps, TDataCardEmits, TDataCardExpose, DataCardResponsiveConfig } from './types'
 
 /**
  * 组件选项
@@ -48,6 +49,40 @@ const props = withDefaults(defineProps<TDataCardProps>(), {
  */
 const emit = defineEmits<TDataCardEmits>()
 
+const { smallerThan } = useResponsive()
+
+const responsiveConfig = computed<DataCardResponsiveConfig>(() => {
+  return props.responsive || { enabled: true }
+})
+
+const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== false)
+
+const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
+
+const isMobileView = computed(() => {
+  if (!isResponsiveEnabled.value) return false
+  return smallerThan(mobileBreakpoint.value)
+})
+
+const responsiveSize = computed(() => {
+  if (!isMobileView.value) return props.size
+  return responsiveConfig.value.mobileSize || 'sm'
+})
+
+const showIcon = computed(() => {
+  if (isMobileView.value && responsiveConfig.value.hideIconOnMobile) {
+    return false
+  }
+  return !!IconComponent.value
+})
+
+const showTrend = computed(() => {
+  if (isMobileView.value && responsiveConfig.value.hideTrendOnMobile) {
+    return false
+  }
+  return !!props.trend
+})
+
 /**
  * 颜色配置
  */
@@ -56,7 +91,7 @@ const colorCfg = computed(() => getColorConfig(props.color))
 /**
  * 尺寸配置
  */
-const sizeCfg = computed(() => getSizeConfig(props.size))
+const sizeCfg = computed(() => getSizeConfig(responsiveSize.value))
 
 /**
  * 图标组件
@@ -189,7 +224,7 @@ defineExpose<TDataCardExpose>({
         </p>
 
         <!-- 趋势 -->
-        <div v-if="trend" class="mt-2 flex items-center gap-1.5">
+        <div v-if="showTrend" class="mt-2 flex items-center gap-1.5">
           <span
             :class="cn(
               'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs font-medium',
@@ -208,7 +243,7 @@ defineExpose<TDataCardExpose>({
 
       <!-- 右侧图标 -->
       <div
-        v-if="IconComponent"
+        v-if="showIcon"
         :class="cn(
           'flex items-center justify-center rounded-lg shrink-0',
           colorCfg.iconBg,

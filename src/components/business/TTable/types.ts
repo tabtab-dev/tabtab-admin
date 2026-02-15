@@ -283,69 +283,47 @@ export interface SummaryConfig {
  * 表格 Schema 配置
  * @description 表格的整体配置结构
  */
+export interface ResponsiveColumnConfig extends TableColumn {
+  hiddenOn?: ('xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl')[]
+  showOn?: ('xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl')[]
+}
+
+export interface ResponsiveConfig {
+  enabled?: boolean
+  hideColumnsOnMobile?: string[]
+  simplePaginationOnMobile?: boolean
+  mobileBreakpoint?: 'xs' | 'sm' | 'md'
+  enableHorizontalScrollOnMobile?: boolean
+  scrollXOnMobile?: number | string | true
+}
+
 export interface TableSchema {
-  /** 表格列配置数组 */
   columns: TableColumn[]
-  /** 表格尺寸 */
   size?: TableSize
-  /** 是否显示边框 */
   bordered?: boolean
-  /** 分页配置 */
   pagination?: PaginationConfig | false
-  /** 行选择配置 */
   rowSelection?: RowSelectionConfig
-  /** 滚动配置 */
   scroll?: ScrollConfig
-  /** 是否加载中 */
   loading?: boolean
-  /** 行 key 的取值字段 */
   rowKey?: string | ((record: TableRecord) => string | number)
-  /** 表格标题 */
   title?: string | ((data: TableRecord[]) => unknown)
-  /** 表格尾部 */
   footer?: string | ((data: TableRecord[]) => unknown)
-  /** 是否显示表头 */
   showHeader?: boolean
-  /** 表格布局 */
   tableLayout?: 'auto' | 'fixed'
-  /** 是否支持虚拟列表 */
   virtual?: boolean
-  /** 粘性表头配置 */
   sticky?: boolean | { offsetHeader?: number; offsetSummary?: number; offsetScroll?: number; getContainer?: () => HTMLElement }
-  /** 展开行配置 */
   expandable?: ExpandableConfig
-  /** 操作列配置 */
   actions?: TableAction[]
-  /** 操作列宽度 */
   actionWidth?: number | string
-  /** 操作列固定位置 */
   actionFixed?: 'left' | 'right'
-  /** 操作列标题 */
   actionTitle?: string
-  /** 空数据时的显示文本 */
   emptyText?: string
-  /** 自定义空状态插槽名 */
   emptySlot?: string
-  /** 汇总行配置 */
   summary?: SummaryConfig
-  /**
-   * 是否在标题旁显示总数徽章
-   * @description 启用后会在表格标题旁边显示 "共 X 条" 样式的徽章
-   * @default false
-   */
   showTotalBadge?: boolean
-  /**
-   * 树形数据子节点字段名
-   * @description 指定数据中作为子节点的字段名，默认为 'children'
-   * @default 'children'
-   */
   childrenColumnName?: string
-  /**
-   * 树形层级缩进宽度
-   * @description 控制树形表格每一层级的缩进像素值
-   * @default 15
-   */
   indentSize?: number
+  responsive?: ResponsiveConfig
 }
 
 /**

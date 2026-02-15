@@ -33,9 +33,10 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-vue-next'
 import * as icons from 'lucide-vue-next'
-import type { TPageHeaderProps, TPageHeaderEmits, TPageHeaderExpose, PageAction, BreadcrumbItem } from './types'
+import { useResponsive } from '@/composables/useResponsive'
+import type { TPageHeaderProps, TPageHeaderEmits, TPageHeaderExpose, PageAction, BreadcrumbItem, PageHeaderResponsiveConfig } from './types'
 
 /**
  * 组件选项
@@ -63,6 +64,54 @@ const emit = defineEmits<TPageHeaderEmits>()
  * 路由实例
  */
 const router = useRouter()
+
+const { smallerThan, isMobile } = useResponsive()
+
+const responsiveConfig = computed<PageHeaderResponsiveConfig>(() => {
+  return props.responsive || { enabled: true }
+})
+
+const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== false)
+
+const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
+
+const isMobileView = computed(() => {
+  if (!isResponsiveEnabled.value) return false
+  return smallerThan(mobileBreakpoint.value)
+})
+
+const showSubtitle = computed(() => {
+  if (isMobileView.value && responsiveConfig.value.hideSubtitleOnMobile) {
+    return false
+  }
+  return !!props.subtitle
+})
+
+const showBreadcrumbs = computed(() => {
+  if (isMobileView.value && responsiveConfig.value.hideBreadcrumbsOnMobile) {
+    return false
+  }
+  return props.breadcrumbs && props.breadcrumbs.length > 0
+})
+
+const titleSizeClass = computed(() => {
+  if (isMobileView.value) {
+    const size = responsiveConfig.value.mobileTitleSize || 'sm'
+    switch (size) {
+      case 'sm': return 'text-xl'
+      case 'lg': return 'text-3xl'
+      default: return 'text-2xl'
+    }
+  }
+  return 'text-2xl sm:text-3xl'
+})
+
+const primaryAction = computed(() => {
+  if (!isMobileView.value || !responsiveConfig.value.collapseActionsOnMobile) {
+    return null
+  }
+  return visibleActions.value[0] || null
+})
 
 /**
  * 过滤后的操作按钮
@@ -165,12 +214,13 @@ defineExpose<TPageHeaderExpose>({
     :class="cn(
       't-page-header pb-6',
       sticky && 'sticky z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
+      { 't-page-header-mobile': isMobileView },
       className
     )"
     :style="sticky ? { top: `${stickyOffset}px` } : undefined"
   >
     <!-- 面包屑 -->
-    <nav v-if="breadcrumbs && breadcrumbs.length > 0" class="mb-3">
+    <nav v-if="showBreadcrumbs" class="mb-3">
       <ol class="flex items-center gap-1.5 text-sm text-muted-foreground">
         <li
           v-for="(item, index) in breadcrumbs"
@@ -212,10 +262,10 @@ defineExpose<TPageHeaderExpose>({
 
         <!-- 标题区 -->
         <div>
-          <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">
+          <h1 :class="cn('font-bold tracking-tight', titleSizeClass)">
             {{ title }}
           </h1>
-          <p v-if="subtitle" class="text-muted-foreground mt-1.5 text-sm">
+          <p v-if="showSubtitle" class="text-muted-foreground mt-1.5 text-sm">
             {{ subtitle }}
           </p>
         </div>
@@ -223,21 +273,40 @@ defineExpose<TPageHeaderExpose>({
 
       <!-- 右侧：操作按钮 -->
       <div v-if="visibleActions.length > 0" class="flex items-center gap-2 shrink-0">
-        <Button
-          v-for="(action, index) in visibleActions"
-          :key="index"
-          :variant="getButtonVariant(action.type)"
-          :disabled="isButtonDisabled(action)"
-          :class="cn('gap-2', action.className)"
-          @click="action.onClick"
-        >
-          <component
-            :is="getIconComponent(action)"
-            v-if="getIconComponent(action)"
-            class="w-4 h-4"
-          />
-          {{ action.text }}
-        </Button>
+        <!-- 移动端折叠模式：只显示主要操作 -->
+        <template v-if="primaryAction">
+          <Button
+            :variant="getButtonVariant(primaryAction.type)"
+            :disabled="isButtonDisabled(primaryAction)"
+            :class="cn('gap-2', primaryAction.className)"
+            @click="primaryAction.onClick"
+          >
+            <component
+              :is="getIconComponent(primaryAction)"
+              v-if="getIconComponent(primaryAction)"
+              class="w-4 h-4"
+            />
+            {{ primaryAction.text }}
+          </Button>
+        </template>
+        <!-- 正常模式：显示所有操作 -->
+        <template v-else>
+          <Button
+            v-for="(action, index) in visibleActions"
+            :key="index"
+            :variant="getButtonVariant(action.type)"
+            :disabled="isButtonDisabled(action)"
+            :class="cn('gap-2', action.className)"
+            @click="action.onClick"
+          >
+            <component
+              :is="getIconComponent(action)"
+              v-if="getIconComponent(action)"
+              class="w-4 h-4"
+            />
+            {{ action.text }}
+          </Button>
+        </template>
       </div>
     </div>
 

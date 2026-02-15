@@ -48,25 +48,24 @@ export type StatusMap = Record<string, StatusConfig>
 /**
  * TStatusBadge Props
  */
+export interface StatusBadgeResponsiveConfig {
+  enabled?: boolean
+  mobileBreakpoint?: 'xs' | 'sm' | 'md'
+  mobileSize?: BadgeSize
+  hideTextOnMobile?: boolean
+}
+
 export interface TStatusBadgeProps {
-  /** 状态值 */
   status: string | number | boolean
-  /** 自定义状态映射 */
   statusMap?: StatusMap
-  /** 尺寸 */
   size?: BadgeSize
-  /** 变体 */
   variant?: BadgeVariant
-  /** 是否显示圆点 */
   showDot?: boolean
-  /** 自定义类名 */
   className?: string
-  /** 是否可点击 */
   clickable?: boolean
-  /** 自定义文本（优先级高于 statusMap） */
   text?: string
-  /** 自定义颜色（优先级高于 statusMap） */
   color?: StatusType
+  responsive?: StatusBadgeResponsiveConfig
 }
 
 /**

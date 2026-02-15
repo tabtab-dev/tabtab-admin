@@ -30,7 +30,8 @@ import {
   Plus
 } from 'lucide-vue-next'
 import * as icons from 'lucide-vue-next'
-import type { TEmptyStateProps, TEmptyStateEmits, TEmptyStateExpose, EmptyType, EmptyAction } from './types'
+import { useResponsive } from '@/composables/useResponsive'
+import type { TEmptyStateProps, TEmptyStateEmits, TEmptyStateExpose, EmptyType, EmptyAction, EmptyStateResponsiveConfig } from './types'
 
 /**
  * 组件选项
@@ -53,6 +54,33 @@ const props = withDefaults(defineProps<TEmptyStateProps>(), {
  * Emits 定义
  */
 const emit = defineEmits<TEmptyStateEmits>()
+
+const { smallerThan } = useResponsive()
+
+const responsiveConfig = computed<EmptyStateResponsiveConfig>(() => {
+  return props.responsive || { enabled: true }
+})
+
+const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== false)
+
+const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
+
+const isMobileView = computed(() => {
+  if (!isResponsiveEnabled.value) return false
+  return smallerThan(mobileBreakpoint.value)
+})
+
+const responsiveSize = computed(() => {
+  if (!isMobileView.value) return props.size
+  return responsiveConfig.value.mobileSize || 'sm'
+})
+
+const showDescription = computed(() => {
+  if (isMobileView.value && responsiveConfig.value.hideDescriptionOnMobile) {
+    return false
+  }
+  return true
+})
 
 /**
  * 预设类型配置
@@ -125,7 +153,7 @@ const currentTypeConfig = computed(() => typeConfig[props.type])
 /**
  * 当前尺寸配置
  */
-const currentSizeConfig = computed(() => sizeConfig[props.size])
+const currentSizeConfig = computed(() => sizeConfig[responsiveSize.value])
 
 /**
  * 图标组件
@@ -207,6 +235,7 @@ defineExpose<TEmptyStateExpose>({
       currentSizeConfig.wrapper,
       bordered && 'border rounded-lg',
       showBackground && 'bg-muted/30',
+      { 't-empty-state-mobile': isMobileView, 't-empty-state-compact': isMobileView && responsiveConfig.compactOnMobile },
       className
     )"
   >
@@ -235,6 +264,7 @@ defineExpose<TEmptyStateExpose>({
 
     <!-- 描述 -->
     <p
+      v-if="showDescription"
       :class="cn(
         'text-muted-foreground max-w-sm',
         currentSizeConfig.description

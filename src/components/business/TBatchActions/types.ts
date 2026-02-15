@@ -38,25 +38,25 @@ export interface BatchAction {
 /**
  * TBatchActions Props
  */
+export interface BatchActionsResponsiveConfig {
+  enabled?: boolean
+  mobileBreakpoint?: 'xs' | 'sm' | 'md'
+  collapseActionsOnMobile?: boolean
+  hideTextOnMobile?: boolean
+  compactOnMobile?: boolean
+}
+
 export interface TBatchActionsProps {
-  /** 选中的数量 */
   count: number
-  /** 操作按钮列表 */
   actions?: BatchAction[]
-  /** 总数（用于显示 已选 X / 共 Y 项） */
   total?: number
-  /** 自定义类名 */
   className?: string
-  /** 选中项名称（如"用户"、"订单"） */
   itemName?: string
-  /** 是否显示清除按钮 */
   showClear?: boolean
-  /** 清除按钮文本 */
   clearText?: string
-  /** 是否粘性定位 */
   sticky?: boolean
-  /** 粘性定位偏移量 */
   stickyOffset?: number
+  responsive?: BatchActionsResponsiveConfig
 }
 
 /**

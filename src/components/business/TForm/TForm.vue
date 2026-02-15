@@ -35,7 +35,8 @@ import TFormItem from './TFormItem.vue'
 import { useTFormTheme } from './theme'
 import { useSearchForm, useFormMeta } from './composables'
 import { getAntdvLocale } from '@/i18n/locales'
-import type { FormSchema, TFormProps, TFormEmits, TFormExpose, FormField, NamePath, FieldWatch, FormValidateErrorInfo } from './types'
+import { useResponsive } from '@/composables/useResponsive'
+import type { FormSchema, TFormProps, TFormEmits, TFormExpose, FormField, NamePath, FieldWatch, FormValidateErrorInfo, FormResponsiveConfig } from './types'
 
 /**
  * 导入样式
@@ -67,6 +68,45 @@ const emit = defineEmits<TFormEmits>()
  * i18n
  */
 const { t, locale } = useI18n()
+
+const { smallerThan, isMobile } = useResponsive()
+
+const responsiveConfig = computed<FormResponsiveConfig>(() => {
+  return props.schema.responsive || { enabled: true }
+})
+
+const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== false)
+
+const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
+
+const isMobileView = computed(() => {
+  if (!isResponsiveEnabled.value) return false
+  return smallerThan(mobileBreakpoint.value)
+})
+
+const responsiveLayout = computed(() => {
+  if (!isMobileView.value) return props.schema.layout
+
+  return responsiveConfig.value.mobileLayout || 'vertical'
+})
+
+const responsiveColumns = computed(() => {
+  if (!isMobileView.value) return props.schema.columns
+
+  return responsiveConfig.value.mobileColumns || 1
+})
+
+const responsiveLabelCol = computed(() => {
+  if (!isMobileView.value) return props.schema.labelCol
+
+  return responsiveConfig.value.mobileLabelCol || props.schema.labelCol
+})
+
+const responsiveWrapperCol = computed(() => {
+  if (!isMobileView.value) return props.schema.wrapperCol
+
+  return responsiveConfig.value.mobileWrapperCol || props.schema.wrapperCol
+})
 
 /**
  * TForm 主题配置
@@ -348,10 +388,10 @@ function handleValuesChangeWithWatch(changedValues: Record<string, any>): void {
  * @description 用于水平布局时按钮的对齐
  */
 const actionWrapperCol = computed(() => {
-  if (props.schema.layout !== 'horizontal') return undefined
+  if (responsiveLayout.value !== 'horizontal') return undefined
 
-  const labelSpan = props.schema.labelCol?.span || 0
-  const wrapperSpan = props.schema.wrapperCol?.span || 24
+  const labelSpan = responsiveLabelCol.value?.span || 0
+  const wrapperSpan = responsiveWrapperCol.value?.span || 24
 
   return {
     offset: labelSpan,
@@ -500,9 +540,9 @@ initFormData()
     <a-form
       ref="formRef"
       :model="formData"
-      :layout="isSearchMode ? 'inline' : schema.layout"
-      :label-col="isSearchMode ? undefined : schema.labelCol"
-      :wrapper-col="isSearchMode ? undefined : schema.wrapperCol"
+      :layout="isSearchMode ? 'inline' : responsiveLayout"
+      :label-col="isSearchMode ? undefined : responsiveLabelCol"
+      :wrapper-col="isSearchMode ? undefined : responsiveWrapperCol"
       :label-align="schema.labelAlign"
       :size="schema.size"
       :disabled="schema.disabled || loading"
@@ -517,7 +557,8 @@ initFormData()
         't-form',
         {
           't-form-search': isSearchMode,
-          't-form-collapsed': isSearchMode && isCollapsed
+          't-form-collapsed': isSearchMode && isCollapsed,
+          't-form-mobile': isMobileView
         },
         $attrs.class as string
       )"
@@ -708,11 +749,11 @@ initFormData()
     <template v-else>
       <!-- 多列布局容器 -->
       <div
-        v-if="schema.columns && schema.columns > 1"
+        v-if="responsiveColumns && responsiveColumns > 1"
         class="t-form-grid"
         :style="{
           display: 'grid',
-          gridTemplateColumns: `repeat(${schema.columns}, 1fr)`,
+          gridTemplateColumns: `repeat(${responsiveColumns}, 1fr)`,
           gap: '16px 24px'
         }"
       >
@@ -757,7 +798,7 @@ initFormData()
       <a-form-item
         v-if="!props.embedded && (schema.actions?.showSubmit !== false || schema.actions?.showReset)"
         :wrapper-col="actionWrapperCol"
-        :class="{ 't-form-actions-fullwidth': schema.columns && schema.columns > 1 }"
+        :class="{ 't-form-actions-fullwidth': responsiveColumns && responsiveColumns > 1 }"
       >
         <div
           :class="cn(

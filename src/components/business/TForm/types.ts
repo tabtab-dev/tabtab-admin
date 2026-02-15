@@ -358,49 +358,37 @@ export interface ScrollToFirstErrorOptions {
  * @description 表单的整体配置结构
  * @template T - 表单数据类型
  */
+export interface FormResponsiveConfig {
+  enabled?: boolean
+  mobileBreakpoint?: 'xs' | 'sm' | 'md'
+  mobileLayout?: FormLayout
+  mobileColumns?: number
+  mobileLabelCol?: { span?: number; offset?: number }
+  mobileWrapperCol?: { span?: number; offset?: number }
+  hideLabelsOnMobile?: boolean
+}
+
 export interface FormSchema<T extends Record<string, any> = Record<string, any>> {
-  /** 表单字段配置数组 */
   fields: FormField<T>[]
-  /** 表单布局 */
   layout?: FormLayout
-  /** 标签列布局 */
   labelCol?: { span?: number; offset?: number }
-  /** 控件列布局 */
   wrapperCol?: { span?: number; offset?: number }
-  /** 标签对齐方式 */
   labelAlign?: LabelAlign
-  /** 表单尺寸 */
   size?: FormSize
-  /** 是否禁用整个表单 */
   disabled?: boolean
-  /** 是否显示冒号 */
   colon?: boolean
-  /** 操作按钮配置 */
   actions?: FormActions
-  /** 搜索表单配置 */
   searchConfig?: SearchConfig<T>
-  /** 表单控件变体 */
   variant?: FormVariant
-  /** 校验触发时机 */
   validateTrigger?: string | string[] | false
-  /** 延迟校验时间（毫秒） */
   validateDebounce?: number
-  /** 是否在第一个规则失败后停止校验 */
   validateFirst?: boolean | 'parallel'
-  /** 提交失败自动滚动到第一个错误字段 */
   scrollToFirstError?: boolean | ScrollToFirstErrorOptions
-  /** 当字段被删除时保留字段值 */
   preserve?: boolean
-  /** 当表单被卸载时清空表单值 */
   clearOnDestroy?: boolean
-  /** 校验提示模板 */
   validateMessages?: Record<string, string>
-  /**
-   * 每行显示的字段数
-   * @description 用于配置表单每行显示多少列，默认1列
-   * @default 1
-   */
   columns?: number
+  responsive?: FormResponsiveConfig
 }
 
 /**
