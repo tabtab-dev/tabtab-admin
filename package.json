@@ -20,7 +20,7 @@
     "@vee-validate/zod": "^4.15.1",
     "@vueuse/core": "^14.2.1",
     "alova": "^3.5.0",
-    "antdv-next": "^1.0.3",
+    "antdv-next": "^1.0.4",
     "axios": "^1.13.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -61,7 +61,7 @@
     "vite": "npm:rolldown-vite@7.2.5",
     "vite-plugin-mock": "^3.0.2",
     "vitest": "^4.0.18",
-    "vue-tsc": "^3.1.4"
+    "vue-tsc": "^3.2.5"
   },
   "pnpm": {
     "overrides": {
