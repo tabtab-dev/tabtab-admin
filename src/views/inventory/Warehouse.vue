@@ -63,8 +63,8 @@ const {
   statisticsFn: (items) => {
     const total = items.length
     const active = items.filter(w => w.status === WAREHOUSE_STATUS.ACTIVE).length
-    const totalCapacity = items.reduce((sum, w) => sum + w.capacity, 0)
-    const usedCapacity = items.reduce((sum, w) => sum + w.usedCapacity, 0)
+    const totalCapacity = items.reduce((sum, w) => sum + (w.capacity ?? 0), 0)
+    const usedCapacity = items.reduce((sum, w) => sum + (w.usedCapacity ?? 0), 0)
     const utilizationRate = totalCapacity > 0 ? Math.round((usedCapacity / totalCapacity) * 100) : 0
 
     return {
@@ -524,13 +524,13 @@ function handleSelectChange(keys: (string | number)[]) {
           <template #capacity="slotProps">
             <div class="space-y-1">
               <div class="flex justify-between text-xs">
-                <span>{{ (slotProps as TableSlotProps).record.usedCapacity }} / {{ (slotProps as TableSlotProps).text }}</span>
-                <span>{{ Math.round(((slotProps as TableSlotProps).record.usedCapacity / (slotProps as TableSlotProps).text) * 100) }}%</span>
+                <span>{{ (slotProps as TableSlotProps).record.usedCapacity ?? 0 }} / {{ (slotProps as TableSlotProps).text }}</span>
+                <span>{{ Math.round((((slotProps as TableSlotProps).record.usedCapacity ?? 0) / ((slotProps as TableSlotProps).text || 1)) * 100) }}%</span>
               </div>
               <div class="h-1.5 bg-muted rounded-full overflow-hidden">
                 <div 
                   class="h-full bg-primary rounded-full"
-                  :style="{ width: `${Math.min(((slotProps as TableSlotProps).record.usedCapacity / (slotProps as TableSlotProps).text) * 100, 100)}%` }"
+                  :style="{ width: `${Math.min((((slotProps as TableSlotProps).record.usedCapacity ?? 0) / ((slotProps as TableSlotProps).text || 1)) * 100, 100)}%` }"
                 />
               </div>
             </div>

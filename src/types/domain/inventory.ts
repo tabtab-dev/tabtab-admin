@@ -14,6 +14,12 @@ export interface Warehouse {
   id: string;
   name: string;
   code: string;
+  location?: string;
+  manager?: string;
+  phone?: string;
+  capacity: number;
+  usedCapacity: number;
+  productCount: number;
   address?: string;
   contactName?: string;
   contactPhone?: string;
