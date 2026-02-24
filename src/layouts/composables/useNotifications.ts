@@ -31,6 +31,22 @@ export interface NotificationTypeConfig {
   icon: LucideIcon;
   color: string;
   bgColor: string;
+  gradient?: string;
+}
+
+/**
+ * 时间分组类型
+ */
+export type TimeGroup = 'unread' | 'today' | 'yesterday' | 'earlier';
+
+/**
+ * 分组后的通知
+ */
+export interface GroupedNotifications {
+  unread: NotificationItem[];
+  today: NotificationItem[];
+  yesterday: NotificationItem[];
+  earlier: NotificationItem[];
 }
 
 /**
@@ -43,8 +59,8 @@ export function useNotifications(
   typeConfig: Record<NotificationType, NotificationTypeConfig>
 ) {
   // ============ 状态 ============
-  // 使用 shallowRef 优化性能，通知项内部不需要深度响应
-  const notifications = shallowRef<NotificationItem[]>(initialNotifications);
+  // 使用 ref 确保数组内部变化能触发响应式更新
+  const notifications = ref<NotificationItem[]>(initialNotifications);
   const isNotificationOpen = ref(false);
 
   // ============ 计算属性 ============
@@ -74,6 +90,67 @@ export function useNotifications(
       return b.createdAt.getTime() - a.createdAt.getTime();
     });
   });
+
+  /**
+   * 按时间分组的通知列表
+   */
+  const groupedNotifications: ComputedRef<GroupedNotifications> = computed(() => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+
+    const groups: GroupedNotifications = {
+      unread: [],
+      today: [],
+      yesterday: [],
+      earlier: [],
+    };
+
+    // 先按时间排序
+    const sorted = [...notifications.value].sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
+
+    sorted.forEach(notification => {
+      const notificationDate = new Date(
+        notification.createdAt.getFullYear(),
+        notification.createdAt.getMonth(),
+        notification.createdAt.getDate()
+      );
+
+      if (notification.isRead === false) {
+        groups.unread.push(notification);
+      } else if (notificationDate.getTime() >= today.getTime()) {
+        groups.today.push(notification);
+      } else if (notificationDate.getTime() >= yesterday.getTime()) {
+        groups.yesterday.push(notification);
+      } else {
+        groups.earlier.push(notification);
+      }
+    });
+
+    return groups;
+  });
+
+  /**
+   * 获取分组标题
+   */
+  const getGroupTitle = (group: TimeGroup): string => {
+    const titles: Record<TimeGroup, string> = {
+      unread: '未读消息',
+      today: '今天',
+      yesterday: '昨天',
+      earlier: '更早',
+    };
+    return titles[group];
+  };
+
+  /**
+   * 判断分组是否有内容
+   */
+  const hasGroupItems = (group: TimeGroup): boolean => {
+    return groupedNotifications.value[group].length > 0;
+  };
 
   // ============ 方法 ============
 
@@ -170,6 +247,7 @@ export function useNotifications(
     unreadCount,
     hasUnread,
     sortedNotifications,
+    groupedNotifications,
 
     // 方法
     formatTime,
@@ -181,6 +259,8 @@ export function useNotifications(
     openNotifications,
     closeNotifications,
     toggleNotifications,
+    getGroupTitle,
+    hasGroupItems,
 
     // 配置
     typeConfig,

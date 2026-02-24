@@ -1,19 +1,12 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { useAppStore } from '@/stores/global/app';
 import { useThemeStore } from '@/stores/global/theme';
 import { useMenuStore } from '@/stores/global/menu';
-import { useNotifications } from '@/layouts/composables/useNotifications';
 import ThemeSettings from './ThemeSettings.vue';
 import LanguageSwitch from './LanguageSwitch.vue';
 import MenuSearchDialog from './MenuSearchDialog.vue';
+import NotificationPanel from './NotificationPanel.vue';
 import {
   Sheet,
   SheetContent,
@@ -23,25 +16,14 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import {
-  Bell,
   Search,
   Moon,
   Sun,
   Palette,
   Command,
   X,
-  Check,
-  CheckCheck,
-  Trash2,
-  Info,
-  AlertTriangle,
-  CheckCircle,
-  MessageSquare,
-  Maximize2,
-  Minimize2,
   Home,
 } from 'lucide-vue-next';
-import PageBreadcrumb from './PageBreadcrumb.vue';
 import { PageBreadcrumbDropdown } from './PageBreadcrumbDropdown';
 import { UserMenu } from './UserMenu';
 
@@ -58,64 +40,6 @@ const isSearchExpanded = ref(false);
 const isThemeDrawerOpen = ref(false);
 const isMenuSearchOpen = ref(false);
 const searchInputRef = ref<HTMLInputElement | null>(null);
-
-/**
- * 通知类型配置
- */
-const notificationTypeConfig = {
-  info: { icon: Info, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
-  warning: { icon: AlertTriangle, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
-  success: { icon: CheckCircle, color: 'text-emerald-500', bgColor: 'bg-emerald-500/10' },
-  message: { icon: MessageSquare, color: 'text-purple-500', bgColor: 'bg-purple-500/10' },
-};
-
-/**
- * 使用通知功能
- */
-const {
-  notifications,
-  isNotificationOpen,
-  unreadCount,
-  hasUnread,
-  formatTime,
-  markAsRead,
-  markAllAsRead,
-  deleteNotification,
-  clearAllNotifications,
-} = useNotifications([
-  {
-    id: '1',
-    title: '系统更新完成',
-    content: '系统已成功更新到最新版本 v2.0.0',
-    type: 'success',
-    createdAt: new Date(Date.now() - 1000 * 60 * 5),
-    isRead: false,
-  },
-  {
-    id: '2',
-    title: '新用户注册',
-    content: '用户 "张三" 刚刚完成了注册',
-    type: 'info',
-    createdAt: new Date(Date.now() - 1000 * 60 * 30),
-    isRead: false,
-  },
-  {
-    id: '3',
-    title: '存储空间警告',
-    content: '您的存储空间使用率已超过 85%，请及时清理',
-    type: 'warning',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    isRead: true,
-  },
-  {
-    id: '4',
-    title: '新消息',
-    content: '您收到一条来自管理员的新消息',
-    type: 'message',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    isRead: true,
-  },
-], notificationTypeConfig);
 
 /**
  * 当前路由标题
@@ -377,157 +301,8 @@ onUnmounted(() => {
           </SheetContent>
         </Sheet>
 
-        <!-- 通知按钮 - 优化后的设计 -->
-        <DropdownMenu v-model:open="isNotificationOpen">
-          <DropdownMenuTrigger as-child>
-            <Button
-              variant="ghost"
-              size="icon"
-              class="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary relative transition-all duration-200"
-              :title="t('common.header.notifications')"
-            >
-              <Bell class="h-4 w-4" />
-              <!-- 徽标指示 - 优化为更精致的脉冲效果 -->
-              <span v-if="hasUnread" class="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 ring-2 ring-background"></span>
-              </span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" class="w-80 p-0" :side-offset="8">
-            <!-- 通知头部 -->
-            <div class="flex items-center justify-between px-3 py-2.5 border-b border-border/50 gap-2">
-              <div class="flex items-center gap-2 min-w-0">
-                <Bell class="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span class="font-semibold text-sm truncate">{{ t('common.header.notifications') }}</span>
-                <span
-                  v-if="unreadCount > 0"
-                  class="bg-primary text-primary-foreground text-[10px] font-medium px-1.5 py-0.5 rounded-full min-w-[18px] text-center flex-shrink-0"
-                >
-                  {{ unreadCount }}
-                </span>
-              </div>
-              <div class="flex items-center gap-0.5 flex-shrink-0">
-                <Button
-                  v-if="hasUnread"
-                  variant="ghost"
-                  size="sm"
-                  class="h-7 px-1.5 text-xs hover:bg-primary/10 hover:text-primary whitespace-nowrap"
-                  @click="markAllAsRead"
-                >
-                  <CheckCheck class="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                  <span class="truncate">{{ t('common.header.markAllRead') }}</span>
-                </Button>
-                <Button
-                  v-if="notifications.length > 0"
-                  variant="ghost"
-                  size="icon"
-                  class="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
-                  @click="clearAllNotifications"
-                >
-                  <Trash2 class="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            </div>
-
-            <!-- 通知列表 - 使用 shadcn-vue ScrollArea -->
-            <ScrollArea class="h-[360px]">
-              <div v-if="notifications.length === 0" class="flex flex-col items-center justify-center py-8 text-center">
-                <div class="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-3">
-                  <Bell class="h-5 w-5 text-muted-foreground" />
-                </div>
-                <p class="text-sm text-muted-foreground">{{ t('common.header.noNotifications') }}</p>
-              </div>
-
-              <div
-                v-for="notification in notifications"
-                :key="notification.id"
-                v-memo="[notification.isRead, notification.title, notification.content]"
-                class="group flex items-start gap-3 px-4 py-3 transition-all duration-200 cursor-pointer border-b border-border/30 last:border-b-0 relative overflow-hidden"
-                :class="[
-                  notification.isRead === false
-                    ? 'bg-primary/[0.03]'
-                    : '',
-                  'hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset'
-                ]"
-                @click="markAsRead(notification.id)"
-              >
-                <!-- 左侧激活指示条 -->
-                <div
-                  v-if="notification.isRead === false"
-                  class="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-8 bg-primary rounded-r-full"
-                />
-
-                <!-- 悬停时的背景光效 -->
-                <span
-                  class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out pointer-events-none"
-                  aria-hidden="true"
-                />
-
-                <!-- 类型图标 -->
-                <div
-                  class="h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 relative z-10"
-                  :class="[
-                    notificationTypeConfig[notification.type].bgColor,
-                    notification.isRead === false ? 'scale-110' : ''
-                  ]"
-                >
-                  <component
-                    :is="notificationTypeConfig[notification.type].icon"
-                    class="h-4 w-4 transition-colors duration-200"
-                    :class="notificationTypeConfig[notification.type].color"
-                  />
-                </div>
-
-                <!-- 内容 -->
-                <div class="flex-1 min-w-0 relative z-10">
-                  <div class="flex items-start justify-between gap-2">
-                    <p
-                      class="text-sm font-medium truncate transition-colors duration-200 group-hover:text-primary"
-                      :class="notification.isRead === false ? 'text-foreground' : 'text-foreground/80'"
-                    >
-                      {{ notification.title }}
-                    </p>
-                    <span class="text-[10px] text-muted-foreground flex-shrink-0">
-                      {{ formatTime(notification.createdAt) }}
-                    </span>
-                  </div>
-                  <p class="text-xs text-muted-foreground line-clamp-2 mt-0.5 leading-relaxed group-hover:text-muted-foreground/80">
-                    {{ notification.content }}
-                  </p>
-                </div>
-
-                <!-- 未读指示器和操作 -->
-                <div class="flex flex-col items-center gap-1 flex-shrink-0 relative z-10">
-                  <div
-                    v-if="notification.isRead === false"
-                    class="h-2 w-2 rounded-full bg-primary"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    class="h-6 w-6 opacity-0 group-hover:opacity-100 transition-all duration-200 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                    @click.stop="deleteNotification(notification.id)"
-                  >
-                    <X class="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-            </ScrollArea>
-
-            <!-- 底部查看更多 -->
-            <div v-if="notifications.length > 0" class="border-t border-border/50 p-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                class="w-full text-xs text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-200 rounded-lg"
-                @click="router.push('/notifications')"
-              >
-                {{ t('common.header.viewAll') }}
-              </Button>
-            </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <!-- 通知面板 -->
+        <NotificationPanel />
 
         <!-- 用户菜单 - Bento 风格设计 -->
         <UserMenu />
