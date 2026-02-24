@@ -1,10 +1,9 @@
 /**
- * 菜单模块 Mock 接口
+ * 菜单模块 MSW handlers
  * @description 菜单和路由配置相关接口
  */
-import type { MockMethod } from 'vite-plugin-mock';
+import { http, HttpResponse, delay } from 'msw';
 
-// 路由配置数据
 const routeData = [
   {
     path: '/dashboard',
@@ -521,7 +520,6 @@ const routeData = [
   },
 ];
 
-// 从路由生成菜单
 function generateMenusFromRoutes(routes: any[]) {
   return routes
     .filter(route => !route.meta.hideInMenu)
@@ -545,25 +543,22 @@ function generateMenusFromRoutes(routes: any[]) {
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 }
 
-export default [
-  // 获取路由配置（前端期望返回 RouteConfig[] 格式）
-  {
-    url: '/mock-api/menu/list',
-    method: 'get',
-    response: () => ({
+export const menuHandlers = [
+  http.get('/mock-api/menu/list', async () => {
+    await delay(200);
+    return HttpResponse.json({
       code: 200,
       data: routeData,
       message: 'success',
-    }),
-  },
-  // 获取菜单数据（用于菜单管理页面）
-  {
-    url: '/mock-api/menu/routes',
-    method: 'get',
-    response: () => ({
+    });
+  }),
+
+  http.get('/mock-api/menu/routes', async () => {
+    await delay(200);
+    return HttpResponse.json({
       code: 200,
       data: generateMenusFromRoutes(routeData),
       message: 'success',
-    }),
-  },
-] as MockMethod[];
+    });
+  }),
+];

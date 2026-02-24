@@ -1,16 +1,14 @@
 /**
- * 数据分析模块 Mock 接口
+ * 数据分析模块 MSW handlers
  * @description 数据分析相关接口
  */
+import { http, HttpResponse, delay } from 'msw';
 import Mock from 'mockjs';
-import type { MockMethod } from 'vite-plugin-mock';
 
-export default [
-  // 获取核心指标
-  {
-    url: '/mock-api/analytics/metrics',
-    method: 'get',
-    response: () => ({
+export const analyticsHandlers = [
+  http.get('/mock-api/analytics/metrics', async () => {
+    await delay(300);
+    return HttpResponse.json({
       code: 200,
       data: {
         totalVisits: Mock.mock('@integer(40000, 50000)'),
@@ -23,13 +21,12 @@ export default [
         avgOrderValueChange: Mock.mock('@float(-5, 10, 1, 1)'),
       },
       message: 'success',
-    }),
-  },
-  // 获取热销商品
-  {
-    url: '/mock-api/analytics/top-products',
-    method: 'get',
-    response: () => ({
+    });
+  }),
+
+  http.get('/mock-api/analytics/top-products', async () => {
+    await delay(300);
+    return HttpResponse.json({
       code: 200,
       data: [
         { id: 'p-001', name: '高级无线耳机', sales: 342, revenue: 102258, trend: 15 },
@@ -39,13 +36,12 @@ export default [
         { id: 'p-005', name: 'USB-C 数据线', sales: 67, revenue: 1273, trend: 3 },
       ],
       message: 'success',
-    }),
-  },
-  // 获取分类占比
-  {
-    url: '/mock-api/analytics/category-shares',
-    method: 'get',
-    response: () => ({
+    });
+  }),
+
+  http.get('/mock-api/analytics/category-shares', async () => {
+    await delay(300);
+    return HttpResponse.json({
       code: 200,
       data: [
         { name: '电子产品', percentage: 45, color: 'bg-blue-500', amount: 224500 },
@@ -54,13 +50,12 @@ export default [
         { name: '其他', percentage: 9, color: 'bg-orange-500', amount: 44900 },
       ],
       message: 'success',
-    }),
-  },
-  // 获取访问趋势
-  {
-    url: '/mock-api/analytics/traffic',
-    method: 'get',
-    response: () => ({
+    });
+  }),
+
+  http.get('/mock-api/analytics/traffic', async () => {
+    await delay(300);
+    return HttpResponse.json({
       code: 200,
       data: [
         { day: '周一', visits: 5200, orders: 120 },
@@ -72,13 +67,12 @@ export default [
         { day: '周日', visits: 8800, orders: 210 },
       ],
       message: 'success',
-    }),
-  },
-  // 获取用户行为数据
-  {
-    url: '/mock-api/analytics/user-behavior',
-    method: 'get',
-    response: () => ({
+    });
+  }),
+
+  http.get('/mock-api/analytics/user-behavior', async () => {
+    await delay(300);
+    return HttpResponse.json({
       code: 200,
       data: [
         { label: '平均会话时长', value: '4m 32s', change: 12, isPositive: true },
@@ -87,6 +81,6 @@ export default [
         { label: '回访率', value: '45.8%', change: 2.1, isPositive: true },
       ],
       message: 'success',
-    }),
-  },
-] as MockMethod[];
+    });
+  }),
+];
