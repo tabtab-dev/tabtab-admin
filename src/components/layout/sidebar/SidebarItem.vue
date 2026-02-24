@@ -88,7 +88,7 @@ const ariaLabel = computed(() => {
         :aria-current="getAriaCurrent(item.path)"
         :class="[
           'relative h-10 w-10 transition-colors duration-150 rounded-lg',
-          active ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
+          active ? 'bg-primary text-primary-foreground' : 'hover:bg-primary/10 hover:text-primary'
         ]"
         @click="handleClick"
       >
