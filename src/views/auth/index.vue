@@ -31,12 +31,12 @@ const themeStore = useThemeStore();
 const formRef = ref<TFormExpose>();
 
 /**
- * 表单数据
+ * 表单数据 - 默认填充演示账户
  */
 const formData = ref({
-  email: '',
-  password: '',
-  rememberMe: false
+  email: 'admin@example.com',
+  password: 'admin123',
+  rememberMe: true
 });
 
 /**
@@ -354,7 +354,7 @@ const features = [
           <p class="text-xs text-muted-foreground leading-relaxed">
             邮箱: <span class="text-foreground font-medium">admin@example.com</span>
             <br />
-            密码: <span class="text-foreground font-medium">任意密码</span>
+            密码: <span class="text-foreground font-medium">admin123</span>
           </p>
         </div>
       </div>
