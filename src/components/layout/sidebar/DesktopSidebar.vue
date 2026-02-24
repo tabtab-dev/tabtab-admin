@@ -244,20 +244,28 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
           </div>
         </div>
         <!-- 折叠按钮 - Logo 下方 -->
-        <TooltipProvider>
+        <!-- 展开状态：直接渲染按钮，无 Tooltip 包裹 -->
+        <button
+          v-if="!collapsed"
+          @click="handleToggleCollapse"
+          class="mt-2 w-full h-8 flex items-center justify-center rounded-lg bg-muted/50 hover:bg-muted hover:text-primary transition-all duration-200 gap-2"
+        >
+          <PanelLeft class="h-4 w-4" />
+          <span class="text-xs text-muted-foreground">{{ t('common.sidebar.collapse') }}</span>
+        </button>
+
+        <!-- 折叠状态：使用 Tooltip 提供悬停提示 -->
+        <TooltipProvider v-else>
           <Tooltip>
             <TooltipTrigger as-child>
               <button
                 @click="handleToggleCollapse"
-                class="mt-2 w-full h-8 flex items-center justify-center rounded-lg bg-muted/50 hover:bg-muted hover:text-primary transition-all duration-200"
-                :class="collapsed ? 'px-0' : 'gap-2'"
+                class="mt-2 w-full h-8 flex items-center justify-center rounded-lg bg-muted/50 hover:bg-muted hover:text-primary transition-all duration-200 px-0"
               >
-                <PanelLeft v-if="!collapsed" class="h-4 w-4" />
-                <PanelRight v-else class="h-4 w-4" />
-                <span v-if="!collapsed" class="text-xs text-muted-foreground">{{ t('common.sidebar.collapse') }}</span>
+                <PanelRight class="h-4 w-4" />
               </button>
             </TooltipTrigger>
-            <TooltipContent v-if="collapsed" side="right">
+            <TooltipContent side="right">
               <span>{{ t('common.sidebar.expand') }}</span>
             </TooltipContent>
           </Tooltip>
