@@ -105,7 +105,7 @@ const mockRoles = [
  */
 function switchRole(roleData: { role: string, permissions: string[] }) {
   if (authStore.user) {
-    authStore.user.role = roleData.role
+    authStore.user.role = roleData.role as any
     authStore.user.permissions = roleData.permissions
   }
 }

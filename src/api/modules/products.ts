@@ -15,6 +15,8 @@ export interface CreateProductParams {
   price: number
   stock: number
   description?: string
+  sales?: number
+  status?: string
 }
 
 /**

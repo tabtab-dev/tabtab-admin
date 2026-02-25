@@ -27,6 +27,7 @@ interface ProductFormData {
   id?: string
   name: string
   category: string
+  sku?: string
   price: number
   stock: number
   description: string
@@ -116,6 +117,7 @@ const { mutate: createProduct } = useMutation({
     return productsApi.createProduct({
       name: values.name,
       category: values.category,
+      sku: values.sku || '',
       price: Number(values.price),
       stock,
       status: stock === 0 ? PRODUCT_STATUS.OUT_OF_STOCK : stock < 10 ? PRODUCT_STATUS.LOW_STOCK : PRODUCT_STATUS.ACTIVE,
@@ -382,6 +384,12 @@ const productFormSchema: FormSchema = {
       rules: [{ required: true, message: '请选择分类' }],
     },
     {
+      name: 'sku',
+      type: 'input',
+      label: 'SKU',
+      placeholder: '请输入SKU编码',
+    },
+    {
       name: 'price',
       type: 'number',
       label: '价格',
@@ -597,11 +605,11 @@ function handleTableChange(pagination: any): void {
             <div class="flex items-center gap-4 text-sm text-muted-foreground">
               <div class="flex items-center gap-1">
                 <TrendingUp class="h-4 w-4" />
-                <span>总销量: {{ (statistics.value?.totalSales ?? 0) as number }}</span>
+                <span>总销量: {{ (statistics.value as any)?.totalSales ?? 0 }}</span>
               </div>
               <div class="flex items-center gap-1">
                 <Layers class="h-4 w-4" />
-                <span>总库存: {{ (statistics.value?.totalStock ?? 0) as number }}</span>
+                <span>总库存: {{ (statistics.value as any)?.totalStock ?? 0 }}</span>
               </div>
             </div>
           </div>

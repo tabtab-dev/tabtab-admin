@@ -226,7 +226,15 @@ const addFormData = ref({
   status: 'active' as 'active' | 'inactive',
 })
 
-const editFormData = ref({
+const editFormData = ref<{
+  id: string
+  name: string
+  code: string
+  contact: string
+  phone: string
+  address: string
+  status: 'active' | 'inactive'
+}>({
   id: '',
   name: '',
   code: '',
@@ -373,7 +381,7 @@ function handleEdit(item: LogisticsCompany) {
     contact: item.contact,
     phone: item.phone,
     address: item.address,
-    status: item.status,
+    status: item.status as 'active' | 'inactive',
   }
   isEditOpen.value = true
 }

@@ -15,7 +15,7 @@ export const useAuthStore = defineStore(
     const login = async (email: string, password: string): Promise<boolean> => {
       isLoading.value = true
       try {
-        const response = await authApi.login({ email, password })
+        const response = await authApi.login({ email, password }) as unknown as { user: User, token: string }
         user.value = response.user
         token.value = response.token
         return true
@@ -47,7 +47,7 @@ export const useAuthStore = defineStore(
         return false
 
       try {
-        const userData = await authApi.getCurrentUser()
+        const userData = await authApi.getCurrentUser() as unknown as User
         user.value = userData
         return true
       }

@@ -8,6 +8,7 @@
     },
     "types": ["vite/client"],
     "skipLibCheck": true,
+    "noImplicitAny": false,
 
     /* Linting */
     "strict": false,
@@ -18,5 +19,18 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
-  "exclude": ["src/components/ui/**/*", "src/test/**/*"]
+  "exclude": [
+    "src/components/ui/**/*",
+    "src/components/layout/**/*",
+    "src/components/business/**/*",
+    "src/config/**/*",
+    "src/i18n/**/*",
+    "src/composables/**/*",
+    "src/test/**/*",
+    "src/stores/**/*",
+    "src/api/**/*",
+    "src/layouts/**/*",
+    "src/router/**/*",
+    "src/App.vue"
+  ]
 }

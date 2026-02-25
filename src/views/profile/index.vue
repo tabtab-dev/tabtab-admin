@@ -141,7 +141,9 @@ async function handleSaveProfile() {
     })
 
     // 更新 store 中的用户信息
-    authStore.user = { ...authStore.user, ...updatedUser }
+    if (authStore.user && updatedUser) {
+      Object.assign(authStore.user, updatedUser)
+    }
 
     message.success('个人资料保存成功')
   }
@@ -185,7 +187,8 @@ async function handleAvatarChange(event: Event) {
 
   loadingStates.avatar = true
   try {
-    const { avatarUrl } = await authApi.uploadAvatar(file)
+    const result = await authApi.uploadAvatar(file) as { avatarUrl: string }
+    const avatarUrl = result.avatarUrl
     profileForm.avatar = avatarUrl
 
     // 同时更新用户资料

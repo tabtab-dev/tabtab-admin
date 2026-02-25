@@ -399,7 +399,7 @@ function handleEdit(item: Category) {
     id: item.id,
     name: item.name,
     code: item.code,
-    level: item.level,
+    level: item.level as 1 | 2,
     parentId: item.parentId || '',
     sort: item.sort,
     status: item.status,

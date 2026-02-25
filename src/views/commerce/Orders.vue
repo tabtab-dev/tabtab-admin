@@ -384,7 +384,7 @@ const addSchema = {
     showReset: true,
     submitText: '创建订单',
     resetText: '取消',
-    align: 'right',
+    align: 'right' as const,
     onReset: () => {
       isAddDialogOpen.value = false
     },
@@ -518,7 +518,7 @@ function handleTableChange(pagination: any): void {
             />
             <div class="flex items-center gap-2 text-sm text-muted-foreground">
               <DollarSign class="h-4 w-4" />
-              <span>总金额: ¥{{ ((statistics.value?.totalAmount ?? 0) as number).toFixed(2) }}</span>
+              <span>总金额: ¥{{ ((statistics.value as any)?.totalAmount ?? 0).toFixed(2) }}</span>
             </div>
           </div>
         </div>

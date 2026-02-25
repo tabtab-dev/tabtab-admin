@@ -14,6 +14,8 @@ export interface CreateOrderParams {
   phone: string
   items: number
   address: string
+  total?: number
+  status?: string
   note?: string
 }
 

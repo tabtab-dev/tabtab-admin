@@ -13,7 +13,7 @@ export type TrendDirection = 'up' | 'down' | 'neutral'
 /**
  * 卡片主题色
  */
-export type CardColor = 'blue' | 'green' | 'purple' | 'orange' | 'red' | 'cyan' | 'default'
+export type CardColor = 'blue' | 'green' | 'purple' | 'orange' | 'red' | 'cyan' | 'default' | 'yellow'
 
 /**
  * 卡片尺寸

@@ -96,7 +96,7 @@ const {
 })
 
 // Get context menu items for a tab
-function getContextMenuItems(tab: typeof tabBarStore.tabs[0]) {
+function getContextMenuItems(tab: typeof tabBarStore.tabs[0]): Array<{ key?: string, label?: string, icon?: string, disabled?: boolean, type?: 'separator' }> {
   const tabIndex = tabBarStore.tabs.findIndex(t => t.path === tab.path)
   const isFirst = tabIndex === 0
   const isLast = tabIndex === tabBarStore.tabs.length - 1
