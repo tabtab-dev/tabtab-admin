@@ -1,17 +1,17 @@
 <script setup lang="ts">
+import type { FormSchema } from '@/components/business/TForm'
+import { Moon, Sun } from 'lucide-vue-next'
 /**
  * TFormDemo - TForm 组件演示页面
  *
  * @description 展示 TForm 表单组件的各种使用场景和配置方式
  */
 import { TForm } from '@/components/business/TForm'
-import type { FormSchema } from '@/components/business/TForm'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useThemeStore } from '@/stores/global/theme'
-import { Moon, Sun } from 'lucide-vue-next'
 
 /**
  * i18n
@@ -21,7 +21,6 @@ const { t } = useI18n()
 /**
  * 表单引用
  */
-
 
 /**
  * 主题状态管理
@@ -35,7 +34,7 @@ const basicFormData = ref({
   name: '',
   email: '',
   phone: '',
-  age: null
+  age: null,
 })
 
 /**
@@ -51,7 +50,7 @@ const basicSchema = computed<FormSchema>(() => ({
       type: 'input',
       label: '姓名',
       placeholder: '请输入姓名',
-      rules: [{ required: true, message: '姓名不能为空' }]
+      rules: [{ required: true, message: '姓名不能为空' }],
     },
     {
       name: 'email',
@@ -60,29 +59,29 @@ const basicSchema = computed<FormSchema>(() => ({
       placeholder: '请输入邮箱',
       rules: [
         { required: true, message: '邮箱不能为空' },
-        { type: 'email', message: '邮箱格式不正确' }
-      ]
+        { type: 'email', message: '邮箱格式不正确' },
+      ],
     },
     {
       name: 'phone',
       type: 'input',
       label: '电话',
-      placeholder: '请输入电话号码'
+      placeholder: '请输入电话号码',
     },
     {
       name: 'age',
       type: 'number',
       label: '年龄',
       placeholder: '请输入年龄',
-      props: { min: 0, max: 150 }
-    }
+      props: { min: 0, max: 150 },
+    },
   ],
   actions: {
     submitText: t('common.submit'),
     resetText: t('common.reset'),
     showReset: true,
-    align: 'right'
-  }
+    align: 'right',
+  },
 }))
 
 /**
@@ -94,7 +93,7 @@ const advancedFormData = ref({
   role: 'viewer',
   status: true,
   tags: [],
-  description: ''
+  description: '',
 })
 
 /**
@@ -110,7 +109,7 @@ const advancedSchema = computed<FormSchema>(() => ({
       type: 'input',
       label: '用户名',
       placeholder: '请输入用户名',
-      rules: [{ required: true, message: '用户名不能为空' }]
+      rules: [{ required: true, message: '用户名不能为空' }],
     },
     {
       name: 'password',
@@ -119,8 +118,8 @@ const advancedSchema = computed<FormSchema>(() => ({
       placeholder: '请输入密码',
       rules: [
         { required: true, message: '密码不能为空' },
-        { min: 6, message: '密码长度不能少于6位' }
-      ]
+        { min: 6, message: '密码长度不能少于6位' },
+      ],
     },
     {
       name: 'role',
@@ -130,15 +129,15 @@ const advancedSchema = computed<FormSchema>(() => ({
       options: [
         { label: '管理员', value: 'admin' },
         { label: '编辑', value: 'editor' },
-        { label: '查看者', value: 'viewer' }
+        { label: '查看者', value: 'viewer' },
       ],
-      rules: [{ required: true, message: '请选择角色' }]
+      rules: [{ required: true, message: '请选择角色' }],
     },
     {
       name: 'status',
       type: 'switch',
       label: '启用状态',
-      defaultValue: true
+      defaultValue: true,
     },
     {
       name: 'tags',
@@ -148,23 +147,23 @@ const advancedSchema = computed<FormSchema>(() => ({
         { label: '前端', value: 'frontend' },
         { label: '后端', value: 'backend' },
         { label: '设计', value: 'design' },
-        { label: '产品', value: 'product' }
-      ]
+        { label: '产品', value: 'product' },
+      ],
     },
     {
       name: 'description',
       type: 'textarea',
       label: '个人简介',
       placeholder: '请输入个人简介',
-      props: { rows: 4 }
-    }
+      props: { rows: 4 },
+    },
   ],
   actions: {
     submitText: t('common.save'),
     resetText: t('common.clear'),
     showReset: true,
-    align: 'right'
-  }
+    align: 'right',
+  },
 }))
 
 /**
@@ -173,7 +172,7 @@ const advancedSchema = computed<FormSchema>(() => ({
 const dependencyFormData = ref({
   userType: 'personal',
   companyName: '',
-  personalName: ''
+  personalName: '',
 })
 
 /**
@@ -190,9 +189,9 @@ const dependencySchema = computed<FormSchema>(() => ({
       label: '用户类型',
       options: [
         { label: '个人', value: 'personal' },
-        { label: '企业', value: 'company' }
+        { label: '企业', value: 'company' },
       ],
-      defaultValue: 'personal'
+      defaultValue: 'personal',
     },
     {
       name: 'personalName',
@@ -201,9 +200,9 @@ const dependencySchema = computed<FormSchema>(() => ({
       placeholder: '请输入姓名',
       dependencies: {
         field: 'userType',
-        condition: (value) => value === 'personal'
+        condition: value => value === 'personal',
       },
-      rules: [{ required: true, message: '姓名不能为空' }]
+      rules: [{ required: true, message: '姓名不能为空' }],
     },
     {
       name: 'companyName',
@@ -212,16 +211,16 @@ const dependencySchema = computed<FormSchema>(() => ({
       placeholder: '请输入企业名称',
       dependencies: {
         field: 'userType',
-        condition: (value) => value === 'company'
+        condition: value => value === 'company',
       },
-      rules: [{ required: true, message: '企业名称不能为空' }]
-    }
+      rules: [{ required: true, message: '企业名称不能为空' }],
+    },
   ],
   actions: {
     submitText: t('common.submit'),
     showReset: false,
-    align: 'right'
-  }
+    align: 'right',
+  },
 }))
 
 /**
@@ -230,7 +229,7 @@ const dependencySchema = computed<FormSchema>(() => ({
 const inlineFormData = ref({
   keyword: '',
   category: '',
-  status: ''
+  status: '',
 })
 
 /**
@@ -243,7 +242,7 @@ const inlineSchema = computed<FormSchema>(() => ({
       name: 'keyword',
       type: 'input',
       placeholder: '请输入关键词',
-      props: { style: { width: '200px' } }
+      props: { style: { width: '200px' } },
     },
     {
       name: 'category',
@@ -253,9 +252,9 @@ const inlineSchema = computed<FormSchema>(() => ({
         { label: '全部', value: '' },
         { label: '技术', value: 'tech' },
         { label: '设计', value: 'design' },
-        { label: '产品', value: 'product' }
+        { label: '产品', value: 'product' },
       ],
-      props: { style: { width: '150px' } }
+      props: { style: { width: '150px' } },
     },
     {
       name: 'status',
@@ -264,17 +263,17 @@ const inlineSchema = computed<FormSchema>(() => ({
       options: [
         { label: '全部', value: '' },
         { label: '启用', value: 'active' },
-        { label: '禁用', value: 'inactive' }
+        { label: '禁用', value: 'inactive' },
       ],
-      props: { style: { width: '150px' } }
-    }
+      props: { style: { width: '150px' } },
+    },
   ],
   actions: {
     submitText: t('common.search'),
     resetText: t('common.reset'),
     showReset: true,
-    align: 'left'
-  }
+    align: 'left',
+  },
 }))
 
 /**
@@ -290,7 +289,7 @@ const moreComponentsFormData = ref({
   dateRange: null,
   time: null,
   category: [],
-  department: ''
+  department: '',
 })
 
 /**
@@ -306,14 +305,14 @@ const moreComponentsSchema = computed<FormSchema>(() => ({
       type: 'slider',
       label: '优先级',
       defaultValue: 50,
-      props: { min: 0, max: 100, step: 10, marks: { 0: '低', 50: '中', 100: '高' } }
+      props: { min: 0, max: 100, step: 10, marks: { 0: '低', 50: '中', 100: '高' } },
     },
     {
       name: 'rating',
       type: 'rate',
       label: '评分',
       defaultValue: 3,
-      props: { allowHalf: true }
+      props: { allowHalf: true },
     },
     {
       name: 'theme',
@@ -322,9 +321,9 @@ const moreComponentsSchema = computed<FormSchema>(() => ({
       options: [
         { label: '浅色', value: 'light' },
         { label: '深色', value: 'dark' },
-        { label: '自动', value: 'auto' }
+        { label: '自动', value: 'auto' },
       ],
-      defaultValue: 'light'
+      defaultValue: 'light',
     },
     {
       name: 'city',
@@ -336,8 +335,8 @@ const moreComponentsSchema = computed<FormSchema>(() => ({
         { label: '上海', value: 'shanghai' },
         { label: '广州', value: 'guangzhou' },
         { label: '深圳', value: 'shenzhen' },
-        { label: '杭州', value: 'hangzhou' }
-      ]
+        { label: '杭州', value: 'hangzhou' },
+      ],
     },
     {
       name: 'mention',
@@ -347,26 +346,26 @@ const moreComponentsSchema = computed<FormSchema>(() => ({
       options: [
         { label: '张三', value: 'zhangsan' },
         { label: '李四', value: 'lisi' },
-        { label: '王五', value: 'wangwu' }
-      ]
+        { label: '王五', value: 'wangwu' },
+      ],
     },
     {
       name: 'date',
       type: 'date-picker',
       label: '日期',
-      placeholder: '请选择日期'
+      placeholder: '请选择日期',
     },
     {
       name: 'dateRange',
       type: 'range-picker',
       label: '日期范围',
-      placeholder: ['开始日期', '结束日期']
+      placeholder: ['开始日期', '结束日期'],
     },
     {
       name: 'time',
       type: 'time-picker',
       label: '时间',
-      placeholder: '请选择时间'
+      placeholder: '请选择时间',
     },
     {
       name: 'category',
@@ -380,8 +379,8 @@ const moreComponentsSchema = computed<FormSchema>(() => ({
           children: [
             { label: '手机', value: 'phone' },
             { label: '电脑', value: 'computer' },
-            { label: '配件', value: 'accessories' }
-          ]
+            { label: '配件', value: 'accessories' },
+          ],
         },
         {
           label: '服装鞋帽',
@@ -389,8 +388,8 @@ const moreComponentsSchema = computed<FormSchema>(() => ({
           children: [
             { label: '男装', value: 'men' },
             { label: '女装', value: 'women' },
-            { label: '童装', value: 'kids' }
-          ]
+            { label: '童装', value: 'kids' },
+          ],
         },
         {
           label: '食品生鲜',
@@ -398,10 +397,10 @@ const moreComponentsSchema = computed<FormSchema>(() => ({
           children: [
             { label: '水果', value: 'fruit' },
             { label: '蔬菜', value: 'vegetable' },
-            { label: '零食', value: 'snack' }
-          ]
-        }
-      ]
+            { label: '零食', value: 'snack' },
+          ],
+        },
+      ],
     },
     {
       name: 'department',
@@ -415,41 +414,41 @@ const moreComponentsSchema = computed<FormSchema>(() => ({
           children: [
             { label: '前端组', value: 'frontend' },
             { label: '后端组', value: 'backend' },
-            { label: '测试组', value: 'qa' }
-          ]
+            { label: '测试组', value: 'qa' },
+          ],
         },
         {
           label: '产品部',
           value: 'product',
           children: [
             { label: '产品设计', value: 'design' },
-            { label: '产品运营', value: 'operation' }
-          ]
+            { label: '产品运营', value: 'operation' },
+          ],
         },
         {
           label: '市场部',
           value: 'marketing',
           children: [
             { label: '销售', value: 'sales' },
-            { label: '推广', value: 'promotion' }
-          ]
-        }
-      ]
-    }
+            { label: '推广', value: 'promotion' },
+          ],
+        },
+      ],
+    },
   ],
   actions: {
     submitText: t('common.submit'),
     resetText: t('common.reset'),
     showReset: true,
-    align: 'right'
-  }
+    align: 'right',
+  },
 }))
 
 /**
  * 表单数据 - 动态列表示例
  */
 const listFormData = ref({
-  members: [{ name: '', role: 'developer' }]
+  members: [{ name: '', role: 'developer' }],
 })
 
 /**
@@ -471,7 +470,7 @@ const listSchema = computed<FormSchema>(() => ({
             type: 'input',
             label: '姓名',
             placeholder: '请输入姓名',
-            rules: [{ required: true, message: '姓名不能为空' }]
+            rules: [{ required: true, message: '姓名不能为空' }],
           },
           {
             name: 'role',
@@ -481,24 +480,24 @@ const listSchema = computed<FormSchema>(() => ({
               { label: '开发', value: 'developer' },
               { label: '设计', value: 'designer' },
               { label: '产品', value: 'product' },
-              { label: '测试', value: 'tester' }
-            ]
-          }
+              { label: '测试', value: 'tester' },
+            ],
+          },
         ],
         min: 1,
         max: 5,
         addText: '添加成员',
         showAdd: true,
-        showRemove: true
-      }
-    }
+        showRemove: true,
+      },
+    },
   ],
   actions: {
     submitText: t('common.save'),
     resetText: t('common.reset'),
     showReset: true,
-    align: 'right'
-  }
+    align: 'right',
+  },
 }))
 
 /**
@@ -508,7 +507,7 @@ const groupFormData = ref({
   basicName: '',
   basicEmail: '',
   contactPhone: '',
-  contactAddress: ''
+  contactAddress: '',
 })
 
 /**
@@ -533,7 +532,7 @@ const groupSchema = computed<FormSchema>(() => ({
             type: 'input',
             label: '姓名',
             placeholder: '请输入姓名',
-            rules: [{ required: true, message: '姓名不能为空' }]
+            rules: [{ required: true, message: '姓名不能为空' }],
           },
           {
             name: 'basicEmail',
@@ -542,11 +541,11 @@ const groupSchema = computed<FormSchema>(() => ({
             placeholder: '请输入邮箱',
             rules: [
               { required: true, message: '邮箱不能为空' },
-              { type: 'email', message: '邮箱格式不正确' }
-            ]
-          }
-        ]
-      }
+              { type: 'email', message: '邮箱格式不正确' },
+            ],
+          },
+        ],
+      },
     },
     {
       name: 'contactInfo',
@@ -561,25 +560,25 @@ const groupSchema = computed<FormSchema>(() => ({
             name: 'contactPhone',
             type: 'input',
             label: '电话',
-            placeholder: '请输入电话'
+            placeholder: '请输入电话',
           },
           {
             name: 'contactAddress',
             type: 'textarea',
             label: '地址',
             placeholder: '请输入地址',
-            props: { rows: 2 }
-          }
-        ]
-      }
-    }
+            props: { rows: 2 },
+          },
+        ],
+      },
+    },
   ],
   actions: {
     submitText: t('common.submit'),
     resetText: t('common.reset'),
     showReset: true,
-    align: 'right'
-  }
+    align: 'right',
+  },
 }))
 
 /**
@@ -661,7 +660,7 @@ function handleFormChange(changedValues: Record<string, any>, allValues: Record<
  */
 const asyncFormData = ref({
   category: '',
-  product: ''
+  product: '',
 })
 
 /**
@@ -669,7 +668,7 @@ const asyncFormData = ref({
  * @param formData - 表单数据
  * @returns 产品选项列表
  */
-async function loadProducts(formData: Record<string, any>): Promise<Array<{ label: string; value: string }>> {
+async function loadProducts(formData: Record<string, any>): Promise<Array<{ label: string, value: string }>> {
   // 模拟 API 延迟
   await new Promise(resolve => setTimeout(resolve, 500))
 
@@ -678,22 +677,22 @@ async function loadProducts(formData: Record<string, any>): Promise<Array<{ labe
     return []
   }
 
-  const products: Record<string, Array<{ label: string; value: string }>> = {
+  const products: Record<string, Array<{ label: string, value: string }>> = {
     electronics: [
       { label: 'iPhone 15', value: 'iphone15' },
       { label: 'MacBook Pro', value: 'macbook' },
-      { label: 'AirPods Pro', value: 'airpods' }
+      { label: 'AirPods Pro', value: 'airpods' },
     ],
     clothing: [
       { label: 'T恤', value: 'tshirt' },
       { label: '牛仔裤', value: 'jeans' },
-      { label: '运动鞋', value: 'sneakers' }
+      { label: '运动鞋', value: 'sneakers' },
     ],
     food: [
       { label: '巧克力', value: 'chocolate' },
       { label: '咖啡', value: 'coffee' },
-      { label: '饼干', value: 'cookies' }
-    ]
+      { label: '饼干', value: 'cookies' },
+    ],
   }
 
   return products[category] || []
@@ -715,8 +714,8 @@ const asyncSchema = computed<FormSchema>(() => ({
       options: [
         { label: '数码电子', value: 'electronics' },
         { label: '服装鞋帽', value: 'clothing' },
-        { label: '食品生鲜', value: 'food' }
-      ]
+        { label: '食品生鲜', value: 'food' },
+      ],
     },
     {
       name: 'product',
@@ -725,16 +724,16 @@ const asyncSchema = computed<FormSchema>(() => ({
       placeholder: '请选择商品',
       options: loadProducts,
       props: {
-        disabled: false
-      }
-    }
+        disabled: false,
+      },
+    },
   ],
   actions: {
     submitText: t('common.submit'),
     resetText: t('common.reset'),
     showReset: true,
-    align: 'right'
-  }
+    align: 'right',
+  },
 }))
 
 /**
@@ -758,7 +757,7 @@ const searchFormData = ref({
   dateRange: null,
   priority: '',
   tags: [],
-  author: ''
+  author: '',
 })
 
 /**
@@ -767,7 +766,7 @@ const searchFormData = ref({
 const searchInlineFormData = ref({
   keyword: '',
   status: '',
-  category: ''
+  category: '',
 })
 
 /**
@@ -777,7 +776,7 @@ const searchCustomInlineFormData = ref({
   keyword: '',
   status: '',
   category: '',
-  dateRange: null
+  dateRange: null,
 })
 
 /**
@@ -791,7 +790,7 @@ const searchSchema = computed<FormSchema>(() => ({
       type: 'input',
       label: '关键词',
       placeholder: '请输入关键词搜索',
-      tooltip: '支持模糊搜索标题、内容'
+      tooltip: '支持模糊搜索标题、内容',
     },
     {
       name: 'status',
@@ -802,8 +801,8 @@ const searchSchema = computed<FormSchema>(() => ({
         { label: '全部', value: '' },
         { label: '启用', value: 'active' },
         { label: '禁用', value: 'inactive' },
-        { label: '待审核', value: 'pending' }
-      ]
+        { label: '待审核', value: 'pending' },
+      ],
     },
     {
       name: 'category',
@@ -815,14 +814,14 @@ const searchSchema = computed<FormSchema>(() => ({
         { label: '技术', value: 'tech' },
         { label: '设计', value: 'design' },
         { label: '产品', value: 'product' },
-        { label: '运营', value: 'operation' }
-      ]
+        { label: '运营', value: 'operation' },
+      ],
     },
     {
       name: 'dateRange',
       type: 'range-picker',
       label: '创建时间',
-      placeholder: ['开始日期', '结束日期']
+      placeholder: ['开始日期', '结束日期'],
     },
     {
       name: 'priority',
@@ -833,8 +832,8 @@ const searchSchema = computed<FormSchema>(() => ({
         { label: '全部', value: '' },
         { label: '高', value: 'high' },
         { label: '中', value: 'medium' },
-        { label: '低', value: 'low' }
-      ]
+        { label: '低', value: 'low' },
+      ],
     },
     {
       name: 'tags',
@@ -845,16 +844,16 @@ const searchSchema = computed<FormSchema>(() => ({
         { label: '前端', value: 'frontend' },
         { label: '后端', value: 'backend' },
         { label: '移动端', value: 'mobile' },
-        { label: '数据库', value: 'database' }
+        { label: '数据库', value: 'database' },
       ],
-      props: { mode: 'multiple' }
+      props: { mode: 'multiple' },
     },
     {
       name: 'author',
       type: 'input',
       label: '创建人',
-      placeholder: '请输入创建人'
-    }
+      placeholder: '请输入创建人',
+    },
   ],
   searchConfig: {
     enabled: true,
@@ -872,8 +871,8 @@ const searchSchema = computed<FormSchema>(() => ({
     },
     onReset: () => {
       console.log('重置搜索条件')
-    }
-  }
+    },
+  },
 }))
 
 /**
@@ -887,7 +886,7 @@ const searchInlineSchema = computed<FormSchema>(() => ({
       name: 'keyword',
       type: 'input',
       label: '关键词',
-      placeholder: '请输入关键词'
+      placeholder: '请输入关键词',
     },
     {
       name: 'status',
@@ -897,8 +896,8 @@ const searchInlineSchema = computed<FormSchema>(() => ({
       options: [
         { label: '全部', value: '' },
         { label: '启用', value: 'active' },
-        { label: '禁用', value: 'inactive' }
-      ]
+        { label: '禁用', value: 'inactive' },
+      ],
     },
     {
       name: 'category',
@@ -908,9 +907,9 @@ const searchInlineSchema = computed<FormSchema>(() => ({
       options: [
         { label: '全部', value: '' },
         { label: '技术', value: 'tech' },
-        { label: '设计', value: 'design' }
-      ]
-    }
+        { label: '设计', value: 'design' },
+      ],
+    },
   ],
   searchConfig: {
     enabled: true,
@@ -925,8 +924,8 @@ const searchInlineSchema = computed<FormSchema>(() => ({
     },
     onReset: () => {
       console.log('重置')
-    }
-  }
+    },
+  },
 }))
 
 /**
@@ -940,7 +939,7 @@ const searchCustomInlineSchema = computed<FormSchema>(() => ({
       name: 'keyword',
       type: 'input',
       label: '关键词',
-      placeholder: '请输入关键词'
+      placeholder: '请输入关键词',
     },
     {
       name: 'status',
@@ -950,8 +949,8 @@ const searchCustomInlineSchema = computed<FormSchema>(() => ({
       options: [
         { label: '全部', value: '' },
         { label: '启用', value: 'active' },
-        { label: '禁用', value: 'inactive' }
-      ]
+        { label: '禁用', value: 'inactive' },
+      ],
     },
     {
       name: 'category',
@@ -961,15 +960,15 @@ const searchCustomInlineSchema = computed<FormSchema>(() => ({
       options: [
         { label: '全部', value: '' },
         { label: '技术', value: 'tech' },
-        { label: '设计', value: 'design' }
-      ]
+        { label: '设计', value: 'design' },
+      ],
     },
     {
       name: 'dateRange',
       type: 'range-picker',
       label: '创建时间',
-      placeholder: ['开始日期', '结束日期']
-    }
+      placeholder: ['开始日期', '结束日期'],
+    },
   ],
   searchConfig: {
     enabled: true,
@@ -986,8 +985,8 @@ const searchCustomInlineSchema = computed<FormSchema>(() => ({
     },
     onReset: () => {
       console.log('重置')
-    }
-  }
+    },
+  },
 }))
 
 /**
@@ -1032,7 +1031,7 @@ const newComponentsFormData = ref({
   fileList: [],
   menuIcon: '',
   actionIcon: '',
-  categoryIcon: ''
+  categoryIcon: '',
 })
 
 /**
@@ -1048,37 +1047,37 @@ const newComponentsSchema = computed<FormSchema>(() => ({
       type: 'checkbox-single',
       label: '协议确认',
       props: { label: '我已阅读并同意用户协议' },
-      rules: [{ required: true, message: '请同意协议' }]
+      rules: [{ required: true, message: '请同意协议' }],
     },
     {
       name: 'month',
       type: 'month-picker',
       label: '月份',
-      placeholder: '请选择月份'
+      placeholder: '请选择月份',
     },
     {
       name: 'quarter',
       type: 'quarter-picker',
       label: '季度',
-      placeholder: '请选择季度'
+      placeholder: '请选择季度',
     },
     {
       name: 'year',
       type: 'year-picker',
       label: '年份',
-      placeholder: '请选择年份'
+      placeholder: '请选择年份',
     },
     {
       name: 'week',
       type: 'week-picker',
       label: '周',
-      placeholder: '请选择周'
+      placeholder: '请选择周',
     },
     {
       name: 'timeRange',
       type: 'time-range-picker',
       label: '时间范围',
-      placeholder: ['开始时间', '结束时间']
+      placeholder: ['开始时间', '结束时间'],
     },
     {
       name: 'viewMode',
@@ -1087,9 +1086,9 @@ const newComponentsSchema = computed<FormSchema>(() => ({
       options: [
         { label: '列表', value: 'list' },
         { label: '网格', value: 'grid' },
-        { label: '卡片', value: 'card' }
+        { label: '卡片', value: 'card' },
       ],
-      defaultValue: 'list'
+      defaultValue: 'list',
     },
     {
       name: 'selectedKeys',
@@ -1100,14 +1099,14 @@ const newComponentsSchema = computed<FormSchema>(() => ({
         { label: '选项 B', value: 'b', key: 'b' },
         { label: '选项 C', value: 'c', key: 'c' },
         { label: '选项 D', value: 'd', key: 'd' },
-        { label: '选项 E', value: 'e', key: 'e' }
-      ]
+        { label: '选项 E', value: 'e', key: 'e' },
+      ],
     },
     {
       name: 'themeColor',
       type: 'color-picker',
       label: '主题颜色',
-      defaultValue: '#3b82f6'
+      defaultValue: '#3b82f6',
     },
     {
       name: 'fileList',
@@ -1116,15 +1115,15 @@ const newComponentsSchema = computed<FormSchema>(() => ({
       props: {
         uploadText: '选择文件',
         multiple: true,
-        accept: '.jpg,.png,.pdf'
-      }
+        accept: '.jpg,.png,.pdf',
+      },
     },
     {
       name: 'menuIcon',
       type: 'icon',
       label: '菜单图标',
       placeholder: '请选择菜单图标',
-      help: '用于系统菜单导航的图标'
+      help: '用于系统菜单导航的图标',
     },
     {
       name: 'actionIcon',
@@ -1133,9 +1132,9 @@ const newComponentsSchema = computed<FormSchema>(() => ({
       placeholder: '请选择操作按钮图标',
       props: {
         categories: ['arrows', 'media', 'devices'],
-        showCategoryTabs: true
+        showCategoryTabs: true,
       },
-      help: '限制可选图标分类'
+      help: '限制可选图标分类',
     },
     {
       name: 'categoryIcon',
@@ -1146,17 +1145,17 @@ const newComponentsSchema = computed<FormSchema>(() => ({
         showClear: true,
         size: 'default',
         popupWidth: 700,
-        columns: 8
+        columns: 8,
       },
-      help: '自定义弹窗宽度和列数'
-    }
+      help: '自定义弹窗宽度和列数',
+    },
   ],
   actions: {
     submitText: t('common.submit'),
     resetText: t('common.reset'),
     showReset: true,
-    align: 'right'
-  }
+    align: 'right',
+  },
 }))
 
 /**
@@ -1180,23 +1179,23 @@ const newFeaturesFormData = ref({
   status: true,
   category: '',
   product: '',
-  description: ''
+  description: '',
 })
 
 /**
  * 模拟大量选项数据
  */
-const generateLargeOptions = (prefix: string, count: number) => {
+function generateLargeOptions(prefix: string, count: number) {
   return Array.from({ length: count }, (_, i) => ({
     label: `${prefix}选项 ${i + 1}`,
-    value: `${prefix.toLowerCase()}_${i + 1}`
+    value: `${prefix.toLowerCase()}_${i + 1}`,
   }))
 }
 
 /**
  * 异步加载大量选项
  */
-async function loadLargeOptions(_formData: Record<string, any>): Promise<Array<{ label: string; value: string }>> {
+async function loadLargeOptions(_formData: Record<string, any>): Promise<Array<{ label: string, value: string }>> {
   await new Promise(resolve => setTimeout(resolve, 300))
   return generateLargeOptions('商品', 1000)
 }
@@ -1224,11 +1223,11 @@ const newFeaturesSchema = computed<FormSchema>(() => ({
       validateStatus: undefined,
       rules: [
         { required: true, message: '用户名不能为空' },
-        { min: 3, message: '用户名至少3个字符' }
+        { min: 3, message: '用户名至少3个字符' },
       ],
       // 字段级校验配置
       validateTrigger: 'blur',
-      validateDebounce: 300
+      validateDebounce: 300,
     },
     {
       name: 'email',
@@ -1237,13 +1236,13 @@ const newFeaturesSchema = computed<FormSchema>(() => ({
       placeholder: '请输入邮箱',
       tooltip: {
         title: '邮箱格式要求',
-        content: '请输入有效的邮箱地址，如 example@domain.com'
+        content: '请输入有效的邮箱地址，如 example@domain.com',
       },
       hasFeedback: true,
       rules: [
         { required: true, message: '邮箱不能为空' },
-        { type: 'email', message: '邮箱格式不正确' }
-      ]
+        { type: 'email', message: '邮箱格式不正确' },
+      ],
     },
     {
       name: 'role',
@@ -1256,15 +1255,15 @@ const newFeaturesSchema = computed<FormSchema>(() => ({
       options: [
         { label: '管理员', value: 'admin' },
         { label: '编辑', value: 'editor' },
-        { label: '查看者', value: 'viewer' }
-      ]
+        { label: '查看者', value: 'viewer' },
+      ],
     },
     {
       name: 'status',
       type: 'switch',
       label: '启用状态',
       defaultValue: true,
-      help: '关闭后用户将无法登录系统'
+      help: '关闭后用户将无法登录系统',
     },
     {
       name: 'category',
@@ -1276,9 +1275,9 @@ const newFeaturesSchema = computed<FormSchema>(() => ({
       virtualScroll: {
         enabled: true,
         itemHeight: 32,
-        overscan: 5
+        overscan: 5,
       },
-      options: generateLargeOptions('分类', 1000)
+      options: generateLargeOptions('分类', 1000),
     },
     {
       name: 'product',
@@ -1289,22 +1288,22 @@ const newFeaturesSchema = computed<FormSchema>(() => ({
       virtualScroll: true,
       optionsDebounce: 500,
       cacheFields: ['category'],
-      options: loadLargeOptions
+      options: loadLargeOptions,
     },
     {
       name: 'description',
       type: 'textarea',
       label: '描述',
       placeholder: '请输入描述',
-      props: { rows: 4 }
-    }
+      props: { rows: 4 },
+    },
   ],
   actions: {
     submitText: t('common.submit'),
     resetText: t('common.reset'),
     showReset: true,
-    align: 'right'
-  }
+    align: 'right',
+  },
 }))
 
 /**
@@ -1325,7 +1324,7 @@ const watchFormData = ref({
   price: 100,
   quantity: 1,
   total: 100,
-  discount: 0
+  discount: 0,
 })
 
 /**
@@ -1341,36 +1340,36 @@ const watchSchema = computed<FormSchema>(() => ({
       type: 'number',
       label: '单价',
       defaultValue: 100,
-      props: { min: 0, precision: 2 }
+      props: { min: 0, precision: 2 },
     },
     {
       name: 'quantity',
       type: 'number',
       label: '数量',
       defaultValue: 1,
-      props: { min: 1 }
+      props: { min: 1 },
     },
     {
       name: 'discount',
       type: 'slider',
       label: '折扣',
       defaultValue: 0,
-      props: { min: 0, max: 50, step: 5, marks: { 0: '0%', 25: '25%', 50: '50%' } }
+      props: { min: 0, max: 50, step: 5, marks: { 0: '0%', 25: '25%', 50: '50%' } },
     },
     {
       name: 'total',
       type: 'number',
       label: '总价',
       disabled: true,
-      props: { precision: 2 }
-    }
+      props: { precision: 2 },
+    },
   ],
   actions: {
     submitText: t('common.submit'),
     resetText: t('common.reset'),
     showReset: true,
-    align: 'right'
-  }
+    align: 'right',
+  },
 }))
 
 // 为字段添加 watch 监听
@@ -1381,8 +1380,8 @@ if (watchSchema.value.fields[0]) {
       handler: (value, formData, methods) => {
         const total = (value || 0) * (formData.quantity || 1) * (1 - (formData.discount || 0) / 100)
         methods.setFieldValue('total', Math.round(total * 100) / 100)
-      }
-    }
+      },
+    },
   ]
 }
 if (watchSchema.value.fields[1]) {
@@ -1392,8 +1391,8 @@ if (watchSchema.value.fields[1]) {
       handler: (value, formData, methods) => {
         const total = (formData.price || 0) * (value || 1) * (1 - (formData.discount || 0) / 100)
         methods.setFieldValue('total', Math.round(total * 100) / 100)
-      }
-    }
+      },
+    },
   ]
 }
 if (watchSchema.value.fields[2]) {
@@ -1403,8 +1402,8 @@ if (watchSchema.value.fields[2]) {
       handler: (value, formData, methods) => {
         const total = (formData.price || 0) * (formData.quantity || 1) * (1 - (value || 0) / 100)
         methods.setFieldValue('total', Math.round(total * 100) / 100)
-      }
-    }
+      },
+    },
   ]
 }
 
@@ -1423,7 +1422,9 @@ function handleWatchSubmit(values: Record<string, any>): void {
     <!-- 页面标题 -->
     <div class="flex items-start justify-between">
       <div>
-        <h1 class="text-3xl font-bold">TForm 组件演示</h1>
+        <h1 class="text-3xl font-bold">
+          TForm 组件演示
+        </h1>
         <p class="text-muted-foreground mt-1">
           基于 antdv-next 的 JSON 配置化表单组件
         </p>
@@ -1442,18 +1443,42 @@ function handleWatchSubmit(values: Record<string, any>): void {
     <!-- 标签页切换不同示例 -->
     <Tabs default-value="basic" class="w-full">
       <TabsList class="grid w-full grid-cols-12">
-        <TabsTrigger value="basic">基础用法</TabsTrigger>
-        <TabsTrigger value="advanced">高级组件</TabsTrigger>
-        <TabsTrigger value="more">更多组件</TabsTrigger>
-        <TabsTrigger value="new">新组件</TabsTrigger>
-        <TabsTrigger value="features" class="bg-primary/10">新特性</TabsTrigger>
-        <TabsTrigger value="search">搜索表单</TabsTrigger>
-        <TabsTrigger value="dependency">字段联动</TabsTrigger>
-        <TabsTrigger value="async">异步选项</TabsTrigger>
-        <TabsTrigger value="watch">Watch监听</TabsTrigger>
-        <TabsTrigger value="list">动态列表</TabsTrigger>
-        <TabsTrigger value="group">分组表单</TabsTrigger>
-        <TabsTrigger value="inline">内联布局</TabsTrigger>
+        <TabsTrigger value="basic">
+          基础用法
+        </TabsTrigger>
+        <TabsTrigger value="advanced">
+          高级组件
+        </TabsTrigger>
+        <TabsTrigger value="more">
+          更多组件
+        </TabsTrigger>
+        <TabsTrigger value="new">
+          新组件
+        </TabsTrigger>
+        <TabsTrigger value="features" class="bg-primary/10">
+          新特性
+        </TabsTrigger>
+        <TabsTrigger value="search">
+          搜索表单
+        </TabsTrigger>
+        <TabsTrigger value="dependency">
+          字段联动
+        </TabsTrigger>
+        <TabsTrigger value="async">
+          异步选项
+        </TabsTrigger>
+        <TabsTrigger value="watch">
+          Watch监听
+        </TabsTrigger>
+        <TabsTrigger value="list">
+          动态列表
+        </TabsTrigger>
+        <TabsTrigger value="group">
+          分组表单
+        </TabsTrigger>
+        <TabsTrigger value="inline">
+          内联布局
+        </TabsTrigger>
       </TabsList>
 
       <!-- 基础用法 -->
@@ -1477,7 +1502,9 @@ function handleWatchSubmit(values: Record<string, any>): void {
 
             <!-- 当前数据展示 -->
             <div class="mt-6 p-4 bg-muted rounded-lg">
-              <h4 class="text-sm font-medium mb-2">当前表单数据：</h4>
+              <h4 class="text-sm font-medium mb-2">
+                当前表单数据：
+              </h4>
               <pre class="text-xs text-muted-foreground">{{ JSON.stringify(basicFormData, null, 2) }}</pre>
             </div>
           </CardContent>
@@ -1505,7 +1532,9 @@ function handleWatchSubmit(values: Record<string, any>): void {
 
             <!-- 当前数据展示 -->
             <div class="mt-6 p-4 bg-muted rounded-lg">
-              <h4 class="text-sm font-medium mb-2">当前表单数据：</h4>
+              <h4 class="text-sm font-medium mb-2">
+                当前表单数据：
+              </h4>
               <pre class="text-xs text-muted-foreground">{{ JSON.stringify(advancedFormData, null, 2) }}</pre>
             </div>
           </CardContent>
@@ -1533,7 +1562,9 @@ function handleWatchSubmit(values: Record<string, any>): void {
 
             <!-- 当前数据展示 -->
             <div class="mt-6 p-4 bg-muted rounded-lg">
-              <h4 class="text-sm font-medium mb-2">当前表单数据：</h4>
+              <h4 class="text-sm font-medium mb-2">
+                当前表单数据：
+              </h4>
               <pre class="text-xs text-muted-foreground">{{ JSON.stringify(moreComponentsFormData, null, 2) }}</pre>
             </div>
           </CardContent>
@@ -1561,54 +1592,78 @@ function handleWatchSubmit(values: Record<string, any>): void {
 
             <!-- 当前数据展示 -->
             <div class="mt-6 p-4 bg-muted rounded-lg">
-              <h4 class="text-sm font-medium mb-2">当前表单数据：</h4>
+              <h4 class="text-sm font-medium mb-2">
+                当前表单数据：
+              </h4>
               <pre class="text-xs text-muted-foreground">{{ JSON.stringify(newComponentsFormData, null, 2) }}</pre>
             </div>
 
             <!-- 组件说明 -->
             <div class="mt-4 grid grid-cols-2 gap-2 text-sm text-muted-foreground">
               <div class="flex items-center gap-2">
-                <Badge variant="outline">checkbox-single</Badge>
+                <Badge variant="outline">
+                  checkbox-single
+                </Badge>
                 <span>单个复选框</span>
               </div>
               <div class="flex items-center gap-2">
-                <Badge variant="outline">month-picker</Badge>
+                <Badge variant="outline">
+                  month-picker
+                </Badge>
                 <span>月份选择器</span>
               </div>
               <div class="flex items-center gap-2">
-                <Badge variant="outline">quarter-picker</Badge>
+                <Badge variant="outline">
+                  quarter-picker
+                </Badge>
                 <span>季度选择器</span>
               </div>
               <div class="flex items-center gap-2">
-                <Badge variant="outline">year-picker</Badge>
+                <Badge variant="outline">
+                  year-picker
+                </Badge>
                 <span>年份选择器</span>
               </div>
               <div class="flex items-center gap-2">
-                <Badge variant="outline">week-picker</Badge>
+                <Badge variant="outline">
+                  week-picker
+                </Badge>
                 <span>周选择器</span>
               </div>
               <div class="flex items-center gap-2">
-                <Badge variant="outline">time-range-picker</Badge>
+                <Badge variant="outline">
+                  time-range-picker
+                </Badge>
                 <span>时间范围选择器</span>
               </div>
               <div class="flex items-center gap-2">
-                <Badge variant="outline">segmented</Badge>
+                <Badge variant="outline">
+                  segmented
+                </Badge>
                 <span>分段控制器</span>
               </div>
               <div class="flex items-center gap-2">
-                <Badge variant="outline">transfer</Badge>
+                <Badge variant="outline">
+                  transfer
+                </Badge>
                 <span>穿梭框</span>
               </div>
               <div class="flex items-center gap-2">
-                <Badge variant="outline">color-picker</Badge>
+                <Badge variant="outline">
+                  color-picker
+                </Badge>
                 <span>颜色选择器</span>
               </div>
               <div class="flex items-center gap-2">
-                <Badge variant="outline">upload</Badge>
+                <Badge variant="outline">
+                  upload
+                </Badge>
                 <span>文件上传</span>
               </div>
               <div class="flex items-center gap-2">
-                <Badge variant="outline" class="bg-primary/20">icon</Badge>
+                <Badge variant="outline" class="bg-primary/20">
+                  icon
+                </Badge>
                 <span>图标选择器</span>
               </div>
             </div>
@@ -1638,7 +1693,9 @@ function handleWatchSubmit(values: Record<string, any>): void {
 
               <!-- 当前数据展示 -->
               <div class="mt-6 p-4 bg-muted rounded-lg">
-                <h4 class="text-sm font-medium mb-2">当前表单数据：</h4>
+                <h4 class="text-sm font-medium mb-2">
+                  当前表单数据：
+                </h4>
                 <pre class="text-xs text-muted-foreground">{{ JSON.stringify(newFeaturesFormData, null, 2) }}</pre>
               </div>
             </CardContent>
@@ -1652,14 +1709,18 @@ function handleWatchSubmit(values: Record<string, any>): void {
             <CardContent>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="p-4 border rounded-lg">
-                  <h4 class="font-medium mb-2 text-primary">variant 变体</h4>
+                  <h4 class="font-medium mb-2 text-primary">
+                    variant 变体
+                  </h4>
                   <p class="text-sm text-muted-foreground mb-2">
                     支持 outlined、filled、borderless 三种变体
                   </p>
                   <pre class="text-xs bg-muted p-2 rounded">variant: 'filled'</pre>
                 </div>
                 <div class="p-4 border rounded-lg">
-                  <h4 class="font-medium mb-2 text-primary">tooltip 提示</h4>
+                  <h4 class="font-medium mb-2 text-primary">
+                    tooltip 提示
+                  </h4>
                   <p class="text-sm text-muted-foreground mb-2">
                     为标签添加提示信息，支持字符串或对象配置
                   </p>
@@ -1668,14 +1729,18 @@ function handleWatchSubmit(values: Record<string, any>): void {
 tooltip: { title: '标题', content: '内容' }</pre>
                 </div>
                 <div class="p-4 border rounded-lg">
-                  <h4 class="font-medium mb-2 text-primary">hasFeedback 反馈</h4>
+                  <h4 class="font-medium mb-2 text-primary">
+                    hasFeedback 反馈
+                  </h4>
                   <p class="text-sm text-muted-foreground mb-2">
                     显示校验状态图标，提升用户体验
                   </p>
                   <pre class="text-xs bg-muted p-2 rounded">hasFeedback: true</pre>
                 </div>
                 <div class="p-4 border rounded-lg">
-                  <h4 class="font-medium mb-2 text-primary">help / extra 提示</h4>
+                  <h4 class="font-medium mb-2 text-primary">
+                    help / extra 提示
+                  </h4>
                   <p class="text-sm text-muted-foreground mb-2">
                     添加字段说明和额外信息
                   </p>
@@ -1683,7 +1748,9 @@ tooltip: { title: '标题', content: '内容' }</pre>
 extra: '额外说明'</pre>
                 </div>
                 <div class="p-4 border rounded-lg">
-                  <h4 class="font-medium mb-2 text-primary">虚拟滚动</h4>
+                  <h4 class="font-medium mb-2 text-primary">
+                    虚拟滚动
+                  </h4>
                   <p class="text-sm text-muted-foreground mb-2">
                     大数据量选项启用虚拟滚动，提升性能
                   </p>
@@ -1696,7 +1763,9 @@ virtualScroll: {
 }</pre>
                 </div>
                 <div class="p-4 border rounded-lg">
-                  <h4 class="font-medium mb-2 text-primary">防抖配置</h4>
+                  <h4 class="font-medium mb-2 text-primary">
+                    防抖配置
+                  </h4>
                   <p class="text-sm text-muted-foreground mb-2">
                     异步选项加载和校验支持防抖
                   </p>
@@ -1706,7 +1775,9 @@ validateDebounce: 500
 optionsDebounce: 300</pre>
                 </div>
                 <div class="p-4 border rounded-lg">
-                  <h4 class="font-medium mb-2 text-primary">scrollToFirstError</h4>
+                  <h4 class="font-medium mb-2 text-primary">
+                    scrollToFirstError
+                  </h4>
                   <p class="text-sm text-muted-foreground mb-2">
                     提交失败自动滚动到第一个错误字段
                   </p>
@@ -1718,7 +1789,9 @@ scrollToFirstError: {
 }</pre>
                 </div>
                 <div class="p-4 border rounded-lg">
-                  <h4 class="font-medium mb-2 text-primary">validateFirst</h4>
+                  <h4 class="font-medium mb-2 text-primary">
+                    validateFirst
+                  </h4>
                   <p class="text-sm text-muted-foreground mb-2">
                     第一个规则失败后停止校验
                   </p>
@@ -1752,7 +1825,9 @@ validateFirst: 'parallel'</pre>
 
               <!-- 配置说明 -->
               <div class="mt-4 p-3 bg-muted rounded-lg">
-                <h4 class="text-sm font-medium mb-1">配置说明：</h4>
+                <h4 class="text-sm font-medium mb-1">
+                  配置说明：
+                </h4>
                 <p class="text-xs text-muted-foreground">
                   3个条件 ≤ 3+1，自动使用同行布局，搜索按钮紧跟字段右侧
                 </p>
@@ -1777,7 +1852,9 @@ validateFirst: 'parallel'</pre>
 
               <!-- 配置说明 -->
               <div class="mt-4 p-3 bg-muted rounded-lg">
-                <h4 class="text-sm font-medium mb-1">配置说明：</h4>
+                <h4 class="text-sm font-medium mb-1">
+                  配置说明：
+                </h4>
                 <pre class="text-xs text-muted-foreground">// 当前配置：collapseThreshold = 3
 // 4个条件 > 3+1，使用网格布局
 
@@ -1804,7 +1881,9 @@ validateFirst: 'parallel'</pre>
 
               <!-- 使用说明 -->
               <div class="mt-4 p-3 bg-muted rounded-lg">
-                <h4 class="text-sm font-medium mb-1">完整配置示例：</h4>
+                <h4 class="text-sm font-medium mb-1">
+                  完整配置示例：
+                </h4>
                 <pre class="text-xs text-muted-foreground">searchConfig: {
   enabled: true,              // 启用搜索表单模式
   collapsed: true,            // 默认折叠
@@ -1836,7 +1915,9 @@ validateFirst: 'parallel'</pre>
             <CardContent>
               <div class="grid grid-cols-3 gap-4">
                 <div class="p-4 border rounded-lg">
-                  <h5 class="font-medium mb-2 text-primary">同行布局</h5>
+                  <h5 class="font-medium mb-2 text-primary">
+                    同行布局
+                  </h5>
                   <p class="text-sm text-muted-foreground mb-2">
                     条件数量 ≤ collapseThreshold + 1
                   </p>
@@ -1845,7 +1926,9 @@ validateFirst: 'parallel'</pre>
                   </p>
                 </div>
                 <div class="p-4 border rounded-lg">
-                  <h5 class="font-medium mb-2 text-primary">网格布局</h5>
+                  <h5 class="font-medium mb-2 text-primary">
+                    网格布局
+                  </h5>
                   <p class="text-sm text-muted-foreground mb-2">
                     条件数量 > collapseThreshold + 1
                   </p>
@@ -1854,7 +1937,9 @@ validateFirst: 'parallel'</pre>
                   </p>
                 </div>
                 <div class="p-4 border rounded-lg">
-                  <h5 class="font-medium mb-2 text-primary">折叠展开</h5>
+                  <h5 class="font-medium mb-2 text-primary">
+                    折叠展开
+                  </h5>
                   <p class="text-sm text-muted-foreground mb-2">
                     collapsed + collapseThreshold
                   </p>
@@ -1889,13 +1974,17 @@ validateFirst: 'parallel'</pre>
 
             <!-- 当前数据展示 -->
             <div class="mt-6 p-4 bg-muted rounded-lg">
-              <h4 class="text-sm font-medium mb-2">当前表单数据：</h4>
+              <h4 class="text-sm font-medium mb-2">
+                当前表单数据：
+              </h4>
               <pre class="text-xs text-muted-foreground">{{ JSON.stringify(dependencyFormData, null, 2) }}</pre>
             </div>
 
             <!-- 说明 -->
             <div class="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-              <Badge variant="outline">提示</Badge>
+              <Badge variant="outline">
+                提示
+              </Badge>
               <span>切换用户类型，观察字段的动态显示/隐藏</span>
             </div>
           </CardContent>
@@ -1923,13 +2012,17 @@ validateFirst: 'parallel'</pre>
 
             <!-- 当前数据展示 -->
             <div class="mt-6 p-4 bg-muted rounded-lg">
-              <h4 class="text-sm font-medium mb-2">当前表单数据：</h4>
+              <h4 class="text-sm font-medium mb-2">
+                当前表单数据：
+              </h4>
               <pre class="text-xs text-muted-foreground">{{ JSON.stringify(asyncFormData, null, 2) }}</pre>
             </div>
 
             <!-- 说明 -->
             <div class="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-              <Badge variant="outline">提示</Badge>
+              <Badge variant="outline">
+                提示
+              </Badge>
               <span>选择商品分类后，商品选项会自动加载</span>
             </div>
           </CardContent>
@@ -1957,13 +2050,17 @@ validateFirst: 'parallel'</pre>
 
             <!-- 当前数据展示 -->
             <div class="mt-6 p-4 bg-muted rounded-lg">
-              <h4 class="text-sm font-medium mb-2">当前表单数据：</h4>
+              <h4 class="text-sm font-medium mb-2">
+                当前表单数据：
+              </h4>
               <pre class="text-xs text-muted-foreground">{{ JSON.stringify(watchFormData, null, 2) }}</pre>
             </div>
 
             <!-- 说明 -->
             <div class="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-              <Badge variant="outline">提示</Badge>
+              <Badge variant="outline">
+                提示
+              </Badge>
               <span>修改单价、数量或折扣，总价会自动计算</span>
             </div>
           </CardContent>
@@ -1991,7 +2088,9 @@ validateFirst: 'parallel'</pre>
 
             <!-- 当前数据展示 -->
             <div class="mt-6 p-4 bg-muted rounded-lg">
-              <h4 class="text-sm font-medium mb-2">当前表单数据：</h4>
+              <h4 class="text-sm font-medium mb-2">
+                当前表单数据：
+              </h4>
               <pre class="text-xs text-muted-foreground">{{ JSON.stringify(listFormData, null, 2) }}</pre>
             </div>
           </CardContent>
@@ -2019,7 +2118,9 @@ validateFirst: 'parallel'</pre>
 
             <!-- 当前数据展示 -->
             <div class="mt-6 p-4 bg-muted rounded-lg">
-              <h4 class="text-sm font-medium mb-2">当前表单数据：</h4>
+              <h4 class="text-sm font-medium mb-2">
+                当前表单数据：
+              </h4>
               <pre class="text-xs text-muted-foreground">{{ JSON.stringify(groupFormData, null, 2) }}</pre>
             </div>
           </CardContent>
@@ -2045,7 +2146,9 @@ validateFirst: 'parallel'</pre>
 
             <!-- 当前数据展示 -->
             <div class="mt-6 p-4 bg-muted rounded-lg">
-              <h4 class="text-sm font-medium mb-2">当前搜索条件：</h4>
+              <h4 class="text-sm font-medium mb-2">
+                当前搜索条件：
+              </h4>
               <pre class="text-xs text-muted-foreground">{{ JSON.stringify(inlineFormData, null, 2) }}</pre>
             </div>
           </CardContent>
@@ -2061,97 +2164,129 @@ validateFirst: 'parallel'</pre>
       <CardContent>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">30+ 字段类型</h4>
+            <h4 class="font-medium mb-2">
+              30+ 字段类型
+            </h4>
             <p class="text-sm text-muted-foreground">
               支持输入框、选择器、滑块、评分、日期、上传、穿梭框等常用组件
             </p>
           </div>
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">异步选项</h4>
+            <h4 class="font-medium mb-2">
+              异步选项
+            </h4>
             <p class="text-sm text-muted-foreground">
               支持通过异步函数加载选项，自动处理 loading 状态
             </p>
           </div>
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">Watch 监听</h4>
+            <h4 class="font-medium mb-2">
+              Watch 监听
+            </h4>
             <p class="text-sm text-muted-foreground">
               支持字段监听，实现字段间联动计算
             </p>
           </div>
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">表单状态</h4>
+            <h4 class="font-medium mb-2">
+              表单状态
+            </h4>
             <p class="text-sm text-muted-foreground">
               提供 dirty、touched、valid 等表单元数据
             </p>
           </div>
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">动态列表</h4>
+            <h4 class="font-medium mb-2">
+              动态列表
+            </h4>
             <p class="text-sm text-muted-foreground">
               支持动态增减表单项，适用于多组相同字段
             </p>
           </div>
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">字段分组</h4>
+            <h4 class="font-medium mb-2">
+              字段分组
+            </h4>
             <p class="text-sm text-muted-foreground">
               支持字段分组显示，可折叠展开
             </p>
           </div>
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">字段联动</h4>
+            <h4 class="font-medium mb-2">
+              字段联动
+            </h4>
             <p class="text-sm text-muted-foreground">
               支持根据其他字段值动态控制字段显示/隐藏
             </p>
           </div>
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">JSON 配置驱动</h4>
+            <h4 class="font-medium mb-2">
+              JSON 配置驱动
+            </h4>
             <p class="text-sm text-muted-foreground">
               通过 Schema 配置表单结构，无需编写大量模板代码
             </p>
           </div>
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">表单验证</h4>
+            <h4 class="font-medium mb-2">
+              表单验证
+            </h4>
             <p class="text-sm text-muted-foreground">
               内置必填、邮箱、长度等常用验证规则
             </p>
           </div>
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">主题对齐</h4>
+            <h4 class="font-medium mb-2">
+              主题对齐
+            </h4>
             <p class="text-sm text-muted-foreground">
               样式与 shadcn-vue 主题保持一致
             </p>
           </div>
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">TypeScript</h4>
+            <h4 class="font-medium mb-2">
+              TypeScript
+            </h4>
             <p class="text-sm text-muted-foreground">
               完整的类型定义，支持泛型约束
             </p>
           </div>
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">Composables</h4>
+            <h4 class="font-medium mb-2">
+              Composables
+            </h4>
             <p class="text-sm text-muted-foreground">
               提供 useFieldState、useFormMeta 等可复用逻辑
             </p>
           </div>
           <div class="p-4 border rounded-lg border-primary/50 bg-primary/5">
-            <h4 class="font-medium mb-2 text-primary">variant 变体</h4>
+            <h4 class="font-medium mb-2 text-primary">
+              variant 变体
+            </h4>
             <p class="text-sm text-muted-foreground">
               支持 outlined、filled、borderless 三种表单控件变体
             </p>
           </div>
           <div class="p-4 border rounded-lg border-primary/50 bg-primary/5">
-            <h4 class="font-medium mb-2 text-primary">tooltip 提示</h4>
+            <h4 class="font-medium mb-2 text-primary">
+              tooltip 提示
+            </h4>
             <p class="text-sm text-muted-foreground">
               为标签添加提示信息，支持字符串或对象配置
             </p>
           </div>
           <div class="p-4 border rounded-lg border-primary/50 bg-primary/5">
-            <h4 class="font-medium mb-2 text-primary">虚拟滚动</h4>
+            <h4 class="font-medium mb-2 text-primary">
+              虚拟滚动
+            </h4>
             <p class="text-sm text-muted-foreground">
               大数据量选项启用虚拟滚动，提升性能
             </p>
           </div>
           <div class="p-4 border rounded-lg border-primary/50 bg-primary/5">
-            <h4 class="font-medium mb-2 text-primary">防抖校验</h4>
+            <h4 class="font-medium mb-2 text-primary">
+              防抖校验
+            </h4>
             <p class="text-sm text-muted-foreground">
               支持 validateDebounce、validateFirst 等校验优化
             </p>

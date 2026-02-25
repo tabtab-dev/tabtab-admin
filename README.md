@@ -188,8 +188,8 @@ public/                   # 公共资源
 
 ```vue
 <script setup lang="ts">
-import { TTable } from '@/components/business/TTable'
 import type { TableSchema } from '@/components/business/TTable'
+import { TTable } from '@/components/business/TTable'
 
 const schema: TableSchema = {
   columns: [
@@ -197,8 +197,8 @@ const schema: TableSchema = {
     { title: '状态', dataIndex: 'status', slot: 'status' }
   ],
   actions: [
-    { text: '编辑', type: 'primary', onClick: (row) => edit(row) },
-    { text: '删除', type: 'danger', confirm: true, onClick: (row) => del(row) }
+    { text: '编辑', type: 'primary', onClick: row => edit(row) },
+    { text: '删除', type: 'danger', confirm: true, onClick: row => del(row) }
   ],
   rowSelection: { type: 'checkbox' }
 }
@@ -221,15 +221,15 @@ const schema: TableSchema = {
 
 ```vue
 <script setup lang="ts">
-import { TForm } from '@/components/business/TForm'
 import type { FormSchema } from '@/components/business/TForm'
+import { TForm } from '@/components/business/TForm'
 
 const schema: FormSchema = {
   fields: [
     { name: 'name', type: 'input', label: '姓名', rules: [{ required: true }] },
-    { 
-      name: 'status', 
-      type: 'select', 
+    {
+      name: 'status',
+      type: 'select',
       label: '状态',
       options: [
         { label: '启用', value: 'active' },
@@ -293,24 +293,25 @@ const open = ref(false)
 项目提供了一系列可复用的组合式函数：
 
 ```typescript
-// 权限检查
-import { usePermission } from '@/composables/usePermission'
-const { hasPermission, hasRole } = usePermission()
-
-// 表格数据管理
-import { useTableData } from '@/composables/useTableData'
-const { data, loading, pagination, fetchData } = useTableData(apiFn)
-
 // 表单数据处理
 import { useFormData } from '@/composables/useFormData'
-const { formData, resetForm, submitForm } = useFormData(schema)
 
 // 加载状态
 import { useLoading } from '@/composables/useLoading'
-const { loading, withLoading } = useLoading()
+
+// 权限检查
+import { usePermission } from '@/composables/usePermission'
 
 // 请求封装
 import { useRequest } from '@/composables/useRequest'
+
+// 表格数据管理
+import { useTableData } from '@/composables/useTableData'
+
+const { hasPermission, hasRole } = usePermission()
+const { data, loading, pagination, fetchData } = useTableData(apiFn)
+const { formData, resetForm, submitForm } = useFormData(schema)
+const { loading, withLoading } = useLoading()
 const { data, loading, error, run } = useRequest(apiFn)
 ```
 
@@ -362,8 +363,12 @@ const routes: RouteRecordRaw[] = [
 ```vue
 <!-- 权限指令示例 -->
 <template>
-  <button v-permission="'user:create'">创建用户</button>
-  <button v-permission="['user:edit', 'user:admin']">编辑</button>
+  <button v-permission="'user:create'">
+    创建用户
+  </button>
+  <button v-permission="['user:edit', 'user:admin']">
+    编辑
+  </button>
 </template>
 ```
 

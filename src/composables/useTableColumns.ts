@@ -1,44 +1,44 @@
+import type { TableAction, TableColumn, TableRecord } from '@/components/business/TTable/types'
+import { Popconfirm } from 'antdv-next'
+import {
+  Copy,
+  Download,
+  ExternalLink,
+  Eye,
+  FileText,
+  MoreHorizontal,
+  Pencil,
+  Settings,
+  Share2,
+  Shield,
+  Trash2,
+} from 'lucide-vue-next'
 /**
  * 表格列配置管理 Composable
  * @description 封装表格列配置转换逻辑，将 TTable 的列配置转换为 antd 兼容格式
  */
 import { computed, h, unref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Popconfirm } from 'antdv-next'
 import { Button } from '@/components/ui/button'
-import {
-  Pencil,
-  Trash2,
-  Eye,
-  MoreHorizontal,
-  FileText,
-  Settings,
-  Download,
-  Share2,
-  Copy,
-  ExternalLink,
-  Shield,
-} from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
-import type { TableColumn, TableAction, TableRecord } from '@/components/business/TTable/types'
 
 /**
  * 默认图标映射
  * @description 根据按钮文本自动匹配图标
  */
 const defaultIconMap: Record<string, any> = {
-  '编辑': Pencil,
-  '修改': Pencil,
-  '删除': Trash2,
-  '查看': Eye,
-  '详情': MoreHorizontal,
-  '详情页': FileText,
-  '设置': Settings,
-  '下载': Download,
-  '分享': Share2,
-  '复制': Copy,
-  '跳转': ExternalLink,
-  '权限': Shield,
+  编辑: Pencil,
+  修改: Pencil,
+  删除: Trash2,
+  查看: Eye,
+  详情: MoreHorizontal,
+  详情页: FileText,
+  设置: Settings,
+  下载: Download,
+  分享: Share2,
+  复制: Copy,
+  跳转: ExternalLink,
+  权限: Shield,
 }
 
 /**
@@ -124,7 +124,7 @@ function createActionsRenderer(actions: TableAction[], t: (key: string) => strin
         action.variant === 'default' && 'text-primary hover:text-primary hover:bg-primary/10',
         !action.variant && action.type === 'danger' && 'text-destructive hover:text-destructive hover:bg-destructive/10',
         !action.variant && action.type === 'primary' && 'text-primary hover:text-primary hover:bg-primary/10',
-        !action.variant && !action.type && 'text-foreground hover:text-accent-foreground hover:bg-accent'
+        !action.variant && !action.type && 'text-foreground hover:text-accent-foreground hover:bg-accent',
       )
 
       const button = h(Button, {

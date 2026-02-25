@@ -5,7 +5,7 @@
  */
 
 import type { ButtonProps } from 'antdv-next'
-import type { VNode, VNodeChild, CSSProperties } from 'vue'
+import type { CSSProperties, VNode, VNodeChild } from 'vue'
 
 /** VueNode 类型 - 与 antdv-next 兼容 */
 type VueNode = ((...args: any[]) => VNodeChild) | string | number | null | undefined | VNode | boolean
@@ -199,13 +199,13 @@ export interface TModalEmits {
   /** 对话框显隐变化 */
   'update:open': [open: boolean]
   /** 点击确定回调 */
-  ok: [e: MouseEvent]
+  'ok': [e: MouseEvent]
   /** 点击遮罩层或右上角叉或取消按钮的回调 */
-  cancel: [e: MouseEvent]
+  'cancel': [e: MouseEvent]
   /** Modal 完全关闭后的回调 */
-  afterClose: []
+  'afterClose': []
   /** 打开和关闭 Modal 时动画结束后的回调 */
-  afterOpenChange: [open: boolean]
+  'afterOpenChange': [open: boolean]
 }
 
 /**

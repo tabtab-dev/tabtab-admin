@@ -1,9 +1,9 @@
+import type { CreateUserParams, GetUsersParams, PaginationData, UpdateUserParams, User } from '@/types'
 /**
  * 用户管理相关 API
  * @description 用户的增删改查等接口
  */
-import { request } from '../client';
-import type { User, PaginationData, GetUsersParams, CreateUserParams, UpdateUserParams } from '@/types';
+import { request } from '../client'
 
 /**
  * 用户 API
@@ -80,12 +80,12 @@ export const usersApi = {
    * @returns 头像 URL
    */
   uploadAvatar: (id: string, file: File) => {
-    const formData = new FormData();
-    formData.append('avatar', file);
+    const formData = new FormData()
+    formData.append('avatar', file)
     return request.post<{ avatarUrl: string }>(`/users/${id}/avatar`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-    });
+    })
   },
-};
+}

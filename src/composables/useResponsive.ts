@@ -1,13 +1,13 @@
-import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 export type Breakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 
 export interface Breakpoints {
-  xs: number
-  sm: number
-  md: number
-  lg: number
-  xl: number
+  'xs': number
+  'sm': number
+  'md': number
+  'lg': number
+  'xl': number
   '2xl': number
 }
 
@@ -17,11 +17,11 @@ export interface ResponsiveConfig {
 }
 
 const defaultBreakpoints: Breakpoints = {
-  xs: 0,
-  sm: 640,
-  md: 768,
-  lg: 1024,
-  xl: 1280,
+  'xs': 0,
+  'sm': 640,
+  'md': 768,
+  'lg': 1024,
+  'xl': 1280,
   '2xl': 1536,
 }
 
@@ -64,11 +64,16 @@ export function useResponsive(config: ResponsiveConfig = {}) {
 
   const currentBreakpoint = computed<Breakpoint>(() => {
     const width = windowWidth.value
-    if (width < breakpoints.sm) return 'xs'
-    if (width < breakpoints.md) return 'sm'
-    if (width < breakpoints.lg) return 'md'
-    if (width < breakpoints.xl) return 'lg'
-    if (width < breakpoints['2xl']) return 'xl'
+    if (width < breakpoints.sm)
+      return 'xs'
+    if (width < breakpoints.md)
+      return 'sm'
+    if (width < breakpoints.lg)
+      return 'md'
+    if (width < breakpoints.xl)
+      return 'lg'
+    if (width < breakpoints['2xl'])
+      return 'xl'
     return '2xl'
   })
 
@@ -105,7 +110,8 @@ export function useResponsive(config: ResponsiveConfig = {}) {
   const isLandscape = computed(() => orientation.value === 'landscape')
 
   const isTouchDevice = computed(() => {
-    if (typeof window === 'undefined') return false
+    if (typeof window === 'undefined')
+      return false
     return 'ontouchstart' in window || navigator.maxTouchPoints > 0
   })
 
@@ -114,11 +120,11 @@ export function useResponsive(config: ResponsiveConfig = {}) {
     windowHeight,
     currentBreakpoint,
     breakpoints: {
-      xs: isXs,
-      sm: isSm,
-      md: isMd,
-      lg: isLg,
-      xl: isXl,
+      'xs': isXs,
+      'sm': isSm,
+      'md': isMd,
+      'lg': isLg,
+      'xl': isXl,
       '2xl': is2xl,
     },
     isMobile,
@@ -134,7 +140,7 @@ export function useResponsive(config: ResponsiveConfig = {}) {
 }
 
 export function useResponsiveValue<T>(
-  values: Partial<Record<Breakpoint, T>> | { default: T; [key in Breakpoint]?: T }
+  values: Partial<Record<Breakpoint, T>> | { default: T, [key in Breakpoint]?: T },
 ): import('vue').ComputedRef<T> {
   const { currentBreakpoint } = useResponsive()
 
@@ -160,7 +166,7 @@ export function useResponsiveValue<T>(
 
 export function useResponsiveProp<T>(
   prop: import('vue').ComputedRef<T | Partial<Record<Breakpoint, T>>>,
-  defaultValue: T
+  defaultValue: T,
 ): import('vue').ComputedRef<T> {
   const { currentBreakpoint } = useResponsive()
 

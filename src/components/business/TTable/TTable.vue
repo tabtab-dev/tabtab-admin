@@ -1,30 +1,27 @@
 <script setup lang="ts">
+import type {
+  ResponsiveConfig,
+  SortOrder,
+  TableFilters,
+  TablePagination,
+  TableRecord,
+  TableSorter,
+  TTableExpose,
+  TTableProps,
+} from './types'
+import { ConfigProvider } from 'antdv-next'
 /**
  * TTable - 基于 antdv-next 的 JSON 配置化表格组件
  *
  * @description 支持通过 JSON Schema 配置生成表格，样式与 shadcn-vue 主题对齐
  */
-import { computed, ref, shallowRef, watch, useSlots } from 'vue'
+import { computed, ref, shallowRef, useSlots, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ConfigProvider } from 'antdv-next'
+import { useResponsive } from '@/composables/useResponsive'
+import { useTableColumns } from '@/composables/useTableColumns'
+import { getAntdvLocale } from '@/i18n/locales'
 import { cn } from '@/lib/utils'
 import { useTTableTheme } from './theme'
-import { getAntdvLocale } from '@/i18n/locales'
-import { useTableColumns } from '@/composables/useTableColumns'
-import { useResponsive } from '@/composables/useResponsive'
-import type {
-  TableSchema,
-  TTableProps,
-  TTableExpose,
-  RowSelectionConfig,
-  PaginationConfig,
-  TableSorter,
-  TableRecord,
-  TableFilters,
-  TablePagination,
-  SortOrder,
-  ResponsiveConfig
-} from './types'
 
 /**
  * 导入样式
@@ -35,7 +32,7 @@ import './TTable.css'
  * 组件选项
  */
 defineOptions({
-  name: 'TTable'
+  name: 'TTable',
 })
 
 /**
@@ -43,7 +40,7 @@ defineOptions({
  */
 const props = withDefaults(defineProps<TTableProps>(), {
   data: () => [],
-  loading: false
+  loading: false,
 })
 
 /**
@@ -54,7 +51,7 @@ const emit = defineEmits([
   'change',
   'selectChange',
   'expand',
-  'update:expandedRowKeys'
+  'update:expandedRowKeys',
 ])
 
 /**
@@ -73,7 +70,8 @@ const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== fa
 const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
 
 const isMobileView = computed(() => {
-  if (!isResponsiveEnabled.value) return false
+  if (!isResponsiveEnabled.value)
+    return false
   return smallerThan(mobileBreakpoint.value)
 })
 
@@ -122,8 +120,8 @@ const state = ref({
   pagination: {
     current: 1,
     pageSize: 10,
-    total: 0
-  }
+    total: 0,
+  },
 })
 
 /**
@@ -131,7 +129,7 @@ const state = ref({
  */
 const tableData = computed({
   get: () => props.data || [],
-  set: (val) => emit('update:data', val)
+  set: val => emit('update:data', val),
 })
 
 /**
@@ -198,7 +196,7 @@ const filteredColumns = computed(() => {
   const hideColumns = responsiveConfig.value.hideColumnsOnMobile || []
   const breakpointOrder = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'] as const
 
-  return tableColumns.value.filter(col => {
+  return tableColumns.value.filter((col) => {
     const colKey = col.key || col.dataIndex
     if (colKey && hideColumns.includes(String(colKey))) {
       return false
@@ -211,7 +209,8 @@ const filteredColumns = computed(() => {
         const bpIndex = breakpointOrder.indexOf(bp as any)
         return bpIndex >= currentIndex
       })
-      if (shouldHide) return false
+      if (shouldHide)
+        return false
     }
 
     if (colWithResponsive.showOn) {
@@ -220,7 +219,8 @@ const filteredColumns = computed(() => {
         const bpIndex = breakpointOrder.indexOf(bp as any)
         return bpIndex <= currentIndex
       })
-      if (!shouldShow) return false
+      if (!shouldShow)
+        return false
     }
 
     return true
@@ -245,7 +245,7 @@ const responsiveScroll = computed(() => {
     const totalMinWidth = tableColumns.value.reduce((sum, col) => {
       const colWidth = col.width
       const colMinWidth = col.minWidth
-      
+
       if (typeof colWidth === 'number') {
         return sum + colWidth
       }
@@ -290,7 +290,7 @@ const rowSelection = computed(() => {
       // 直接使用 antd 返回的 selectedRows
       state.value.selectedRows = selectedRows
       emit('selectChange', selectedRowKeys, selectedRows)
-    }
+    },
   }
 })
 
@@ -311,10 +311,12 @@ const pagination = computed(() => {
     pageSizeOptions: config.pageSizeOptions || ['10', '20', '50', '100'],
     showQuickJumper: config.showQuickJumper ?? true,
     showSizeChanger: config.showSizeChanger ?? true,
-    showTotal: config.showTotal !== false ? (total: number) =>
-      t('common.total', { total }) : undefined,
+    showTotal: config.showTotal !== false
+      ? (total: number) =>
+          t('common.total', { total })
+      : undefined,
     simple: config.simple,
-    ...config
+    ...config,
   }
 
   if (isResponsiveEnabled.value && isMobileView.value) {
@@ -356,12 +358,13 @@ const expandable = computed(() => {
       // 使用新数组替换，确保响应式更新
       if (expanded) {
         state.value.expandedRowKeys = [...state.value.expandedRowKeys, key]
-      } else {
+      }
+      else {
         state.value.expandedRowKeys = state.value.expandedRowKeys.filter(k => k !== key)
       }
       emit('expand', expanded, record)
       emit('update:expandedRowKeys', state.value.expandedRowKeys)
-    }
+    },
   }
 })
 
@@ -374,7 +377,7 @@ const expandable = computed(() => {
 function handleChange(
   pagination: TablePagination,
   filters: TableFilters,
-  sorter: { field: string; order: SortOrder; column: TableColumn }
+  sorter: { field: string, order: SortOrder, column: TableColumn },
 ) {
   state.value.pagination.current = pagination.current
   state.value.pagination.pageSize = pagination.pageSize
@@ -382,7 +385,7 @@ function handleChange(
   emit('change', pagination, filters, {
     field: sorter.field,
     order: sorter.order,
-    column: props.schema.columns.find(col => col.dataIndex === sorter.field)
+    column: props.schema.columns.find(col => col.dataIndex === sorter.field),
   } as TableSorter)
 }
 
@@ -410,7 +413,7 @@ defineExpose<TTableExpose>({
     // 使用 rowKey 来匹配，而不是直接使用数组索引
     const keyField = typeof rowKey.value === 'string' ? rowKey.value : 'id'
     state.value.selectedRows = tableData.value.filter(
-      record => selectedRowKeys.includes(record[keyField] as string | number)
+      record => selectedRowKeys.includes(record[keyField] as string | number),
     )
   },
 
@@ -463,7 +466,8 @@ defineExpose<TTableExpose>({
 
     if (expanded && index === -1) {
       state.value.expandedRowKeys.push(key)
-    } else if (!expanded && index > -1) {
+    }
+    else if (!expanded && index > -1) {
       state.value.expandedRowKeys.splice(index, 1)
     }
   },
@@ -480,7 +484,7 @@ defineExpose<TTableExpose>({
    */
   collapseAllRows: () => {
     state.value.expandedRowKeys = []
-  }
+  },
 })
 
 /**
@@ -493,11 +497,11 @@ watch(
       // 更新选中行的数据，使用 rowKey 字段进行匹配
       const keyField = typeof rowKey.value === 'string' ? rowKey.value : 'id'
       state.value.selectedRows = newVal.filter(
-        record => state.value.selectedRowKeys.includes(record[keyField] as string | number)
+        record => state.value.selectedRowKeys.includes(record[keyField] as string | number),
       )
     }
   },
-  { deep: true }
+  { deep: true },
 )
 
 /**
@@ -513,7 +517,7 @@ watch(
       state.value.pagination.total = newTotal
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 /**
@@ -527,11 +531,11 @@ watch(
       // 使用 rowKey 字段进行匹配
       const keyField = typeof rowKey.value === 'string' ? rowKey.value : 'id'
       state.value.selectedRows = tableData.value.filter(
-        record => newKeys.includes(record[keyField] as string | number)
+        record => newKeys.includes(record[keyField] as string | number),
       )
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 /**
@@ -544,7 +548,7 @@ watch(
       state.value.expandedRowKeys = newKeys
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 </script>
 
@@ -571,135 +575,134 @@ watch(
       :class="cn('t-table', $attrs.class as string)"
       @change="handleChange"
     >
-    <!-- 标题插槽 -->
-    <template v-if="schema.title || slots.title || schema.showTotalBadge" #title>
-      <slot name="title" :data="tableData">
-        <div class="flex items-center gap-3">
-          <template v-if="typeof schema.title === 'function'">
-            {{ schema.title(tableData) }}
+      <!-- 标题插槽 -->
+      <template v-if="schema.title || slots.title || schema.showTotalBadge" #title>
+        <slot name="title" :data="tableData">
+          <div class="flex items-center gap-3">
+            <template v-if="typeof schema.title === 'function'">
+              {{ schema.title(tableData) }}
+            </template>
+            <template v-else>
+              {{ schema.title }}
+            </template>
+            <!-- 总数徽章 -->
+            <span
+              v-if="schema.showTotalBadge"
+              class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full"
+            >
+              {{ t('common.total', { total: tableData.length }) }}
+            </span>
+          </div>
+        </slot>
+      </template>
+
+      <!-- 尾部插槽 -->
+      <template v-if="schema.footer || slots.footer" #footer>
+        <slot name="footer" :data="tableData">
+          <template v-if="typeof schema.footer === 'function'">
+            {{ schema.footer(tableData) }}
           </template>
           <template v-else>
-            {{ schema.title }}
+            {{ schema.footer }}
           </template>
-          <!-- 总数徽章 -->
-          <span
-            v-if="schema.showTotalBadge"
-            class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full"
-          >
-            {{ t('common.total', { total: tableData.length }) }}
-          </span>
-        </div>
-      </slot>
-    </template>
+        </slot>
+      </template>
 
-    <!-- 尾部插槽 -->
-    <template v-if="schema.footer || slots.footer" #footer>
-      <slot name="footer" :data="tableData">
-        <template v-if="typeof schema.footer === 'function'">
-          {{ schema.footer(tableData) }}
-        </template>
-        <template v-else>
-          {{ schema.footer }}
-        </template>
-      </slot>
-    </template>
+      <!-- 汇总行插槽 -->
+      <template v-if="schema.summary?.slot || slots.summary || schema.summary?.render" #summary>
+        <slot name="summary" :data="tableData">
+          <template v-if="schema.summary?.render">
+            {{ schema.summary.render(tableData) }}
+          </template>
+        </slot>
+      </template>
 
-    <!-- 汇总行插槽 -->
-    <template v-if="schema.summary?.slot || slots.summary || schema.summary?.render" #summary>
-      <slot name="summary" :data="tableData">
-        <template v-if="schema.summary?.render">
-          {{ schema.summary.render(tableData) }}
-        </template>
-      </slot>
-    </template>
+      <!-- 空状态插槽 -->
+      <template v-if="schema.emptySlot || slots.emptyText" #emptyText>
+        <slot name="emptyText">
+          <div class="flex flex-col items-center justify-center py-8 text-muted-foreground">
+            <svg
+              class="w-12 h-12 mb-4 text-muted-foreground/50"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            <p>{{ schema.emptyText || t('common.noData') }}</p>
+          </div>
+        </slot>
+      </template>
 
-    <!-- 空状态插槽 -->
-    <template v-if="schema.emptySlot || slots.emptyText" #emptyText>
-      <slot name="emptyText">
-        <div class="flex flex-col items-center justify-center py-8 text-muted-foreground">
-          <svg
-            class="w-12 h-12 mb-4 text-muted-foreground/50"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.5"
-              d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+      <!-- 展开行插槽 -->
+      <template
+        v-if="schema.expandable?.expandedRowSlot || slots.expandedRow"
+        #expandedRowRender="{ record, index, indent, expanded }"
+      >
+        <slot
+          name="expandedRow"
+          :record="record"
+          :index="index"
+          :indent="indent"
+          :expanded="expanded"
+        />
+      </template>
+
+      <!-- 展开图标插槽 -->
+      <template
+        v-if="slots.expandIcon"
+        #expandIcon="{ expanded, onExpand, record, expandable }"
+      >
+        <slot
+          name="expandIcon"
+          :expanded="expanded"
+          :on-expand="onExpand"
+          :record="record"
+          :expandable="expandable"
+        />
+      </template>
+
+      <!-- 自定义单元格插槽 -->
+      <template #bodyCell="{ column, text, record, index }">
+        <!-- 查找对应的列配置 -->
+        <template
+          v-for="col in schema.columns"
+          :key="col.key || col.dataIndex"
+        >
+          <template v-if="(col.key || col.dataIndex) === column.key && col.slot && slots[col.slot]">
+            <slot
+              :name="col.slot"
+              :text="text"
+              :record="record"
+              :index="index"
+              :column="col"
             />
-          </svg>
-          <p>{{ schema.emptyText || t('common.noData') }}</p>
-        </div>
-      </slot>
-    </template>
-
-    <!-- 展开行插槽 -->
-    <template
-      v-if="schema.expandable?.expandedRowSlot || slots.expandedRow"
-      #expandedRowRender="{ record, index, indent, expanded }"
-    >
-      <slot
-        name="expandedRow"
-        :record="record"
-        :index="index"
-        :indent="indent"
-        :expanded="expanded"
-      />
-    </template>
-
-    <!-- 展开图标插槽 -->
-    <template
-      v-if="slots.expandIcon"
-      #expandIcon="{ expanded, onExpand, record, expandable }"
-    >
-      <slot
-        name="expandIcon"
-        :expanded="expanded"
-        :on-expand="onExpand"
-        :record="record"
-        :expandable="expandable"
-      />
-    </template>
-
-    <!-- 自定义单元格插槽 -->
-    <template #bodyCell="{ column, text, record, index }">
-      <!-- 查找对应的列配置 -->
-      <template
-        v-for="col in schema.columns"
-        :key="col.key || col.dataIndex"
-      >
-        <template v-if="(col.key || col.dataIndex) === column.key && col.slot && slots[col.slot]">
-          <slot
-            :name="col.slot"
-            :text="text"
-            :record="record"
-            :index="index"
-            :column="col"
-          />
+          </template>
         </template>
       </template>
-    </template>
 
-    <!-- 自定义表头插槽 -->
-    <template #headerCell="{ column, text, index }">
-      <!-- 查找对应的列配置 -->
-      <template
-        v-for="col in schema.columns"
-        :key="col.key || col.dataIndex"
-      >
-        <template v-if="(col.key || col.dataIndex) === column.key && col.headerSlot && slots[col.headerSlot]">
-          <slot
-            :name="col.headerSlot"
-            :title="text"
-            :column="col"
-            :index="index"
-          />
+      <!-- 自定义表头插槽 -->
+      <template #headerCell="{ column, text, index }">
+        <!-- 查找对应的列配置 -->
+        <template
+          v-for="col in schema.columns"
+          :key="col.key || col.dataIndex"
+        >
+          <template v-if="(col.key || col.dataIndex) === column.key && col.headerSlot && slots[col.headerSlot]">
+            <slot
+              :name="col.headerSlot"
+              :title="text"
+              :column="col"
+              :index="index"
+            />
+          </template>
         </template>
       </template>
-    </template>
-
     </a-table>
   </ConfigProvider>
 </template>

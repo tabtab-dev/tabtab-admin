@@ -1,81 +1,81 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button';
 import {
-  Search,
   Command,
+  Search,
   X,
-} from 'lucide-vue-next';
-import { useI18n } from 'vue-i18n';
+} from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
+import { Button } from '@/components/ui/button'
 
-const { t } = useI18n();
+const { t } = useI18n()
 
-const searchQuery = ref('');
-const isSearchFocused = ref(false);
-const isSearchExpanded = ref(false);
-const searchInputRef = ref<HTMLInputElement | null>(null);
+const searchQuery = ref('')
+const isSearchFocused = ref(false)
+const isSearchExpanded = ref(false)
+const searchInputRef = ref<HTMLInputElement | null>(null)
 
 /**
  * 是否展开搜索框
  */
-const isExpanded = defineModel<boolean>('expanded', { default: false });
+const isExpanded = defineModel<boolean>('expanded', { default: false })
 
 /**
  * 处理搜索
  */
-const handleSearch = () => {
-  isExpanded.value = true;
-};
+function handleSearch() {
+  isExpanded.value = true
+}
 
 /**
  * 展开搜索框（移动端/平板）
  */
-const expandSearch = async () => {
-  isSearchExpanded.value = true;
-  await nextTick();
-  searchInputRef.value?.focus();
-};
+async function expandSearch() {
+  isSearchExpanded.value = true
+  await nextTick()
+  searchInputRef.value?.focus()
+}
 
 /**
  * 关闭搜索框
  */
-const collapseSearch = () => {
-  isSearchExpanded.value = false;
-  searchQuery.value = '';
-};
+function collapseSearch() {
+  isSearchExpanded.value = false
+  searchQuery.value = ''
+}
 
 /**
  * 处理键盘快捷键
  */
-const handleKeydown = (e: KeyboardEvent) => {
+function handleKeydown(e: KeyboardEvent) {
   if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-    e.preventDefault();
-    isExpanded.value = true;
+    e.preventDefault()
+    isExpanded.value = true
   }
-  
+
   if (e.key === 'Escape' && isSearchExpanded.value) {
-    collapseSearch();
+    collapseSearch()
   }
-};
+}
 
 /**
  * 点击外部关闭搜索
  */
-const handleClickOutside = (e: MouseEvent) => {
-  const target = e.target as HTMLElement;
+function handleClickOutside(e: MouseEvent) {
+  const target = e.target as HTMLElement
   if (isSearchExpanded.value && !target.closest('.search-container')) {
-    collapseSearch();
+    collapseSearch()
   }
-};
+}
 
 onMounted(() => {
-  window.addEventListener('keydown', handleKeydown);
-  window.addEventListener('click', handleClickOutside);
-});
+  window.addEventListener('keydown', handleKeydown)
+  window.addEventListener('click', handleClickOutside)
+})
 
 onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeydown);
-  window.removeEventListener('click', handleClickOutside);
-});
+  window.removeEventListener('keydown', handleKeydown)
+  window.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <template>
@@ -85,7 +85,7 @@ onUnmounted(() => {
     :class="[
       isSearchFocused
         ? 'bg-background border-primary/30 w-72 ring-2 ring-primary/10'
-        : 'bg-muted/60 border-transparent w-56 hover:bg-muted hover:border-border/50'
+        : 'bg-muted/60 border-transparent w-56 hover:bg-muted hover:border-border/50',
     ]"
   >
     <Search class="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -98,7 +98,7 @@ onUnmounted(() => {
       @focus="isSearchFocused = true"
       @blur="isSearchFocused = false"
       @keyup.enter="handleSearch"
-    />
+    >
     <kbd class="hidden lg:inline-flex h-5 items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground flex-shrink-0">
       <Command class="h-3 w-3" />
       <span>K</span>
@@ -136,7 +136,7 @@ onUnmounted(() => {
         :placeholder="t('common.header.search')"
         class="bg-transparent border-none outline-none text-sm w-full placeholder:text-muted-foreground"
         @keyup.enter="handleSearch"
-      />
+      >
       <Button
         variant="ghost"
         size="icon"

@@ -1,32 +1,32 @@
+import type { UpdateProfileParams, User } from '@/types'
 /**
  * 认证相关 API
  * @description 登录、登出、获取用户信息等接口
  */
-import { request } from '../client';
-import type { User, UpdateProfileParams } from '@/types';
+import { request } from '../client'
 
 /**
  * 登录请求参数
  */
 export interface LoginParams {
-  email: string;
-  password: string;
+  email: string
+  password: string
 }
 
 /**
  * 登录响应数据
  */
 export interface LoginResponse {
-  token: string;
-  user: User;
+  token: string
+  user: User
 }
 
 /**
  * 修改密码参数
  */
 export interface ChangePasswordParams {
-  oldPassword: string;
-  newPassword: string;
+  oldPassword: string
+  newPassword: string
 }
 
 /**
@@ -104,12 +104,12 @@ export const authApi = {
    * @returns 头像 URL
    */
   uploadAvatar: (file: File) => {
-    const formData = new FormData();
-    formData.append('avatar', file);
+    const formData = new FormData()
+    formData.append('avatar', file)
     return request.post<{ avatarUrl: string }>('/auth/avatar', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-    });
+    })
   },
-};
+}

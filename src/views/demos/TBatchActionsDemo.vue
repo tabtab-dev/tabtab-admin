@@ -1,24 +1,22 @@
 <script setup lang="ts">
+import type { BatchAction, TBatchActionsExpose } from '@/components/business/TBatchActions'
+import type { TableSchema } from '@/components/business/TTable'
+import { CheckSquare, Layers, Square } from 'lucide-vue-next'
 /**
  * TBatchActionsDemo - TBatchActions 组件演示页面
  *
  * @description 展示 TBatchActions 批量操作栏组件的各种使用场景和配置方式
  */
 import { TBatchActions } from '@/components/business/TBatchActions'
-import { TTable } from '@/components/business/TTable'
-import type { TBatchActionsExpose, BatchAction } from '@/components/business/TBatchActions'
-import type { TableSchema } from '@/components/business/TTable'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Trash2, Download, Share2, Archive, CheckSquare, Square, Layers } from 'lucide-vue-next'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 /**
  * 消息提示函数
  */
-const showMessage = (msg: string) => {
+function showMessage(msg: string) {
   // eslint-disable-next-line no-alert
   window.alert(msg)
 }
@@ -46,7 +44,7 @@ const tableData = ref([
   { id: 2, name: '李四', email: 'lisi@example.com', role: '编辑', status: 'active' },
   { id: 3, name: '王五', email: 'wangwu@example.com', role: '访客', status: 'inactive' },
   { id: 4, name: '赵六', email: 'zhaoliu@example.com', role: '编辑', status: 'active' },
-  { id: 5, name: '孙七', email: 'sunqi@example.com', role: '访客', status: 'inactive' }
+  { id: 5, name: '孙七', email: 'sunqi@example.com', role: '访客', status: 'inactive' },
 ])
 
 /**
@@ -63,16 +61,16 @@ const tableSchema: TableSchema = {
     { title: '姓名', dataIndex: 'name', width: 120 },
     { title: '邮箱', dataIndex: 'email' },
     { title: '角色', dataIndex: 'role', width: 100 },
-    { title: '状态', dataIndex: 'status', width: 100 }
+    { title: '状态', dataIndex: 'status', width: 100 },
   ],
-  pagination: false
+  pagination: false,
 }
 
 /**
  * 基础操作按钮
  */
 const basicActions: BatchAction[] = [
-  { text: '批量删除', type: 'danger', iconName: 'Trash2', onClick: () => showMessage('批量删除') }
+  { text: '批量删除', type: 'danger', iconName: 'Trash2', onClick: () => showMessage('批量删除') },
 ]
 
 /**
@@ -81,7 +79,7 @@ const basicActions: BatchAction[] = [
 const multipleActions: BatchAction[] = [
   { text: '批量删除', type: 'danger', iconName: 'Trash2', onClick: () => showMessage('批量删除') },
   { text: '批量导出', type: 'default', iconName: 'Download', onClick: () => showMessage('批量导出') },
-  { text: '批量分享', type: 'default', iconName: 'Share2', onClick: () => showMessage('批量分享') }
+  { text: '批量分享', type: 'default', iconName: 'Share2', onClick: () => showMessage('批量分享') },
 ]
 
 /**
@@ -94,7 +92,7 @@ const confirmActions: BatchAction[] = [
     iconName: 'Trash2',
     confirm: true,
     confirmText: '确定要删除选中的数据吗？删除后不可恢复。',
-    onClick: () => showMessage('确认删除')
+    onClick: () => showMessage('确认删除'),
   },
   {
     text: '批量归档',
@@ -103,8 +101,8 @@ const confirmActions: BatchAction[] = [
     confirm: true,
     confirmTitle: '确认归档',
     confirmText: '归档后数据将移至归档文件夹。',
-    onClick: () => showMessage('确认归档')
-  }
+    onClick: () => showMessage('确认归档'),
+  },
 ]
 
 /**
@@ -114,7 +112,8 @@ function toggleSelection(id: number) {
   const index = selectedRows.value.indexOf(id)
   if (index > -1) {
     selectedRows.value.splice(index, 1)
-  } else {
+  }
+  else {
     selectedRows.value.push(id)
   }
   selectedCount.value = selectedRows.value.length
@@ -126,7 +125,8 @@ function toggleSelection(id: number) {
 function toggleSelectAll() {
   if (selectedRows.value.length === tableData.value.length) {
     selectedRows.value = []
-  } else {
+  }
+  else {
     selectedRows.value = tableData.value.map(item => item.id)
   }
   selectedCount.value = selectedRows.value.length
@@ -160,7 +160,9 @@ function removeSelection() {
     <!-- 页面标题 -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">TBatchActions 组件演示</h1>
+        <h1 class="text-3xl font-bold tracking-tight">
+          TBatchActions 组件演示
+        </h1>
         <p class="text-muted-foreground mt-2">
           表格/列表批量操作栏，显示选中数量和操作按钮
         </p>
@@ -174,10 +176,18 @@ function removeSelection() {
     <!-- 标签页 -->
     <Tabs default-value="basic" class="w-full">
       <TabsList class="grid w-full grid-cols-4 lg:w-[400px]">
-        <TabsTrigger value="basic">基础用法</TabsTrigger>
-        <TabsTrigger value="actions">操作按钮</TabsTrigger>
-        <TabsTrigger value="confirm">确认对话框</TabsTrigger>
-        <TabsTrigger value="advanced">高级功能</TabsTrigger>
+        <TabsTrigger value="basic">
+          基础用法
+        </TabsTrigger>
+        <TabsTrigger value="actions">
+          操作按钮
+        </TabsTrigger>
+        <TabsTrigger value="confirm">
+          确认对话框
+        </TabsTrigger>
+        <TabsTrigger value="advanced">
+          高级功能
+        </TabsTrigger>
       </TabsList>
 
       <!-- 基础用法 -->
@@ -421,7 +431,7 @@ function removeSelection() {
               item-name="条"
               :actions="[
                 { text: '删除', type: 'danger', iconName: 'Trash2', onClick: () => showMessage('删除选中') },
-                { text: '导出', type: 'default', iconName: 'Download', onClick: () => showMessage('导出选中') }
+                { text: '导出', type: 'default', iconName: 'Download', onClick: () => showMessage('导出选中') },
               ]"
               @clear="handleClear"
             />
@@ -439,11 +449,21 @@ function removeSelection() {
                         />
                       </button>
                     </th>
-                    <th class="p-3 text-left font-medium">ID</th>
-                    <th class="p-3 text-left font-medium">姓名</th>
-                    <th class="p-3 text-left font-medium">邮箱</th>
-                    <th class="p-3 text-left font-medium">角色</th>
-                    <th class="p-3 text-left font-medium">状态</th>
+                    <th class="p-3 text-left font-medium">
+                      ID
+                    </th>
+                    <th class="p-3 text-left font-medium">
+                      姓名
+                    </th>
+                    <th class="p-3 text-left font-medium">
+                      邮箱
+                    </th>
+                    <th class="p-3 text-left font-medium">
+                      角色
+                    </th>
+                    <th class="p-3 text-left font-medium">
+                      状态
+                    </th>
                   </tr>
                 </thead>
                 <tbody class="divide-y">
@@ -460,11 +480,21 @@ function removeSelection() {
                         />
                       </button>
                     </td>
-                    <td class="p-3">{{ item.id }}</td>
-                    <td class="p-3">{{ item.name }}</td>
-                    <td class="p-3">{{ item.email }}</td>
-                    <td class="p-3">{{ item.role }}</td>
-                    <td class="p-3">{{ item.status }}</td>
+                    <td class="p-3">
+                      {{ item.id }}
+                    </td>
+                    <td class="p-3">
+                      {{ item.name }}
+                    </td>
+                    <td class="p-3">
+                      {{ item.email }}
+                    </td>
+                    <td class="p-3">
+                      {{ item.role }}
+                    </td>
+                    <td class="p-3">
+                      {{ item.status }}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -541,37 +571,49 @@ function removeSelection() {
           <CardContent>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">选中计数</h4>
+                <h4 class="font-medium mb-2">
+                  选中计数
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   显示当前选中的项目数量
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">批量操作</h4>
+                <h4 class="font-medium mb-2">
+                  批量操作
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   支持多个操作按钮，可配置类型和图标
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">确认对话框</h4>
+                <h4 class="font-medium mb-2">
+                  确认对话框
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   危险操作前显示确认对话框
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">清除选择</h4>
+                <h4 class="font-medium mb-2">
+                  清除选择
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   一键清除所有选择
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">粘性定位</h4>
+                <h4 class="font-medium mb-2">
+                  粘性定位
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   支持 sticky 定位，滚动时固定
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">显示总数</h4>
+                <h4 class="font-medium mb-2">
+                  显示总数
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   可选显示总数信息
                 </p>

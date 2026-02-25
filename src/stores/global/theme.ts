@@ -1,8 +1,8 @@
-import { defineStore, acceptHMRUpdate } from 'pinia';
-import { shallowRef } from 'vue';
-import { THEME_MODE, STORAGE_KEYS } from '@/constants/common';
-import { themeConfig } from '@/config/theme.config';
-import type { ThemeColors, LayoutConfig, PresetTheme } from '@/types/theme';
+import type { LayoutConfig, PresetTheme, ThemeColors } from '@/types/theme'
+import { acceptHMRUpdate, defineStore } from 'pinia'
+import { shallowRef } from 'vue'
+import { themeConfig } from '@/config/theme.config'
+import { STORAGE_KEYS, THEME_MODE } from '@/constants/common'
 
 const baseLightColors = {
   secondary: 'oklch(0.97 0 0)',
@@ -18,7 +18,7 @@ const baseLightColors = {
   border: 'oklch(0.922 0 0)',
   input: 'oklch(0.922 0 0)',
   destructive: 'oklch(0.577 0.245 27.325)',
-};
+}
 
 const baseDarkColors = {
   secondary: 'oklch(0.269 0 0)',
@@ -34,9 +34,9 @@ const baseDarkColors = {
   border: 'oklch(1 0 0 / 10%)',
   input: 'oklch(1 0 0 / 15%)',
   destructive: 'oklch(0.704 0.191 22.216)',
-};
+}
 
-const defaultThemeConfigs: Record<string, { name: string; primary: string; primaryForeground?: string; accent?: string; accentForeground?: string; darkPrimary?: string }> = {
+const defaultThemeConfigs: Record<string, { name: string, primary: string, primaryForeground?: string, accent?: string, accentForeground?: string, darkPrimary?: string }> = {
   default: { name: '默认', primary: 'oklch(0.205 0 0)', primaryForeground: 'oklch(0.985 0 0)', darkPrimary: 'oklch(0.65 0 0)' },
   slate: { name: '岩灰', primary: 'oklch(0.55 0.04 260)', primaryForeground: 'oklch(0.985 0 0)' },
   stone: { name: '石色', primary: 'oklch(0.55 0.02 80)', primaryForeground: 'oklch(0.985 0 0)' },
@@ -57,19 +57,19 @@ const defaultThemeConfigs: Record<string, { name: string; primary: string; prima
   purple: { name: '紫色', primary: 'oklch(0.55 0.22 300)', primaryForeground: 'oklch(0.985 0 0)' },
   fuchsia: { name: '洋红', primary: 'oklch(0.6 0.22 325)', primaryForeground: 'oklch(0.985 0 0)' },
   pink: { name: '粉色', primary: 'oklch(0.62 0.2 355)', primaryForeground: 'oklch(0.985 0 0)' },
-};
+}
 
-const themeConfigs: Record<string, { name: string; primary: string; primaryForeground?: string; accent?: string; accentForeground?: string; darkPrimary?: string }> = {
+const themeConfigs: Record<string, { name: string, primary: string, primaryForeground?: string, accent?: string, accentForeground?: string, darkPrimary?: string }> = {
   ...defaultThemeConfigs,
   ...themeConfig.customThemes,
-};
+}
 
-function generateThemeColors(config: typeof themeConfigs[string]): { light: ThemeColors; dark: ThemeColors } {
-  const primary = config.primary;
-  const darkPrimary = config.darkPrimary || primary;
-  const primaryForeground = config.primaryForeground || 'oklch(0.985 0 0)';
-  const accent = config.accent || primary;
-  const accentForeground = config.accentForeground || primaryForeground;
+function generateThemeColors(config: typeof themeConfigs[string]): { light: ThemeColors, dark: ThemeColors } {
+  const primary = config.primary
+  const darkPrimary = config.darkPrimary || primary
+  const primaryForeground = config.primaryForeground || 'oklch(0.985 0 0)'
+  const accent = config.accent || primary
+  const accentForeground = config.accentForeground || primaryForeground
 
   return {
     light: {
@@ -88,15 +88,15 @@ function generateThemeColors(config: typeof themeConfigs[string]): { light: Them
       accentForeground,
       ring: darkPrimary,
     },
-  };
+  }
 }
 
 export const presetThemes: Record<string, PresetTheme> = Object.fromEntries(
   Object.entries(themeConfigs).map(([key, config]) => [
     key,
     { name: config.name, colors: generateThemeColors(config) },
-  ])
-);
+  ]),
+)
 
 const baseLayoutConfig: LayoutConfig = {
   sidebarWidth: 280,
@@ -109,12 +109,12 @@ const baseLayoutConfig: LayoutConfig = {
   showTabBar: true,
   showBreadcrumb: true,
   fixedTabBar: false,
-};
+}
 
 export const defaultLayoutConfig: LayoutConfig = {
   ...baseLayoutConfig,
   ...themeConfig.layout,
-};
+}
 
 const cssVarMap: Record<keyof ThemeColors, string> = {
   primary: '--primary',
@@ -135,72 +135,73 @@ const cssVarMap: Record<keyof ThemeColors, string> = {
   input: '--input',
   ring: '--ring',
   destructive: '--destructive',
-};
+}
 
 export const useThemeStore = defineStore(
   'theme',
   () => {
-    const currentTheme = ref<string>(themeConfig.theme);
-    const currentMode = ref<'light' | 'dark'>(themeConfig.mode);
-    const layoutConfig = shallowRef<LayoutConfig>({ ...defaultLayoutConfig });
+    const currentTheme = ref<string>(themeConfig.theme)
+    const currentMode = ref<'light' | 'dark'>(themeConfig.mode)
+    const layoutConfig = shallowRef<LayoutConfig>({ ...defaultLayoutConfig })
 
     const currentColors = computed(() => {
-      const theme = presetThemes[currentTheme.value];
-      return theme?.colors[currentMode.value] || presetThemes.default.colors.light;
-    });
+      const theme = presetThemes[currentTheme.value]
+      return theme?.colors[currentMode.value] || presetThemes.default.colors.light
+    })
 
     const availableThemes = computed(() =>
       Object.entries(presetThemes).map(([key, value]) => ({
         key,
         name: value.name,
         primaryColor: value.colors.light.primary,
-      }))
-    );
+      })),
+    )
 
     const applyThemeColors = () => {
-      const colors = currentColors.value;
-      if (!colors) return;
-      const root = document.documentElement;
+      const colors = currentColors.value
+      if (!colors)
+        return
+      const root = document.documentElement
 
       Object.entries(cssVarMap).forEach(([key, cssVar]) => {
-        root.style.setProperty(cssVar, colors[key as keyof ThemeColors]);
-      });
-    };
+        root.style.setProperty(cssVar, colors[key as keyof ThemeColors])
+      })
+    }
 
     const applyLayoutConfig = () => {
-      const config = layoutConfig.value;
-      const root = document.documentElement;
+      const config = layoutConfig.value
+      const root = document.documentElement
 
-      root.style.setProperty('--radius', `${config.radius}rem`);
-      root.style.setProperty('--sidebar-width', `${config.sidebarWidth}px`);
-      root.style.setProperty('--sidebar-collapsed-width', `${config.sidebarCollapsedWidth}px`);
-      root.style.setProperty('--header-height', `${config.headerHeight}px`);
+      root.style.setProperty('--radius', `${config.radius}rem`)
+      root.style.setProperty('--sidebar-width', `${config.sidebarWidth}px`)
+      root.style.setProperty('--sidebar-collapsed-width', `${config.sidebarCollapsedWidth}px`)
+      root.style.setProperty('--header-height', `${config.headerHeight}px`)
 
-      const fontSizeMap = { sm: '14px', base: '16px', lg: '18px' };
-      root.style.setProperty('--font-size-base', fontSizeMap[config.fontSize]);
+      const fontSizeMap = { sm: '14px', base: '16px', lg: '18px' }
+      root.style.setProperty('--font-size-base', fontSizeMap[config.fontSize])
 
-      root.classList.toggle('reduce-motion', !config.animations);
-    };
+      root.classList.toggle('reduce-motion', !config.animations)
+    }
 
     const setTheme = (theme: string) => {
       if (presetThemes[theme]) {
-        currentTheme.value = theme;
-        applyThemeColors();
+        currentTheme.value = theme
+        applyThemeColors()
       }
-    };
+    }
 
     const setMode = (mode: 'light' | 'dark') => {
-      currentMode.value = mode;
-      document.documentElement.classList.toggle('dark', mode === THEME_MODE.DARK);
-      applyThemeColors();
-    };
+      currentMode.value = mode
+      document.documentElement.classList.toggle('dark', mode === THEME_MODE.DARK)
+      applyThemeColors()
+    }
 
     const toggleMode = async () => {
-      const newMode = currentMode.value === THEME_MODE.LIGHT ? THEME_MODE.DARK : THEME_MODE.LIGHT;
+      const newMode = currentMode.value === THEME_MODE.LIGHT ? THEME_MODE.DARK : THEME_MODE.LIGHT
 
       if ('startViewTransition' in document) {
-        const transition = (document as Document & { startViewTransition: (callback: () => void) => { ready: Promise<void> } }).startViewTransition(() => setMode(newMode));
-        await transition.ready;
+        const transition = (document as Document & { startViewTransition: (callback: () => void) => { ready: Promise<void> } }).startViewTransition(() => setMode(newMode))
+        await transition.ready
 
         document.documentElement.animate(
           [
@@ -211,30 +212,31 @@ export const useThemeStore = defineStore(
             duration: 500,
             easing: 'ease-in-out',
             pseudoElement: '::view-transition-new(root)',
-          }
-        );
-      } else {
-        setMode(newMode);
+          },
+        )
       }
-    };
+      else {
+        setMode(newMode)
+      }
+    }
 
     const updateLayoutConfig = (config: Partial<LayoutConfig>) => {
-      layoutConfig.value = { ...layoutConfig.value, ...config };
-      applyLayoutConfig();
-    };
+      layoutConfig.value = { ...layoutConfig.value, ...config }
+      applyLayoutConfig()
+    }
 
     const resetLayoutConfig = () => {
-      layoutConfig.value = { ...defaultLayoutConfig };
-      applyLayoutConfig();
-    };
+      layoutConfig.value = { ...defaultLayoutConfig }
+      applyLayoutConfig()
+    }
 
     const init = () => {
-      applyThemeColors();
-      applyLayoutConfig();
-    };
+      applyThemeColors()
+      applyLayoutConfig()
+    }
 
-    watch([currentTheme, currentMode], applyThemeColors, { immediate: true });
-    watch(layoutConfig, applyLayoutConfig, { deep: true, immediate: true });
+    watch([currentTheme, currentMode], applyThemeColors, { immediate: true })
+    watch(layoutConfig, applyLayoutConfig, { deep: true, immediate: true })
 
     return {
       currentTheme,
@@ -248,16 +250,16 @@ export const useThemeStore = defineStore(
       updateLayoutConfig,
       resetLayoutConfig,
       init,
-    };
+    }
   },
   {
     persist: {
       key: STORAGE_KEYS.THEME,
       pick: ['currentTheme', 'currentMode', 'layoutConfig'],
     },
-  }
-);
+  },
+)
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useThemeStore, import.meta.hot));
+  import.meta.hot.accept(acceptHMRUpdate(useThemeStore, import.meta.hot))
 }

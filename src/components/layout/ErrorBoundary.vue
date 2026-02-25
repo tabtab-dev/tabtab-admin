@@ -1,32 +1,32 @@
 <script setup lang="ts">
-import { ref, onErrorCaptured } from 'vue';
-import { Button } from '@/components/ui/button';
-import { AlertCircle, RefreshCw, Home } from 'lucide-vue-next';
-import { useRouter } from 'vue-router';
+import { AlertCircle, Home, RefreshCw } from 'lucide-vue-next'
+import { onErrorCaptured, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { Button } from '@/components/ui/button'
 
 /**
  * 错误信息接口
  */
 interface ErrorInfo {
   /** 错误对象 */
-  error: Error;
+  error: Error
   /** 错误堆栈 */
-  stack?: string;
+  stack?: string
   /** 组件信息 */
-  component?: string;
+  component?: string
 }
 
-const router = useRouter();
+const router = useRouter()
 
 /**
  * 错误状态
  */
-const error = ref<ErrorInfo | null>(null);
+const error = ref<ErrorInfo | null>(null)
 
 /**
  * 是否显示详细错误信息（开发模式）
  */
-const showDetails = ref(false);
+const showDetails = ref(false)
 
 /**
  * 捕获错误
@@ -36,32 +36,32 @@ onErrorCaptured((err, instance, info) => {
     error: err instanceof Error ? err : new Error(String(err)),
     stack: err instanceof Error ? err.stack : undefined,
     component: instance?.$options?.name || info,
-  };
-  
+  }
+
   // 阻止错误继续传播
-  return false;
-});
+  return false
+})
 
 /**
  * 重试
  */
-const handleRetry = () => {
-  error.value = null;
-  window.location.reload();
-};
+function handleRetry() {
+  error.value = null
+  window.location.reload()
+}
 
 /**
  * 返回首页
  */
-const handleGoHome = () => {
-  error.value = null;
-  router.push('/');
-};
+function handleGoHome() {
+  error.value = null
+  router.push('/')
+}
 
 /**
  * 是否是开发环境
  */
-const isDev = import.meta.env.DEV;
+const isDev = import.meta.env.DEV
 </script>
 
 <template>
@@ -81,7 +81,9 @@ const isDev = import.meta.env.DEV;
 
         <!-- 错误标题 -->
         <div class="space-y-2">
-          <h2 class="text-2xl font-bold text-foreground">出错了</h2>
+          <h2 class="text-2xl font-bold text-foreground">
+            出错了
+          </h2>
           <p class="text-muted-foreground">
             抱歉，页面加载时发生了错误
           </p>

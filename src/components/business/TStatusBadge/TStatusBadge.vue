@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { StatusBadgeResponsiveConfig, StatusConfig, TStatusBadgeEmits, TStatusBadgeExpose, TStatusBadgeProps } from './types'
 /**
  * TStatusBadge - 状态徽章组件
  *
@@ -20,16 +21,15 @@
  *   <TStatusBadge status="processing" show-dot />
  */
 import { computed } from 'vue'
-import { cn } from '@/lib/utils'
-import { getVariantConfig, getSizeConfig, statusColorConfig } from './theme'
 import { useResponsive } from '@/composables/useResponsive'
-import type { TStatusBadgeProps, TStatusBadgeEmits, TStatusBadgeExpose, StatusType, StatusConfig, StatusBadgeResponsiveConfig } from './types'
+import { cn } from '@/lib/utils'
+import { getSizeConfig, getVariantConfig, statusColorConfig } from './theme'
 
 /**
  * 组件选项
  */
 defineOptions({
-  name: 'TStatusBadge'
+  name: 'TStatusBadge',
 })
 
 /**
@@ -39,7 +39,7 @@ const props = withDefaults(defineProps<TStatusBadgeProps>(), {
   size: 'default',
   variant: 'soft',
   showDot: false,
-  clickable: false
+  clickable: false,
 })
 
 /**
@@ -58,12 +58,14 @@ const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== fa
 const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
 
 const isMobileView = computed(() => {
-  if (!isResponsiveEnabled.value) return false
+  if (!isResponsiveEnabled.value)
+    return false
   return smallerThan(mobileBreakpoint.value)
 })
 
 const responsiveSize = computed(() => {
-  if (!isMobileView.value) return props.size
+  if (!isMobileView.value)
+    return props.size
   return responsiveConfig.value.mobileSize || 'sm'
 })
 
@@ -103,7 +105,7 @@ const defaultStatusMap: Record<string, StatusConfig> = {
   // 审核状态
   approved: { text: '已通过', color: 'success' },
   rejected: { text: '已拒绝', color: 'error' },
-  reviewing: { text: '审核中', color: 'processing' }
+  reviewing: { text: '审核中', color: 'processing' },
 }
 
 /**
@@ -125,7 +127,7 @@ const statusConfig = computed((): StatusConfig => {
   if (props.text || props.color) {
     return {
       text: props.text || statusKey.value,
-      color: props.color || 'default'
+      color: props.color || 'default',
     }
   }
 
@@ -143,7 +145,7 @@ const statusConfig = computed((): StatusConfig => {
   // 兜底：使用状态值本身作为文本
   return {
     text: String(props.status),
-    color: 'default'
+    color: 'default',
   }
 })
 
@@ -197,7 +199,7 @@ function getText() {
  */
 defineExpose<TStatusBadgeExpose>({
   getStatus,
-  getText
+  getText,
 })
 </script>
 
@@ -212,7 +214,7 @@ defineExpose<TStatusBadgeExpose>({
       sizeCfg.textSize,
       sizeCfg.height,
       clickable && 'cursor-pointer hover:opacity-80',
-      className
+      className,
     )"
     @click="handleClick"
   >
@@ -223,7 +225,7 @@ defineExpose<TStatusBadgeExpose>({
         'rounded-full shrink-0',
         dotColorClass,
         sizeCfg.dotSize,
-        (statusConfig.color === 'processing' || statusConfig.color === 'pending') && 'animate-pulse'
+        (statusConfig.color === 'processing' || statusConfig.color === 'pending') && 'animate-pulse',
       )"
     />
 

@@ -1,90 +1,90 @@
 <script setup lang="ts">
-import { watch } from 'vue';
-import { useRoute } from 'vue-router';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useAppStore } from '@/stores/global/app';
-import { useMenuUtils } from '@/layouts/composables/useMenuUtils';
-import type { MenuItem } from '@/types/menu';
-import type { SidebarConfig } from './config';
-import SidebarItem from './SidebarItem.vue';
-import SidebarSubMenu from './SidebarSubMenu.vue';
-import MobileSidebarHeader from './MobileSidebarHeader.vue';
-import MobileSidebarFooter from './MobileSidebarFooter.vue';
+import type { SidebarConfig } from './config'
+import type { MenuItem } from '@/types/menu'
+import { watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Sheet, SheetContent } from '@/components/ui/sheet'
+import { useMenuUtils } from '@/layouts/composables/useMenuUtils'
+import { useAppStore } from '@/stores/global/app'
+import MobileSidebarFooter from './MobileSidebarFooter.vue'
+import MobileSidebarHeader from './MobileSidebarHeader.vue'
+import SidebarItem from './SidebarItem.vue'
+import SidebarSubMenu from './SidebarSubMenu.vue'
 
 /**
  * 组件属性
  */
 interface Props {
   /** 侧栏配置 */
-  config: SidebarConfig;
+  config: SidebarConfig
   /** 展开的子菜单 keys */
-  expandedKeys: Set<string>;
+  expandedKeys: Set<string>
 }
 
-const props = defineProps<Props>();
+const props = defineProps<Props>()
+
+const emit = defineEmits<Emits>()
 
 /**
  * 组件事件
  */
 interface Emits {
   /** 切换子菜单 */
-  (e: 'toggle-sub-menu', key: string): void;
+  (e: 'toggle-sub-menu', key: string): void
   /** 导航 */
-  (e: 'navigate', path: string): void;
+  (e: 'navigate', path: string): void
 }
 
-const emit = defineEmits<Emits>();
-
-const route = useRoute();
-const appStore = useAppStore();
-const { isActive } = useMenuUtils();
+const route = useRoute()
+const appStore = useAppStore()
+const { isActive } = useMenuUtils()
 
 /**
  * 监听路由变化，移动端自动关闭侧边栏
  */
 watch(() => route.path, () => {
-  appStore.setMobileSidebar(false);
-});
+  appStore.setMobileSidebar(false)
+})
 
 /**
  * 处理导航
  */
-const handleNavigate = (path: string): void => {
-  emit('navigate', path);
-  appStore.setMobileSidebar(false);
-};
+function handleNavigate(path: string): void {
+  emit('navigate', path)
+  appStore.setMobileSidebar(false)
+}
 
 /**
  * 切换子菜单
  */
-const handleToggleSubMenu = (key: string): void => {
-  emit('toggle-sub-menu', key);
-};
+function handleToggleSubMenu(key: string): void {
+  emit('toggle-sub-menu', key)
+}
 
 /**
  * 判断是否有子菜单
  */
-const hasChildren = (item: MenuItem): boolean => {
-  return !!item.children && item.children.length > 0;
-};
+function hasChildren(item: MenuItem): boolean {
+  return !!item.children && item.children.length > 0
+}
 
 /**
  * 判断是否展开
  */
-const isExpanded = (key: string): boolean => {
-  return props.expandedKeys.has(key);
-};
+function isExpanded(key: string): boolean {
+  return props.expandedKeys.has(key)
+}
 </script>
 
 <template>
   <div class="lg:hidden flex flex-1 min-w-0">
-    <Sheet 
-      :open="appStore.mobileSidebarOpen" 
+    <Sheet
+      :open="appStore.mobileSidebarOpen"
       @update:open="appStore.setMobileSidebar"
     >
-      <SheetContent 
-        side="left" 
+      <SheetContent
+        side="left"
         class="w-[280px] p-0"
       >
         <div class="flex flex-col h-full bg-background">
@@ -93,9 +93,9 @@ const isExpanded = (key: string): boolean => {
 
           <!-- 菜单列表 -->
           <ScrollArea class="flex-1 h-0">
-            <nav 
-              class="p-3 space-y-1" 
-              role="menubar" 
+            <nav
+              class="p-3 space-y-1"
+              role="menubar"
               aria-label="主导航"
             >
               <template v-for="item in config.menus" :key="item.key">

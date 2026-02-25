@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { FormField, GroupFieldConfig } from './types'
+import { ChevronDown, ChevronUp } from 'lucide-vue-next'
 /**
  * TFormGroup - 表单分组组件
  *
@@ -11,9 +13,7 @@
  *   />
  */
 import { ref } from 'vue'
-import { ChevronDown, ChevronUp } from 'lucide-vue-next'
 import TFormItem from './TFormItem.vue'
-import type { FormField, GroupFieldConfig } from './types'
 
 /**
  * 组件 Props 定义

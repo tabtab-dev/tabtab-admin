@@ -1,16 +1,15 @@
 <script setup lang="ts">
+import type { StatusType, TStatusBadgeExpose } from '@/components/business/TStatusBadge'
+import { Activity } from 'lucide-vue-next'
 /**
  * TStatusBadgeDemo - TStatusBadge 组件演示页面
  *
  * @description 展示 TStatusBadge 状态徽章组件的各种使用场景和配置方式
  */
 import { TStatusBadge } from '@/components/business/TStatusBadge'
-import type { TStatusBadgeExpose, BadgeVariant, BadgeSize, StatusType } from '@/components/business/TStatusBadge'
+import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { Tag, Space } from 'antdv-next'
-import { Activity, CheckCircle, XCircle, AlertTriangle, Info, Clock, Shield, Ban } from 'lucide-vue-next'
 
 /**
  * 组件引用
@@ -20,7 +19,7 @@ const badgeRef = ref<TStatusBadgeExpose>()
 /**
  * 预设状态
  */
-const presetStatuses: { status: StatusType; label: string }[] = [
+const presetStatuses: { status: StatusType, label: string }[] = [
   { status: 'active', label: '启用' },
   { status: 'inactive', label: '禁用' },
   { status: 'success', label: '成功' },
@@ -34,7 +33,7 @@ const presetStatuses: { status: StatusType; label: string }[] = [
   { status: 'offline', label: '离线' },
   { status: 'approved', label: '已通过' },
   { status: 'rejected', label: '已拒绝' },
-  { status: 'reviewing', label: '审核中' }
+  { status: 'reviewing', label: '审核中' },
 ]
 
 /**
@@ -48,7 +47,7 @@ const boolValue = ref(true)
 const customStatusMap = {
   draft: { text: '草稿', color: 'default' as const },
   published: { text: '已发布', color: 'success' as const },
-  archived: { text: '已归档', color: 'warning' as const }
+  archived: { text: '已归档', color: 'warning' as const },
 }
 
 /**
@@ -79,7 +78,9 @@ function cycleCustomStatus() {
     <!-- 页面标题 -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">TStatusBadge 组件演示</h1>
+        <h1 class="text-3xl font-bold tracking-tight">
+          TStatusBadge 组件演示
+        </h1>
         <p class="text-muted-foreground mt-2">
           基于 antdv-next 和 lucide-vue-next 封装的状态徽章组件
         </p>
@@ -93,11 +94,21 @@ function cycleCustomStatus() {
     <!-- 标签页 -->
     <Tabs default-value="basic" class="w-full">
       <TabsList class="grid w-full grid-cols-5 lg:w-[500px]">
-        <TabsTrigger value="basic">基础用法</TabsTrigger>
-        <TabsTrigger value="variant">变体样式</TabsTrigger>
-        <TabsTrigger value="size">尺寸设置</TabsTrigger>
-        <TabsTrigger value="custom">自定义</TabsTrigger>
-        <TabsTrigger value="advanced">高级功能</TabsTrigger>
+        <TabsTrigger value="basic">
+          基础用法
+        </TabsTrigger>
+        <TabsTrigger value="variant">
+          变体样式
+        </TabsTrigger>
+        <TabsTrigger value="size">
+          尺寸设置
+        </TabsTrigger>
+        <TabsTrigger value="custom">
+          自定义
+        </TabsTrigger>
+        <TabsTrigger value="advanced">
+          高级功能
+        </TabsTrigger>
       </TabsList>
 
       <!-- 基础用法 -->
@@ -185,7 +196,9 @@ function cycleCustomStatus() {
             <div class="space-y-6">
               <!-- Soft 变体 -->
               <div>
-                <h4 class="text-sm font-medium mb-3">Soft（柔和）- 默认</h4>
+                <h4 class="text-sm font-medium mb-3">
+                  Soft（柔和）- 默认
+                </h4>
                 <div class="flex flex-wrap gap-3">
                   <TStatusBadge status="success" variant="soft" />
                   <TStatusBadge status="error" variant="soft" />
@@ -197,7 +210,9 @@ function cycleCustomStatus() {
 
               <!-- Solid 变体 -->
               <div>
-                <h4 class="text-sm font-medium mb-3">Solid（实心）</h4>
+                <h4 class="text-sm font-medium mb-3">
+                  Solid（实心）
+                </h4>
                 <div class="flex flex-wrap gap-3">
                   <TStatusBadge status="success" variant="solid" />
                   <TStatusBadge status="error" variant="solid" />
@@ -209,7 +224,9 @@ function cycleCustomStatus() {
 
               <!-- Outline 变体 -->
               <div>
-                <h4 class="text-sm font-medium mb-3">Outline（描边）</h4>
+                <h4 class="text-sm font-medium mb-3">
+                  Outline（描边）
+                </h4>
                 <div class="flex flex-wrap gap-3">
                   <TStatusBadge status="success" variant="outline" />
                   <TStatusBadge status="error" variant="outline" />
@@ -221,7 +238,9 @@ function cycleCustomStatus() {
 
               <!-- Dot 变体 -->
               <div>
-                <h4 class="text-sm font-medium mb-3">Dot（圆点）</h4>
+                <h4 class="text-sm font-medium mb-3">
+                  Dot（圆点）
+                </h4>
                 <div class="flex flex-wrap gap-3">
                   <TStatusBadge status="success" variant="dot" />
                   <TStatusBadge status="error" variant="dot" />
@@ -275,7 +294,9 @@ function cycleCustomStatus() {
             <div class="space-y-6">
               <!-- Small -->
               <div>
-                <h4 class="text-sm font-medium mb-3">Small（小）</h4>
+                <h4 class="text-sm font-medium mb-3">
+                  Small（小）
+                </h4>
                 <div class="flex flex-wrap gap-3">
                   <TStatusBadge status="success" size="sm" />
                   <TStatusBadge status="error" size="sm" />
@@ -286,7 +307,9 @@ function cycleCustomStatus() {
 
               <!-- Default -->
               <div>
-                <h4 class="text-sm font-medium mb-3">Default（默认）</h4>
+                <h4 class="text-sm font-medium mb-3">
+                  Default（默认）
+                </h4>
                 <div class="flex flex-wrap gap-3">
                   <TStatusBadge status="success" size="default" />
                   <TStatusBadge status="error" size="default" />
@@ -297,7 +320,9 @@ function cycleCustomStatus() {
 
               <!-- Large -->
               <div>
-                <h4 class="text-sm font-medium mb-3">Large（大）</h4>
+                <h4 class="text-sm font-medium mb-3">
+                  Large（大）
+                </h4>
                 <div class="flex flex-wrap gap-3">
                   <TStatusBadge status="success" size="lg" />
                   <TStatusBadge status="error" size="lg" />
@@ -422,30 +447,62 @@ function cycleCustomStatus() {
               <table class="w-full text-sm">
                 <thead class="bg-muted">
                   <tr>
-                    <th class="text-left p-3 font-medium">用户</th>
-                    <th class="text-left p-3 font-medium">状态</th>
-                    <th class="text-left p-3 font-medium">审核</th>
-                    <th class="text-left p-3 font-medium">在线</th>
+                    <th class="text-left p-3 font-medium">
+                      用户
+                    </th>
+                    <th class="text-left p-3 font-medium">
+                      状态
+                    </th>
+                    <th class="text-left p-3 font-medium">
+                      审核
+                    </th>
+                    <th class="text-left p-3 font-medium">
+                      在线
+                    </th>
                   </tr>
                 </thead>
                 <tbody class="divide-y">
                   <tr>
-                    <td class="p-3">张三</td>
-                    <td class="p-3"><TStatusBadge status="active" size="sm" /></td>
-                    <td class="p-3"><TStatusBadge status="approved" size="sm" variant="outline" /></td>
-                    <td class="p-3"><TStatusBadge status="online" size="sm" variant="dot" /></td>
+                    <td class="p-3">
+                      张三
+                    </td>
+                    <td class="p-3">
+                      <TStatusBadge status="active" size="sm" />
+                    </td>
+                    <td class="p-3">
+                      <TStatusBadge status="approved" size="sm" variant="outline" />
+                    </td>
+                    <td class="p-3">
+                      <TStatusBadge status="online" size="sm" variant="dot" />
+                    </td>
                   </tr>
                   <tr>
-                    <td class="p-3">李四</td>
-                    <td class="p-3"><TStatusBadge status="inactive" size="sm" /></td>
-                    <td class="p-3"><TStatusBadge status="reviewing" size="sm" variant="outline" /></td>
-                    <td class="p-3"><TStatusBadge status="offline" size="sm" variant="dot" /></td>
+                    <td class="p-3">
+                      李四
+                    </td>
+                    <td class="p-3">
+                      <TStatusBadge status="inactive" size="sm" />
+                    </td>
+                    <td class="p-3">
+                      <TStatusBadge status="reviewing" size="sm" variant="outline" />
+                    </td>
+                    <td class="p-3">
+                      <TStatusBadge status="offline" size="sm" variant="dot" />
+                    </td>
                   </tr>
                   <tr>
-                    <td class="p-3">王五</td>
-                    <td class="p-3"><TStatusBadge status="active" size="sm" /></td>
-                    <td class="p-3"><TStatusBadge status="rejected" size="sm" variant="outline" /></td>
-                    <td class="p-3"><TStatusBadge status="busy" size="sm" variant="dot" /></td>
+                    <td class="p-3">
+                      王五
+                    </td>
+                    <td class="p-3">
+                      <TStatusBadge status="active" size="sm" />
+                    </td>
+                    <td class="p-3">
+                      <TStatusBadge status="rejected" size="sm" variant="outline" />
+                    </td>
+                    <td class="p-3">
+                      <TStatusBadge status="busy" size="sm" variant="dot" />
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -496,37 +553,49 @@ function cycleCustomStatus() {
           <CardContent>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">14+ 预设状态</h4>
+                <h4 class="font-medium mb-2">
+                  14+ 预设状态
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   内置 active、success、error、warning、processing 等常用状态
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">4 种变体</h4>
+                <h4 class="font-medium mb-2">
+                  4 种变体
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   soft、solid、outline、dot 适应不同场景
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">3 种尺寸</h4>
+                <h4 class="font-medium mb-2">
+                  3 种尺寸
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   sm、default、lg 适应不同布局
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">布尔值支持</h4>
+                <h4 class="font-medium mb-2">
+                  布尔值支持
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   支持 true/false 作为状态值
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">自定义映射</h4>
+                <h4 class="font-medium mb-2">
+                  自定义映射
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   通过 status-map 自定义状态映射
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">脉冲动画</h4>
+                <h4 class="font-medium mb-2">
+                  脉冲动画
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   processing 和 pending 状态带有脉冲动画
                 </p>

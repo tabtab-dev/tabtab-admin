@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useLocaleStore } from '@/stores/global/locale';
-import { Button } from '@/components/ui/button';
+import { Check, Globe, Loader2 } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { toast } from 'vue-sonner'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Globe, Check, Loader2 } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
+} from '@/components/ui/dropdown-menu'
+import { useLocaleStore } from '@/stores/global/locale'
 
 /**
  * 语言切换组件
@@ -19,56 +19,58 @@ import { toast } from 'vue-sonner';
 
 const props = withDefaults(defineProps<{
   /** 显示模式：dropdown-下拉菜单, toggle-切换按钮 */
-  mode?: 'dropdown' | 'toggle';
+  mode?: 'dropdown' | 'toggle'
   /** 按钮尺寸 */
-  size?: 'default' | 'sm' | 'lg' | 'icon';
+  size?: 'default' | 'sm' | 'lg' | 'icon'
   /** 按钮变体 */
-  variant?: 'default' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'default' | 'secondary' | 'outline' | 'ghost'
 }>(), {
   mode: 'dropdown',
   size: 'icon',
   variant: 'ghost',
-});
+})
 
-const localeStore = useLocaleStore();
+const localeStore = useLocaleStore()
 
 /**
  * 当前语言显示文本
  */
 const currentLocaleLabel = computed(() => {
-  return localeStore.currentLocaleName;
-});
+  return localeStore.currentLocaleName
+})
 
 /**
  * 是否正在加载
  */
-const isLoading = computed(() => localeStore.isLoading);
+const isLoading = computed(() => localeStore.isLoading)
 
 /**
  * 切换语言（toggle 模式）
  */
-const handleToggle = async () => {
+async function handleToggle() {
   if (props.mode === 'toggle' && !isLoading.value) {
-    const newLocale = await localeStore.toggleLocale();
+    const newLocale = await localeStore.toggleLocale()
     if (newLocale) {
-      toast.success(`已切换至 ${localeStore.currentLocaleName}`);
-    } else {
-      toast.error('切换语言失败');
+      toast.success(`已切换至 ${localeStore.currentLocaleName}`)
+    }
+    else {
+      toast.error('切换语言失败')
     }
   }
-};
+}
 
 /**
  * 选择语言（dropdown 模式）
  */
-const handleSelect = async (locale: string) => {
-  const success = await localeStore.changeLocale(locale as 'zh-CN' | 'en-US');
+async function handleSelect(locale: string) {
+  const success = await localeStore.changeLocale(locale as 'zh-CN' | 'en-US')
   if (success) {
-    toast.success(`已切换至 ${localeStore.currentLocaleName}`);
-  } else {
-    toast.error(localeStore.error || '切换语言失败');
+    toast.success(`已切换至 ${localeStore.currentLocaleName}`)
   }
-};
+  else {
+    toast.error(localeStore.error || '切换语言失败')
+  }
+}
 </script>
 
 <template>
@@ -90,9 +92,9 @@ const handleSelect = async (locale: string) => {
       <DropdownMenuItem
         v-for="locale in localeStore.availableLocales"
         :key="locale.value"
-        @click="handleSelect(locale.value)"
         class="cursor-pointer justify-between"
         :disabled="isLoading"
+        @click="handleSelect(locale.value)"
       >
         <span>{{ locale.label }}</span>
         <Check

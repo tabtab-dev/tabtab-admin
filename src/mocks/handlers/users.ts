@@ -1,11 +1,11 @@
+import Mock from 'mockjs'
 /**
  * 用户模块 MSW handlers
  * @description 用户增删改查等接口
  */
-import { http, HttpResponse, delay } from 'msw';
-import Mock from 'mockjs';
+import { delay, http, HttpResponse } from 'msw'
 
-const generateMockUsers = () => {
+function generateMockUsers() {
   const users = [
     {
       id: '1',
@@ -67,7 +67,7 @@ const generateMockUsers = () => {
       createdAt: '2024-03-01T00:00:00Z',
       updatedAt: '2024-03-01T00:00:00Z',
     },
-  ];
+  ]
 
   for (let i = 6; i <= 50; i++) {
     users.push({
@@ -81,70 +81,70 @@ const generateMockUsers = () => {
       address: Mock.mock('@county(true)'),
       createdAt: Mock.mock('@datetime("yyyy-MM-ddTHH:mm:ssZ")'),
       updatedAt: Mock.mock('@datetime("yyyy-MM-ddTHH:mm:ssZ")'),
-    });
+    })
   }
 
-  return users;
-};
+  return users
+}
 
-let usersData = generateMockUsers();
+let usersData = generateMockUsers()
 
 export const usersHandlers = [
   http.get('/mock-api/users', async ({ request }) => {
-    await delay(300);
-    const url = new URL(request.url);
-    const page = Number(url.searchParams.get('page')) || 1;
-    const pageSize = Number(url.searchParams.get('pageSize')) || 10;
-    const search = url.searchParams.get('search');
-    const role = url.searchParams.get('role');
-    const status = url.searchParams.get('status');
+    await delay(300)
+    const url = new URL(request.url)
+    const page = Number(url.searchParams.get('page')) || 1
+    const pageSize = Number(url.searchParams.get('pageSize')) || 10
+    const search = url.searchParams.get('search')
+    const role = url.searchParams.get('role')
+    const status = url.searchParams.get('status')
 
-    let filteredUsers = [...usersData];
+    let filteredUsers = [...usersData]
 
     if (search) {
-      const lowerSearch = search.toLowerCase();
+      const lowerSearch = search.toLowerCase()
       filteredUsers = filteredUsers.filter(
         u =>
-          u.name.toLowerCase().includes(lowerSearch) ||
-          u.email.toLowerCase().includes(lowerSearch)
-      );
+          u.name.toLowerCase().includes(lowerSearch)
+          || u.email.toLowerCase().includes(lowerSearch),
+      )
     }
 
     if (role) {
-      filteredUsers = filteredUsers.filter(u => u.role === role);
+      filteredUsers = filteredUsers.filter(u => u.role === role)
     }
 
     if (status) {
-      filteredUsers = filteredUsers.filter(u => u.status === status);
+      filteredUsers = filteredUsers.filter(u => u.status === status)
     }
 
-    const total = filteredUsers.length;
-    const totalPages = Math.ceil(total / pageSize);
-    const start = (page - 1) * pageSize;
-    const list = filteredUsers.slice(start, start + pageSize);
+    const total = filteredUsers.length
+    const totalPages = Math.ceil(total / pageSize)
+    const start = (page - 1) * pageSize
+    const list = filteredUsers.slice(start, start + pageSize)
 
     return HttpResponse.json({
       code: 200,
       data: { list, total, page, pageSize, totalPages },
       message: 'success',
-    });
+    })
   }),
 
   http.get('/mock-api/users/:id', async ({ params }) => {
-    await delay(200);
-    const user = usersData.find(u => u.id === params.id);
+    await delay(200)
+    const user = usersData.find(u => u.id === params.id)
     if (!user) {
-      return HttpResponse.json({ code: 404, data: null, message: '用户不存在' });
+      return HttpResponse.json({ code: 404, data: null, message: '用户不存在' })
     }
-    return HttpResponse.json({ code: 200, data: user, message: 'success' });
+    return HttpResponse.json({ code: 200, data: user, message: 'success' })
   }),
 
   http.post('/mock-api/users', async ({ request }) => {
-    await delay(300);
-    const body = (await request.json()) as Record<string, unknown>;
+    await delay(300)
+    const body = (await request.json()) as Record<string, unknown>
 
     if (!body.name || !body.email) {
-      return HttpResponse.json({ code: 400, data: null, message: '用户名和邮箱不能为空' });
+      return HttpResponse.json({ code: 400, data: null, message: '用户名和邮箱不能为空' })
     }
 
     const newUser = {
@@ -158,74 +158,74 @@ export const usersHandlers = [
       address: body.address as string,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    };
+    }
 
-    usersData.unshift(newUser);
-    return HttpResponse.json({ code: 201, data: newUser, message: 'success' });
+    usersData.unshift(newUser)
+    return HttpResponse.json({ code: 201, data: newUser, message: 'success' })
   }),
 
   http.put('/mock-api/users/:id', async ({ params, request }) => {
-    await delay(300);
-    const index = usersData.findIndex(u => u.id === params.id);
+    await delay(300)
+    const index = usersData.findIndex(u => u.id === params.id)
     if (index === -1) {
-      return HttpResponse.json({ code: 404, data: null, message: '用户不存在' });
+      return HttpResponse.json({ code: 404, data: null, message: '用户不存在' })
     }
 
-    const body = (await request.json()) as Record<string, unknown>;
+    const body = (await request.json()) as Record<string, unknown>
     usersData[index] = {
       ...usersData[index],
       ...body,
       updatedAt: new Date().toISOString(),
-    } as typeof usersData[0];
+    } as typeof usersData[0]
 
-    return HttpResponse.json({ code: 200, data: usersData[index], message: 'success' });
+    return HttpResponse.json({ code: 200, data: usersData[index], message: 'success' })
   }),
 
   http.delete('/mock-api/users/:id', async ({ params }) => {
-    await delay(200);
-    const index = usersData.findIndex(u => u.id === params.id);
+    await delay(200)
+    const index = usersData.findIndex(u => u.id === params.id)
     if (index === -1) {
-      return HttpResponse.json({ code: 404, data: null, message: '用户不存在' });
+      return HttpResponse.json({ code: 404, data: null, message: '用户不存在' })
     }
 
-    usersData.splice(index, 1);
-    return HttpResponse.json({ code: 200, data: null, message: 'success' });
+    usersData.splice(index, 1)
+    return HttpResponse.json({ code: 200, data: null, message: 'success' })
   }),
 
   http.post('/mock-api/users/batch-delete', async ({ request }) => {
-    await delay(300);
-    const body = (await request.json()) as { ids?: string[] };
-    const ids = body.ids || [];
+    await delay(300)
+    const body = (await request.json()) as { ids?: string[] }
+    const ids = body.ids || []
     if (!Array.isArray(ids) || ids.length === 0) {
-      return HttpResponse.json({ code: 400, data: null, message: '请选择要删除的用户' });
+      return HttpResponse.json({ code: 400, data: null, message: '请选择要删除的用户' })
     }
 
-    const initialLength = usersData.length;
-    usersData = usersData.filter(u => !ids.includes(u.id));
+    const initialLength = usersData.length
+    usersData = usersData.filter(u => !ids.includes(u.id))
 
     return HttpResponse.json({
       code: 200,
       data: { deletedCount: initialLength - usersData.length },
       message: 'success',
-    });
+    })
   }),
 
   http.patch('/mock-api/users/:id/status', async ({ params, request }) => {
-    await delay(200);
-    const body = (await request.json()) as { status?: string };
-    const { status } = body;
+    await delay(200)
+    const body = (await request.json()) as { status?: string }
+    const { status } = body
     if (!status || !['active', 'inactive'].includes(status)) {
-      return HttpResponse.json({ code: 400, data: null, message: '无效的状态值' });
+      return HttpResponse.json({ code: 400, data: null, message: '无效的状态值' })
     }
 
-    const index = usersData.findIndex(u => u.id === params.id);
+    const index = usersData.findIndex(u => u.id === params.id)
     if (index === -1) {
-      return HttpResponse.json({ code: 404, data: null, message: '用户不存在' });
+      return HttpResponse.json({ code: 404, data: null, message: '用户不存在' })
     }
 
-    usersData[index].status = status;
-    usersData[index].updatedAt = new Date().toISOString();
+    usersData[index].status = status
+    usersData[index].updatedAt = new Date().toISOString()
 
-    return HttpResponse.json({ code: 200, data: usersData[index], message: 'success' });
+    return HttpResponse.json({ code: 200, data: usersData[index], message: 'success' })
   }),
-];
+]

@@ -1,3 +1,4 @@
+import type { FieldWatch, FormField, FormMethods, NamePath } from '../types'
 /**
  * useFormWatch - 表单字段监听 Composable
  *
@@ -6,7 +7,6 @@
  *   const { allWatches, executeWatches } = useFormWatch(fields, formData, formMethods)
  */
 import { computed, nextTick } from 'vue'
-import type { FormField, FieldWatch, FormMethods, NamePath } from '../types'
 import { getFieldKey } from './useFieldState'
 
 /**
@@ -19,13 +19,13 @@ import { getFieldKey } from './useFieldState'
 export function useFormWatch(
   fields: FormField[],
   formData: Record<string, any>,
-  formMethods: FormMethods
+  formMethods: FormMethods,
 ) {
   /**
    * 收集所有字段的 watch 配置
    */
   const allWatches = computed(() => {
-    const watches: Array<{ fieldKey: string; watch: FieldWatch }> = []
+    const watches: Array<{ fieldKey: string, watch: FieldWatch }> = []
     fields.forEach((field) => {
       if (field.watch && field.watch.length > 0) {
         field.watch.forEach((w) => {
@@ -66,6 +66,6 @@ export function useFormWatch(
   return {
     allWatches,
     executeWatches,
-    getFieldWatches
+    getFieldWatches,
   }
 }

@@ -1,38 +1,39 @@
-import { defaultSidebarConfig, type SidebarConfig } from '@/components/layout/sidebar/config';
-import { useMenuUtils } from './useMenuUtils';
-import { STORAGE_KEYS } from '@/constants/common';
+import type { SidebarConfig } from '@/components/layout/sidebar/config'
+import { defaultSidebarConfig } from '@/components/layout/sidebar/config'
+import { STORAGE_KEYS } from '@/constants/common'
+import { useMenuUtils } from './useMenuUtils'
 
-const STORAGE_KEY = STORAGE_KEYS.SIDEBAR_STATE;
+const STORAGE_KEY = STORAGE_KEYS.SIDEBAR_STATE
 
 interface SidebarState {
-  collapsed: boolean;
-  size: number;
-  expandedKeys: string[];
+  collapsed: boolean
+  size: number
+  expandedKeys: string[]
 }
 
 export function useSidebar(config: SidebarConfig = defaultSidebarConfig) {
-  const route = useRoute();
-  const { width: windowWidth } = useWindowSize();
+  const route = useRoute()
+  const { width: windowWidth } = useWindowSize()
 
-  const pxToPercent = (px: number): number => (px / windowWidth.value) * 100;
-  const percentToPx = (percent: number): number => (percent / 100) * windowWidth.value;
+  const pxToPercent = (px: number): number => (px / windowWidth.value) * 100
+  const percentToPx = (percent: number): number => (percent / 100) * windowWidth.value
 
   // 状态
-  const collapsed = ref(false);
-  const size = ref(pxToPercent(config.defaultWidth));
-  const expandedKeys = ref<Set<string>>(new Set());
-  const isDragging = ref(false);
+  const collapsed = ref(false)
+  const size = ref(pxToPercent(config.defaultWidth))
+  const expandedKeys = ref<Set<string>>(new Set())
+  const isDragging = ref(false)
 
-  const menuUtils = useMenuUtils({ expandedKeys });
+  const menuUtils = useMenuUtils({ expandedKeys })
 
   // 计算属性
   const currentWidth = computed(() =>
-    collapsed.value ? config.collapsedWidth : percentToPx(size.value)
-  );
+    collapsed.value ? config.collapsedWidth : percentToPx(size.value),
+  )
 
   const currentSize = computed(() =>
-    collapsed.value ? pxToPercent(config.collapsedWidth) : size.value
-  );
+    collapsed.value ? pxToPercent(config.collapsedWidth) : size.value,
+  )
 
   // 自动保存状态
   watch(
@@ -43,89 +44,94 @@ export function useSidebar(config: SidebarConfig = defaultSidebarConfig) {
           collapsed: collapsed.value,
           size: size.value,
           expandedKeys: Array.from(expandedKeys.value),
-        };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch {
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+      }
+      catch {
         // 忽略存储错误
       }
     },
-    { deep: true }
-  );
+    { deep: true },
+  )
 
   // 操作方法
   const toggleCollapse = (): void => {
-    collapsed.value = !collapsed.value;
-  };
+    collapsed.value = !collapsed.value
+  }
 
   const expand = (): void => {
-    if (collapsed.value) collapsed.value = false;
-  };
+    if (collapsed.value)
+      collapsed.value = false
+  }
 
   const collapse = (): void => {
-    if (!collapsed.value) collapsed.value = true;
-  };
+    if (!collapsed.value)
+      collapsed.value = true
+  }
 
   const setSize = (newSize: number): void => {
-    const minSize = pxToPercent(config.minWidth);
-    const maxSize = pxToPercent(config.maxWidth);
-    size.value = Math.max(minSize, Math.min(maxSize, newSize));
-  };
+    const minSize = pxToPercent(config.minWidth)
+    const maxSize = pxToPercent(config.maxWidth)
+    size.value = Math.max(minSize, Math.min(maxSize, newSize))
+  }
 
   const finalizeDrag = (): void => {
-    isDragging.value = false;
-  };
+    isDragging.value = false
+  }
 
   const startDrag = (): void => {
-    isDragging.value = true;
-  };
+    isDragging.value = true
+  }
 
   const toggleSubMenu = (key: string): void => {
-    const newSet = new Set(expandedKeys.value);
+    const newSet = new Set(expandedKeys.value)
     if (newSet.has(key)) {
-      newSet.delete(key);
-    } else {
-      newSet.add(key);
+      newSet.delete(key)
     }
-    expandedKeys.value = newSet;
-  };
+    else {
+      newSet.add(key)
+    }
+    expandedKeys.value = newSet
+  }
 
   const expandSubMenu = (key: string): void => {
     if (!expandedKeys.value.has(key)) {
-      expandedKeys.value = new Set([...expandedKeys.value, key]);
+      expandedKeys.value = new Set([...expandedKeys.value, key])
     }
-  };
+  }
 
   const collapseSubMenu = (key: string): void => {
     if (expandedKeys.value.has(key)) {
-      const newSet = new Set(expandedKeys.value);
-      newSet.delete(key);
-      expandedKeys.value = newSet;
+      const newSet = new Set(expandedKeys.value)
+      newSet.delete(key)
+      expandedKeys.value = newSet
     }
-  };
+  }
 
   const expandToActive = (): void => {
-    const keys = menuUtils.getExpandedKeysByPath(config.menus);
-    expandedKeys.value = new Set([...expandedKeys.value, ...keys]);
-  };
+    const keys = menuUtils.getExpandedKeysByPath(config.menus)
+    expandedKeys.value = new Set([...expandedKeys.value, ...keys])
+  }
 
   // 恢复状态
   onMounted(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem(STORAGE_KEY)
       if (saved) {
-        const state: SidebarState = JSON.parse(saved);
-        collapsed.value = state.collapsed ?? false;
+        const state: SidebarState = JSON.parse(saved)
+        collapsed.value = state.collapsed ?? false
 
-        const minSize = pxToPercent(config.minWidth);
-        const maxSize = pxToPercent(config.maxWidth);
-        size.value = Math.max(minSize, Math.min(maxSize, state.size ?? pxToPercent(config.defaultWidth)));
+        const minSize = pxToPercent(config.minWidth)
+        const maxSize = pxToPercent(config.maxWidth)
+        size.value = Math.max(minSize, Math.min(maxSize, state.size ?? pxToPercent(config.defaultWidth)))
 
-        expandedKeys.value = new Set(state.expandedKeys ?? []);
+        expandedKeys.value = new Set(state.expandedKeys ?? [])
       }
-    } catch {
+    }
+    catch {
       // 使用默认值
     }
-  });
+  })
 
   return {
     collapsed,
@@ -147,5 +153,5 @@ export function useSidebar(config: SidebarConfig = defaultSidebarConfig) {
     expandSubMenu,
     collapseSubMenu,
     expandToActive,
-  };
+  }
 }

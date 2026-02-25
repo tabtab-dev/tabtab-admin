@@ -8,14 +8,14 @@ export const commonTableConfig = {
     pageSize: 10,
     show: true,
     showSizeChanger: true,
-    showQuickJumper: true
+    showQuickJumper: true,
   } as const,
   rowSelection: {
     type: 'checkbox' as const,
-    show: true
+    show: true,
   } as const,
   actionWidth: 150,
-  actionFixed: 'right' as const
+  actionFixed: 'right' as const,
 } as const
 
 /**
@@ -27,11 +27,11 @@ export function createTableSchema(config: Partial<TableSchema>): TableSchema {
     ...config,
     pagination: {
       ...commonTableConfig.pagination,
-      ...config.pagination
+      ...config.pagination,
     },
     rowSelection: {
       ...commonTableConfig.rowSelection,
-      ...config.rowSelection
-    }
+      ...config.rowSelection,
+    },
   }
 }

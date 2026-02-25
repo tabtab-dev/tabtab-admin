@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import Header from '@/components/layout/Header.vue';
-import TabBar from './TabBar.vue';
-import AppSidebar from '@/components/layout/sidebar/AppSidebar.vue';
-import PageContainer from '@/components/layout/PageContainer.vue';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useThemeStore } from '@/stores/global/theme';
-import { isFullscreen } from '@/composables/useFullscreen';
+import Header from '@/components/layout/Header.vue'
+import PageContainer from '@/components/layout/PageContainer.vue'
+import AppSidebar from '@/components/layout/sidebar/AppSidebar.vue'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { isFullscreen } from '@/composables/useFullscreen'
+import { useThemeStore } from '@/stores/global/theme'
+import TabBar from './TabBar.vue'
 
 /**
  * 主题 store
  */
-const themeStore = useThemeStore();
+const themeStore = useThemeStore()
 
 /**
  * 侧栏折叠状态 - 使用 computed 实现双向绑定
@@ -18,34 +18,34 @@ const themeStore = useThemeStore();
  */
 const sidebarCollapsed = computed({
   get: () => themeStore.layoutConfig.sidebarCollapsed,
-  set: (value) => themeStore.updateLayoutConfig({ sidebarCollapsed: value })
-});
+  set: value => themeStore.updateLayoutConfig({ sidebarCollapsed: value }),
+})
 
 /**
  * 刷新 key - 用于触发局部刷新
  */
-const refreshKey = ref(0);
+const refreshKey = ref(0)
 
 /**
  * 处理标签栏刷新事件 - 局部刷新
  */
-const handleTabRefresh = (event: CustomEvent<{ path: string }>) => {
-  const { path } = event.detail;
+function handleTabRefresh(event: CustomEvent<{ path: string }>) {
+  const { path } = event.detail
   // 如果刷新的是当前页面，增加 refreshKey 触发组件重新渲染
   if (path === window.location.pathname) {
-    refreshKey.value++;
+    refreshKey.value++
   }
-};
+}
 
 onMounted(() => {
   // 监听标签栏刷新事件
-  window.addEventListener('tab-refresh', handleTabRefresh as EventListener);
-});
+  window.addEventListener('tab-refresh', handleTabRefresh as EventListener)
+})
 
 onUnmounted(() => {
   // 移除事件监听
-  window.removeEventListener('tab-refresh', handleTabRefresh as EventListener);
-});
+  window.removeEventListener('tab-refresh', handleTabRefresh as EventListener)
+})
 </script>
 
 <template>

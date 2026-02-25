@@ -2,7 +2,7 @@
  * 菜单模块 MSW handlers
  * @description 菜单和路由配置相关接口
  */
-import { http, HttpResponse, delay } from 'msw';
+import { delay, http, HttpResponse } from 'msw'
 
 const routeData = [
   {
@@ -518,12 +518,12 @@ const routeData = [
       i18nKey: 'menu.settings',
     },
   },
-];
+]
 
 function generateMenusFromRoutes(routes: any[]) {
   return routes
     .filter(route => !route.meta.hideInMenu)
-    .map(route => {
+    .map((route) => {
       const menu: any = {
         path: route.path,
         title: route.meta.title,
@@ -532,33 +532,33 @@ function generateMenusFromRoutes(routes: any[]) {
         order: route.meta.order,
         i18nKey: route.meta.i18nKey,
         badge: route.meta.badge,
-      };
-
-      if (route.children && route.children.length > 0) {
-        menu.children = generateMenusFromRoutes(route.children);
       }
 
-      return menu;
+      if (route.children && route.children.length > 0) {
+        menu.children = generateMenusFromRoutes(route.children)
+      }
+
+      return menu
     })
-    .sort((a, b) => (a.order || 0) - (b.order || 0));
+    .sort((a, b) => (a.order || 0) - (b.order || 0))
 }
 
 export const menuHandlers = [
   http.get('/mock-api/menu/list', async () => {
-    await delay(200);
+    await delay(200)
     return HttpResponse.json({
       code: 200,
       data: routeData,
       message: 'success',
-    });
+    })
   }),
 
   http.get('/mock-api/menu/routes', async () => {
-    await delay(200);
+    await delay(200)
     return HttpResponse.json({
       code: 200,
       data: generateMenusFromRoutes(routeData),
       message: 'success',
-    });
+    })
   }),
-];
+]

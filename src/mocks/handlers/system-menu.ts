@@ -2,9 +2,9 @@
  * 系统菜单模块 MSW handlers
  * @description 系统菜单管理相关接口
  */
-import { http, HttpResponse, delay } from 'msw';
+import { delay, http, HttpResponse } from 'msw'
 
-let systemMenuData = [
+const systemMenuData = [
   {
     id: '1',
     name: 'dashboard',
@@ -141,45 +141,45 @@ let systemMenuData = [
     type: 'directory',
     createdAt: '2024-01-01',
   },
-];
+]
 
 export const systemMenuHandlers = [
   http.get('/mock-api/menus', async ({ request }) => {
-    await delay(300);
-    const url = new URL(request.url);
-    const search = url.searchParams.get('search');
+    await delay(300)
+    const url = new URL(request.url)
+    const search = url.searchParams.get('search')
 
-    let filteredData = [...systemMenuData];
+    let filteredData = [...systemMenuData]
 
     if (search) {
-      const lowerSearch = search.toLowerCase();
+      const lowerSearch = search.toLowerCase()
       filteredData = filteredData.filter(
         m =>
-          m.name.toLowerCase().includes(lowerSearch) ||
-          m.title.toLowerCase().includes(lowerSearch) ||
-          m.path.toLowerCase().includes(lowerSearch)
-      );
+          m.name.toLowerCase().includes(lowerSearch)
+          || m.title.toLowerCase().includes(lowerSearch)
+          || m.path.toLowerCase().includes(lowerSearch),
+      )
     }
 
     return HttpResponse.json({
       code: 200,
       data: { list: filteredData, total: filteredData.length, page: 1, pageSize: 100 },
       message: 'success',
-    });
+    })
   }),
 
   http.get('/mock-api/menus/:id', async ({ params }) => {
-    await delay(200);
-    const menu = systemMenuData.find(m => m.id === params.id);
+    await delay(200)
+    const menu = systemMenuData.find(m => m.id === params.id)
     if (!menu) {
-      return HttpResponse.json({ code: 404, data: null, message: '菜单不存在' });
+      return HttpResponse.json({ code: 404, data: null, message: '菜单不存在' })
     }
-    return HttpResponse.json({ code: 200, data: menu, message: 'success' });
+    return HttpResponse.json({ code: 200, data: menu, message: 'success' })
   }),
 
   http.post('/mock-api/menus', async ({ request }) => {
-    await delay(300);
-    const body = (await request.json()) as Record<string, unknown>;
+    await delay(300)
+    const body = (await request.json()) as Record<string, unknown>
     const newMenu = {
       id: String(Date.now()),
       name: body.name as string,
@@ -196,49 +196,49 @@ export const systemMenuHandlers = [
       permission: (body.permission as string) || '',
       type: (body.type as string) || 'menu',
       createdAt: new Date().toISOString().split('T')[0],
-    };
+    }
 
-    systemMenuData.push(newMenu);
-    return HttpResponse.json({ code: 200, data: newMenu, message: 'success' });
+    systemMenuData.push(newMenu)
+    return HttpResponse.json({ code: 200, data: newMenu, message: 'success' })
   }),
 
   http.put('/mock-api/menus/:id', async ({ params, request }) => {
-    await delay(300);
-    const index = systemMenuData.findIndex(m => m.id === params.id);
+    await delay(300)
+    const index = systemMenuData.findIndex(m => m.id === params.id)
     if (index === -1) {
-      return HttpResponse.json({ code: 404, data: null, message: '菜单不存在' });
+      return HttpResponse.json({ code: 404, data: null, message: '菜单不存在' })
     }
 
-    const body = (await request.json()) as Record<string, unknown>;
-    systemMenuData[index] = { ...systemMenuData[index], ...body } as typeof systemMenuData[0];
-    return HttpResponse.json({ code: 200, data: systemMenuData[index], message: 'success' });
+    const body = (await request.json()) as Record<string, unknown>
+    systemMenuData[index] = { ...systemMenuData[index], ...body } as typeof systemMenuData[0]
+    return HttpResponse.json({ code: 200, data: systemMenuData[index], message: 'success' })
   }),
 
   http.delete('/mock-api/menus/:id', async ({ params }) => {
-    await delay(200);
-    const index = systemMenuData.findIndex(m => m.id === params.id);
+    await delay(200)
+    const index = systemMenuData.findIndex(m => m.id === params.id)
     if (index === -1) {
-      return HttpResponse.json({ code: 404, data: null, message: '菜单不存在' });
+      return HttpResponse.json({ code: 404, data: null, message: '菜单不存在' })
     }
 
-    const hasChildren = systemMenuData.some(m => m.parentId === params.id);
+    const hasChildren = systemMenuData.some(m => m.parentId === params.id)
     if (hasChildren) {
-      return HttpResponse.json({ code: 400, data: null, message: '该菜单下存在子菜单，无法删除' });
+      return HttpResponse.json({ code: 400, data: null, message: '该菜单下存在子菜单，无法删除' })
     }
 
-    systemMenuData.splice(index, 1);
-    return HttpResponse.json({ code: 200, data: null, message: 'success' });
+    systemMenuData.splice(index, 1)
+    return HttpResponse.json({ code: 200, data: null, message: 'success' })
   }),
 
   http.patch('/mock-api/menus/:id/status', async ({ params, request }) => {
-    await delay(200);
-    const index = systemMenuData.findIndex(m => m.id === params.id);
+    await delay(200)
+    const index = systemMenuData.findIndex(m => m.id === params.id)
     if (index === -1) {
-      return HttpResponse.json({ code: 404, data: null, message: '菜单不存在' });
+      return HttpResponse.json({ code: 404, data: null, message: '菜单不存在' })
     }
 
-    const body = (await request.json()) as { status?: string };
-    systemMenuData[index].status = body.status || 'active';
-    return HttpResponse.json({ code: 200, data: systemMenuData[index], message: 'success' });
+    const body = (await request.json()) as { status?: string }
+    systemMenuData[index].status = body.status || 'active'
+    return HttpResponse.json({ code: 200, data: systemMenuData[index], message: 'success' })
   }),
-];
+]

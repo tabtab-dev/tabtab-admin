@@ -6,11 +6,11 @@
 export { default as TDataCard } from './TDataCard.vue'
 export { getColorConfig, getSizeConfig } from './theme'
 export type {
-  TrendDirection,
   CardColor,
   CardSize,
-  TrendConfig,
-  TDataCardProps,
   TDataCardEmits,
-  TDataCardExpose
+  TDataCardExpose,
+  TDataCardProps,
+  TrendConfig,
+  TrendDirection,
 } from './types'

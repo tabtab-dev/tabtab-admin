@@ -1,16 +1,16 @@
-import { defineStore, acceptHMRUpdate } from 'pinia';
+import { acceptHMRUpdate, defineStore } from 'pinia'
 
 export interface Notification {
   /** 唯一标识 */
-  id: string;
+  id: string
   /** 消息内容 */
-  message: string;
+  message: string
   /** 通知类型 */
-  type: 'success' | 'error' | 'warning' | 'info';
+  type: 'success' | 'error' | 'warning' | 'info'
   /** 是否可关闭 */
-  dismissible?: boolean;
+  dismissible?: boolean
   /** 自动关闭时间（毫秒），0 表示不自动关闭 */
-  duration?: number;
+  duration?: number
 }
 
 /**
@@ -19,25 +19,25 @@ export interface Notification {
  */
 export const useAppStore = defineStore('app', () => {
   /** 移动端侧边栏显示状态 */
-  const mobileSidebarOpen = ref(false);
-  
+  const mobileSidebarOpen = ref(false)
+
   /** 全局通知列表 */
-  const notifications = ref<Notification[]>([]);
+  const notifications = ref<Notification[]>([])
 
   /**
    * 切换移动端侧边栏
    */
   const toggleMobileSidebar = () => {
-    mobileSidebarOpen.value = !mobileSidebarOpen.value;
-  };
+    mobileSidebarOpen.value = !mobileSidebarOpen.value
+  }
 
   /**
    * 设置移动端侧边栏状态
    * @param open 是否打开
    */
   const setMobileSidebar = (open: boolean) => {
-    mobileSidebarOpen.value = open;
-  };
+    mobileSidebarOpen.value = open
+  }
 
   /**
    * 添加通知
@@ -46,47 +46,47 @@ export const useAppStore = defineStore('app', () => {
    * @param options 额外选项
    */
   const addNotification = (
-    message: string, 
+    message: string,
     type: Notification['type'] = 'info',
-    options: { dismissible?: boolean; duration?: number } = {}
+    options: { dismissible?: boolean, duration?: number } = {},
   ) => {
-    const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const { dismissible = true, duration = 3000 } = options;
-    
-    notifications.value.push({ 
-      id, 
-      message, 
-      type, 
+    const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    const { dismissible = true, duration = 3000 } = options
+
+    notifications.value.push({
+      id,
+      message,
+      type,
       dismissible,
-      duration 
-    });
-    
+      duration,
+    })
+
     if (duration > 0) {
       setTimeout(() => {
-        removeNotification(id);
-      }, duration);
+        removeNotification(id)
+      }, duration)
     }
-    
-    return id;
-  };
+
+    return id
+  }
 
   /**
    * 移除通知
    * @param id 通知ID
    */
   const removeNotification = (id: string) => {
-    const index = notifications.value.findIndex(n => n.id === id);
+    const index = notifications.value.findIndex(n => n.id === id)
     if (index > -1) {
-      notifications.value.splice(index, 1);
+      notifications.value.splice(index, 1)
     }
-  };
+  }
 
   /**
    * 清空所有通知
    */
   const clearNotifications = () => {
-    notifications.value = [];
-  };
+    notifications.value = []
+  }
 
   return {
     // 状态
@@ -99,9 +99,9 @@ export const useAppStore = defineStore('app', () => {
     addNotification,
     removeNotification,
     clearNotifications,
-  };
-});
+  }
+})
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useAppStore, import.meta.hot));
+  import.meta.hot.accept(acceptHMRUpdate(useAppStore, import.meta.hot))
 }

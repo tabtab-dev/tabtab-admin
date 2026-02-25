@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { DataCardResponsiveConfig, TDataCardEmits, TDataCardExpose, TDataCardProps } from './types'
+import * as icons from 'lucide-vue-next'
+import { Minus, TrendingDown, TrendingUp } from 'lucide-vue-next'
 /**
  * TDataCard - 统计卡片组件
  *
@@ -19,18 +22,15 @@
  *   />
  */
 import { computed } from 'vue'
-import { cn } from '@/lib/utils'
-import * as icons from 'lucide-vue-next'
-import { TrendingUp, TrendingDown, Minus } from 'lucide-vue-next'
-import { getColorConfig, getSizeConfig } from './theme'
 import { useResponsive } from '@/composables/useResponsive'
-import type { TDataCardProps, TDataCardEmits, TDataCardExpose, DataCardResponsiveConfig } from './types'
+import { cn } from '@/lib/utils'
+import { getColorConfig, getSizeConfig } from './theme'
 
 /**
  * 组件选项
  */
 defineOptions({
-  name: 'TDataCard'
+  name: 'TDataCard',
 })
 
 /**
@@ -41,7 +41,7 @@ const props = withDefaults(defineProps<TDataCardProps>(), {
   size: 'default',
   loading: false,
   bordered: true,
-  clickable: false
+  clickable: false,
 })
 
 /**
@@ -60,12 +60,14 @@ const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== fa
 const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
 
 const isMobileView = computed(() => {
-  if (!isResponsiveEnabled.value) return false
+  if (!isResponsiveEnabled.value)
+    return false
   return smallerThan(mobileBreakpoint.value)
 })
 
 const responsiveSize = computed(() => {
-  if (!isMobileView.value) return props.size
+  if (!isMobileView.value)
+    return props.size
   return responsiveConfig.value.mobileSize || 'sm'
 })
 
@@ -97,7 +99,8 @@ const sizeCfg = computed(() => getSizeConfig(responsiveSize.value))
  * 图标组件
  */
 const IconComponent = computed(() => {
-  if (props.icon) return props.icon
+  if (props.icon)
+    return props.icon
   if (props.iconName) {
     return (icons as Record<string, unknown>)[props.iconName] as typeof TrendingUp | null
   }
@@ -108,7 +111,8 @@ const IconComponent = computed(() => {
  * 趋势图标
  */
 const TrendIcon = computed(() => {
-  if (!props.trend) return null
+  if (!props.trend)
+    return null
   const direction = props.trend.direction || 'neutral'
   switch (direction) {
     case 'up':
@@ -124,7 +128,8 @@ const TrendIcon = computed(() => {
  * 趋势颜色
  */
 const trendColorClass = computed(() => {
-  if (!props.trend) return ''
+  if (!props.trend)
+    return ''
   const direction = props.trend.direction || 'neutral'
   switch (direction) {
     case 'up':
@@ -140,7 +145,8 @@ const trendColorClass = computed(() => {
  * 趋势背景色
  */
 const trendBgClass = computed(() => {
-  if (!props.trend) return ''
+  if (!props.trend)
+    return ''
   const direction = props.trend.direction || 'neutral'
   switch (direction) {
     case 'up':
@@ -172,7 +178,7 @@ function getValue() {
  * 暴露方法
  */
 defineExpose<TDataCardExpose>({
-  getValue
+  getValue,
 })
 </script>
 
@@ -189,7 +195,7 @@ defineExpose<TDataCardExpose>({
       clickable && 'cursor-pointer hover:-translate-y-0.5',
       // 尺寸
       sizeCfg.padding,
-      props.className
+      props.className,
     )"
     @click="handleClick"
   >
@@ -229,7 +235,7 @@ defineExpose<TDataCardExpose>({
             :class="cn(
               'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs font-medium',
               trendBgClass,
-              trendColorClass
+              trendColorClass,
             )"
           >
             <component :is="TrendIcon" class="w-3 h-3" />
@@ -247,7 +253,7 @@ defineExpose<TDataCardExpose>({
         :class="cn(
           'flex items-center justify-center rounded-lg shrink-0',
           colorCfg.iconBg,
-          sizeCfg.iconSize
+          sizeCfg.iconSize,
         )"
       >
         <component

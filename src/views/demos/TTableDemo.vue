@@ -1,16 +1,16 @@
 <script setup lang="ts">
+import type { TableSchema, TTableExpose } from '@/components/business/TTable'
+import { Avatar, Space, Switch, Tag } from 'antdv-next'
 /**
  * TTableDemo - TTable 组件演示页面
  *
  * @description 展示 TTable 表格组件的各种使用场景和配置方式
  */
 import { TTable } from '@/components/business/TTable'
-import type { TableSchema, TTableExpose } from '@/components/business/TTable'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Tag, Space, Avatar, Switch } from 'antdv-next'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 /**
  * 表格引用
@@ -23,7 +23,7 @@ const basicData = ref([
   { id: 2, name: '李四', age: 30, email: 'lisi@example.com', status: 'inactive' },
   { id: 3, name: '王五', age: 28, email: 'wangwu@example.com', status: 'active' },
   { id: 4, name: '赵六', age: 35, email: 'zhaoliu@example.com', status: 'active' },
-  { id: 5, name: '钱七', age: 22, email: 'qianqi@example.com', status: 'inactive' }
+  { id: 5, name: '钱七', age: 22, email: 'qianqi@example.com', status: 'inactive' },
 ])
 
 const basicSchema: TableSchema = {
@@ -31,9 +31,9 @@ const basicSchema: TableSchema = {
     { title: 'ID', dataIndex: 'id', width: 80, align: 'center' },
     { title: '姓名', dataIndex: 'name', width: 120 },
     { title: '年龄', dataIndex: 'age', width: 100, sorter: true },
-    { title: '邮箱', dataIndex: 'email', ellipsis: true }
+    { title: '邮箱', dataIndex: 'email', ellipsis: true },
   ],
-  pagination: { pageSize: 5, show: true }
+  pagination: { pageSize: 5, show: true },
 }
 
 // ==================== 高级示例数据 ====================
@@ -42,53 +42,53 @@ const advancedData = ref([
   { id: 2, name: '李四', role: 'editor', department: '产品部', status: 'active', tags: ['产品', '设计'], createTime: '2024-02-20' },
   { id: 3, name: '王五', role: 'viewer', department: '运营部', status: 'inactive', tags: ['运营'], createTime: '2024-03-10' },
   { id: 4, name: '赵六', role: 'admin', department: '技术部', status: 'active', tags: ['后端', 'Java'], createTime: '2024-01-25' },
-  { id: 5, name: '钱七', role: 'editor', department: '设计部', status: 'active', tags: ['UI', 'UX'], createTime: '2024-04-05' }
+  { id: 5, name: '钱七', role: 'editor', department: '设计部', status: 'active', tags: ['UI', 'UX'], createTime: '2024-04-05' },
 ])
 
 const advancedSchema: TableSchema = {
   columns: [
-    { 
-      title: '用户', 
-      dataIndex: 'name', 
+    {
+      title: '用户',
+      dataIndex: 'name',
       width: 150,
-      slot: 'user'
+      slot: 'user',
     },
-    { 
-      title: '角色', 
-      dataIndex: 'role', 
+    {
+      title: '角色',
+      dataIndex: 'role',
       width: 120,
       filters: [
         { text: '管理员', value: 'admin' },
         { text: '编辑', value: 'editor' },
-        { text: '查看者', value: 'viewer' }
-      ]
+        { text: '查看者', value: 'viewer' },
+      ],
     },
-    { 
-      title: '部门', 
-      dataIndex: 'department', 
-      width: 120 
+    {
+      title: '部门',
+      dataIndex: 'department',
+      width: 120,
     },
-    { 
-      title: '状态', 
-      dataIndex: 'status', 
+    {
+      title: '状态',
+      dataIndex: 'status',
       width: 100,
       slot: 'status',
       filters: [
         { text: '启用', value: 'active' },
-        { text: '禁用', value: 'inactive' }
-      ]
+        { text: '禁用', value: 'inactive' },
+      ],
     },
-    { 
-      title: '标签', 
-      dataIndex: 'tags', 
-      slot: 'tags'
+    {
+      title: '标签',
+      dataIndex: 'tags',
+      slot: 'tags',
     },
-    { 
-      title: '创建时间', 
-      dataIndex: 'createTime', 
+    {
+      title: '创建时间',
+      dataIndex: 'createTime',
       width: 120,
-      sorter: true
-    }
+      sorter: true,
+    },
   ],
   pagination: { pageSize: 5, show: true },
   rowSelection: { type: 'checkbox' },
@@ -96,17 +96,17 @@ const advancedSchema: TableSchema = {
     {
       text: '编辑',
       type: 'primary',
-      onClick: (record) => alert(`编辑用户: ${record.name}`)
+      onClick: record => alert(`编辑用户: ${record.name}`),
     },
     {
       text: '删除',
       type: 'danger',
       confirm: true,
       confirmText: '确定要删除该用户吗？',
-      onClick: (record) => alert(`删除用户: ${record.name}`)
-    }
+      onClick: record => alert(`删除用户: ${record.name}`),
+    },
   ],
-  actionWidth: 180,        // 操作列宽
+  actionWidth: 180, // 操作列宽
 }
 
 // ==================== 选择行示例数据 ====================
@@ -115,7 +115,7 @@ const selectionData = ref([
   { id: 2, name: '产品 B', price: 299, stock: 50, category: '电子产品' },
   { id: 3, name: '产品 C', price: 99, stock: 200, category: '配件' },
   { id: 4, name: '产品 D', price: 599, stock: 30, category: '电子产品' },
-  { id: 5, name: '产品 E', price: 149, stock: 150, category: '配件' }
+  { id: 5, name: '产品 E', price: 149, stock: 150, category: '配件' },
 ])
 
 const selectionSchema: TableSchema = {
@@ -123,10 +123,10 @@ const selectionSchema: TableSchema = {
     { title: '产品名称', dataIndex: 'name', width: 150 },
     { title: '价格', dataIndex: 'price', width: 100, sorter: true },
     { title: '库存', dataIndex: 'stock', width: 100, sorter: true },
-    { title: '分类', dataIndex: 'category', width: 120 }
+    { title: '分类', dataIndex: 'category', width: 120 },
   ],
   pagination: false,
-  rowSelection: { type: 'checkbox' }
+  rowSelection: { type: 'checkbox' },
 }
 
 const selectedRowKeys = ref<(string | number)[]>([])
@@ -147,38 +147,38 @@ function handleBatchDelete() {
 
 // ==================== 展开行示例数据 ====================
 const expandData = ref([
-  { 
-    id: 1, 
-    orderNo: 'ORD-2024-001', 
-    customer: '张三', 
-    amount: 2999, 
+  {
+    id: 1,
+    orderNo: 'ORD-2024-001',
+    customer: '张三',
+    amount: 2999,
     status: 'completed',
     items: [
       { name: '笔记本电脑', price: 5999, quantity: 1 },
-      { name: '鼠标', price: 99, quantity: 2 }
-    ]
+      { name: '鼠标', price: 99, quantity: 2 },
+    ],
   },
-  { 
-    id: 2, 
-    orderNo: 'ORD-2024-002', 
-    customer: '李四', 
-    amount: 199, 
+  {
+    id: 2,
+    orderNo: 'ORD-2024-002',
+    customer: '李四',
+    amount: 199,
     status: 'pending',
     items: [
-      { name: '键盘', price: 199, quantity: 1 }
-    ]
+      { name: '键盘', price: 199, quantity: 1 },
+    ],
   },
-  { 
-    id: 3, 
-    orderNo: 'ORD-2024-003', 
-    customer: '王五', 
-    amount: 899, 
+  {
+    id: 3,
+    orderNo: 'ORD-2024-003',
+    customer: '王五',
+    amount: 899,
     status: 'completed',
     items: [
       { name: '显示器', price: 899, quantity: 1 },
-      { name: 'HDMI线', price: 49, quantity: 1 }
-    ]
-  }
+      { name: 'HDMI线', price: 49, quantity: 1 },
+    ],
+  },
 ])
 
 const expandSchema: TableSchema = {
@@ -186,12 +186,12 @@ const expandSchema: TableSchema = {
     { title: '订单号', dataIndex: 'orderNo', width: 150 },
     { title: '客户', dataIndex: 'customer', width: 120 },
     { title: '金额', dataIndex: 'amount', width: 100 },
-    { title: '状态', dataIndex: 'status', width: 100, slot: 'orderStatus' }
+    { title: '状态', dataIndex: 'status', width: 100, slot: 'orderStatus' },
   ],
   pagination: false,
   expandable: {
-    expandedRowSlot: 'expandedRow'
-  }
+    expandedRowSlot: 'expandedRow',
+  },
 }
 
 // ==================== 固定列示例数据 ====================
@@ -203,7 +203,7 @@ const fixedData = ref(Array.from({ length: 20 }, (_, i) => ({
   phone: `138${String(Math.floor(Math.random() * 100000000)).padStart(8, '0')}`,
   address: `北京市朝阳区某某街道 ${i + 1} 号`,
   department: ['技术部', '产品部', '运营部', '设计部'][i % 4],
-  status: i % 3 === 0 ? 'inactive' : 'active'
+  status: i % 3 === 0 ? 'inactive' : 'active',
 })))
 
 const fixedSchema: TableSchema = {
@@ -214,7 +214,7 @@ const fixedSchema: TableSchema = {
     { title: '邮箱', dataIndex: 'email', width: 200, ellipsis: true },
     { title: '电话', dataIndex: 'phone', width: 150 },
     { title: '地址', dataIndex: 'address', width: 250, ellipsis: true },
-    { title: '部门', dataIndex: 'department', width: 120 }
+    { title: '部门', dataIndex: 'department', width: 120 },
   ],
   pagination: { pageSize: 10, show: true },
   scroll: { x: 1200 },
@@ -223,22 +223,22 @@ const fixedSchema: TableSchema = {
     {
       text: '查看',
       type: 'primary',
-      onClick: (record) => alert(`查看用户: ${record.name}`)
+      onClick: record => alert(`查看用户: ${record.name}`),
     },
     {
       text: '编辑',
       type: 'default',
-      onClick: (record) => alert(`编辑用户: ${record.name}`)
-    }
+      onClick: record => alert(`编辑用户: ${record.name}`),
+    },
   ],
-  actionFixed: 'right'
+  actionFixed: 'right',
 }
 
 // ==================== 事件处理 ====================
 function handleChange(
-  pagination: { current: number; pageSize: number; total: number },
+  pagination: { current: number, pageSize: number, total: number },
   filters: Record<string, (string | number | boolean)[] | null>,
-  sorter: any
+  sorter: any,
 ) {
   console.log('表格变化:', { pagination, filters, sorter })
 }
@@ -272,8 +272,8 @@ const treeData = ref([
         budget: 150000,
         children: [
           { id: 111, name: 'Web 前端', manager: '王五', count: 8, budget: 80000 },
-          { id: 112, name: '移动端', manager: '赵六', count: 7, budget: 70000 }
-        ]
+          { id: 112, name: '移动端', manager: '赵六', count: 7, budget: 70000 },
+        ],
       },
       {
         id: 12,
@@ -283,11 +283,11 @@ const treeData = ref([
         budget: 200000,
         children: [
           { id: 121, name: 'Java 组', manager: '周八', count: 12, budget: 120000 },
-          { id: 122, name: 'Go 组', manager: '吴九', count: 8, budget: 80000 }
-        ]
+          { id: 122, name: 'Go 组', manager: '吴九', count: 8, budget: 80000 },
+        ],
       },
-      { id: 13, name: '测试组', manager: '郑十', count: 10, budget: 100000 }
-    ]
+      { id: 13, name: '测试组', manager: '郑十', count: 10, budget: 100000 },
+    ],
   },
   {
     id: 2,
@@ -297,10 +297,10 @@ const treeData = ref([
     budget: 120000,
     children: [
       { id: 21, name: '产品设计', manager: '冯十二', count: 6, budget: 60000 },
-      { id: 22, name: '用户研究', manager: '陈十三', count: 6, budget: 60000 }
-    ]
+      { id: 22, name: '用户研究', manager: '陈十三', count: 6, budget: 60000 },
+    ],
   },
-  { id: 3, name: '运营部', manager: '褚十四', count: 20, budget: 200000 }
+  { id: 3, name: '运营部', manager: '褚十四', count: 20, budget: 200000 },
 ])
 
 const checkStrictly = ref(false)
@@ -310,19 +310,19 @@ const treeSchema = computed<TableSchema>(() => ({
     { title: '部门名称', dataIndex: 'name', width: 200 },
     { title: '负责人', dataIndex: 'manager', width: 120 },
     { title: '人数', dataIndex: 'count', width: 100, align: 'center' },
-    { 
-      title: '预算', 
-      dataIndex: 'budget', 
+    {
+      title: '预算',
+      dataIndex: 'budget',
       width: 150,
-      customRender: ({ text }) => `¥${text?.toLocaleString()}`
-    }
+      customRender: ({ text }) => `¥${text?.toLocaleString()}`,
+    },
   ],
   pagination: false,
-  rowSelection: { 
+  rowSelection: {
     type: 'checkbox',
-    checkStrictly: checkStrictly.value
+    checkStrictly: checkStrictly.value,
   },
-  indentSize: 20
+  indentSize: 20,
 }))
 
 const treeSelectedKeys = ref<(string | number)[]>([])
@@ -338,7 +338,9 @@ function handleTreeSelectChange(keys: (string | number)[], rows: any[]) {
   <div class="space-y-6 p-6">
     <!-- 页面标题 -->
     <div>
-      <h1 class="text-3xl font-bold">TTable 组件演示</h1>
+      <h1 class="text-3xl font-bold">
+        TTable 组件演示
+      </h1>
       <p class="text-muted-foreground mt-1">
         基于 antdv-next 的 JSON 配置化表格组件
       </p>
@@ -347,12 +349,24 @@ function handleTreeSelectChange(keys: (string | number)[], rows: any[]) {
     <!-- 标签页切换不同示例 -->
     <Tabs default-value="basic" class="w-full">
       <TabsList class="grid w-full grid-cols-6">
-        <TabsTrigger value="basic">基础用法</TabsTrigger>
-        <TabsTrigger value="advanced">高级功能</TabsTrigger>
-        <TabsTrigger value="selection">行选择</TabsTrigger>
-        <TabsTrigger value="expand">展开行</TabsTrigger>
-        <TabsTrigger value="fixed">固定列</TabsTrigger>
-        <TabsTrigger value="tree">树形表格</TabsTrigger>
+        <TabsTrigger value="basic">
+          基础用法
+        </TabsTrigger>
+        <TabsTrigger value="advanced">
+          高级功能
+        </TabsTrigger>
+        <TabsTrigger value="selection">
+          行选择
+        </TabsTrigger>
+        <TabsTrigger value="expand">
+          展开行
+        </TabsTrigger>
+        <TabsTrigger value="fixed">
+          固定列
+        </TabsTrigger>
+        <TabsTrigger value="tree">
+          树形表格
+        </TabsTrigger>
       </TabsList>
 
       <!-- 基础用法 -->
@@ -411,7 +425,9 @@ function handleTreeSelectChange(keys: (string | number)[], rows: any[]) {
               <!-- 自定义标签列 -->
               <template #tags="slotProps">
                 <Space>
-                  <Tag v-for="tag in (slotProps as any).text" :key="tag" color="blue">{{ tag }}</Tag>
+                  <Tag v-for="tag in (slotProps as any).text" :key="tag" color="blue">
+                    {{ tag }}
+                  </Tag>
                 </Space>
               </template>
             </TTable>
@@ -431,16 +447,16 @@ function handleTreeSelectChange(keys: (string | number)[], rows: any[]) {
           <CardContent>
             <!-- 批量操作按钮 -->
             <div class="mb-4 flex items-center gap-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 :disabled="selectedRowKeys.length === 0"
                 @click="handleBatchDelete"
               >
                 批量删除 ({{ selectedRowKeys.length }})
               </Button>
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="sm"
                 @click="clearSelection"
               >
@@ -457,7 +473,9 @@ function handleTreeSelectChange(keys: (string | number)[], rows: any[]) {
 
             <!-- 选中数据展示 -->
             <div class="mt-4 p-4 bg-muted rounded-lg">
-              <h4 class="text-sm font-medium mb-2">已选中的数据：</h4>
+              <h4 class="text-sm font-medium mb-2">
+                已选中的数据：
+              </h4>
               <pre class="text-xs text-muted-foreground">{{ JSON.stringify(selectedRowKeys, null, 2) }}</pre>
             </div>
           </CardContent>
@@ -489,22 +507,40 @@ function handleTreeSelectChange(keys: (string | number)[], rows: any[]) {
               <!-- 展开行内容 -->
               <template #expandedRow="{ record }">
                 <div class="p-4 bg-muted/50">
-                  <h4 class="font-medium mb-2">订单明细</h4>
+                  <h4 class="font-medium mb-2">
+                    订单明细
+                  </h4>
                   <table class="w-full text-sm">
                     <thead>
                       <tr class="border-b">
-                        <th class="text-left py-2">商品名称</th>
-                        <th class="text-right py-2">单价</th>
-                        <th class="text-right py-2">数量</th>
-                        <th class="text-right py-2">小计</th>
+                        <th class="text-left py-2">
+                          商品名称
+                        </th>
+                        <th class="text-right py-2">
+                          单价
+                        </th>
+                        <th class="text-right py-2">
+                          数量
+                        </th>
+                        <th class="text-right py-2">
+                          小计
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr v-for="item in record.items" :key="item.name" class="border-b">
-                        <td class="py-2">{{ item.name }}</td>
-                        <td class="text-right py-2">¥{{ item.price }}</td>
-                        <td class="text-right py-2">{{ item.quantity }}</td>
-                        <td class="text-right py-2">¥{{ item.price * item.quantity }}</td>
+                        <td class="py-2">
+                          {{ item.name }}
+                        </td>
+                        <td class="text-right py-2">
+                          ¥{{ item.price }}
+                        </td>
+                        <td class="text-right py-2">
+                          {{ item.quantity }}
+                        </td>
+                        <td class="text-right py-2">
+                          ¥{{ item.price * item.quantity }}
+                        </td>
                       </tr>
                     </tbody>
                   </table>
@@ -563,7 +599,9 @@ function handleTreeSelectChange(keys: (string | number)[], rows: any[]) {
 
             <!-- 选中数据展示 -->
             <div class="mt-4 p-4 bg-muted rounded-lg">
-              <h4 class="text-sm font-medium mb-2">已选中的部门（{{ treeSelectedKeys.length }} 个）:</h4>
+              <h4 class="text-sm font-medium mb-2">
+                已选中的部门（{{ treeSelectedKeys.length }} 个）:
+              </h4>
               <div class="flex flex-wrap gap-2">
                 <Badge v-for="key in treeSelectedKeys" :key="key" variant="secondary">
                   ID: {{ key }}
@@ -583,43 +621,57 @@ function handleTreeSelectChange(keys: (string | number)[], rows: any[]) {
       <CardContent>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">JSON 配置驱动</h4>
+            <h4 class="font-medium mb-2">
+              JSON 配置驱动
+            </h4>
             <p class="text-sm text-muted-foreground">
               通过 Schema 配置表格结构，无需编写大量模板代码
             </p>
           </div>
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">丰富的列配置</h4>
+            <h4 class="font-medium mb-2">
+              丰富的列配置
+            </h4>
             <p class="text-sm text-muted-foreground">
               支持排序、筛选、固定列、自定义渲染等功能
             </p>
           </div>
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">行选择</h4>
+            <h4 class="font-medium mb-2">
+              行选择
+            </h4>
             <p class="text-sm text-muted-foreground">
               支持单选/多选，提供完整的选中状态管理
             </p>
           </div>
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">操作列</h4>
+            <h4 class="font-medium mb-2">
+              操作列
+            </h4>
             <p class="text-sm text-muted-foreground">
               内置操作按钮配置，支持确认对话框
             </p>
           </div>
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">展开行</h4>
+            <h4 class="font-medium mb-2">
+              展开行
+            </h4>
             <p class="text-sm text-muted-foreground">
               支持展开行显示详细信息，支持自定义渲染
             </p>
           </div>
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">树形数据</h4>
+            <h4 class="font-medium mb-2">
+              树形数据
+            </h4>
             <p class="text-sm text-muted-foreground">
               支持树形层级数据展示，支持父子节点选择联动
             </p>
           </div>
           <div class="p-4 border rounded-lg">
-            <h4 class="font-medium mb-2">主题对齐</h4>
+            <h4 class="font-medium mb-2">
+              主题对齐
+            </h4>
             <p class="text-sm text-muted-foreground">
               样式与 shadcn-vue 主题保持一致
             </p>

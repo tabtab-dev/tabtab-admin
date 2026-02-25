@@ -16,17 +16,17 @@ export type BadgeVariant = 'solid' | 'soft' | 'outline' | 'dot'
 /**
  * 状态类型
  */
-export type StatusType =
-  | 'success'
-  | 'warning'
-  | 'error'
-  | 'info'
-  | 'default'
-  | 'processing'
-  | 'pending'
-  | 'active'
-  | 'inactive'
-  | 'disabled'
+export type StatusType
+  = | 'success'
+    | 'warning'
+    | 'error'
+    | 'info'
+    | 'default'
+    | 'processing'
+    | 'pending'
+    | 'active'
+    | 'inactive'
+    | 'disabled'
 
 /**
  * 状态配置
@@ -71,7 +71,7 @@ export interface TStatusBadgeProps {
 /**
  * TStatusBadge Emits
  */
-export type TStatusBadgeEmits = {
+export interface TStatusBadgeEmits {
   /** 点击事件 */
   click: [status: string | number | boolean]
 }

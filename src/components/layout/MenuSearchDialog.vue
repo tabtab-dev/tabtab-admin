@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { useMenuStore } from '@/stores/global/menu';
-import { getIcon } from '@/composables/useIcon';
-import { FileText } from 'lucide-vue-next';
+import { FileText } from 'lucide-vue-next'
+import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
+import { getIcon } from '@/composables/useIcon'
+import { useMenuStore } from '@/stores/global/menu'
 
-const router = useRouter();
-const { t } = useI18n();
-const menuStore = useMenuStore();
+const router = useRouter()
+const { t } = useI18n()
+const menuStore = useMenuStore()
 
-const open = defineModel<boolean>('open', { default: false });
+const open = defineModel<boolean>('open', { default: false })
 
-const filteredMenus = computed(() => 
-  menuStore.flatMenus.filter(menu => !menu.hidden)
-);
+const filteredMenus = computed(() =>
+  menuStore.flatMenus.filter(menu => !menu.hidden),
+)
 
-const handleSelect = (path: string) => {
-  router.push(path);
-  open.value = false;
-};
+function handleSelect(path: string) {
+  router.push(path)
+  open.value = false
+}
 </script>
 
 <template>
@@ -28,7 +28,9 @@ const handleSelect = (path: string) => {
       <CommandEmpty>
         <div class="flex flex-col items-center justify-center py-8 text-center">
           <FileText class="h-10 w-10 text-muted-foreground/50 mb-3" />
-          <p class="text-sm text-muted-foreground">未找到相关菜单</p>
+          <p class="text-sm text-muted-foreground">
+            未找到相关菜单
+          </p>
         </div>
       </CommandEmpty>
 

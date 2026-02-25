@@ -1,19 +1,17 @@
 <script setup lang="ts">
+import type { TIconExpose } from '@/components/business/TIcon'
+import * as icons from 'lucide-vue-next'
 /**
  * TIconDemo - TIcon 图标选择器组件演示页面
  *
  * @description 展示 TIcon 图标选择器组件的各种使用场景和配置方式
  */
-import { ref, computed } from 'vue'
-import { TIcon } from '@/components/business/TIcon'
-import type { TIconExpose } from '@/components/business/TIcon'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ref } from 'vue'
+import { ICON_CATEGORIES, TIcon } from '@/components/business/TIcon'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { ICON_CATEGORIES } from '@/components/business/TIcon'
-import * as icons from 'lucide-vue-next'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 /**
  * 基础用法示例
@@ -119,7 +117,7 @@ function getCurrentValue() {
  */
 const codeExamples = {
   basic: `<TIcon v-model="icon" placeholder="请选择图标" />`,
-  
+
   size: `<!-- 小尺寸 -->
 <TIcon v-model="smIcon" size="sm" />
 
@@ -172,7 +170,7 @@ iconRef.value?.open()
 iconRef.value?.clear()
 
 // 获取当前值
-const value = iconRef.value?.getValue()`
+const value = iconRef.value?.getValue()`,
 }
 </script>
 
@@ -181,25 +179,43 @@ const value = iconRef.value?.getValue()`
     <!-- 页面标题 -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">TIcon 图标选择器</h1>
+        <h1 class="text-3xl font-bold tracking-tight">
+          TIcon 图标选择器
+        </h1>
         <p class="text-muted-foreground mt-1">
           基于 lucide-vue-next 的图标选择器组件，支持图标浏览、搜索和选择
         </p>
       </div>
       <div class="flex gap-2">
-        <Badge variant="secondary">Vue 3</Badge>
-        <Badge variant="secondary">TypeScript</Badge>
-        <Badge variant="secondary">Lucide</Badge>
+        <Badge variant="secondary">
+          Vue 3
+        </Badge>
+        <Badge variant="secondary">
+          TypeScript
+        </Badge>
+        <Badge variant="secondary">
+          Lucide
+        </Badge>
       </div>
     </div>
 
     <Tabs default-value="basic" class="w-full">
       <TabsList class="grid w-full grid-cols-5 lg:w-[600px]">
-        <TabsTrigger value="basic">基础用法</TabsTrigger>
-        <TabsTrigger value="config">配置选项</TabsTrigger>
-        <TabsTrigger value="filter">分类筛选</TabsTrigger>
-        <TabsTrigger value="methods">方法调用</TabsTrigger>
-        <TabsTrigger value="code">代码示例</TabsTrigger>
+        <TabsTrigger value="basic">
+          基础用法
+        </TabsTrigger>
+        <TabsTrigger value="config">
+          配置选项
+        </TabsTrigger>
+        <TabsTrigger value="filter">
+          分类筛选
+        </TabsTrigger>
+        <TabsTrigger value="methods">
+          方法调用
+        </TabsTrigger>
+        <TabsTrigger value="code">
+          代码示例
+        </TabsTrigger>
       </TabsList>
 
       <!-- 基础用法 -->
@@ -215,24 +231,28 @@ const value = iconRef.value?.getValue()`
             <div class="grid gap-4 max-w-md">
               <div class="space-y-2">
                 <label class="text-sm font-medium">选择图标</label>
-                <TIcon 
-                  v-model="basicIcon" 
+                <TIcon
+                  v-model="basicIcon"
                   placeholder="请选择图标"
                   @change="(name) => handleIconChange(name, '基础')"
                   @clear="() => handleClear('基础')"
                 />
               </div>
-              
+
               <div class="p-4 bg-muted rounded-lg">
-                <p class="text-sm text-muted-foreground mb-2">当前选中:</p>
+                <p class="text-sm text-muted-foreground mb-2">
+                  当前选中:
+                </p>
                 <div v-if="basicIcon" class="flex items-center gap-2">
-                  <component 
-                    :is="getIconComponent(basicIcon)" 
+                  <component
+                    :is="getIconComponent(basicIcon)"
                     class="h-6 w-6 text-primary"
                   />
                   <span class="font-medium">{{ basicIcon }}</span>
                 </div>
-                <p v-else class="text-sm text-muted-foreground">未选择图标</p>
+                <p v-else class="text-sm text-muted-foreground">
+                  未选择图标
+                </p>
               </div>
             </div>
           </CardContent>
@@ -251,12 +271,12 @@ const value = iconRef.value?.getValue()`
                 <label class="text-sm font-medium">小尺寸 (sm)</label>
                 <TIcon v-model="smIcon" size="sm" />
               </div>
-              
+
               <div class="space-y-2">
                 <label class="text-sm font-medium">默认尺寸 (default)</label>
                 <TIcon v-model="defaultIcon" size="default" />
               </div>
-              
+
               <div class="space-y-2">
                 <label class="text-sm font-medium">大尺寸 (lg)</label>
                 <TIcon v-model="lgIcon" size="lg" />
@@ -308,13 +328,13 @@ const value = iconRef.value?.getValue()`
               <div class="grid grid-cols-3 gap-4">
                 <div class="space-y-2">
                   <label class="text-sm font-medium">列数</label>
-                  <input 
-                    v-model.number="customColumns" 
-                    type="number" 
-                    min="4" 
+                  <input
+                    v-model.number="customColumns"
+                    type="number"
+                    min="4"
                     max="12"
                     class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
-                  />
+                  >
                 </div>
                 <div class="space-y-2">
                   <label class="text-sm font-medium">宽度</label>
@@ -324,7 +344,7 @@ const value = iconRef.value?.getValue()`
                     min="400"
                     max="1000"
                     class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
-                  />
+                  >
                 </div>
                 <div class="space-y-2">
                   <label class="text-sm font-medium">高度</label>
@@ -334,11 +354,11 @@ const value = iconRef.value?.getValue()`
                     min="300"
                     max="700"
                     class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
-                  />
+                  >
                 </div>
               </div>
-              
-              <TIcon 
+
+              <TIcon
                 v-model="customIcon"
                 :columns="customColumns"
                 :popup-width="customWidth"
@@ -361,25 +381,25 @@ const value = iconRef.value?.getValue()`
           <CardContent class="space-y-4">
             <div class="max-w-md space-y-4">
               <div class="flex flex-wrap gap-2">
-                <Badge 
-                  v-for="cat in ICON_CATEGORIES" 
+                <Badge
+                  v-for="cat in ICON_CATEGORIES"
                   :key="cat.key"
                   :variant="selectedCategories.includes(cat.key) ? 'default' : 'outline'"
                   class="cursor-pointer"
-                  @click="selectedCategories = selectedCategories.includes(cat.key) 
+                  @click="selectedCategories = selectedCategories.includes(cat.key)
                     ? selectedCategories.filter(c => c !== cat.key)
                     : [...selectedCategories, cat.key]"
                 >
                   {{ cat.name }}
                 </Badge>
               </div>
-              
-              <TIcon 
+
+              <TIcon
                 v-model="filteredIcon"
                 :categories="selectedCategories"
                 placeholder="只显示选中的分类"
               />
-              
+
               <p class="text-sm text-muted-foreground">
                 当前显示分类: {{ selectedCategories.map(getCategoryName).join('、') || '全部' }}
               </p>
@@ -397,25 +417,25 @@ const value = iconRef.value?.getValue()`
           <CardContent class="space-y-4">
             <div class="max-w-md space-y-4">
               <div class="flex flex-wrap gap-2">
-                <Badge 
-                  v-for="cat in ICON_CATEGORIES" 
+                <Badge
+                  v-for="cat in ICON_CATEGORIES"
                   :key="cat.key"
                   :variant="excludedCategories.includes(cat.key) ? 'destructive' : 'outline'"
                   class="cursor-pointer"
-                  @click="excludedCategories = excludedCategories.includes(cat.key) 
+                  @click="excludedCategories = excludedCategories.includes(cat.key)
                     ? excludedCategories.filter(c => c !== cat.key)
                     : [...excludedCategories, cat.key]"
                 >
                   {{ cat.name }}
                 </Badge>
               </div>
-              
-              <TIcon 
+
+              <TIcon
                 v-model="excludedIcon"
                 :exclude-categories="excludedCategories"
                 placeholder="排除选中的分类"
               />
-              
+
               <p class="text-sm text-muted-foreground">
                 已排除分类: {{ excludedCategories.map(getCategoryName).join('、') || '无' }}
               </p>
@@ -432,12 +452,14 @@ const value = iconRef.value?.getValue()`
           </CardHeader>
           <CardContent>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              <div 
-                v-for="category in ICON_CATEGORIES" 
+              <div
+                v-for="category in ICON_CATEGORIES"
                 :key="category.key"
                 class="p-3 border rounded-lg"
               >
-                <h4 class="font-medium text-sm">{{ category.name }}</h4>
+                <h4 class="font-medium text-sm">
+                  {{ category.name }}
+                </h4>
                 <p class="text-xs text-muted-foreground mt-1">
                   {{ category.icons.length }} 个图标
                 </p>
@@ -459,7 +481,7 @@ const value = iconRef.value?.getValue()`
           <CardContent class="space-y-4">
             <div class="grid gap-4 max-w-md">
               <TIcon ref="iconRef" v-model="basicIcon" />
-              
+
               <div class="flex gap-2">
                 <Button variant="outline" @click="openPicker">
                   打开选择器
@@ -484,7 +506,7 @@ const value = iconRef.value?.getValue()`
           </CardHeader>
           <CardContent>
             <div class="max-w-md space-y-4">
-              <TIcon 
+              <TIcon
                 v-model="basicIcon"
                 @change="(name) => handleIconChange(name, '事件')"
                 @clear="() => handleClear('事件')"
@@ -524,7 +546,7 @@ const value = iconRef.value?.getValue()`
           <CardContent>
             <pre class="bg-muted p-4 rounded-lg overflow-x-auto text-sm"><code>{{ codeExamples.disabled }}
 
-{{ codeExamples.noClear }}</code></pre>
+            {{ codeExamples.noClear }}</code></pre>
           </CardContent>
         </Card>
 
@@ -535,7 +557,7 @@ const value = iconRef.value?.getValue()`
           <CardContent>
             <pre class="bg-muted p-4 rounded-lg overflow-x-auto text-sm"><code>{{ codeExamples.filter }}
 
-{{ codeExamples.exclude }}</code></pre>
+            {{ codeExamples.exclude }}</code></pre>
           </CardContent>
         </Card>
 

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { ModalResponsiveConfig, TModalEmits, TModalExpose, TModalProps } from './types'
+import { ConfigProvider, Modal } from 'antdv-next'
 /**
  * TModal - 基于 antdv-next 的对话框组件
  *
@@ -45,13 +47,11 @@
  *     <TTable :schema="tableSchema" :data="userData" />
  *   </TModal>
  */
-import { computed, ref, watch, unref } from 'vue'
+import { computed, ref, unref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ConfigProvider, Modal } from 'antdv-next'
-import { cn } from '@/lib/utils'
-import { getAntdvLocale } from '@/i18n/locales'
 import { useResponsive } from '@/composables/useResponsive'
-import type { TModalProps, TModalEmits, TModalExpose, TFormExpose, ModalResponsiveConfig } from './types'
+import { getAntdvLocale } from '@/i18n/locales'
+import { cn } from '@/lib/utils'
 
 /**
  * 导入主题配置
@@ -67,15 +67,48 @@ import './TModal.css'
  * 组件选项
  */
 defineOptions({
-  name: 'TModal'
+  name: 'TModal',
 })
+
+/**
+ * Props 定义
+ */
+const props = withDefaults(defineProps<TModalProps>(), {
+  open: false,
+  width: 520,
+  centered: false,
+  mask: true,
+  maskClosable: true,
+  keyboard: true,
+  destroyOnHidden: false,
+  okText: undefined,
+  cancelText: undefined,
+  okType: 'primary',
+  closable: true,
+  confirmLoading: false,
+  zIndex: 1000,
+  focusTriggerAfterClose: true,
+  loading: false,
+  forceRender: false,
+  closeOnSubmitSuccess: false,
+  formRef: undefined,
+  footer: undefined,
+})
+
+/**
+ * Emits 定义
+ */
+const emit = defineEmits<TModalEmits & {
+  /** 表单提交成功（当提供 formRef 时触发） */
+  submit: [values: Record<string, any>]
+}>()
 
 /**
  * i18n
  */
 const { locale } = useI18n()
 
-const { smallerThan, isMobile } = useResponsive()
+const { smallerThan } = useResponsive()
 
 const responsiveConfig = computed<ModalResponsiveConfig>(() => {
   return props.responsive || { enabled: true }
@@ -86,12 +119,14 @@ const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== fa
 const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
 
 const isMobileView = computed(() => {
-  if (!isResponsiveEnabled.value) return false
+  if (!isResponsiveEnabled.value)
+    return false
   return smallerThan(mobileBreakpoint.value)
 })
 
 const responsiveWidth = computed(() => {
-  if (!isMobileView.value) return props.width
+  if (!isMobileView.value)
+    return props.width
 
   if (responsiveConfig.value.fullScreenOnMobile) {
     return '100%'
@@ -138,39 +173,6 @@ async function loadAntdvLocale() {
 watch(locale, loadAntdvLocale, { immediate: true })
 
 /**
- * Props 定义
- */
-const props = withDefaults(defineProps<TModalProps>(), {
-  open: false,
-  width: 520,
-  centered: false,
-  mask: true,
-  maskClosable: true,
-  keyboard: true,
-  destroyOnHidden: false,
-  okText: undefined,
-  cancelText: undefined,
-  okType: 'primary',
-  closable: true,
-  confirmLoading: false,
-  zIndex: 1000,
-  focusTriggerAfterClose: true,
-  loading: false,
-  forceRender: false,
-  closeOnSubmitSuccess: false,
-  formRef: undefined,
-  footer: undefined
-})
-
-/**
- * Emits 定义
- */
-const emit = defineEmits<TModalEmits & {
-  /** 表单提交成功（当提供 formRef 时触发） */
-  submit: [values: Record<string, any>]
-}>()
-
-/**
  * 内部状态
  */
 const internalOpen = ref(props.open)
@@ -184,7 +186,7 @@ watch(
   (newVal) => {
     internalOpen.value = newVal
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 /**
@@ -195,7 +197,7 @@ watch(
   (newVal) => {
     internalConfirmLoading.value = newVal
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 /**
@@ -235,13 +237,15 @@ async function handleOk(e: MouseEvent): Promise<void> {
       if (props.closeOnSubmitSuccess) {
         close()
       }
-    } catch (error) {
+    }
+    catch (error) {
       // 表单验证失败，不触发 ok 事件，保持弹窗打开
-      console.log('表单验证失败:', error)
-    } finally {
+    }
+    finally {
       internalConfirmLoading.value = false
     }
-  } else {
+  }
+  else {
     emit('ok', e)
   }
 }
@@ -319,7 +323,7 @@ defineExpose<TModalExpose>({
   open,
   close,
   setConfirmLoading,
-  isOpen
+  isOpen,
 })
 </script>
 

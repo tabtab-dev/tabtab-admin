@@ -1,10 +1,10 @@
+import type { Component, MaybeRefOrGetter } from 'vue'
+import * as icons from 'lucide-vue-next'
 /**
  * 图标工具函数
  * @description 提供图标获取功能，使用 lucide-vue-next
  */
-import { computed, type Ref, type MaybeRefOrGetter, toValue } from 'vue';
-import * as icons from 'lucide-vue-next';
-import type { Component } from 'vue';
+import { computed, toValue } from 'vue'
 
 /**
  * 将各种命名格式转换为 PascalCase
@@ -12,7 +12,7 @@ import type { Component } from 'vue';
 function toPascalCase(name: string): string {
   return name
     .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
-    .replace(/^[a-z]/, (first) => first.toUpperCase());
+    .replace(/^[a-z]/, first => first.toUpperCase())
 }
 
 /**
@@ -21,9 +21,10 @@ function toPascalCase(name: string): string {
  * @returns 图标组件或 undefined
  */
 export function getIcon(iconName?: string): Component | undefined {
-  if (!iconName) return undefined;
-  const pascalName = toPascalCase(iconName);
-  return (icons as Record<string, Component>)[pascalName];
+  if (!iconName)
+    return undefined
+  const pascalName = toPascalCase(iconName)
+  return (icons as Record<string, Component>)[pascalName]
 }
 
 /**
@@ -32,5 +33,5 @@ export function getIcon(iconName?: string): Component | undefined {
  * @returns 图标组件的计算属性
  */
 export function useIcon(iconName: MaybeRefOrGetter<string | undefined>) {
-  return computed(() => getIcon(toValue(iconName)));
+  return computed(() => getIcon(toValue(iconName)))
 }

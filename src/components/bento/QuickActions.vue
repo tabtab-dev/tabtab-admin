@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import type { QuickAction } from '@/types/bento';
+import type { QuickAction } from '@/types/bento'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 /**
  * QuickActions Props 接口
@@ -9,13 +9,13 @@ import type { QuickAction } from '@/types/bento';
  * @property actions - 快捷操作列表
  */
 interface QuickActionsProps {
-  title?: string;
-  actions: QuickAction[];
+  title?: string
+  actions: QuickAction[]
 }
 
 withDefaults(defineProps<QuickActionsProps>(), {
-  title: '快捷操作'
-});
+  title: '快捷操作',
+})
 
 /**
  * 操作按钮样式配置
@@ -24,46 +24,45 @@ const actionStyles = {
   primary: {
     bg: 'bg-primary hover:bg-primary/90',
     text: 'text-primary-foreground',
-    shadow: ''
+    shadow: '',
   },
   default: {
     bg: 'bg-muted hover:bg-muted/80',
     text: 'text-muted-foreground hover:text-foreground',
-    shadow: ''
+    shadow: '',
   },
   danger: {
     bg: 'bg-red-500 hover:bg-red-600',
     text: 'text-white',
-    shadow: ''
-  }
-};
+    shadow: '',
+  },
+}
 </script>
 
 <template>
   <Card class="border border-border/40">
     <CardHeader class="pb-3">
-      <CardTitle class="text-base font-semibold">{{ title }}</CardTitle>
+      <CardTitle class="text-base font-semibold">
+        {{ title }}
+      </CardTitle>
     </CardHeader>
     <CardContent class="pt-0">
       <div class="grid grid-cols-2 gap-3">
         <Button
           v-for="(action, index) in actions"
           :key="action.id"
-          @click="action.onClick"
-          :class="[
-            'h-auto py-4 px-3 flex flex-col items-center gap-2 rounded-xl transition-all duration-200 border-0',
+          class="h-auto py-4 px-3 flex flex-col items-center gap-2 rounded-xl transition-all duration-200 border-0 hover:-translate-y-0.5" :class="[
             actionStyles[action.variant || 'default'].bg,
             actionStyles[action.variant || 'default'].text,
             actionStyles[action.variant || 'default'].shadow,
-            'hover:-translate-y-0.5'
           ]"
           :style="{ animationDelay: `${index * 50}ms` }"
+          @click="action.onClick"
         >
-          <div 
-            v-if="action.icon" 
-            :class="[
-              'p-2 rounded-lg',
-              action.variant === 'primary' ? 'bg-white/20' : 'bg-background/50'
+          <div
+            v-if="action.icon"
+            class="p-2 rounded-lg" :class="[
+              action.variant === 'primary' ? 'bg-white/20' : 'bg-background/50',
             ]"
           >
             <component :is="action.icon" class="h-5 w-5" />

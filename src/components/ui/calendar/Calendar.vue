@@ -1,38 +1,38 @@
 <script lang="ts" setup>
-import type { CalendarRootEmits, CalendarRootProps, DateValue } from "reka-ui"
-import type { HTMLAttributes, Ref } from "vue"
-import type { LayoutTypes } from "."
-import { getLocalTimeZone, today } from "@internationalized/date"
-import { createReusableTemplate, reactiveOmit, useVModel } from "@vueuse/core"
-import { CalendarRoot, useDateFormatter, useForwardPropsEmits } from "reka-ui"
-import { createYear, createYearRange, toDate } from "reka-ui/date"
-import { computed, toRaw } from "vue"
-import { cn } from "@/lib/utils"
+import type { CalendarRootEmits, CalendarRootProps, DateValue } from 'reka-ui'
+import type { HTMLAttributes, Ref } from 'vue'
+import type { LayoutTypes } from '.'
+import { getLocalTimeZone, today } from '@internationalized/date'
+import { createReusableTemplate, reactiveOmit, useVModel } from '@vueuse/core'
+import { CalendarRoot, useDateFormatter, useForwardPropsEmits } from 'reka-ui'
+import { createYear, createYearRange, toDate } from 'reka-ui/date'
+import { computed, toRaw } from 'vue'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
-import { CalendarCell, CalendarCellTrigger, CalendarGrid, CalendarGridBody, CalendarGridHead, CalendarGridRow, CalendarHeadCell, CalendarHeader, CalendarHeading, CalendarNextButton, CalendarPrevButton } from "."
+import { cn } from '@/lib/utils'
+import { CalendarCell, CalendarCellTrigger, CalendarGrid, CalendarGridBody, CalendarGridHead, CalendarGridRow, CalendarHeadCell, CalendarHeader, CalendarHeading, CalendarNextButton, CalendarPrevButton } from '.'
 
-const props = withDefaults(defineProps<CalendarRootProps & { class?: HTMLAttributes["class"], layout?: LayoutTypes, yearRange?: DateValue[] }>(), {
+const props = withDefaults(defineProps<CalendarRootProps & { class?: HTMLAttributes['class'], layout?: LayoutTypes, yearRange?: DateValue[] }>(), {
   modelValue: undefined,
   layout: undefined,
 })
 const emits = defineEmits<CalendarRootEmits>()
 
-const delegatedProps = reactiveOmit(props, "class", "layout", "placeholder")
+const delegatedProps = reactiveOmit(props, 'class', 'layout', 'placeholder')
 
-const placeholder = useVModel(props, "placeholder", emits, {
+const placeholder = useVModel(props, 'placeholder', emits, {
   passive: true,
   defaultValue: props.defaultPlaceholder ?? today(getLocalTimeZone()),
 }) as Ref<DateValue>
 
-const formatter = useDateFormatter(props.locale ?? "en")
+const formatter = useDateFormatter(props.locale ?? 'en')
 
 const yearRange = computed(() => {
   return props.yearRange ?? createYearRange({
     start: props?.minValue ?? (toRaw(props.placeholder) ?? props.defaultPlaceholder ?? today(getLocalTimeZone()))
-      .cycle("year", -100),
+      .cycle('year', -100),
 
     end: props?.maxValue ?? (toRaw(props.placeholder) ?? props.defaultPlaceholder ?? today(getLocalTimeZone()))
-      .cycle("year", 10),
+      .cycle('year', 10),
   })
 })
 

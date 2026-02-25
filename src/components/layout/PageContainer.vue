@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import ErrorBoundary from './ErrorBoundary.vue';
+import ErrorBoundary from './ErrorBoundary.vue'
+
+const props = withDefaults(defineProps<Props>(), {
+  refreshKey: 0,
+  transitionName: 'fade-slide',
+})
 
 /**
  * 异步加载骨架屏组件
  */
-const PageSkeleton = defineAsyncComponent(() => import('./PageSkeleton.vue'));
+const PageSkeleton = defineAsyncComponent(() => import('./PageSkeleton.vue'))
 
 /**
  * 组件属性
  */
 interface Props {
   /** 刷新 key - 用于触发局部刷新 */
-  refreshKey?: number;
+  refreshKey?: number
   /** 过渡动画名称 */
-  transitionName?: string;
+  transitionName?: string
 }
-
-const props = withDefaults(defineProps<Props>(), {
-  refreshKey: 0,
-  transitionName: 'fade-slide',
-});
 </script>
 
 <template>
@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
           <template #default>
             <component
               :is="Component"
-              :key="route.path + '-' + refreshKey"
+              :key="`${route.path}-${refreshKey}`"
             />
           </template>
           <template #fallback>

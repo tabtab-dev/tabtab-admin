@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AsyncOptionsLoader, FormField, FormOption } from './types'
 /**
  * TFormItem - 表单字段渲染组件
  *
@@ -6,13 +7,14 @@
  * @example
  *   <TFormItem :field="field" :form-data="formData" />
  */
-import { computed, ref, watch, onMounted, onUnmounted, shallowRef } from 'vue'
+import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import TFormList from './TFormList.vue'
-import TFormGroup from './TFormGroup.vue'
 import { TIcon } from '@/components/business/TIcon'
 import { TTree } from '@/components/business/TTree'
-import type { FormField, FormOption, AsyncOptionsLoader } from './types'
+import TFormGroup from './TFormGroup.vue'
+import TFormList from './TFormList.vue'
+
+const props = defineProps<Props>()
 
 /**
  * i18n
@@ -28,8 +30,6 @@ interface Props {
   /** 表单数据 */
   formData: Record<string, any>
 }
-
-const props = defineProps<Props>()
 
 /**
  * 异步选项加载状态
@@ -56,14 +56,15 @@ const debounceTimer = ref<ReturnType<typeof setTimeout> | null>(null)
  * 虚拟滚动配置
  */
 const virtualScrollConfig = computed(() => {
-  if (!props.field.virtualScroll) return null
+  if (!props.field.virtualScroll)
+    return null
   if (props.field.virtualScroll === true) {
     return { enabled: true, itemHeight: 32, overscan: 5 }
   }
   return {
     enabled: props.field.virtualScroll.enabled ?? true,
     itemHeight: props.field.virtualScroll.itemHeight ?? 32,
-    overscan: props.field.virtualScroll.overscan ?? 5
+    overscan: props.field.virtualScroll.overscan ?? 5,
   }
 })
 
@@ -92,7 +93,7 @@ const fieldValue = computed<any>({
   /** 设置字段值 */
   set: (val: any) => {
     props.formData[props.field.name as string] = val
-  }
+  },
 })
 
 /**
@@ -122,7 +123,7 @@ function generateCacheKey(formData: Record<string, any>): string {
   const cacheFields = props.field.props?.cacheFields as string[] | undefined
   if (cacheFields && cacheFields.length > 0) {
     const cacheData: Record<string, any> = {}
-    cacheFields.forEach(field => {
+    cacheFields.forEach((field) => {
       cacheData[field] = formData[field]
     })
     return JSON.stringify(cacheData)
@@ -135,7 +136,8 @@ function generateCacheKey(formData: Record<string, any>): string {
  * 加载异步选项 - 带防抖和缓存
  */
 async function loadAsyncOptions(): Promise<void> {
-  if (!isAsyncOptions.value) return
+  if (!isAsyncOptions.value)
+    return
 
   // 清除之前的防抖定时器
   if (debounceTimer.value) {
@@ -166,10 +168,12 @@ async function loadAsyncOptions(): Promise<void> {
         const firstKey = optionsCache.keys().next().value
         optionsCache.delete(firstKey)
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.error(`[TForm] 加载字段 "${props.field.name}" 的选项失败:`, error)
       loadedOptions.value = []
-    } finally {
+    }
+    finally {
       isLoadingOptions.value = false
     }
   }, optionsDebounceTime.value)
@@ -193,7 +197,7 @@ watch(
       loadAsyncOptions()
     }
   },
-  { deep: true, flush: 'post' }
+  { deep: true, flush: 'post' },
 )
 
 /**
@@ -222,15 +226,16 @@ onUnmounted(() => {
  * @description 布尔类型的字段使用 required: true 时，需要验证值是否为 true 而不是是否有值
  */
 const processedRules = computed(() => {
-  if (!props.field.rules) return undefined
+  if (!props.field.rules)
+    return undefined
 
-  return props.field.rules.map(rule => {
+  return props.field.rules.map((rule) => {
     // 如果是 checkbox-single 或 switch 类型，且使用了 required: true
     // 自动转换为自定义验证器
     if (
-      (props.field.type === 'checkbox-single' || props.field.type === 'switch') &&
-      rule.required === true &&
-      !rule.validator
+      (props.field.type === 'checkbox-single' || props.field.type === 'switch')
+      && rule.required === true
+      && !rule.validator
     ) {
       return {
         ...rule,
@@ -239,7 +244,7 @@ const processedRules = computed(() => {
             return Promise.reject(new Error(rule.message || t('common.pleaseCheckThis')))
           }
           return Promise.resolve()
-        }
+        },
       }
     }
     return rule
@@ -257,7 +262,7 @@ const isSpecialType = computed(() => {
  * 暴露方法
  */
 defineExpose({
-  clearOptionsCache
+  clearOptionsCache,
 })
 </script>
 

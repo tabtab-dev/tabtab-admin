@@ -1,16 +1,16 @@
 export { default as TTree } from './TTree.vue'
 export type {
-  TreeNode,
   FieldNamesConfig,
-  TreeNodeEvent,
   TreeCheckEvent,
-  TreeExpandEvent,
-  TreeSelectEvent,
   TreeDragEvent,
-  TreeToolbarConfig,
+  TreeExpandEvent,
+  TreeNode,
+  TreeNodeEvent,
   TreeSearchConfig,
+  TreeSelectEvent,
   TreeStatisticsConfig,
-  TTreeProps,
+  TreeToolbarConfig,
   TTreeEmits,
-  TTreeExpose
+  TTreeExpose,
+  TTreeProps,
 } from './types'

@@ -30,25 +30,25 @@
  * ```
  */
 
-// 导出组件
-export { default as TIcon } from './TIcon.vue'
-export { default as TIconPicker } from './TIconPicker.vue'
-
 // 导出常量
 export {
-  ICON_CATEGORIES,
   DEFAULT_CATEGORIES,
-  getCategoryName,
   getAllIconNames,
+  getCategoryName,
+  ICON_CATEGORIES,
 } from './constants'
+// 导出组件
+export { default as TIcon } from './TIcon.vue'
+
+export { default as TIconPicker } from './TIconPicker.vue'
 
 // 导出类型
 export type {
   IconCategory,
   IconItem,
-  TIconProps,
   TIconEmits,
   TIconExpose,
-  TIconPickerProps,
   TIconPickerEmits,
+  TIconPickerProps,
+  TIconProps,
 } from './types'

@@ -1,52 +1,52 @@
-import type { ComputedRef } from 'vue';
-import type { LucideIcon } from 'lucide-vue-next';
+import type { LucideIcon } from 'lucide-vue-next'
+import type { ComputedRef } from 'vue'
 
 /**
  * 通知类型
  */
-export type NotificationType = 'info' | 'warning' | 'success' | 'message';
+export type NotificationType = 'info' | 'warning' | 'success' | 'message'
 
 /**
  * 通知项接口
  */
 export interface NotificationItem {
   /** 唯一标识 */
-  id: string;
+  id: string
   /** 通知标题 */
-  title: string;
+  title: string
   /** 通知内容 */
-  content: string;
+  content: string
   /** 通知类型 */
-  type: NotificationType;
+  type: NotificationType
   /** 创建时间 */
-  createdAt: Date;
+  createdAt: Date
   /** 是否已读 */
-  isRead: boolean;
+  isRead: boolean
 }
 
 /**
  * 通知类型配置
  */
 export interface NotificationTypeConfig {
-  icon: LucideIcon;
-  color: string;
-  bgColor: string;
-  gradient?: string;
+  icon: LucideIcon
+  color: string
+  bgColor: string
+  gradient?: string
 }
 
 /**
  * 时间分组类型
  */
-export type TimeGroup = 'unread' | 'today' | 'yesterday' | 'earlier';
+export type TimeGroup = 'unread' | 'today' | 'yesterday' | 'earlier'
 
 /**
  * 分组后的通知
  */
 export interface GroupedNotifications {
-  unread: NotificationItem[];
-  today: NotificationItem[];
-  yesterday: NotificationItem[];
-  earlier: NotificationItem[];
+  unread: NotificationItem[]
+  today: NotificationItem[]
+  yesterday: NotificationItem[]
+  earlier: NotificationItem[]
 }
 
 /**
@@ -56,12 +56,12 @@ export interface GroupedNotifications {
  */
 export function useNotifications(
   initialNotifications: NotificationItem[] = [],
-  typeConfig: Record<NotificationType, NotificationTypeConfig>
+  typeConfig: Record<NotificationType, NotificationTypeConfig>,
 ) {
   // ============ 状态 ============
   // 使用 ref 确保数组内部变化能触发响应式更新
-  const notifications = ref<NotificationItem[]>(initialNotifications);
-  const isNotificationOpen = ref(false);
+  const notifications = ref<NotificationItem[]>(initialNotifications)
+  const isNotificationOpen = ref(false)
 
   // ============ 计算属性 ============
 
@@ -69,13 +69,13 @@ export function useNotifications(
    * 未读通知数量
    */
   const unreadCount: ComputedRef<number> = computed(
-    () => notifications.value.filter(n => n.isRead === false).length
-  );
+    () => notifications.value.filter(n => n.isRead === false).length,
+  )
 
   /**
    * 是否有未读通知
    */
-  const hasUnread: ComputedRef<boolean> = computed(() => unreadCount.value > 0);
+  const hasUnread: ComputedRef<boolean> = computed(() => unreadCount.value > 0)
 
   /**
    * 已排序的通知列表（未读在前）
@@ -84,53 +84,56 @@ export function useNotifications(
     return [...notifications.value].sort((a, b) => {
       // 未读优先
       if (a.isRead !== b.isRead) {
-        return a.isRead ? 1 : -1;
+        return a.isRead ? 1 : -1
       }
       // 时间倒序
-      return b.createdAt.getTime() - a.createdAt.getTime();
-    });
-  });
+      return b.createdAt.getTime() - a.createdAt.getTime()
+    })
+  })
 
   /**
    * 按时间分组的通知列表
    */
   const groupedNotifications: ComputedRef<GroupedNotifications> = computed(() => {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000)
 
     const groups: GroupedNotifications = {
       unread: [],
       today: [],
       yesterday: [],
       earlier: [],
-    };
+    }
 
     // 先按时间排序
     const sorted = [...notifications.value].sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-    );
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+    )
 
-    sorted.forEach(notification => {
+    sorted.forEach((notification) => {
       const notificationDate = new Date(
         notification.createdAt.getFullYear(),
         notification.createdAt.getMonth(),
-        notification.createdAt.getDate()
-      );
+        notification.createdAt.getDate(),
+      )
 
       if (notification.isRead === false) {
-        groups.unread.push(notification);
-      } else if (notificationDate.getTime() >= today.getTime()) {
-        groups.today.push(notification);
-      } else if (notificationDate.getTime() >= yesterday.getTime()) {
-        groups.yesterday.push(notification);
-      } else {
-        groups.earlier.push(notification);
+        groups.unread.push(notification)
       }
-    });
+      else if (notificationDate.getTime() >= today.getTime()) {
+        groups.today.push(notification)
+      }
+      else if (notificationDate.getTime() >= yesterday.getTime()) {
+        groups.yesterday.push(notification)
+      }
+      else {
+        groups.earlier.push(notification)
+      }
+    })
 
-    return groups;
-  });
+    return groups
+  })
 
   /**
    * 获取分组标题
@@ -141,16 +144,16 @@ export function useNotifications(
       today: '今天',
       yesterday: '昨天',
       earlier: '更早',
-    };
-    return titles[group];
-  };
+    }
+    return titles[group]
+  }
 
   /**
    * 判断分组是否有内容
    */
   const hasGroupItems = (group: TimeGroup): boolean => {
-    return groupedNotifications.value[group].length > 0;
-  };
+    return groupedNotifications.value[group].length > 0
+  }
 
   // ============ 方法 ============
 
@@ -160,83 +163,87 @@ export function useNotifications(
    * @returns 格式化后的时间字符串
    */
   const formatTime = (date: Date): string => {
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const minutes = Math.floor(diff / (1000 * 60));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+    const minutes = Math.floor(diff / (1000 * 60))
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
 
-    if (minutes < 1) return '刚刚';
-    if (minutes < 60) return `${minutes}分钟前`;
-    if (hours < 24) return `${hours}小时前`;
-    if (days < 7) return `${days}天前`;
-    return date.toLocaleDateString('zh-CN');
-  };
+    if (minutes < 1)
+      return '刚刚'
+    if (minutes < 60)
+      return `${minutes}分钟前`
+    if (hours < 24)
+      return `${hours}小时前`
+    if (days < 7)
+      return `${days}天前`
+    return date.toLocaleDateString('zh-CN')
+  }
 
   /**
    * 标记通知为已读
    * @param id - 通知ID
    */
   const markAsRead = (id: string): void => {
-    const notification = notifications.value.find(n => n.id === id);
+    const notification = notifications.value.find(n => n.id === id)
     if (notification) {
-      notification.isRead = true;
+      notification.isRead = true
     }
-  };
+  }
 
   /**
    * 标记所有通知为已读
    */
   const markAllAsRead = (): void => {
-    notifications.value.forEach(n => n.isRead = true);
-  };
+    notifications.value.forEach(n => n.isRead = true)
+  }
 
   /**
    * 删除通知
    * @param id - 通知ID
    */
   const deleteNotification = (id: string): void => {
-    const index = notifications.value.findIndex(n => n.id === id);
+    const index = notifications.value.findIndex(n => n.id === id)
     if (index > -1) {
-      notifications.value.splice(index, 1);
+      notifications.value.splice(index, 1)
     }
-  };
+  }
 
   /**
    * 清空所有通知
    */
   const clearAllNotifications = (): void => {
-    notifications.value = [];
-  };
+    notifications.value = []
+  }
 
   /**
    * 添加通知
    * @param notification - 通知项
    */
   const addNotification = (notification: NotificationItem): void => {
-    notifications.value.unshift(notification);
-  };
+    notifications.value.unshift(notification)
+  }
 
   /**
    * 打开通知面板
    */
   const openNotifications = (): void => {
-    isNotificationOpen.value = true;
-  };
+    isNotificationOpen.value = true
+  }
 
   /**
    * 关闭通知面板
    */
   const closeNotifications = (): void => {
-    isNotificationOpen.value = false;
-  };
+    isNotificationOpen.value = false
+  }
 
   /**
    * 切换通知面板
    */
   const toggleNotifications = (): void => {
-    isNotificationOpen.value = !isNotificationOpen.value;
-  };
+    isNotificationOpen.value = !isNotificationOpen.value
+  }
 
   return {
     // 状态
@@ -264,5 +271,5 @@ export function useNotifications(
 
     // 配置
     typeConfig,
-  };
+  }
 }

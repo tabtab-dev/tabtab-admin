@@ -5,9 +5,9 @@
 
 export { default as TPageHeader } from './TPageHeader.vue'
 export type {
-  PageAction,
   BreadcrumbItem,
-  TPageHeaderProps,
+  PageAction,
   TPageHeaderEmits,
-  TPageHeaderExpose
+  TPageHeaderExpose,
+  TPageHeaderProps,
 } from './types'

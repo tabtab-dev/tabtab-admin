@@ -1,4 +1,17 @@
 <script setup lang="ts">
+import type {
+  Plus,
+} from 'lucide-vue-next'
+import type { EmptyAction, EmptyStateResponsiveConfig, EmptyType, TEmptyStateEmits, TEmptyStateExpose, TEmptyStateProps } from './types'
+import {
+  AlertCircle,
+  Database,
+  Inbox,
+  Lock,
+  Search,
+  WifiOff,
+} from 'lucide-vue-next'
+import * as icons from 'lucide-vue-next'
 /**
  * TEmptyState - 空状态组件
  *
@@ -18,26 +31,15 @@
  *   />
  */
 import { computed } from 'vue'
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import {
-  Inbox,
-  Search,
-  Database,
-  AlertCircle,
-  WifiOff,
-  Lock,
-  Plus
-} from 'lucide-vue-next'
-import * as icons from 'lucide-vue-next'
 import { useResponsive } from '@/composables/useResponsive'
-import type { TEmptyStateProps, TEmptyStateEmits, TEmptyStateExpose, EmptyType, EmptyAction, EmptyStateResponsiveConfig } from './types'
+import { cn } from '@/lib/utils'
 
 /**
  * 组件选项
  */
 defineOptions({
-  name: 'TEmptyState'
+  name: 'TEmptyState',
 })
 
 /**
@@ -47,7 +49,7 @@ const props = withDefaults(defineProps<TEmptyStateProps>(), {
   type: 'default',
   size: 'default',
   bordered: false,
-  showBackground: true
+  showBackground: true,
 })
 
 /**
@@ -66,12 +68,14 @@ const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== fa
 const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
 
 const isMobileView = computed(() => {
-  if (!isResponsiveEnabled.value) return false
+  if (!isResponsiveEnabled.value)
+    return false
   return smallerThan(mobileBreakpoint.value)
 })
 
 const responsiveSize = computed(() => {
-  if (!isMobileView.value) return props.size
+  if (!isMobileView.value)
+    return props.size
   return responsiveConfig.value.mobileSize || 'sm'
 })
 
@@ -85,37 +89,37 @@ const showDescription = computed(() => {
 /**
  * 预设类型配置
  */
-const typeConfig: Record<EmptyType, { icon: typeof Inbox; title: string; description: string }> = {
+const typeConfig: Record<EmptyType, { icon: typeof Inbox, title: string, description: string }> = {
   default: {
     icon: Inbox,
     title: '暂无数据',
-    description: '暂无相关数据'
+    description: '暂无相关数据',
   },
   search: {
     icon: Search,
     title: '未找到结果',
-    description: '请尝试调整搜索条件'
+    description: '请尝试调整搜索条件',
   },
   data: {
     icon: Database,
     title: '暂无数据',
-    description: '开始添加您的第一条数据吧'
+    description: '开始添加您的第一条数据吧',
   },
   error: {
     icon: AlertCircle,
     title: '出错了',
-    description: '加载数据时发生错误，请稍后重试'
+    description: '加载数据时发生错误，请稍后重试',
   },
   network: {
     icon: WifiOff,
     title: '网络异常',
-    description: '请检查网络连接后重试'
+    description: '请检查网络连接后重试',
   },
   permission: {
     icon: Lock,
     title: '无权限',
-    description: '您没有权限访问此内容'
-  }
+    description: '您没有权限访问此内容',
+  },
 }
 
 /**
@@ -127,22 +131,22 @@ const sizeConfig = {
     icon: 'w-10 h-10',
     iconWrapper: 'w-16 h-16',
     title: 'text-base',
-    description: 'text-xs'
+    description: 'text-xs',
   },
   default: {
     wrapper: 'py-12',
     icon: 'w-12 h-12',
     iconWrapper: 'w-20 h-20',
     title: 'text-lg',
-    description: 'text-sm'
+    description: 'text-sm',
   },
   lg: {
     wrapper: 'py-16',
     icon: 'w-16 h-16',
     iconWrapper: 'w-24 h-24',
     title: 'text-xl',
-    description: 'text-base'
-  }
+    description: 'text-base',
+  },
 }
 
 /**
@@ -159,7 +163,8 @@ const currentSizeConfig = computed(() => sizeConfig[responsiveSize.value])
  * 图标组件
  */
 const IconComponent = computed(() => {
-  if (props.icon) return props.icon
+  if (props.icon)
+    return props.icon
   if (props.iconName) {
     return (icons as Record<string, unknown>)[props.iconName] as typeof Inbox | null
   }
@@ -196,7 +201,8 @@ function getButtonVariant(type: EmptyAction['type']) {
  * 获取操作图标
  */
 function getActionIcon(action: EmptyAction) {
-  if (action.icon) return action.icon
+  if (action.icon)
+    return action.icon
   if (action.iconName) {
     return (icons as Record<string, unknown>)[action.iconName] as typeof Plus | null
   }
@@ -224,7 +230,7 @@ function triggerAction() {
  * 暴露方法
  */
 defineExpose<TEmptyStateExpose>({
-  triggerAction
+  triggerAction,
 })
 </script>
 
@@ -236,14 +242,14 @@ defineExpose<TEmptyStateExpose>({
       bordered && 'border rounded-lg',
       showBackground && 'bg-muted/30',
       { 't-empty-state-mobile': isMobileView, 't-empty-state-compact': isMobileView && responsiveConfig.compactOnMobile },
-      className
+      className,
     )"
   >
     <!-- 图标 -->
     <div
       :class="cn(
         'flex items-center justify-center rounded-full bg-muted mb-4',
-        currentSizeConfig.iconWrapper
+        currentSizeConfig.iconWrapper,
       )"
     >
       <component
@@ -256,7 +262,7 @@ defineExpose<TEmptyStateExpose>({
     <h3
       :class="cn(
         'font-semibold text-foreground mb-1',
-        currentSizeConfig.title
+        currentSizeConfig.title,
       )"
     >
       {{ titleText }}
@@ -267,7 +273,7 @@ defineExpose<TEmptyStateExpose>({
       v-if="showDescription"
       :class="cn(
         'text-muted-foreground max-w-sm',
-        currentSizeConfig.description
+        currentSizeConfig.description,
       )"
     >
       {{ descriptionText }}

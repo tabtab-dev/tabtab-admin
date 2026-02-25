@@ -162,43 +162,43 @@
  * ```
  */
 
+// 从共享主题导出颜色转换函数
+export { oklchToHex } from '../theme-shared'
+
+// 导出主题配置
+export {
+  getTTableThemeConfig,
+  useTTableTheme,
+} from './theme'
 // 导出组件
 // @ts-ignore
 export { default as TTable } from './TTable.vue'
 
-// 导出主题配置
-export {
-  useTTableTheme,
-  getTTableThemeConfig
-} from './theme'
-// 从共享主题导出颜色转换函数
-export { oklchToHex } from '../theme-shared'
-
 // 导出类型
 export type {
-  // 核心类型
-  TableSchema,
-  TableColumn,
-  TableSize,
   AlignType,
   ColumnFilter,
   ColumnSorter,
+  ExpandableConfig,
+  PaginationConfig,
   RowSelectionConfig,
   RowSelectionType,
-  PaginationConfig,
   ScrollConfig,
+  SummaryConfig,
   TableAction,
-  // 组件类型
-  TTableProps,
-  TTableExpose,
-  TTableEmits,
-  TableState,
-  // 新增类型
-  TableRecord,
-  TableSorter,
-  TablePagination,
+  TableColumn,
   TableFilters,
   TableFilterValue,
-  ExpandableConfig,
-  SummaryConfig
+  TablePagination,
+  // 新增类型
+  TableRecord,
+  // 核心类型
+  TableSchema,
+  TableSize,
+  TableSorter,
+  TableState,
+  TTableEmits,
+  TTableExpose,
+  // 组件类型
+  TTableProps,
 } from './types'

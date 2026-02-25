@@ -1,3 +1,5 @@
+import type { ComputedRef, Ref } from 'vue'
+import type { FormField, FormSchema, SearchConfig } from '../types'
 /**
  * useSearchForm - 搜索表单逻辑 Composable
  *
@@ -14,8 +16,7 @@
  *     toggleCollapse
  *   } = useSearchForm(schema, formData)
  */
-import { computed, ref, type Ref, type ComputedRef } from 'vue'
-import type { FormSchema, FormField, SearchConfig } from '../types'
+import { computed, ref } from 'vue'
 
 /**
  * 搜索表单文本配置
@@ -88,7 +89,7 @@ const defaultSearchConfig: Required<SearchConfig> = {
   resetText: 'Reset',
   showReset: true,
   onSearch: undefined as any,
-  onReset: undefined as any
+  onReset: undefined as any,
 }
 
 /**
@@ -123,17 +124,19 @@ export function useSearchForm(options: UseSearchFormOptions): UseSearchFormRetur
    * 优先使用传入的 locale，然后是 schema 配置，最后是默认值
    */
   const searchConfig = computed<Required<SearchConfig>>(() => {
-    const localeConfig: Partial<SearchConfig> = locale ? {
-      searchText: locale.value.searchText,
-      resetText: locale.value.resetText,
-      expandButtonText: locale.value.expandButtonText,
-      collapseButtonText: locale.value.collapseButtonText,
-    } : {}
+    const localeConfig: Partial<SearchConfig> = locale
+      ? {
+          searchText: locale.value.searchText,
+          resetText: locale.value.resetText,
+          expandButtonText: locale.value.expandButtonText,
+          collapseButtonText: locale.value.collapseButtonText,
+        }
+      : {}
 
     return {
       ...defaultSearchConfig,
       ...schema.searchConfig,
-      ...localeConfig
+      ...localeConfig,
     }
   })
 
@@ -155,7 +158,8 @@ export function useSearchForm(options: UseSearchFormOptions): UseSearchFormRetur
    * @returns 是否满足依赖条件
    */
   function checkDependency(field: FormField): boolean {
-    if (!field.dependencies) return true
+    if (!field.dependencies)
+      return true
 
     const { field: depField, condition } = field.dependencies
     const depValue = formDataRef.value[depField as string]
@@ -168,10 +172,12 @@ export function useSearchForm(options: UseSearchFormOptions): UseSearchFormRetur
   const visibleFields = computed<FormField[]>(() => {
     return schema.fields.filter((field) => {
       // 隐藏字段
-      if (getFieldHidden(field)) return false
+      if (getFieldHidden(field))
+        return false
 
       // 依赖联动
-      if (!checkDependency(field)) return false
+      if (!checkDependency(field))
+        return false
 
       return true
     })
@@ -238,7 +244,7 @@ export function useSearchForm(options: UseSearchFormOptions): UseSearchFormRetur
     shouldShowInline,
     toggleCollapse,
     expand,
-    collapse
+    collapse,
   }
 }
 

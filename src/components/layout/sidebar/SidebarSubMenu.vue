@@ -1,21 +1,25 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { ChevronDown } from 'lucide-vue-next';
-import { Icon } from '@/components/Icon';
-import { useMenuUtils, formatBadge } from '@/layouts/composables/useMenuUtils';
-import MenuItemRecursive from './MenuItemRecursive.vue';
-import type { SidebarMenuItem } from '@/types/menu';
+import type { SidebarMenuItem } from '@/types/menu'
+import { ChevronDown } from 'lucide-vue-next'
+import { Icon } from '@/components/Icon'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { formatBadge, useMenuUtils } from '@/layouts/composables/useMenuUtils'
+import MenuItemRecursive from './MenuItemRecursive.vue'
 
-const { t } = useI18n();
+const props = defineProps<Props>()
+
+const emit = defineEmits<Emits>()
+
+const { t } = useI18n()
 
 /**
  * 弹窗位置信息
  */
 interface PopoverPosition {
-  top: number;
-  left: number;
+  top: number
+  left: number
 }
 
 /**
@@ -23,191 +27,191 @@ interface PopoverPosition {
  */
 interface Props {
   /** 菜单项数据 */
-  item: SidebarMenuItem;
+  item: SidebarMenuItem
   /** 是否折叠 */
-  collapsed: boolean;
+  collapsed: boolean
   /** 是否激活 */
-  active: boolean;
+  active: boolean
   /** 是否展开 */
-  expanded: boolean;
+  expanded: boolean
 }
-
-const props = defineProps<Props>();
 
 /**
  * 组件事件
  */
 interface Emits {
   /** 切换展开 */
-  (e: 'toggle'): void;
+  (e: 'toggle'): void
   /** 导航事件 */
-  (e: 'navigate', path: string): void;
+  (e: 'navigate', path: string): void
 }
 
-const emit = defineEmits<Emits>();
-const route = useRoute();
+const route = useRoute()
 
 /**
  * 使用菜单工具
  */
-const { isActive, hasActiveChild, getAriaCurrent } = useMenuUtils();
+const { isActive, hasActiveChild, getAriaCurrent } = useMenuUtils()
 
 /**
  * 按钮元素引用
  */
-const buttonRef = ref<HTMLElement | null>(null);
+const buttonRef = ref<HTMLElement | null>(null)
 
 /**
  * 获取按钮位置
  */
-const { top, left, width, update: updateBounding } = useElementBounding(buttonRef);
+const { top, left, width, update: updateBounding } = useElementBounding(buttonRef)
 
 /**
  * 窗口滚动位置
  */
-const { y: scrollY } = useWindowScroll();
+const { y: scrollY } = useWindowScroll()
 
 /**
  * 窗口尺寸
  */
-const { height: windowHeight } = useWindowSize();
+const { height: windowHeight } = useWindowSize()
 
 /**
  * 计算菜单项总数量（包括嵌套子菜单）
  */
-const getTotalMenuItemCount = (items: SidebarMenuItem[] | undefined): number => {
-  if (!items || items.length === 0) return 0;
-  let count = items.length;
+function getTotalMenuItemCount(items: SidebarMenuItem[] | undefined): number {
+  if (!items || items.length === 0)
+    return 0
+  let count = items.length
   for (const item of items) {
     if (item.children && item.children.length > 0) {
-      count += getTotalMenuItemCount(item.children);
+      count += getTotalMenuItemCount(item.children)
     }
   }
-  return count;
-};
+  return count
+}
 
 /**
  * 弹窗位置 - 考虑滚动偏移和视口边界
  */
 const popoverPosition = computed<PopoverPosition>(() => {
-  const rawTop = top.value - scrollY.value;
+  const rawTop = top.value - scrollY.value
   // 计算所有可能的子菜单项总数（包括嵌套），用于估算最大高度
-  const totalItemCount = getTotalMenuItemCount(props.item.children);
+  const totalItemCount = getTotalMenuItemCount(props.item.children)
   // 弹框高度 = 标题(60px) + 最大内容高度(400px) + 底部装饰(10px)
-  const estimatedPopoverHeight = 470;
-  const maxTop = windowHeight.value - estimatedPopoverHeight - 20; // 20px 底部边距
+  const estimatedPopoverHeight = 470
+  const maxTop = windowHeight.value - estimatedPopoverHeight - 20 // 20px 底部边距
 
   // 如果弹框底部超出视口，向上调整位置
-  const adjustedTop = maxTop > 0 ? Math.min(rawTop, maxTop) : 10;
+  const adjustedTop = maxTop > 0 ? Math.min(rawTop, maxTop) : 10
 
   return {
     top: Math.max(10, adjustedTop), // 确保顶部至少有 10px 边距
     left: left.value + width.value + 8, // 8px 间距
-  };
-});
+  }
+})
 
 /**
  * 滚动时更新位置
  */
-const handleScroll = () => {
+function handleScroll() {
   if (showPopover.value) {
-    updateBounding();
+    updateBounding()
   }
-};
+}
 
 // 监听滚动事件
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll, { passive: true });
-});
+  window.addEventListener('scroll', handleScroll, { passive: true })
+})
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
-});
+  window.removeEventListener('scroll', handleScroll)
+})
 
 /**
  * 判断是否有子菜单处于激活状态
  */
-const isChildActive = computed(() => hasActiveChild(props.item.children));
+const isChildActive = computed(() => hasActiveChild(props.item.children))
 
 /** 折叠状态下的子菜单弹窗显示控制 */
-const showPopover = ref(false);
+const showPopover = ref(false)
 
 /**
  * 延迟关闭弹窗的 timeout 控制
  */
 const { start: startHidePopover, stop: stopHidePopover } = useTimeoutFn(() => {
-  showPopover.value = false;
-}, 150);
+  showPopover.value = false
+}, 150)
 
 /**
  * 处理父菜单点击
  */
-const handleParentClick = (): void => {
+function handleParentClick(): void {
   if (!props.collapsed) {
-    emit('toggle');
+    emit('toggle')
   }
-};
+}
 
 /**
  * 处理子菜单导航
  */
-const handleChildNavigate = (path: string): void => {
-  emit('navigate', path);
-  showPopover.value = false;
-};
+function handleChildNavigate(path: string): void {
+  emit('navigate', path)
+  showPopover.value = false
+}
 
 /**
  * 处理鼠标进入（折叠状态）
  */
-const handleMouseEnter = (): void => {
+function handleMouseEnter(): void {
   if (props.collapsed) {
-    stopHidePopover();
-    showPopover.value = true;
+    stopHidePopover()
+    showPopover.value = true
   }
-};
+}
 
 /**
  * 处理鼠标离开（折叠状态）
  */
-const handleMouseLeave = (): void => {
+function handleMouseLeave(): void {
   if (props.collapsed) {
-    startHidePopover();
+    startHidePopover()
   }
-};
+}
 
 /**
  * 按钮变体
  */
 const variant = computed(() => {
-  if (props.active || isChildActive.value) return 'default';
-  return 'ghost';
-});
+  if (props.active || isChildActive.value)
+    return 'default'
+  return 'ghost'
+})
 
 /**
  * 菜单标题（翻译后）
  */
 const menuTitle = computed(() => {
-  return t(props.item.i18nKey);
-});
+  return t(props.item.i18nKey)
+})
 
 /**
  * ARIA 标签（折叠状态下使用）
  */
 const ariaLabel = computed(() => {
-  if (!props.collapsed) return undefined;
-  const childCount = props.item.children?.length ?? 0;
+  if (!props.collapsed)
+    return undefined
+  const childCount = props.item.children?.length ?? 0
   return props.item.badge
     ? `${menuTitle.value} (${props.item.badge} 条通知, ${childCount} 个子菜单)`
-    : `${menuTitle.value} (${childCount} 个子菜单)`;
-});
+    : `${menuTitle.value} (${childCount} 个子菜单)`
+})
 
 /**
  * 子菜单数量文本
  */
 const childCountText = computed(() => {
-  const count = props.item.children?.length ?? 0;
-  return t('common.total', { total: count });
-});
+  const count = props.item.children?.length ?? 0
+  return t('common.total', { total: count })
+})
 </script>
 
 <template>
@@ -227,9 +231,8 @@ const childCountText = computed(() => {
       :aria-label="ariaLabel"
       :aria-expanded="showPopover"
       :aria-haspopup="true"
-      :class="[
-        'relative h-10 w-10 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-lg',
-        (active || isChildActive) ? 'bg-primary text-primary-foreground' : 'hover:bg-primary/10 hover:text-primary'
+      class="relative h-10 w-10 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-lg" :class="[
+        (active || isChildActive) ? 'bg-primary text-primary-foreground' : 'hover:bg-primary/10 hover:text-primary',
       ]"
     >
       <Icon
@@ -285,7 +288,7 @@ const childCountText = computed(() => {
           :style="{
             top: `${popoverPosition.top}px`,
             left: `${popoverPosition.left}px`,
-            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(var(--primary), 0.05)'
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(var(--primary), 0.05)',
           }"
           @mouseenter="stopHidePopover(); showPopover = true"
           @mouseleave="startHidePopover()"
@@ -310,8 +313,12 @@ const childCountText = computed(() => {
                 />
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-foreground truncate">{{ menuTitle }}</p>
-                <p class="text-[10px] text-muted-foreground">{{ item.children?.length }} {{ t('common.items') }}</p>
+                <p class="text-sm font-semibold text-foreground truncate">
+                  {{ menuTitle }}
+                </p>
+                <p class="text-[10px] text-muted-foreground">
+                  {{ item.children?.length }} {{ t('common.items') }}
+                </p>
               </div>
             </div>
           </div>
@@ -350,11 +357,10 @@ const childCountText = computed(() => {
       :aria-expanded="expanded"
       :aria-haspopup="true"
       :aria-current="getAriaCurrent(item.path)"
-      :class="[
-        'w-full justify-between h-9 px-3 group transition-colors duration-150 rounded-lg',
-        (active || isChildActive) 
-          ? 'bg-primary/10 text-primary hover:bg-primary/15' 
-          : 'hover:bg-accent hover:text-accent-foreground'
+      class="w-full justify-between h-9 px-3 group transition-colors duration-150 rounded-lg" :class="[
+        (active || isChildActive)
+          ? 'bg-primary/10 text-primary hover:bg-primary/15'
+          : 'hover:bg-accent hover:text-accent-foreground',
       ]"
       @click="handleParentClick"
     >
@@ -362,9 +368,8 @@ const childCountText = computed(() => {
         <Icon
           v-if="item.icon"
           :name="item.icon"
-          :class="[
-            'h-4 w-4',
-            (active || isChildActive) ? 'text-primary' : 'text-muted-foreground group-hover:text-accent-foreground'
+          class="h-4 w-4" :class="[
+            (active || isChildActive) ? 'text-primary' : 'text-muted-foreground group-hover:text-accent-foreground',
           ]"
           aria-hidden="true"
         />
@@ -382,10 +387,9 @@ const childCountText = computed(() => {
         </Badge>
 
         <ChevronDown
-          :class="[
-            'h-3.5 w-3.5 transition-transform duration-200',
+          class="h-3.5 w-3.5 transition-transform duration-200" :class="[
             expanded ? 'rotate-0' : '-rotate-90',
-            (active || isChildActive) ? 'text-primary' : 'text-muted-foreground'
+            (active || isChildActive) ? 'text-primary' : 'text-muted-foreground',
           ]"
           aria-hidden="true"
         />

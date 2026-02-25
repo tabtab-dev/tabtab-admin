@@ -1,13 +1,12 @@
+import type { MenuItem, RouteConfig } from '@/types/menu'
 /**
  * 菜单状态管理
  * @description 使用 Pinia 管理菜单状态和动态路由
  */
-import { defineStore, acceptHMRUpdate } from 'pinia';
-import type { RouteRecordRaw } from 'vue-router';
-import { menuApi } from '@/api';
-import type { MenuItem, RouteConfig, RouteMeta } from '@/types/menu';
-import router from '@/router';
-import { convertToRouteRecords } from '@/router/routeMapping';
+import { acceptHMRUpdate, defineStore } from 'pinia'
+import { menuApi } from '@/api'
+import router from '@/router'
+import { convertToRouteRecords } from '@/router/routeMapping'
 
 /**
  * 从路由配置生成菜单数据
@@ -17,7 +16,7 @@ import { convertToRouteRecords } from '@/router/routeMapping';
  */
 function generateMenusFromRoutes(routes: RouteConfig[]): MenuItem[] {
   return routes
-    .filter((route) => !route.meta?.hideInMenu)
+    .filter(route => !route.meta?.hideInMenu)
     .map((route) => {
       const menu: MenuItem = {
         path: route.path,
@@ -28,67 +27,67 @@ function generateMenusFromRoutes(routes: RouteConfig[]): MenuItem[] {
         i18nKey: route.meta?.i18nKey,
         badge: route.meta?.badge,
         group: route.meta?.group,
-      };
-
-      if (route.children && route.children.length > 0) {
-        menu.children = generateMenusFromRoutes(route.children);
       }
 
-      return menu;
+      if (route.children && route.children.length > 0) {
+        menu.children = generateMenusFromRoutes(route.children)
+      }
+
+      return menu
     })
-    .sort((a, b) => (a.order || 0) - (b.order || 0));
+    .sort((a, b) => (a.order || 0) - (b.order || 0))
 }
 
 export const useMenuStore = defineStore(
   'menu',
   () => {
     // State
-    const menus = ref<MenuItem[]>([]);
-    const routes = ref<RouteConfig[]>([]);
-    const isLoading = ref(false);
-    const isLoaded = ref(false);
+    const menus = ref<MenuItem[]>([])
+    const routes = ref<RouteConfig[]>([])
+    const isLoading = ref(false)
+    const isLoaded = ref(false)
 
     // 记录已添加的动态路由名称，用于清理
-    const addedRouteNames = ref<string[]>([]);
+    const addedRouteNames = ref<string[]>([])
 
     // Getters
     /**
      * 获取扁平化的菜单列表
      */
     const flatMenus = computed(() => {
-      const result: MenuItem[] = [];
+      const result: MenuItem[] = []
       const traverse = (items: MenuItem[]) => {
         items.forEach((item) => {
-          result.push(item);
+          result.push(item)
           if (item.children) {
-            traverse(item.children);
+            traverse(item.children)
           }
-        });
-      };
-      traverse(menus.value);
-      return result;
-    });
+        })
+      }
+      traverse(menus.value)
+      return result
+    })
 
     /**
      * 获取路由标题映射（使用国际化 key）
      */
     const routeTitleMap = computed(() => {
-      const map: Record<string, string> = {};
+      const map: Record<string, string> = {}
       const traverse = (items: RouteConfig[]) => {
         items.forEach((item) => {
           // 优先使用 i18nKey，如果没有则回退到 title
-          map[item.path] = item.meta.i18nKey || item.meta.title;
+          map[item.path] = item.meta.i18nKey || item.meta.title
           if (item.children) {
-            traverse(item.children);
+            traverse(item.children)
           }
-        });
-      };
-      traverse(routes.value);
-      return map;
-    });
+        })
+      }
+      traverse(routes.value)
+      return map
+    })
 
     // 用于防止重复请求的 Promise 锁
-    let pendingPromise: Promise<boolean> | null = null;
+    let pendingPromise: Promise<boolean> | null = null
 
     // Actions
     /**
@@ -98,45 +97,47 @@ export const useMenuStore = defineStore(
     const fetchMenus = async (): Promise<boolean> => {
       // 如果已经加载完成，直接返回成功
       if (isLoaded.value) {
-        console.log('[MenuStore] Menus already loaded');
-        return true;
+        console.log('[MenuStore] Menus already loaded')
+        return true
       }
 
       // 如果正在加载中，返回正在进行的 Promise
       if (pendingPromise) {
-        console.log('[MenuStore] Menus are loading, returning pending promise...');
-        return pendingPromise;
+        console.log('[MenuStore] Menus are loading, returning pending promise...')
+        return pendingPromise
       }
 
       // 创建新的加载 Promise
       pendingPromise = (async () => {
-        isLoading.value = true;
+        isLoading.value = true
         try {
-          console.log('[MenuStore] Fetching menus...');
-          const routeConfigs = await menuApi.getUserMenus();
-          console.log('[MenuStore] Response:', routeConfigs);
+          console.log('[MenuStore] Fetching menus...')
+          const routeConfigs = await menuApi.getUserMenus()
+          console.log('[MenuStore] Response:', routeConfigs)
 
-          routes.value = routeConfigs;
+          routes.value = routeConfigs
           // 从路由配置自动生成菜单数据
-          menus.value = generateMenusFromRoutes(routeConfigs);
-          isLoaded.value = true;
+          menus.value = generateMenusFromRoutes(routeConfigs)
+          isLoaded.value = true
 
           // 动态添加路由
-          addDynamicRoutes(routeConfigs);
-          console.log('[MenuStore] Menus loaded and routes added');
+          addDynamicRoutes(routeConfigs)
+          console.log('[MenuStore] Menus loaded and routes added')
 
-          return true;
-        } catch (error) {
-          console.error('[MenuStore] Failed to fetch menus:', error);
-          return false;
-        } finally {
-          isLoading.value = false;
-          pendingPromise = null;
+          return true
         }
-      })();
+        catch (error) {
+          console.error('[MenuStore] Failed to fetch menus:', error)
+          return false
+        }
+        finally {
+          isLoading.value = false
+          pendingPromise = null
+        }
+      })()
 
-      return pendingPromise;
-    };
+      return pendingPromise
+    }
 
     /**
      * 添加动态路由
@@ -144,24 +145,24 @@ export const useMenuStore = defineStore(
      */
     const addDynamicRoutes = (routeConfigs: RouteConfig[]) => {
       // 转换并添加路由
-      const dynamicRoutes = convertToRouteRecords(routeConfigs);
+      const dynamicRoutes = convertToRouteRecords(routeConfigs)
 
       dynamicRoutes.forEach((route) => {
         // 检查路由是否已存在（通过 name 检查）
-        const existingRoutes = router.getRoutes();
-        const isExists = existingRoutes.some((r) => r.name === route.name);
+        const existingRoutes = router.getRoutes()
+        const isExists = existingRoutes.some(r => r.name === route.name)
 
         if (!isExists) {
           // 路由不存在，添加到布局路由的子路由中
-          router.addRoute('Root', route);
+          router.addRoute('Root', route)
 
           // 记录已添加的路由名称
           if (route.name && !addedRouteNames.value.includes(route.name as string)) {
-            addedRouteNames.value.push(route.name as string);
+            addedRouteNames.value.push(route.name as string)
           }
         }
-      });
-    };
+      })
+    }
 
     /**
      * 移除动态路由
@@ -170,15 +171,16 @@ export const useMenuStore = defineStore(
     const removeDynamicRoutes = () => {
       addedRouteNames.value.forEach((routeName) => {
         try {
-          router.removeRoute(routeName);
-        } catch (error) {
-          console.warn(`[MenuStore] 移除路由失败: ${routeName}`, error);
+          router.removeRoute(routeName)
         }
-      });
+        catch (error) {
+          console.warn(`[MenuStore] 移除路由失败: ${routeName}`, error)
+        }
+      })
 
       // 清空记录
-      addedRouteNames.value = [];
-    };
+      addedRouteNames.value = []
+    }
 
     /**
      * 根据路径获取菜单项
@@ -189,17 +191,18 @@ export const useMenuStore = defineStore(
       const find = (items: MenuItem[]): MenuItem | undefined => {
         for (const item of items) {
           if (item.path === path) {
-            return item;
+            return item
           }
           if (item.children) {
-            const found = find(item.children);
-            if (found) return found;
+            const found = find(item.children)
+            if (found)
+              return found
           }
         }
-        return undefined;
-      };
-      return find(menus.value);
-    };
+        return undefined
+      }
+      return find(menus.value)
+    }
 
     /**
      * 根据路径获取路由标题
@@ -207,21 +210,21 @@ export const useMenuStore = defineStore(
      * @returns 标题
      */
     const getRouteTitle = (path: string): string => {
-      return routeTitleMap.value[path] || path;
-    };
+      return routeTitleMap.value[path] || path
+    }
 
     /**
      * 重置菜单状态
      */
     const reset = () => {
       // 先移除动态路由
-      removeDynamicRoutes();
+      removeDynamicRoutes()
 
       // 重置状态
-      menus.value = [];
-      routes.value = [];
-      isLoaded.value = false;
-    };
+      menus.value = []
+      routes.value = []
+      isLoaded.value = false
+    }
 
     return {
       // State
@@ -240,13 +243,13 @@ export const useMenuStore = defineStore(
       getMenuByPath,
       getRouteTitle,
       reset,
-    };
+    }
   },
   {
     persist: false, // 菜单数据不持久化，每次登录重新获取
-  }
-);
+  },
+)
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useMenuStore, import.meta.hot));
+  import.meta.hot.accept(acceptHMRUpdate(useMenuStore, import.meta.hot))
 }

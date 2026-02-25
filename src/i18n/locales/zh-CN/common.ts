@@ -184,4 +184,4 @@ export default {
     settings: '设置',
     logout: '退出登录',
   },
-} as const;
+} as const

@@ -1,28 +1,26 @@
 <script setup lang="ts">
+import type { FormSchema, TableSchema, TTableExpose } from '@/components/business'
+
+import type { Product } from '@/types'
+import { Avatar, Space } from 'antdv-next'
+import {
+  AlertTriangle,
+  CheckCircle,
+  Layers,
+  Package,
+  TrendingUp,
+  XCircle,
+} from 'lucide-vue-next'
+import { productsApi } from '@/api'
 /**
  * 商品管理页 - 使用 useMutation 重构
  *
  * @description 基于 JSON 配置化的商品管理页面
  */
-import { TTable, TForm, TModal, TDataCard, TPageHeader, TBatchActions, TStatusBadge, TEmptyState } from '@/components/business'
-import type { TableSchema, TTableExpose } from '@/components/business'
-import type { FormSchema } from '@/components/business'
-import { Button } from '@/components/ui/button'
+import { TBatchActions, TDataCard, TEmptyState, TForm, TModal, TPageHeader, TStatusBadge, TTable } from '@/components/business'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { Product } from '@/types'
-import { productsApi } from '@/api'
-import { useTableData, useMutation } from '@/composables'
-import {
-  Plus,
-  Package,
-  CheckCircle,
-  AlertTriangle,
-  XCircle,
-  TrendingUp,
-  Layers
-} from 'lucide-vue-next'
-import { Space, Avatar } from 'antdv-next'
-import { PRODUCT_STATUS, STATUS_CONFIG, BUTTON_VARIANT } from '@/constants'
+import { useMutation, useTableData } from '@/composables'
+import { PRODUCT_STATUS, STATUS_CONFIG } from '@/constants'
 
 // ==================== 类型定义 ====================
 interface ProductFormData {
@@ -64,7 +62,7 @@ const {
     return res || { list: [], total: 0, page: 1, pageSize: 10 }
   },
   // 构建 API 请求参数
-  apiCallParams: (ctx) => ({
+  apiCallParams: ctx => ({
     page: ctx.page,
     pageSize: ctx.pageSize,
     search: ctx.searchQuery,
@@ -88,22 +86,22 @@ const {
       totalSales,
       totalStock,
     }
-  }
+  },
 })
 
-  const { mutate: createProduct, loading: creating } = useMutation({
-    mutationFn: (values: Record<string, any>) => {
-      const stock = Number(values.stock)
-      return productsApi.createProduct({
-        name: values.name,
-        category: values.category,
-        price: Number(values.price),
-        stock,
-        status: stock === 0 ? PRODUCT_STATUS.OUT_OF_STOCK : stock < 10 ? PRODUCT_STATUS.LOW_STOCK : PRODUCT_STATUS.ACTIVE,
-        sales: 0,
-        description: values.description
-      })
-    },
+const { mutate: createProduct, loading: creating } = useMutation({
+  mutationFn: (values: Record<string, any>) => {
+    const stock = Number(values.stock)
+    return productsApi.createProduct({
+      name: values.name,
+      category: values.category,
+      price: Number(values.price),
+      stock,
+      status: stock === 0 ? PRODUCT_STATUS.OUT_OF_STOCK : stock < 10 ? PRODUCT_STATUS.LOW_STOCK : PRODUCT_STATUS.ACTIVE,
+      sales: 0,
+      description: values.description,
+    })
+  },
   onSuccess: () => {
     isAddDialogOpen.value = false
     addFormData.value = {
@@ -111,31 +109,31 @@ const {
       category: '',
       price: 0,
       stock: 0,
-      description: ''
+      description: '',
     }
     fetchData()
-  }
+  },
 })
 
 const { mutate: updateProduct, loading: updating } = useMutation({
-  mutationFn: ({ id, values }: { id: string; values: Record<string, any> }) =>
+  mutationFn: ({ id, values }: { id: string, values: Record<string, any> }) =>
     productsApi.updateProduct(id, {
       name: values.name,
       category: values.category,
       price: Number(values.price),
       stock: Number(values.stock),
-      description: values.description
+      description: values.description,
     }),
   onSuccess: () => {
     isEditDialogOpen.value = false
     editingProduct.value = null
     fetchData()
-  }
+  },
 })
 
 const { mutate: deleteProduct } = useMutation({
   mutationFn: (id: string) => productsApi.deleteProduct(id),
-  onSuccess: () => fetchData()
+  onSuccess: () => fetchData(),
 })
 
 const { mutate: batchDeleteProducts } = useMutation({
@@ -143,7 +141,7 @@ const { mutate: batchDeleteProducts } = useMutation({
   onSuccess: () => {
     tableRef.value?.clearSelection()
     fetchData()
-  }
+  },
 })
 
 // ==================== 统计数据 ====================
@@ -155,29 +153,29 @@ const statisticsCards = computed(() => {
       value: stats.total || 0,
       icon: Package,
       color: 'text-blue-500',
-      bgColor: 'bg-blue-50'
+      bgColor: 'bg-blue-50',
     },
     {
       title: '在售',
       value: stats.active || 0,
       icon: CheckCircle,
       color: 'text-green-500',
-      bgColor: 'bg-green-50'
+      bgColor: 'bg-green-50',
     },
     {
       title: '库存不足',
       value: stats.lowStock || 0,
       icon: AlertTriangle,
       color: 'text-yellow-500',
-      bgColor: 'bg-yellow-50'
+      bgColor: 'bg-yellow-50',
     },
     {
       title: '缺货',
       value: stats.outOfStock || 0,
       icon: XCircle,
       color: 'text-red-500',
-      bgColor: 'bg-red-50'
-    }
+      bgColor: 'bg-red-50',
+    },
   ]
 })
 
@@ -185,7 +183,7 @@ const statisticsCards = computed(() => {
 const searchFormData = ref({
   keyword: '',
   category: '',
-  status: ''
+  status: '',
 })
 
 const searchSchema: FormSchema = {
@@ -196,7 +194,7 @@ const searchSchema: FormSchema = {
       type: 'input',
       label: '',
       placeholder: '搜索商品名称、SKU...',
-      className: 'w-[200px]'
+      className: 'w-[200px]',
     },
     {
       name: 'category',
@@ -207,9 +205,9 @@ const searchSchema: FormSchema = {
         { label: '全部分类', value: '' },
         { label: '电子产品', value: '电子产品' },
         { label: '配件', value: '配件' },
-        { label: '音频设备', value: '音频设备' }
+        { label: '音频设备', value: '音频设备' },
       ],
-      className: 'w-[140px]'
+      className: 'w-[140px]',
     },
     {
       name: 'status',
@@ -220,10 +218,10 @@ const searchSchema: FormSchema = {
         { label: '全部状态', value: '' },
         { label: STATUS_CONFIG.PRODUCT.ACTIVE.text, value: STATUS_CONFIG.PRODUCT.ACTIVE.value },
         { label: STATUS_CONFIG.PRODUCT.LOW_STOCK.text, value: STATUS_CONFIG.PRODUCT.LOW_STOCK.value },
-        { label: STATUS_CONFIG.PRODUCT.OUT_OF_STOCK.text, value: STATUS_CONFIG.PRODUCT.OUT_OF_STOCK.value }
+        { label: STATUS_CONFIG.PRODUCT.OUT_OF_STOCK.text, value: STATUS_CONFIG.PRODUCT.OUT_OF_STOCK.value },
       ],
-      className: 'w-[140px]'
-    }
+      className: 'w-[140px]',
+    },
   ],
   searchConfig: {
     enabled: true,
@@ -243,8 +241,8 @@ const searchSchema: FormSchema = {
     onReset: () => {
       searchQuery.value = ''
       filters.value = {}
-    }
-  }
+    },
+  },
 }
 
 // ==================== 表格配置 ====================
@@ -257,7 +255,7 @@ const tableSchema = computed<TableSchema>(() => ({
       title: '商品信息',
       dataIndex: 'name',
       width: 250,
-      slot: 'product'
+      slot: 'product',
     },
     {
       title: '分类',
@@ -266,28 +264,28 @@ const tableSchema = computed<TableSchema>(() => ({
       filters: [
         { text: '电子产品', value: '电子产品' },
         { text: '配件', value: '配件' },
-        { text: '音频设备', value: '音频设备' }
-      ]
+        { text: '音频设备', value: '音频设备' },
+      ],
     },
     {
       title: '价格',
       dataIndex: 'price',
       width: 100,
       slot: 'price',
-      sorter: true
+      sorter: true,
     },
     {
       title: '库存',
       dataIndex: 'stock',
       width: 100,
       slot: 'stock',
-      sorter: true
+      sorter: true,
     },
     {
       title: '销量',
       dataIndex: 'sales',
       width: 100,
-      sorter: true
+      sorter: true,
     },
     {
       title: '状态',
@@ -297,43 +295,43 @@ const tableSchema = computed<TableSchema>(() => ({
       filters: [
         { text: STATUS_CONFIG.PRODUCT.ACTIVE.text, value: STATUS_CONFIG.PRODUCT.ACTIVE.value },
         { text: STATUS_CONFIG.PRODUCT.LOW_STOCK.text, value: STATUS_CONFIG.PRODUCT.LOW_STOCK.value },
-        { text: STATUS_CONFIG.PRODUCT.OUT_OF_STOCK.text, value: STATUS_CONFIG.PRODUCT.OUT_OF_STOCK.value }
-      ]
-    }
+        { text: STATUS_CONFIG.PRODUCT.OUT_OF_STOCK.text, value: STATUS_CONFIG.PRODUCT.OUT_OF_STOCK.value },
+      ],
+    },
   ],
   pagination: {
     pageSize: 10,
     show: true,
     showSizeChanger: true,
-    showQuickJumper: true
+    showQuickJumper: true,
   },
   rowSelection: {
     type: 'checkbox',
-    show: true
+    show: true,
   },
   actions: [
     {
       text: '编辑',
       type: 'primary',
-      onClick: (record) => handleEditProduct(record as unknown as Product)
+      onClick: record => handleEditProduct(record as unknown as Product),
     },
     {
       text: '删除',
       type: 'danger',
       confirm: true,
       confirmText: '确定要删除该商品吗？此操作不可恢复。',
-      onClick: (record) => handleDeleteProduct((record as unknown as Product).id)
-    }
+      onClick: record => handleDeleteProduct((record as unknown as Product).id),
+    },
   ],
   actionWidth: 150,
-  actionFixed: 'right'
+  actionFixed: 'right',
 }))
 
 // 表格数据
 const tableData = computed(() => {
   return products.value.map(product => ({
     ...product,
-    key: product.id
+    key: product.id,
   }))
 })
 
@@ -348,7 +346,7 @@ const addFormData = ref<ProductFormData>({
   category: '',
   price: 0,
   stock: 0,
-  description: ''
+  description: '',
 })
 
 // 编辑表单数据
@@ -358,7 +356,7 @@ const editFormData = ref<ProductFormData>({
   category: '',
   price: 0,
   stock: 0,
-  description: ''
+  description: '',
 })
 
 // 共享表单 Schema
@@ -374,8 +372,8 @@ const productFormSchema: FormSchema = {
       placeholder: '请输入商品名称',
       rules: [
         { required: true, message: '商品名称不能为空' },
-        { min: 2, message: '商品名称至少2个字符' }
-      ]
+        { min: 2, message: '商品名称至少2个字符' },
+      ],
     },
     {
       name: 'category',
@@ -385,9 +383,9 @@ const productFormSchema: FormSchema = {
       options: [
         { label: '电子产品', value: '电子产品' },
         { label: '配件', value: '配件' },
-        { label: '音频设备', value: '音频设备' }
+        { label: '音频设备', value: '音频设备' },
       ],
-      rules: [{ required: true, message: '请选择分类' }]
+      rules: [{ required: true, message: '请选择分类' }],
     },
     {
       name: 'price',
@@ -396,8 +394,8 @@ const productFormSchema: FormSchema = {
       placeholder: '请输入价格',
       rules: [
         { required: true, message: '价格不能为空' },
-        { type: 'number', min: 0, message: '价格不能为负数' }
-      ]
+        { type: 'number', min: 0, message: '价格不能为负数' },
+      ],
     },
     {
       name: 'stock',
@@ -406,16 +404,16 @@ const productFormSchema: FormSchema = {
       placeholder: '请输入库存数量',
       rules: [
         { required: true, message: '库存不能为空' },
-        { type: 'number', min: 0, message: '库存不能为负数' }
-      ]
+        { type: 'number', min: 0, message: '库存不能为负数' },
+      ],
     },
     {
       name: 'description',
       type: 'textarea',
       label: '商品描述',
-      placeholder: '请输入商品描述（可选）'
-    }
-  ]
+      placeholder: '请输入商品描述（可选）',
+    },
+  ],
 }
 
 // 新增表单 Schema
@@ -429,8 +427,8 @@ const addSchema: FormSchema = {
     align: 'right',
     onReset: () => {
       isAddDialogOpen.value = false
-    }
-  }
+    },
+  },
 }
 
 // 编辑表单 Schema
@@ -444,8 +442,8 @@ const editSchema: FormSchema = {
     align: 'right',
     onReset: () => {
       isEditDialogOpen.value = false
-    }
-  }
+    },
+  },
 }
 
 // ==================== 事件处理 ====================
@@ -458,7 +456,7 @@ function handleEditProduct(product: Product): void {
     category: product.category,
     price: product.price,
     stock: product.stock,
-    description: product.description || ''
+    description: product.description || '',
   }
   isEditDialogOpen.value = true
 }
@@ -514,7 +512,6 @@ function handleTableChange(pagination: any): void {
     setPageSize(pagination.pageSize)
   }
 }
-
 </script>
 
 <template>
@@ -524,7 +521,7 @@ function handleTableChange(pagination: any): void {
       title="商品管理"
       subtitle="管理商品库存和价格"
       :actions="[
-        { text: '添加商品', type: 'primary', iconName: 'Plus', onClick: () => isAddDialogOpen = true }
+        { text: '添加商品', type: 'primary', iconName: 'Plus', onClick: () => isAddDialogOpen = true },
       ]"
     />
 
@@ -580,7 +577,9 @@ function handleTableChange(pagination: any): void {
       <CardHeader>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <CardTitle class="text-base font-semibold">商品列表</CardTitle>
+            <CardTitle class="text-base font-semibold">
+              商品列表
+            </CardTitle>
             <span class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
               共 {{ tableData.length }} 件
             </span>
@@ -596,8 +595,8 @@ function handleTableChange(pagination: any): void {
                   type: 'danger',
                   confirm: true,
                   confirmText: '确定要删除选中的商品吗？此操作不可恢复。',
-                  onClick: handleBatchDelete
-                }
+                  onClick: handleBatchDelete,
+                },
               ]"
               @clear="handleClearSelection"
             />
@@ -647,11 +646,12 @@ function handleTableChange(pagination: any): void {
           <!-- 自定义库存列 -->
           <template #stock="slotProps">
             <Space>
-              <span :class="[
-                'font-medium',
-                (slotProps as TableSlotProps).record.stock === 0 ? 'text-red-500' :
-                (slotProps as TableSlotProps).record.stock < 10 ? 'text-yellow-500' : 'text-green-500'
-              ]">
+              <span
+                class="font-medium" :class="[
+                  (slotProps as TableSlotProps).record.stock === 0 ? 'text-red-500'
+                  : (slotProps as TableSlotProps).record.stock < 10 ? 'text-yellow-500' : 'text-green-500',
+                ]"
+              >
                 {{ (slotProps as TableSlotProps).text }}
               </span>
               <TrendingUp
@@ -668,7 +668,7 @@ function handleTableChange(pagination: any): void {
               :status-map="{
                 [PRODUCT_STATUS.ACTIVE]: { text: '在售', color: 'success' },
                 [PRODUCT_STATUS.LOW_STOCK]: { text: '库存不足', color: 'warning' },
-                [PRODUCT_STATUS.OUT_OF_STOCK]: { text: '缺货', color: 'error' }
+                [PRODUCT_STATUS.OUT_OF_STOCK]: { text: '缺货', color: 'error' },
               }"
             />
           </template>

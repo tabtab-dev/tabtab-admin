@@ -1,51 +1,51 @@
+import type { PaginationData } from '@/types'
 /**
  * 角色管理相关 API
  * @description 角色的增删改查和权限分配等接口
  */
-import { request } from '../client';
-import type { PaginationData } from '@/types';
+import { request } from '../client'
 
 /**
  * 角色数据
  */
 export interface Role {
-  id: string;
-  name: string;
-  code: string;
-  description: string;
-  userCount: number;
-  permissions: string[];
-  status: 'active' | 'inactive';
-  createdAt: string;
+  id: string
+  name: string
+  code: string
+  description: string
+  userCount: number
+  permissions: string[]
+  status: 'active' | 'inactive'
+  createdAt: string
 }
 
 /**
  * 创建角色参数
  */
 export interface CreateRoleParams {
-  name: string;
-  code: string;
-  description?: string;
-  permissions?: string[];
-  status?: 'active' | 'inactive';
+  name: string
+  code: string
+  description?: string
+  permissions?: string[]
+  status?: 'active' | 'inactive'
 }
 
 /**
  * 更新角色参数
  */
 export interface UpdateRoleParams {
-  name?: string;
-  code?: string;
-  description?: string;
-  permissions?: string[];
-  status?: 'active' | 'inactive';
+  name?: string
+  code?: string
+  description?: string
+  permissions?: string[]
+  status?: 'active' | 'inactive'
 }
 
 /**
  * 查询角色列表参数
  */
 export interface GetRolesParams {
-  search?: string;
+  search?: string
 }
 
 /**
@@ -120,4 +120,4 @@ export const roleApi = {
    */
   updateRolePermissions: (id: string, permissions: string[]) =>
     request.patch<Role>(`/roles/${id}/permissions`, { permissions }),
-};
+}

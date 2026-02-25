@@ -1,4 +1,4 @@
-import type { CSSProperties, Component } from 'vue'
+import type { Component, CSSProperties } from 'vue'
 
 /**
  * 树节点数据结构

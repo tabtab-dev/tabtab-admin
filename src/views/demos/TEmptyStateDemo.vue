@@ -1,16 +1,16 @@
 <script setup lang="ts">
+import type { EmptyType, TEmptyStateExpose } from '@/components/business/TEmptyState'
+import { Inbox, Lock } from 'lucide-vue-next'
 /**
  * TEmptyStateDemo - TEmptyState 组件演示页面
  *
  * @description 展示 TEmptyState 空状态组件的各种使用场景和配置方式
  */
 import { TEmptyState } from '@/components/business/TEmptyState'
-import type { TEmptyStateExpose, EmptyType, EmptySize } from '@/components/business/TEmptyState'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Inbox, Plus, Search, Database, AlertCircle, WifiOff, Lock } from 'lucide-vue-next'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 /**
  * 组件引用
@@ -20,13 +20,13 @@ const emptyRef = ref<TEmptyStateExpose>()
 /**
  * 预设类型
  */
-const presetTypes: { type: EmptyType; label: string; description: string }[] = [
+const presetTypes: { type: EmptyType, label: string, description: string }[] = [
   { type: 'default', label: '默认', description: '通用空状态' },
   { type: 'search', label: '搜索', description: '搜索结果为空' },
   { type: 'data', label: '数据', description: '暂无数据' },
   { type: 'error', label: '错误', description: '加载出错' },
   { type: 'network', label: '网络', description: '网络异常' },
-  { type: 'permission', label: '权限', description: '无权限访问' }
+  { type: 'permission', label: '权限', description: '无权限访问' },
 ]
 
 /**
@@ -54,7 +54,9 @@ function triggerAction() {
     <!-- 页面标题 -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">TEmptyState 组件演示</h1>
+        <h1 class="text-3xl font-bold tracking-tight">
+          TEmptyState 组件演示
+        </h1>
         <p class="text-muted-foreground mt-2">
           统一的空状态展示组件，支持多种预设类型和自定义配置
         </p>
@@ -68,11 +70,21 @@ function triggerAction() {
     <!-- 标签页 -->
     <Tabs default-value="basic" class="w-full">
       <TabsList class="grid w-full grid-cols-5 lg:w-[500px]">
-        <TabsTrigger value="basic">基础用法</TabsTrigger>
-        <TabsTrigger value="type">预设类型</TabsTrigger>
-        <TabsTrigger value="size">尺寸设置</TabsTrigger>
-        <TabsTrigger value="custom">自定义</TabsTrigger>
-        <TabsTrigger value="advanced">高级功能</TabsTrigger>
+        <TabsTrigger value="basic">
+          基础用法
+        </TabsTrigger>
+        <TabsTrigger value="type">
+          预设类型
+        </TabsTrigger>
+        <TabsTrigger value="size">
+          尺寸设置
+        </TabsTrigger>
+        <TabsTrigger value="custom">
+          自定义
+        </TabsTrigger>
+        <TabsTrigger value="advanced">
+          高级功能
+        </TabsTrigger>
       </TabsList>
 
       <!-- 基础用法 -->
@@ -124,7 +136,7 @@ function triggerAction() {
                   text: '添加数据',
                   type: 'primary',
                   iconName: 'Plus',
-                  onClick: handleAction
+                  onClick: handleAction,
                 }"
               />
             </div>
@@ -204,7 +216,7 @@ function triggerAction() {
                   :action="{
                     text: '清除搜索',
                     type: 'default',
-                    onClick: handleAction
+                    onClick: handleAction,
                   }"
                 />
               </div>
@@ -217,7 +229,7 @@ function triggerAction() {
                     text: '立即添加',
                     type: 'primary',
                     iconName: 'Plus',
-                    onClick: handleAction
+                    onClick: handleAction,
                   }"
                 />
               </div>
@@ -229,7 +241,7 @@ function triggerAction() {
                   :action="{
                     text: '重新加载',
                     type: 'primary',
-                    onClick: handleAction
+                    onClick: handleAction,
                   }"
                 />
               </div>
@@ -407,10 +419,16 @@ function triggerAction() {
                 description="在空状态下方添加自定义内容"
               >
                 <div class="flex flex-col items-center gap-2 mt-4">
-                  <p class="text-sm text-muted-foreground">或者您可以：</p>
+                  <p class="text-sm text-muted-foreground">
+                    或者您可以：
+                  </p>
                   <div class="flex gap-2">
-                    <Button variant="outline" size="sm">导入数据</Button>
-                    <Button variant="outline" size="sm">查看示例</Button>
+                    <Button variant="outline" size="sm">
+                      导入数据
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      查看示例
+                    </Button>
                   </div>
                 </div>
               </TEmptyState>
@@ -442,7 +460,7 @@ function triggerAction() {
                 :action="{
                   text: '操作按钮',
                   type: 'primary',
-                  onClick: () => alert('操作被触发')
+                  onClick: () => alert('操作被触发'),
                 }"
               />
             </div>
@@ -484,7 +502,7 @@ function triggerAction() {
                     text: '添加用户',
                     type: 'primary',
                     iconName: 'Plus',
-                    onClick: handleAction
+                    onClick: handleAction,
                   }"
                 />
               </div>
@@ -501,7 +519,7 @@ function triggerAction() {
                   :action="{
                     text: '重新加载',
                     type: 'primary',
-                    onClick: handleAction
+                    onClick: handleAction,
                   }"
                 />
               </div>
@@ -519,37 +537,49 @@ function triggerAction() {
           <CardContent>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">6 种预设类型</h4>
+                <h4 class="font-medium mb-2">
+                  6 种预设类型
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   default、search、data、error、network、permission
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">3 种尺寸</h4>
+                <h4 class="font-medium mb-2">
+                  3 种尺寸
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   sm、default、lg 适应不同场景
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">自定义图标</h4>
+                <h4 class="font-medium mb-2">
+                  自定义图标
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   支持传入图标名称或组件
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">操作按钮</h4>
+                <h4 class="font-medium mb-2">
+                  操作按钮
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   支持添加操作按钮，引导用户行为
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">边框和背景</h4>
+                <h4 class="font-medium mb-2">
+                  边框和背景
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   可配置边框和背景样式
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">自定义内容</h4>
+                <h4 class="font-medium mb-2">
+                  自定义内容
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   支持默认插槽添加自定义内容
                 </p>

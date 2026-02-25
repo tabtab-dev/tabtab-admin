@@ -3,8 +3,8 @@
  * @description 将后端返回的路由配置转换为 Vue Router 路由记录
  */
 
-import type { RouteRecordRaw } from 'vue-router';
-import type { RouteConfig, RouteMeta } from '@/types/menu';
+import type { RouteRecordRaw } from 'vue-router'
+import type { RouteConfig, RouteMeta } from '@/types/menu'
 
 /**
  * 自动扫描 views 目录下所有 Vue 组件
@@ -12,19 +12,19 @@ import type { RouteConfig, RouteMeta } from '@/types/menu';
 const modules = import.meta.glob('@/views/**/*.vue', {
   eager: false,
   import: 'default',
-});
+})
 
 /**
  * 组件缓存映射
  * key: 标准化的路径（如 /system/user/index）
  * value: 组件加载函数
  */
-const componentCache = new Map<string, () => Promise<any>>();
+const componentCache = new Map<string, () => Promise<any>>()
 
 /**
  * 布局组件映射
  */
-const layoutCache = new Map<string, () => Promise<any>>();
+const layoutCache = new Map<string, () => Promise<any>>()
 
 /**
  * 标准化路径
@@ -32,7 +32,7 @@ const layoutCache = new Map<string, () => Promise<any>>();
  * @returns 标准化后的路径
  */
 function normalizePath(path: string): string {
-  return path.replace(/^\//, '').toLowerCase();
+  return path.replace(/^\//, '').toLowerCase()
 }
 
 /**
@@ -42,25 +42,25 @@ function normalizePath(path: string): string {
 function initComponentMap() {
   for (const [fullPath, loader] of Object.entries(modules)) {
     // 从 /src/views/system/user/index.vue 提取 system/user/index
-    const match = fullPath.match(/\/src\/views\/(.+)\.vue$/);
+    const match = fullPath.match(/\/src\/views\/(.+)\.vue$/)
     if (match) {
-      const relativePath = match[1];
-      const normalizedPath = normalizePath(relativePath);
-      componentCache.set(normalizedPath, loader as () => Promise<any>);
+      const relativePath = match[1]
+      const normalizedPath = normalizePath(relativePath)
+      componentCache.set(normalizedPath, loader as () => Promise<any>)
     }
   }
 
   // 注册布局组件
-  layoutCache.set('basiclayout', () => import('@/layouts/BasicLayout.vue'));
-  layoutCache.set('blanklayout', () => import('@/layouts/BlankLayout.vue'));
+  layoutCache.set('basiclayout', () => import('@/layouts/BasicLayout.vue'))
+  layoutCache.set('blanklayout', () => import('@/layouts/BlankLayout.vue'))
 
   if (import.meta.env.DEV) {
-    console.log('[RouteMapping] 已加载组件:', Array.from(componentCache.keys()));
+    console.log('[RouteMapping] 已加载组件:', Array.from(componentCache.keys()))
   }
 }
 
 // 初始化组件映射
-initComponentMap();
+initComponentMap()
 
 /**
  * 获取组件加载函数
@@ -69,40 +69,40 @@ initComponentMap();
  */
 function getComponentLoader(componentPath: string): (() => Promise<any>) | undefined {
   if (!componentPath) {
-    return undefined;
+    return undefined
   }
 
   // 处理布局组件（如 BasicLayout）
-  const layoutKey = componentPath.toLowerCase().replace(/-/g, '');
+  const layoutKey = componentPath.toLowerCase().replace(/-/g, '')
   if (layoutCache.has(layoutKey)) {
-    return layoutCache.get(layoutKey);
+    return layoutCache.get(layoutKey)
   }
 
   // 处理普通组件路径
-  const normalizedPath = normalizePath(componentPath);
+  const normalizedPath = normalizePath(componentPath)
 
   // 直接匹配
   if (componentCache.has(normalizedPath)) {
-    return componentCache.get(normalizedPath);
+    return componentCache.get(normalizedPath)
   }
 
   // 尝试添加 /index 后缀
-  const indexPath = `${normalizedPath}/index`;
+  const indexPath = `${normalizedPath}/index`
   if (componentCache.has(indexPath)) {
-    return componentCache.get(indexPath);
+    return componentCache.get(indexPath)
   }
 
   // 尝试作为目录查找
-  const dirPath = normalizedPath.replace(/\/index$/, '');
+  const dirPath = normalizedPath.replace(/\/index$/, '')
   if (componentCache.has(dirPath)) {
-    return componentCache.get(dirPath);
+    return componentCache.get(dirPath)
   }
 
   if (import.meta.env.DEV) {
-    console.warn(`[RouteMapping] 未找到组件: ${componentPath} (标准化: ${normalizedPath})`);
+    console.warn(`[RouteMapping] 未找到组件: ${componentPath} (标准化: ${normalizedPath})`)
   }
 
-  return undefined;
+  return undefined
 }
 
 /**
@@ -122,7 +122,7 @@ function convertMeta(meta: RouteMeta): Record<string, any> {
     roles: meta.roles,
     group: meta.group,
     i18nKey: meta.i18nKey,
-  };
+  }
 }
 
 /**
@@ -136,31 +136,32 @@ export function convertToRouteRecords(routes: RouteConfig[]): RouteRecordRaw[] {
       path: route.path,
       name: route.name,
       meta: convertMeta(route.meta),
-    };
+    }
 
     // 处理组件
     if (route.component) {
-      const componentLoader = getComponentLoader(route.component);
+      const componentLoader = getComponentLoader(route.component)
       if (componentLoader) {
-        routeRecord.component = componentLoader;
-      } else if (import.meta.env.DEV) {
-        console.warn(`[RouteMapping] 组件未找到，使用 NotFound 占位: ${route.component}`);
-        routeRecord.component = () => import('@/views/NotFound.vue');
+        routeRecord.component = componentLoader
+      }
+      else if (import.meta.env.DEV) {
+        console.warn(`[RouteMapping] 组件未找到，使用 NotFound 占位: ${route.component}`)
+        routeRecord.component = () => import('@/views/NotFound.vue')
       }
     }
 
     // 处理重定向
     if (route.redirect) {
-      routeRecord.redirect = route.redirect;
+      routeRecord.redirect = route.redirect
     }
 
     // 递归处理子路由
     if (route.children && route.children.length > 0) {
-      routeRecord.children = convertToRouteRecords(route.children);
+      routeRecord.children = convertToRouteRecords(route.children)
     }
 
-    return routeRecord;
-  });
+    return routeRecord
+  })
 }
 
 /**
@@ -169,14 +170,18 @@ export function convertToRouteRecords(routes: RouteConfig[]): RouteRecordRaw[] {
  * @returns 是否存在
  */
 export function hasComponent(componentPath: string): boolean {
-  if (!componentPath) return false;
+  if (!componentPath)
+    return false
 
-  const layoutKey = componentPath.toLowerCase().replace(/-/g, '');
-  if (layoutCache.has(layoutKey)) return true;
+  const layoutKey = componentPath.toLowerCase().replace(/-/g, '')
+  if (layoutCache.has(layoutKey))
+    return true
 
-  const normalizedPath = normalizePath(componentPath);
-  if (componentCache.has(normalizedPath)) return true;
-  if (componentCache.has(`${normalizedPath}/index`)) return true;
+  const normalizedPath = normalizePath(componentPath)
+  if (componentCache.has(normalizedPath))
+    return true
+  if (componentCache.has(`${normalizedPath}/index`))
+    return true
 
-  return false;
+  return false
 }

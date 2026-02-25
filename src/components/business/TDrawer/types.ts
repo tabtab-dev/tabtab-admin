@@ -4,7 +4,7 @@
  * @description 基于 antdv-next Drawer 的类型定义
  */
 
-import type { VNode, VNodeChild, CSSProperties } from 'vue'
+import type { CSSProperties, VNode, VNodeChild } from 'vue'
 
 /** VueNode 类型 - 与 antdv-next 兼容 */
 type VueNode = ((...args: any[]) => VNodeChild) | string | number | null | undefined | VNode | boolean
@@ -173,19 +173,19 @@ export interface TDrawerEmits {
   /** 抽屉显隐变化 */
   'update:open': [open: boolean]
   /** 切换抽屉时动画结束后的回调 */
-  afterOpenChange: [open: boolean]
+  'afterOpenChange': [open: boolean]
   /** 抽屉关闭回调 */
-  close: [e: MouseEvent | KeyboardEvent]
+  'close': [e: MouseEvent | KeyboardEvent]
   /** 键盘按下回调 */
-  keydown: [e: KeyboardEvent]
+  'keydown': [e: KeyboardEvent]
   /** 键盘抬起回调 */
-  keyup: [e: KeyboardEvent]
+  'keyup': [e: KeyboardEvent]
   /** 鼠标移入回调 */
-  mouseenter: [e: MouseEvent]
+  'mouseenter': [e: MouseEvent]
   /** 鼠标移出回调 */
-  mouseleave: [e: MouseEvent]
+  'mouseleave': [e: MouseEvent]
   /** 点击回调 */
-  click: [e: MouseEvent]
+  'click': [e: MouseEvent]
 }
 
 /**

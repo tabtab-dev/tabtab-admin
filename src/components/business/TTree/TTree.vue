@@ -1,4 +1,15 @@
 <script setup lang="ts">
+import type {
+  TreeNode,
+  TreeSearchConfig,
+  TreeStatisticsConfig,
+  TreeToolbarConfig,
+  TTreeEmits,
+  TTreeExpose,
+  TTreeProps,
+} from './types'
+import { Button, Input, Tooltip, Tree } from 'antdv-next'
+import { CheckSquare, ChevronDown, ChevronRight, Search, Square } from 'lucide-vue-next'
 /**
  * TTree - 树形控件组件
  *
@@ -29,22 +40,10 @@
  *     checkable
  *   />
  */
-import { computed, ref, watch, useTemplateRef } from 'vue'
-import { Tree, Input, Button, Tooltip } from 'antdv-next'
-import { Search, ChevronDown, ChevronRight, CheckSquare, Square, X } from 'lucide-vue-next'
-import { cn } from '@/lib/utils'
-import type {
-  TTreeProps,
-  TTreeEmits,
-  TTreeExpose,
-  TreeNode,
-  TreeToolbarConfig,
-  TreeSearchConfig,
-  TreeStatisticsConfig
-} from './types'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 
 defineOptions({
-  name: 'TTree'
+  name: 'TTree',
 })
 
 const props = withDefaults(defineProps<TTreeProps>(), {
@@ -61,7 +60,7 @@ const props = withDefaults(defineProps<TTreeProps>(), {
   virtual: true,
   search: false,
   toolbar: false,
-  statistics: false
+  statistics: false,
 })
 
 const emit = defineEmits<TTreeEmits>()
@@ -107,7 +106,7 @@ const toolbarConfig = computed<TreeToolbarConfig>(() => {
       expandAllText: '展开全部',
       collapseAllText: '折叠全部',
       selectAllText: '全选',
-      clearSelectionText: '清空'
+      clearSelectionText: '清空',
     }
   }
   return {
@@ -119,7 +118,7 @@ const toolbarConfig = computed<TreeToolbarConfig>(() => {
     collapseAllText: '折叠全部',
     selectAllText: '全选',
     clearSelectionText: '清空',
-    ...props.toolbar
+    ...props.toolbar,
   }
 })
 
@@ -129,7 +128,7 @@ const statisticsConfig = computed<TreeStatisticsConfig>(() => {
       enabled: props.statistics,
       label: '已选择',
       unit: '项',
-      showHalfChecked: !props.checkStrictly
+      showHalfChecked: !props.checkStrictly,
     }
   }
   return {
@@ -137,7 +136,7 @@ const statisticsConfig = computed<TreeStatisticsConfig>(() => {
     label: '已选择',
     unit: '项',
     showHalfChecked: !props.checkStrictly,
-    ...props.statistics
+    ...props.statistics,
   }
 })
 
@@ -147,7 +146,7 @@ const fieldNames = computed(() => {
     key: props.fieldNames?.key || 'key',
     children: props.fieldNames?.children || 'children',
     disabled: props.fieldNames?.disabled || 'disabled',
-    isLeaf: props.fieldNames?.isLeaf || 'isLeaf'
+    isLeaf: props.fieldNames?.isLeaf || 'isLeaf',
   }
 })
 
@@ -156,14 +155,15 @@ const normalizedTreeData = computed<TreeNode[]>(() => {
 })
 
 function normalizeTreeData(data: any[]): TreeNode[] {
-  if (!data || !Array.isArray(data)) return []
+  if (!data || !Array.isArray(data))
+    return []
 
-  return data.map(item => {
+  return data.map((item) => {
     const normalized: TreeNode = {
       key: item[fieldNames.value.key] ?? item.key,
       title: item[fieldNames.value.title] ?? item.title,
       disabled: item[fieldNames.value.disabled] ?? item.disabled,
-      isLeaf: item[fieldNames.value.isLeaf] ?? item.isLeaf
+      isLeaf: item[fieldNames.value.isLeaf] ?? item.isLeaf,
     }
 
     const children = item[fieldNames.value.children] ?? item.children
@@ -196,7 +196,7 @@ function filterTreeData(data: TreeNode[], keyword: string): TreeNode[] {
     if (isMatch || children.length > 0) {
       result.push({
         ...node,
-        children: children.length > 0 ? children : node.children
+        children: children.length > 0 ? children : node.children,
       })
     }
   }
@@ -244,7 +244,8 @@ function handleCheck(checkedKeys: any, info: any) {
   if (props.checkStrictly) {
     internalCheckedKeys.value = checkedKeys.checked || checkedKeys
     internalHalfCheckedKeys.value = checkedKeys.halfChecked || []
-  } else {
+  }
+  else {
     internalCheckedKeys.value = checkedKeys as (string | number)[]
     internalHalfCheckedKeys.value = info.halfCheckedKeys || []
   }
@@ -258,7 +259,7 @@ function handleCheck(checkedKeys: any, info: any) {
     checked: info.checked,
     checkedNodes: info.checkedNodes || [],
     node: info.node,
-    event: info.event
+    event: info.event,
   })
 }
 
@@ -268,7 +269,7 @@ function handleExpand(expandedKeys: (string | number)[], info: any) {
   emit('expand', {
     expandedKeys,
     expanded: info.expanded,
-    node: info.node
+    node: info.node,
   })
 }
 
@@ -280,7 +281,7 @@ function handleSelect(selectedKeys: (string | number)[], info: any) {
     selected: info.selected,
     selectedNodes: info.selectedNodes || [],
     node: info.node,
-    event: info.event
+    event: info.event,
   })
 }
 
@@ -326,7 +327,8 @@ function collapseAll() {
 }
 
 function selectAll() {
-  if (!props.checkable) return
+  if (!props.checkable)
+    return
   internalCheckedKeys.value = [...allNodeKeys.value]
   emit('update:modelValue', internalCheckedKeys.value)
 }
@@ -411,7 +413,7 @@ defineExpose<TTreeExpose>({
   scrollTo,
   getAllNodes,
   getCheckedNodes,
-  refresh
+  refresh,
 })
 </script>
 

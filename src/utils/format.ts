@@ -2,7 +2,7 @@
  * 格式化工具函数
  * @description 提供常用的格式化工具函数
  */
-import dayjs from 'dayjs';
+import dayjs from 'dayjs'
 
 /**
  * 格式化日期
@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
  * @returns 格式化后的日期字符串
  */
 export function formatDate(date: Date | number | string, format: string = 'YYYY-MM-DD HH:mm:ss'): string {
-  return dayjs(date).format(format);
+  return dayjs(date).format(format)
 }
 
 /**
@@ -20,7 +20,7 @@ export function formatDate(date: Date | number | string, format: string = 'YYYY-
  * @returns 格式化后的字符串
  */
 export function formatNumber(num: number): string {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
 /**
@@ -29,13 +29,14 @@ export function formatNumber(num: number): string {
  * @returns 格式化后的文件大小字符串
  */
 export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
-  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+  if (bytes === 0)
+    return '0 B'
+
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+  return `${(bytes / k ** i).toFixed(2)} ${sizes[i]}`
 }
 
 /**
@@ -45,7 +46,7 @@ export function formatFileSize(bytes: number): string {
  * @returns 格式化后的货币字符串
  */
 export function formatCurrency(amount: number, currency: string = '¥'): string {
-  return `${currency}${formatNumber(amount)}`;
+  return `${currency}${formatNumber(amount)}`
 }
 
 /**
@@ -55,5 +56,5 @@ export function formatCurrency(amount: number, currency: string = '¥'): string 
  * @returns 格式化后的百分比字符串
  */
 export function formatPercent(value: number, decimals: number = 2): string {
-  return `${(value * 100).toFixed(decimals)}%`;
+  return `${(value * 100).toFixed(decimals)}%`
 }

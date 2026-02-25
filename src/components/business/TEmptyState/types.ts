@@ -60,7 +60,7 @@ export interface TEmptyStateProps {
 /**
  * TEmptyState Emits
  */
-export type TEmptyStateEmits = {
+export interface TEmptyStateEmits {
   /** 操作按钮点击 */
   actionClick: []
 }

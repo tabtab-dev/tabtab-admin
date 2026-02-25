@@ -1,206 +1,206 @@
 <script setup lang="ts">
-import type { SplitterPanel } from 'reka-ui';
+import type { SplitterPanel } from 'reka-ui'
+import type { SidebarConfig, SidebarMenuItem } from '@/types/menu'
 import {
-  ResizablePanelGroup,
-  ResizablePanel,
-  ResizableHandle,
-} from '@/components/ui/resizable';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useThemeStore } from '@/stores/global/theme';
-import { pxToPercent, useMenuUtils } from '@/layouts/composables/useMenuUtils';
-import type { SidebarConfig, SidebarMenuItem } from '@/types/menu';
-import SidebarItem from './SidebarItem.vue';
-import SidebarSubMenu from './SidebarSubMenu.vue';
-import { useAuthStore } from '@/stores/global/auth';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+  ChevronUp,
+  LogOut,
+  PanelLeft,
+  PanelRight,
+  Settings,
+  User,
+} from 'lucide-vue-next'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+} from '@/components/ui/dropdown-menu'
 import {
-  PanelLeft,
-  PanelRight,
-  Settings,
-  LogOut,
-  User,
-  ChevronUp,
-} from 'lucide-vue-next';
-import Logo from '../Logo.vue';
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '@/components/ui/resizable'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { pxToPercent, useMenuUtils } from '@/layouts/composables/useMenuUtils'
+import { useAuthStore } from '@/stores/global/auth'
+import { useThemeStore } from '@/stores/global/theme'
+import Logo from '../Logo.vue'
+import SidebarItem from './SidebarItem.vue'
+import SidebarSubMenu from './SidebarSubMenu.vue'
 
-const { t } = useI18n();
+const props = defineProps<Props>()
+
+const emit = defineEmits<Emits>()
+
+const { t } = useI18n()
 
 /**
  * 组件属性
  */
 interface Props {
   /** 侧栏配置 */
-  config: SidebarConfig;
+  config: SidebarConfig
   /** 是否折叠 */
-  collapsed: boolean;
+  collapsed: boolean
   /** 当前尺寸（百分比） */
-  currentSize: number;
+  currentSize: number
   /** 是否拖拽中 */
-  isDragging: boolean;
+  isDragging: boolean
   /** 展开的子菜单 keys */
-  expandedKeys: Set<string>;
+  expandedKeys: Set<string>
 }
-
-const props = defineProps<Props>();
 
 /**
  * 组件事件
  */
 interface Emits {
   /** 调整尺寸 */
-  (e: 'resize', size: number): void;
+  (e: 'resize', size: number): void
   /** 拖拽状态变化 */
-  (e: 'dragging', dragging: boolean): void;
+  (e: 'dragging', dragging: boolean): void
   /** 切换子菜单 */
-  (e: 'toggle-sub-menu', key: string): void;
+  (e: 'toggle-sub-menu', key: string): void
   /** 导航 */
-  (e: 'navigate', path: string): void;
+  (e: 'navigate', path: string): void
   /** 切换折叠状态 */
-  (e: 'toggle-collapse'): void;
+  (e: 'toggle-collapse'): void
 }
 
-const emit = defineEmits<Emits>();
-
-const themeStore = useThemeStore();
-const authStore = useAuthStore();
+const themeStore = useThemeStore()
+const authStore = useAuthStore()
 
 /**
  * 侧边栏面板 ref
  */
-const sidebarPanelRef = ref<InstanceType<typeof SplitterPanel> | null>(null);
+const sidebarPanelRef = ref<InstanceType<typeof SplitterPanel> | null>(null)
 
 /**
  * 侧边栏宽度（像素）
  */
-const sidebarWidth = computed(() => themeStore.layoutConfig.sidebarWidth);
+const sidebarWidth = computed(() => themeStore.layoutConfig.sidebarWidth)
 
 /**
  * 折叠宽度
  */
-const collapsedWidth = computed(() => themeStore.layoutConfig.sidebarCollapsedWidth);
+const collapsedWidth = computed(() => themeStore.layoutConfig.sidebarCollapsedWidth)
 
 /**
  * 面板大小（百分比）
  */
-const panelSize = computed(() => pxToPercent(sidebarWidth.value, window.innerWidth));
+const panelSize = computed(() => pxToPercent(sidebarWidth.value, window.innerWidth))
 
 /**
  * 最小尺寸（百分比）
  */
-const minSizePercent = computed(() => pxToPercent(props.config.minWidth, window.innerWidth));
+const minSizePercent = computed(() => pxToPercent(props.config.minWidth, window.innerWidth))
 
 /**
  * 最大尺寸（百分比）
  */
-const maxSizePercent = computed(() => pxToPercent(props.config.maxWidth, window.innerWidth));
+const maxSizePercent = computed(() => pxToPercent(props.config.maxWidth, window.innerWidth))
 
 /**
  * 使用菜单工具函数
  */
 const { isActive, isExpanded: checkExpanded } = useMenuUtils({
   expandedKeys: computed(() => props.expandedKeys),
-});
+})
 
 /**
  * 判断是否展开
  */
-const isExpanded = (key: string): boolean => {
-  return checkExpanded(key);
-};
+function isExpanded(key: string): boolean {
+  return checkExpanded(key)
+}
 
 /**
  * 处理导航
  * @param path - 导航路径
  */
-const handleNavigate = (path: string): void => {
-  emit('navigate', path);
-};
+function handleNavigate(path: string): void {
+  emit('navigate', path)
+}
 
 /**
  * 切换子菜单
  * @param key - 菜单 key
  */
-const handleToggleSubMenu = (key: string): void => {
-  emit('toggle-sub-menu', key);
-};
+function handleToggleSubMenu(key: string): void {
+  emit('toggle-sub-menu', key)
+}
 
 /**
  * 判断是否有子菜单
  */
-const hasChildren = (item: SidebarMenuItem): boolean => {
-  return !!item.children && item.children.length > 0;
-};
+function hasChildren(item: SidebarMenuItem): boolean {
+  return !!item.children && item.children.length > 0
+}
 
 /**
  * 处理折叠切换
  */
-const handleToggleCollapse = (): void => {
-  emit('toggle-collapse');
-};
+function handleToggleCollapse(): void {
+  emit('toggle-collapse')
+}
 
 /**
  * 用户姓名首字母
  */
 const userInitials = computed(() => {
-  return authStore.user?.name?.charAt(0).toUpperCase() || 'U';
-});
+  return authStore.user?.name?.charAt(0).toUpperCase() || 'U'
+})
 
 /**
  * 用户菜单打开状态
  */
-const isUserMenuOpen = ref(false);
+const isUserMenuOpen = ref(false)
 
 /**
  * 路由实例
  */
-const router = useRouter();
+const router = useRouter()
 
 /**
  * 处理导航到个人资料
  */
-const handleGoToProfile = () => {
-  router.push('/profile');
-};
+function handleGoToProfile() {
+  router.push('/profile')
+}
 
 /**
  * 处理导航到设置
  */
-const handleGoToSettings = () => {
-  router.push('/settings');
-};
+function handleGoToSettings() {
+  router.push('/settings')
+}
 
 /**
  * 处理退出登录
  */
-const handleLogout = async () => {
-  await authStore.logout();
-  router.push('/login');
-};
+async function handleLogout() {
+  await authStore.logout()
+  router.push('/login')
+}
 
 /**
  * 监听主题配置宽度变化，使用 resize() 方法实时调整面板大小
  */
 watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
-  document.documentElement.style.setProperty('--sidebar-width', `${newWidth}px`);
+  document.documentElement.style.setProperty('--sidebar-width', `${newWidth}px`)
   // 使用 resize() 方法实时调整面板大小
   if (sidebarPanelRef.value && !props.collapsed) {
-    const newPercent = pxToPercent(newWidth, window.innerWidth);
-    sidebarPanelRef.value.resize(newPercent);
+    const newPercent = pxToPercent(newWidth, window.innerWidth)
+    sidebarPanelRef.value.resize(newPercent)
   }
-});
+})
 </script>
 
 <template>
@@ -214,10 +214,10 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
       :min-size="minSizePercent"
       :max-size="maxSizePercent"
       :default-size="panelSize"
-      @resize="(size: number) => $emit('resize', size)"
       class="flex flex-col border-r border-border/30 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 relative"
       :class="{ 'transition-none': isDragging }"
       :style="collapsed ? { flex: `0 0 ${collapsedWidth}px` } : {}"
+      @resize="(size: number) => $emit('resize', size)"
     >
       <!-- 菜单区域背景装饰 -->
       <div
@@ -229,11 +229,11 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
       </div>
 
       <!-- Logo 区域 -->
-      <div 
+      <div
         class="relative z-10 border-b border-border/30"
         :class="collapsed ? 'p-2' : 'p-3'"
       >
-        <div 
+        <div
           class="flex items-center transition-all duration-200"
           :class="collapsed ? 'justify-center' : 'gap-3'"
         >
@@ -247,8 +247,8 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
         <!-- 展开状态：直接渲染按钮，无 Tooltip 包裹 -->
         <button
           v-if="!collapsed"
-          @click="handleToggleCollapse"
           class="mt-2 w-full h-8 flex items-center justify-center rounded-lg bg-muted/50 hover:bg-muted hover:text-primary transition-all duration-200 gap-2"
+          @click="handleToggleCollapse"
         >
           <PanelLeft class="h-4 w-4" />
           <span class="text-xs text-muted-foreground">{{ t('common.sidebar.collapse') }}</span>
@@ -259,8 +259,8 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
           <Tooltip>
             <TooltipTrigger as-child>
               <button
-                @click="handleToggleCollapse"
                 class="mt-2 w-full h-8 flex items-center justify-center rounded-lg bg-muted/50 hover:bg-muted hover:text-primary transition-all duration-200 px-0"
+                @click="handleToggleCollapse"
               >
                 <PanelRight class="h-4 w-4" />
               </button>
@@ -328,7 +328,7 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
         <div class="relative">
           <!-- 渐变分隔线 -->
           <div class="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-          
+
           <div class="border-t border-border/30 bg-muted/40 backdrop-blur-md pt-1">
             <slot name="footer">
               <!-- 展开状态 -->
@@ -367,20 +367,24 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" class="w-56" :side-offset="8">
                     <div class="px-2 py-1.5">
-                      <p class="text-xs font-medium text-muted-foreground">{{ t('common.sidebar.signedInAs') }}</p>
-                      <p class="text-sm font-semibold truncate">{{ authStore.user?.email || 'user@example.com' }}</p>
+                      <p class="text-xs font-medium text-muted-foreground">
+                        {{ t('common.sidebar.signedInAs') }}
+                      </p>
+                      <p class="text-sm font-semibold truncate">
+                        {{ authStore.user?.email || 'user@example.com' }}
+                      </p>
                     </div>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem @click="handleGoToProfile" class="gap-2 cursor-pointer">
+                    <DropdownMenuItem class="gap-2 cursor-pointer" @click="handleGoToProfile">
                       <User class="h-4 w-4" />
                       <span>{{ t('common.sidebar.profile') }}</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem @click="handleGoToSettings" class="gap-2 cursor-pointer">
+                    <DropdownMenuItem class="gap-2 cursor-pointer" @click="handleGoToSettings">
                       <Settings class="h-4 w-4" />
                       <span>{{ t('common.sidebar.settings') }}</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem @click="handleLogout" class="gap-2 cursor-pointer text-destructive focus:text-destructive">
+                    <DropdownMenuItem class="gap-2 cursor-pointer text-destructive focus:text-destructive" @click="handleLogout">
                       <LogOut class="h-4 w-4" />
                       <span>{{ t('common.sidebar.logout') }}</span>
                     </DropdownMenuItem>
@@ -410,20 +414,24 @@ watch(() => themeStore.layoutConfig.sidebarWidth, (newWidth) => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" side="right" class="w-56" :side-offset="8">
                     <div class="px-2 py-1.5">
-                      <p class="text-xs font-medium text-muted-foreground">{{ t('common.sidebar.signedInAs') }}</p>
-                      <p class="text-sm font-semibold truncate">{{ authStore.user?.email || 'user@example.com' }}</p>
+                      <p class="text-xs font-medium text-muted-foreground">
+                        {{ t('common.sidebar.signedInAs') }}
+                      </p>
+                      <p class="text-sm font-semibold truncate">
+                        {{ authStore.user?.email || 'user@example.com' }}
+                      </p>
                     </div>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem @click="handleGoToProfile" class="gap-2 cursor-pointer">
+                    <DropdownMenuItem class="gap-2 cursor-pointer" @click="handleGoToProfile">
                       <User class="h-4 w-4" />
                       <span>{{ t('common.sidebar.profile') }}</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem @click="handleGoToSettings" class="gap-2 cursor-pointer">
+                    <DropdownMenuItem class="gap-2 cursor-pointer" @click="handleGoToSettings">
                       <Settings class="h-4 w-4" />
                       <span>{{ t('common.sidebar.settings') }}</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem @click="handleLogout" class="gap-2 cursor-pointer text-destructive focus:text-destructive">
+                    <DropdownMenuItem class="gap-2 cursor-pointer text-destructive focus:text-destructive" @click="handleLogout">
                       <LogOut class="h-4 w-4" />
                       <span>{{ t('common.sidebar.logout') }}</span>
                     </DropdownMenuItem>

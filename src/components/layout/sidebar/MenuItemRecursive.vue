@@ -1,128 +1,135 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ChevronDown, ChevronRight } from 'lucide-vue-next';
-import { Icon } from '@/components/Icon';
-import { useMenuUtils, formatBadge } from '@/layouts/composables/useMenuUtils';
-import type { SidebarMenuItem } from '@/types/menu';
-
-const { t } = useI18n();
-
-/**
- * 组件属性
- */
-interface Props {
-  /** 菜单项数据 */
-  item: SidebarMenuItem;
-  /** 是否折叠 */
-  collapsed: boolean;
-  /** 当前层级 */
-  level?: number;
-}
+import type { SidebarMenuItem } from '@/types/menu'
+import { ChevronDown, ChevronRight } from 'lucide-vue-next'
+import { Icon } from '@/components/Icon'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { formatBadge, useMenuUtils } from '@/layouts/composables/useMenuUtils'
 
 const props = withDefaults(defineProps<Props>(), {
   level: 0,
-});
+})
 
 /**
  * 组件事件
  */
 const emit = defineEmits<{
   /** 导航事件 */
-  (e: 'navigate', path: string): void;
-}>();
+  (e: 'navigate', path: string): void
+}>()
 
-const route = useRoute();
-const { isActive, hasActiveChild, getAriaCurrent } = useMenuUtils();
+const { t } = useI18n()
+
+/**
+ * 组件属性
+ */
+interface Props {
+  /** 菜单项数据 */
+  item: SidebarMenuItem
+  /** 是否折叠 */
+  collapsed: boolean
+  /** 当前层级 */
+  level?: number
+}
+
+const route = useRoute()
+const { isActive, hasActiveChild, getAriaCurrent } = useMenuUtils()
 
 /**
  * 是否展开
  */
-const isExpanded = ref(props.item.defaultExpanded ?? false);
+const isExpanded = ref(props.item.defaultExpanded ?? false)
 
 /**
  * 是否激活
  */
-const active = computed(() => isActive(props.item.path));
+const active = computed(() => isActive(props.item.path))
 
 /**
  * 是否有子菜单处于激活状态
  */
-const isChildActive = computed(() => hasActiveChild(props.item.children));
+const isChildActive = computed(() => hasActiveChild(props.item.children))
 
 /**
  * 是否有子菜单
  */
 const hasChildren = computed(() => {
-  return !!props.item.children && props.item.children.length > 0;
-});
+  return !!props.item.children && props.item.children.length > 0
+})
 
 /**
  * 获取按钮样式类
  */
 const buttonClasses = computed(() => {
-  const baseClasses = 'w-full justify-between h-9 px-3 group transition-colors duration-150 rounded-lg';
+  const baseClasses = 'w-full justify-between h-9 px-3 group transition-colors duration-150 rounded-lg'
 
   if (props.item.disabled) {
-    return `${baseClasses} opacity-50 cursor-not-allowed`;
+    return `${baseClasses} opacity-50 cursor-not-allowed`
   }
 
   if (active.value) {
-    return `${baseClasses} bg-primary/10 text-primary hover:bg-primary/15`;
+    return `${baseClasses} bg-primary/10 text-primary hover:bg-primary/15`
   }
   if (isChildActive.value) {
-    return `${baseClasses} bg-muted/50 hover:bg-muted/70`;
+    return `${baseClasses} bg-muted/50 hover:bg-muted/70`
   }
-  return `${baseClasses} hover:bg-accent hover:text-accent-foreground`;
-});
+  return `${baseClasses} hover:bg-accent hover:text-accent-foreground`
+})
 
 /**
  * 获取图标样式类
  */
 const iconClasses = computed(() => {
   if (active.value) {
-    return 'h-4 w-4 text-primary';
+    return 'h-4 w-4 text-primary'
   }
   if (isChildActive.value) {
-    return 'h-4 w-4 text-muted-foreground';
+    return 'h-4 w-4 text-muted-foreground'
   }
-  return 'h-4 w-4 text-muted-foreground group-hover:text-accent-foreground';
-});
+  return 'h-4 w-4 text-muted-foreground group-hover:text-accent-foreground'
+})
 
 /**
  * 获取展开/收起图标样式类
  */
 const expandIconClasses = computed(() => {
   if (active.value || isChildActive.value) {
-    return 'h-3.5 w-3.5 text-primary';
+    return 'h-3.5 w-3.5 text-primary'
   }
-  return 'h-3.5 w-3.5 text-muted-foreground';
-});
+  return 'h-3.5 w-3.5 text-muted-foreground'
+})
 
 /**
  * 处理点击
  */
-const handleClick = (): void => {
+function handleClick(): void {
   if (hasChildren.value && !props.collapsed) {
-    isExpanded.value = !isExpanded.value;
-  } else {
-    emit('navigate', props.item.path);
+    isExpanded.value = !isExpanded.value
   }
-};
+  else {
+    emit('navigate', props.item.path)
+  }
+}
 
 /**
  * 处理子菜单导航
  */
-const handleChildNavigate = (path: string): void => {
-  emit('navigate', path);
-};
+function handleChildNavigate(path: string): void {
+  emit('navigate', path)
+}
 
 /**
  * 菜单标题（翻译后）
  */
 const menuTitle = computed(() => {
-  return props.item.i18nKey ? t(props.item.i18nKey) : props.item.title;
-});
+  return props.item.i18nKey ? t(props.item.i18nKey) : props.item.title
+})
+</script>
+
+<script lang="ts">
+export default {
+  name: 'MenuItemRecursive',
+}
 </script>
 
 <template>
@@ -201,9 +208,3 @@ const menuTitle = computed(() => {
     </Transition>
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: 'MenuItemRecursive'
-}
-</script>

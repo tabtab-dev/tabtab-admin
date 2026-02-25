@@ -1,25 +1,25 @@
 <script setup lang="ts">
+import type { FormSchema } from '@/components/business/TForm'
+import type { TableSchema } from '@/components/business/TTable'
+import type { Category } from '@/types'
+import {
+  CheckCircle2,
+  FolderTree,
+  Package,
+  Plus,
+  XCircle,
+} from 'lucide-vue-next'
+import { categoriesApi } from '@/api'
+import { TForm } from '@/components/business/TForm'
+import { TModal } from '@/components/business/TModal'
 /**
  * 一级分类页
  */
 import { TTable } from '@/components/business/TTable'
-import { TForm } from '@/components/business/TForm'
-import { TModal } from '@/components/business/TModal'
-import type { TableSchema } from '@/components/business/TTable'
-import type { FormSchema } from '@/components/business/TForm'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import type { Category } from '@/types'
-import { categoriesApi } from '@/api'
 import { useTableData } from '@/composables'
-import {
-  Plus,
-  FolderTree,
-  CheckCircle2,
-  XCircle,
-  Package
-} from 'lucide-vue-next'
 
 const {
   data: categories,
@@ -40,8 +40,8 @@ const {
       const lowerQuery = query.toLowerCase()
       result = result.filter(
         category =>
-          category.name.toLowerCase().includes(lowerQuery) ||
-          category.code.toLowerCase().includes(lowerQuery)
+          category.name.toLowerCase().includes(lowerQuery)
+          || category.code.toLowerCase().includes(lowerQuery),
       )
     }
 
@@ -70,7 +70,7 @@ const {
 // 搜索表单
 const searchFormData = ref({
   keyword: '',
-  status: ''
+  status: '',
 })
 
 const searchSchema: FormSchema = {
@@ -81,7 +81,7 @@ const searchSchema: FormSchema = {
       type: 'input',
       label: '',
       placeholder: '搜索分类名称...',
-      className: 'w-[200px]'
+      className: 'w-[200px]',
     },
     {
       name: 'status',
@@ -91,10 +91,10 @@ const searchSchema: FormSchema = {
       options: [
         { label: '全部状态', value: '' },
         { label: '启用', value: 'active' },
-        { label: '禁用', value: 'inactive' }
+        { label: '禁用', value: 'inactive' },
       ],
-      className: 'w-[140px]'
-    }
+      className: 'w-[140px]',
+    },
   ],
   searchConfig: {
     enabled: true,
@@ -112,8 +112,8 @@ const searchSchema: FormSchema = {
     onReset: () => {
       searchQuery.value = ''
       filters.value = {}
-    }
-  }
+    },
+  },
 }
 
 // 表格配置
@@ -124,57 +124,57 @@ const tableSchema = computed<TableSchema>(() => ({
       title: '分类名称',
       dataIndex: 'name',
       width: 180,
-      slot: 'name'
+      slot: 'name',
     },
     {
       title: '分类编码',
       dataIndex: 'code',
-      width: 150
+      width: 150,
     },
     {
       title: '商品数量',
       dataIndex: 'productCount',
       width: 100,
-      sorter: true
+      sorter: true,
     },
     {
       title: '排序',
       dataIndex: 'sort',
       width: 80,
-      sorter: true
+      sorter: true,
     },
     {
       title: '状态',
       dataIndex: 'status',
       width: 100,
-      slot: 'status'
-    }
+      slot: 'status',
+    },
   ],
   pagination: {
     pageSize: 10,
     show: true,
-    showSizeChanger: true
+    showSizeChanger: true,
   },
   rowSelection: {
     type: 'checkbox',
-    show: true
+    show: true,
   },
   actions: [
     {
       text: '编辑',
       type: 'primary',
-      onClick: (record) => handleEdit(record as unknown as Category)
+      onClick: record => handleEdit(record as unknown as Category),
     },
     {
       text: '删除',
       type: 'danger',
       confirm: true,
       confirmText: '确定要删除该分类吗？',
-      onClick: (record) => handleDelete((record as unknown as Category).id)
-    }
+      onClick: record => handleDelete((record as unknown as Category).id),
+    },
   ],
   actionWidth: 150,
-  actionFixed: 'right'
+  actionFixed: 'right',
 }))
 
 const tableData = computed(() => {
@@ -189,26 +189,26 @@ const statCards = computed(() => [
     title: '分类总数',
     value: statistics.value.total ?? 0,
     icon: FolderTree,
-    color: 'text-blue-500'
+    color: 'text-blue-500',
   },
   {
     title: '已启用',
     value: statistics.value.active ?? 0,
     icon: CheckCircle2,
-    color: 'text-green-500'
+    color: 'text-green-500',
   },
   {
     title: '已禁用',
     value: statistics.value.inactive ?? 0,
     icon: XCircle,
-    color: 'text-gray-500'
+    color: 'text-gray-500',
   },
   {
     title: '商品总数',
     value: statistics.value.totalProducts ?? 0,
     icon: Package,
-    color: 'text-purple-500'
-  }
+    color: 'text-purple-500',
+  },
 ])
 
 // 新增/编辑
@@ -221,7 +221,7 @@ const addFormData = ref({
   code: '',
   sort: 0,
   status: 'active' as 'active' | 'inactive',
-  description: ''
+  description: '',
 })
 
 const editFormData = ref({
@@ -230,7 +230,7 @@ const editFormData = ref({
   code: '',
   sort: 0,
   status: 'active' as 'active' | 'inactive',
-  description: ''
+  description: '',
 })
 
 const addSchema: FormSchema = {
@@ -243,20 +243,20 @@ const addSchema: FormSchema = {
       type: 'input',
       label: '分类名称',
       placeholder: '请输入分类名称',
-      rules: [{ required: true, message: '分类名称不能为空' }]
+      rules: [{ required: true, message: '分类名称不能为空' }],
     },
     {
       name: 'code',
       type: 'input',
       label: '分类编码',
       placeholder: '请输入分类编码',
-      rules: [{ required: true, message: '分类编码不能为空' }]
+      rules: [{ required: true, message: '分类编码不能为空' }],
     },
     {
       name: 'sort',
       type: 'number',
       label: '排序',
-      placeholder: '请输入排序号'
+      placeholder: '请输入排序号',
     },
     {
       name: 'status',
@@ -265,15 +265,15 @@ const addSchema: FormSchema = {
       placeholder: '请选择状态',
       options: [
         { label: '启用', value: 'active' },
-        { label: '禁用', value: 'inactive' }
-      ]
+        { label: '禁用', value: 'inactive' },
+      ],
     },
     {
       name: 'description',
       type: 'textarea',
       label: '描述',
-      placeholder: '请输入描述（可选）'
-    }
+      placeholder: '请输入描述（可选）',
+    },
   ],
   actions: {
     showSubmit: true,
@@ -281,8 +281,8 @@ const addSchema: FormSchema = {
     submitText: '添加分类',
     resetText: '取消',
     align: 'right',
-    onReset: () => { isAddOpen.value = false }
-  }
+    onReset: () => { isAddOpen.value = false },
+  },
 }
 
 const editSchema: FormSchema = {
@@ -295,20 +295,20 @@ const editSchema: FormSchema = {
       type: 'input',
       label: '分类名称',
       placeholder: '请输入分类名称',
-      rules: [{ required: true, message: '分类名称不能为空' }]
+      rules: [{ required: true, message: '分类名称不能为空' }],
     },
     {
       name: 'code',
       type: 'input',
       label: '分类编码',
       placeholder: '请输入分类编码',
-      rules: [{ required: true, message: '分类编码不能为空' }]
+      rules: [{ required: true, message: '分类编码不能为空' }],
     },
     {
       name: 'sort',
       type: 'number',
       label: '排序',
-      placeholder: '请输入排序号'
+      placeholder: '请输入排序号',
     },
     {
       name: 'status',
@@ -317,15 +317,15 @@ const editSchema: FormSchema = {
       placeholder: '请选择状态',
       options: [
         { label: '启用', value: 'active' },
-        { label: '禁用', value: 'inactive' }
-      ]
+        { label: '禁用', value: 'inactive' },
+      ],
     },
     {
       name: 'description',
       type: 'textarea',
       label: '描述',
-      placeholder: '请输入描述（可选）'
-    }
+      placeholder: '请输入描述（可选）',
+    },
   ],
   actions: {
     showSubmit: true,
@@ -333,8 +333,8 @@ const editSchema: FormSchema = {
     submitText: '保存修改',
     resetText: '取消',
     align: 'right',
-    onReset: () => { isEditOpen.value = false }
-  }
+    onReset: () => { isEditOpen.value = false },
+  },
 }
 
 // 事件处理
@@ -346,7 +346,7 @@ async function handleAddSubmit(values: Record<string, any>) {
     sort: Number(values.sort) || 0,
     status: values.status,
     productCount: 0,
-    description: values.description
+    description: values.description,
   })
   isAddOpen.value = false
   addFormData.value = { name: '', code: '', sort: 0, status: 'active', description: '' }
@@ -361,7 +361,7 @@ function handleEdit(item: Category) {
     code: item.code,
     sort: item.sort,
     status: item.status,
-    description: item.description || ''
+    description: item.description || '',
   }
   isEditOpen.value = true
 }
@@ -373,7 +373,7 @@ function handleEditSubmit(values: Record<string, any>) {
       code: values.code,
       sort: Number(values.sort),
       status: values.status,
-      description: values.description
+      description: values.description,
     })
     isEditOpen.value = false
     editingItem.value = null
@@ -401,7 +401,6 @@ async function handleBatchDelete() {
     await fetchData()
   }
 }
-
 </script>
 
 <template>
@@ -409,8 +408,12 @@ async function handleBatchDelete() {
     <!-- 页面标题 -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">一级分类</h1>
-        <p class="text-muted-foreground mt-1.5 text-sm">管理商品一级分类</p>
+        <h1 class="text-3xl font-bold tracking-tight">
+          一级分类
+        </h1>
+        <p class="text-muted-foreground mt-1.5 text-sm">
+          管理商品一级分类
+        </p>
       </div>
       <Button class="gap-2" @click="isAddOpen = true">
         <Plus class="h-4 w-4" />
@@ -435,7 +438,7 @@ async function handleBatchDelete() {
         :key="stat.title"
         class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
       >
-        <component :is="stat.icon" :class="['h-4 w-4', stat.color]" />
+        <component :is="stat.icon" class="h-4 w-4" :class="[stat.color]" />
         <div class="flex items-baseline gap-2">
           <span class="text-lg font-semibold">{{ stat.value }}</span>
           <span class="text-xs text-muted-foreground">{{ stat.title }}</span>
@@ -468,7 +471,9 @@ async function handleBatchDelete() {
       <CardHeader class="pb-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <CardTitle class="text-base font-semibold">一级分类列表</CardTitle>
+            <CardTitle class="text-base font-semibold">
+              一级分类列表
+            </CardTitle>
             <span class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
               共 {{ tableData.length }} 个
             </span>
@@ -495,7 +500,7 @@ async function handleBatchDelete() {
             <Badge
               :class="{
                 'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as any).text === 'active',
-                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as any).text === 'inactive'
+                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as any).text === 'inactive',
               }"
               variant="outline"
             >
@@ -509,8 +514,12 @@ async function handleBatchDelete() {
               <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
                 <FolderTree class="w-8 h-8 text-muted-foreground/50" />
               </div>
-              <p class="text-base font-medium mb-1">暂无一级分类</p>
-              <p class="text-sm text-muted-foreground mb-4">开始添加您的第一个一级分类吧</p>
+              <p class="text-base font-medium mb-1">
+                暂无一级分类
+              </p>
+              <p class="text-sm text-muted-foreground mb-4">
+                开始添加您的第一个一级分类吧
+              </p>
               <Button size="sm" @click="isAddOpen = true">
                 <Plus class="h-4 w-4 mr-1" />
                 添加分类

@@ -1,18 +1,16 @@
 <script setup lang="ts">
+import type { Organization } from '@/api/modules/organization'
+import type { FormSchema, TableSchema, TTableExpose } from '@/components/business'
+import { Badge } from 'antdv-next'
+import { Building, Network, Users } from 'lucide-vue-next'
+import { organizationApi } from '@/api'
 /**
  * 组织架构管理页面
  * @description 管理部门组织架构，支持树形结构展示和层级管理
  */
-import { TTable, TForm, TModal, TDataCard, TPageHeader, TStatusBadge, TEmptyState } from '@/components/business'
-import type { TableSchema, TTableExpose, TableRecord } from '@/components/business'
-import type { FormSchema } from '@/components/business'
-import { Button } from '@/components/ui/button'
+import { TDataCard, TEmptyState, TForm, TModal, TPageHeader, TStatusBadge, TTable } from '@/components/business'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { organizationApi } from '@/api'
-import type { Organization } from '@/api/modules/organization'
-import { useTableData, useMutation } from '@/composables'
-import { Plus, Building, Users, Network, Search, Eye, EyeOff } from 'lucide-vue-next'
-import { Switch, Tooltip, Badge } from 'antdv-next'
+import { useMutation, useTableData } from '@/composables'
 
 // ==================== 数据管理 ====================
 const {
@@ -25,7 +23,7 @@ const {
     const res = await organizationApi.getOrganizations(params)
     return res || { list: [], total: 0, page: 1, pageSize: 10 }
   },
-  apiCallParams: (ctx) => ({
+  apiCallParams: ctx => ({
     search: ctx.searchQuery,
   }),
 })
@@ -40,12 +38,12 @@ function buildOrgTree(orgs: Organization[]): Organization[] {
   const roots: Organization[] = []
 
   // 先创建所有节点的副本（不添加 children 字段）
-  orgs.forEach(org => {
+  orgs.forEach((org) => {
     orgMap.set(org.id, { ...org })
   })
 
   // 构建树形结构
-  orgs.forEach(org => {
+  orgs.forEach((org) => {
     const node = orgMap.get(org.id)!
     if (org.parentId && orgMap.has(org.parentId)) {
       const parent = orgMap.get(org.parentId)!
@@ -55,7 +53,8 @@ function buildOrgTree(orgs: Organization[]): Organization[] {
       parent.children.push(node)
       // 按排序值排序
       parent.children.sort((a, b) => a.sort - b.sort)
-    } else {
+    }
+    else {
       roots.push(node)
     }
   })
@@ -77,18 +76,18 @@ const { mutate: createOrganization } = useMutation({
     leader: values.leader,
     description: values.description,
     sort: values.sort || 0,
-    status: values.status
+    status: values.status,
   }),
   successMessage: '部门创建成功',
   onSuccess: () => {
     isAddDialogOpen.value = false
     resetAddForm()
     fetchData()
-  }
+  },
 })
 
 const { mutate: updateOrganization } = useMutation({
-  mutationFn: ({ id, values }: { id: string; values: Record<string, any> }) =>
+  mutationFn: ({ id, values }: { id: string, values: Record<string, any> }) =>
     organizationApi.updateOrganization(id, {
       name: values.name,
       code: values.code,
@@ -96,32 +95,32 @@ const { mutate: updateOrganization } = useMutation({
       leader: values.leader,
       description: values.description,
       sort: values.sort,
-      status: values.status
+      status: values.status,
     }),
   successMessage: '部门更新成功',
   onSuccess: () => {
     isEditDialogOpen.value = false
     editingOrganization.value = null
     fetchData()
-  }
+  },
 })
 
 const { mutate: deleteOrganization } = useMutation({
   mutationFn: (id: string) => organizationApi.deleteOrganization(id),
   successMessage: '部门删除成功',
-  onSuccess: () => fetchData()
+  onSuccess: () => fetchData(),
 })
 
 const { mutate: updateOrganizationStatus } = useMutation({
-  mutationFn: ({ id, status }: { id: string; status: string }) =>
+  mutationFn: ({ id, status }: { id: string, status: string }) =>
     organizationApi.updateOrganizationStatus(id, status),
   successMessage: '状态更新成功',
-  onSuccess: () => fetchData()
+  onSuccess: () => fetchData(),
 })
 
 // ==================== 搜索 ====================
 const searchFormData = ref({
-  keyword: ''
+  keyword: '',
 })
 
 const searchSchema: FormSchema = {
@@ -132,8 +131,8 @@ const searchSchema: FormSchema = {
       type: 'input',
       label: '',
       placeholder: '搜索部门名称或编码...',
-      className: 'w-[280px]'
-    }
+      className: 'w-[280px]',
+    },
   ],
   searchConfig: {
     enabled: true,
@@ -147,8 +146,8 @@ const searchSchema: FormSchema = {
     },
     onReset: () => {
       searchQuery.value = ''
-    }
-  }
+    },
+  },
 }
 
 // ==================== 表格配置 ====================
@@ -160,48 +159,48 @@ const tableSchema = computed<TableSchema>(() => ({
       title: '部门名称',
       dataIndex: 'name',
       width: 220,
-      slot: 'name'
+      slot: 'name',
     },
     {
       title: '部门编码',
       dataIndex: 'code',
       width: 140,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: '负责人',
       dataIndex: 'leader',
-      width: 120
+      width: 120,
     },
     {
       title: '成员数',
       dataIndex: 'memberCount',
       width: 80,
-      align: 'center'
+      align: 'center',
     },
     {
       title: '排序',
       dataIndex: 'sort',
       width: 60,
-      align: 'center'
+      align: 'center',
     },
     {
       title: '状态',
       dataIndex: 'status',
       width: 80,
-      slot: 'status'
+      slot: 'status',
     },
     {
       title: '创建时间',
       dataIndex: 'createdAt',
-      width: 160
-    }
+      width: 160,
+    },
   ],
   // 树形表格配置
   childrenColumnName: 'children',
   indentSize: 20,
   expandable: {
-    defaultExpandAllRows: true
+    defaultExpandAllRows: true,
   },
   // 禁用分页，树形表格通常不需要分页
   pagination: false,
@@ -209,18 +208,18 @@ const tableSchema = computed<TableSchema>(() => ({
     {
       text: '编辑',
       type: 'primary',
-      onClick: (record) => handleEditOrganization(record as Organization)
+      onClick: record => handleEditOrganization(record as Organization),
     },
     {
       text: '删除',
       type: 'danger',
       confirm: true,
       confirmText: '确定要删除该部门吗？子部门也会被删除，此操作不可恢复。',
-      onClick: (record) => handleDeleteOrganization((record as Organization).id)
-    }
+      onClick: record => handleDeleteOrganization((record as Organization).id),
+    },
   ],
   actionWidth: 150,
-  actionFixed: 'right'
+  actionFixed: 'right',
 }))
 
 // ==================== 弹窗和表单 ====================
@@ -240,7 +239,7 @@ function createInitialFormData() {
     leader: '',
     description: '',
     sort: 0,
-    status: 'active' as 'active' | 'inactive'
+    status: 'active' as 'active' | 'inactive',
   }
 }
 
@@ -254,8 +253,8 @@ const organizationOptions = computed(() => {
     { label: '顶级部门', value: null },
     ...list.map(item => ({
       label: item.name,
-      value: item.id
-    }))
+      value: item.id,
+    })),
   ]
 })
 
@@ -268,7 +267,7 @@ const orgTreeOptions = computed(() => {
       title: org.name,
       value: org.id,
       key: org.id,
-      children: org.children ? buildTree(org.children) : undefined
+      children: org.children ? buildTree(org.children) : undefined,
     }))
   }
 
@@ -279,8 +278,8 @@ const orgTreeOptions = computed(() => {
       title: '顶级部门',
       value: '',
       key: 'root',
-      children: treeData
-    }
+      children: treeData,
+    },
   ]
 })
 
@@ -298,8 +297,8 @@ function getFormFields(isEdit: boolean) {
       placeholder: '请输入部门名称',
       rules: [
         { required: true, message: '部门名称不能为空' },
-        { min: 2, message: '部门名称至少2个字符' }
-      ]
+        { min: 2, message: '部门名称至少2个字符' },
+      ],
     },
     {
       name: 'code',
@@ -309,8 +308,8 @@ function getFormFields(isEdit: boolean) {
       disabled: isEdit,
       rules: [
         { required: true, message: '部门编码不能为空' },
-        { pattern: /^[A-Za-z0-9_-]+$/, message: '编码只能包含字母、数字、下划线和横线' }
-      ]
+        { pattern: /^[\w-]+$/, message: '编码只能包含字母、数字、下划线和横线' },
+      ],
     },
     {
       name: 'parentId',
@@ -323,21 +322,21 @@ function getFormFields(isEdit: boolean) {
         treeDefaultExpandAll: true,
         allowClear: true,
         showSearch: true,
-        treeNodeFilterProp: 'title'
-      }
+        treeNodeFilterProp: 'title',
+      },
     },
     {
       name: 'leader',
       type: 'input' as const,
       label: '负责人',
-      placeholder: '请输入负责人姓名'
+      placeholder: '请输入负责人姓名',
     },
     {
       name: 'sort',
       type: 'number' as const,
       label: '排序',
       placeholder: '请输入排序号',
-      min: 0
+      min: 0,
     },
     {
       name: 'status',
@@ -346,17 +345,17 @@ function getFormFields(isEdit: boolean) {
       placeholder: '请选择状态',
       options: [
         { label: '启用', value: 'active' },
-        { label: '禁用', value: 'inactive' }
+        { label: '禁用', value: 'inactive' },
       ],
-      rules: [{ required: true, message: '请选择状态' }]
+      rules: [{ required: true, message: '请选择状态' }],
     },
     {
       name: 'description',
       type: 'textarea' as const,
       label: '描述',
       placeholder: '请输入部门描述',
-      rows: 3
-    }
+      rows: 3,
+    },
   ]
 }
 
@@ -375,8 +374,8 @@ const addSchema = computed<FormSchema>(() => ({
     align: 'right',
     onReset: () => {
       isAddDialogOpen.value = false
-    }
-  }
+    },
+  },
 }))
 
 const editSchema = computed<FormSchema>(() => ({
@@ -394,8 +393,8 @@ const editSchema = computed<FormSchema>(() => ({
     align: 'right',
     onReset: () => {
       isEditDialogOpen.value = false
-    }
-  }
+    },
+  },
 }))
 
 // ==================== 事件处理 ====================
@@ -413,7 +412,7 @@ function handleEditOrganization(org: Organization): void {
     leader: org.leader,
     description: org.description,
     sort: org.sort,
-    status: org.status
+    status: org.status,
   }
   isEditDialogOpen.value = true
 }
@@ -472,7 +471,7 @@ const statisticsCards = computed(() => {
     { title: '部门总数', value: total, icon: Building, color: 'text-blue-500' },
     { title: '启用部门', value: active, icon: Network, color: 'text-green-500' },
     { title: '顶级部门', value: topLevel, icon: Building, color: 'text-purple-500' },
-    { title: '总成员数', value: totalMembers, icon: Users, color: 'text-orange-500' }
+    { title: '总成员数', value: totalMembers, icon: Users, color: 'text-orange-500' },
   ]
 })
 </script>
@@ -483,7 +482,7 @@ const statisticsCards = computed(() => {
       title="组织架构"
       subtitle="管理部门组织架构和层级关系"
       :actions="[
-        { text: '添加部门', type: 'primary', iconName: 'Plus', onClick: () => isAddDialogOpen = true }
+        { text: '添加部门', type: 'primary', iconName: 'Plus', onClick: () => isAddDialogOpen = true },
       ]"
     />
 
@@ -508,7 +507,9 @@ const statisticsCards = computed(() => {
     <!-- 树形表格 -->
     <Card class="bg-muted/40 border border-border/50 rounded-xl">
       <CardHeader class="pb-4">
-        <CardTitle class="text-base font-semibold">部门结构</CardTitle>
+        <CardTitle class="text-base font-semibold">
+          部门结构
+        </CardTitle>
       </CardHeader>
       <CardContent class="pt-0">
         <TTable
@@ -539,7 +540,7 @@ const statisticsCards = computed(() => {
               :status="text"
               :status-map="{
                 active: { text: '启用', color: 'success' },
-                inactive: { text: '禁用', color: 'default' }
+                inactive: { text: '禁用', color: 'default' },
               }"
               clickable
               @click="handleToggleStatus(record as Organization)"

@@ -1,16 +1,16 @@
 <script setup lang="ts">
+import type { DrawerPlacement, FormSchema, TableSchema, TDrawerExpose } from '@/components/business'
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, FormInput, LayoutTemplate, PanelRight, Table2 } from 'lucide-vue-next'
 /**
  * TDrawerDemo - TDrawer 组件演示页面
  *
  * @description 展示 TDrawer 抽屉组件的各种使用场景和配置方式
  */
 import { TDrawer, TForm, TTable } from '@/components/business'
-import type { TDrawerExpose, FormSchema, TableSchema, DrawerPlacement } from '@/components/business'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { PanelRight, LayoutTemplate, Table2, FormInput, ArrowRight, ArrowLeft, ArrowUp, ArrowDown } from 'lucide-vue-next'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 /**
  * Drawer 引用
@@ -36,7 +36,7 @@ const formRef = ref()
 const formData = ref({
   name: '',
   email: '',
-  role: 'viewer'
+  role: 'viewer',
 })
 
 /**
@@ -50,7 +50,7 @@ const formSchema: FormSchema = {
       type: 'input',
       label: '姓名',
       placeholder: '请输入姓名',
-      rules: [{ required: true, message: '姓名不能为空' }]
+      rules: [{ required: true, message: '姓名不能为空' }],
     },
     {
       name: 'email',
@@ -59,8 +59,8 @@ const formSchema: FormSchema = {
       placeholder: '请输入邮箱',
       rules: [
         { required: true, message: '邮箱不能为空' },
-        { type: 'email', message: '邮箱格式不正确' }
-      ]
+        { type: 'email', message: '邮箱格式不正确' },
+      ],
     },
     {
       name: 'role',
@@ -69,14 +69,14 @@ const formSchema: FormSchema = {
       options: [
         { label: '管理员', value: 'admin' },
         { label: '编辑', value: 'editor' },
-        { label: '访客', value: 'viewer' }
-      ]
-    }
+        { label: '访客', value: 'viewer' },
+      ],
+    },
   ],
   actions: {
     showSubmit: false,
-    showReset: false
-  }
+    showReset: false,
+  },
 }
 
 /**
@@ -92,9 +92,9 @@ const tableSchema: TableSchema = {
     { title: 'ID', dataIndex: 'id', width: 80 },
     { title: '姓名', dataIndex: 'name', width: 120 },
     { title: '邮箱', dataIndex: 'email' },
-    { title: '角色', dataIndex: 'role', width: 100 }
+    { title: '角色', dataIndex: 'role', width: 100 },
   ],
-  pagination: { pageSize: 5, show: true }
+  pagination: { pageSize: 5, show: true },
 }
 
 /**
@@ -105,7 +105,7 @@ const tableData = ref([
   { id: 2, name: '李四', email: 'lisi@example.com', role: '编辑' },
   { id: 3, name: '王五', email: 'wangwu@example.com', role: '访客' },
   { id: 4, name: '赵六', email: 'zhaoliu@example.com', role: '编辑' },
-  { id: 5, name: '孙七', email: 'sunqi@example.com', role: '访客' }
+  { id: 5, name: '孙七', email: 'sunqi@example.com', role: '访客' },
 ])
 
 /**
@@ -159,7 +159,8 @@ async function handleFormSubmit() {
     const values = await formRef.value?.validate()
     console.log('表单提交:', values)
     formOpen.value = false
-  } catch (error) {
+  }
+  catch (error) {
     console.log('表单验证失败:', error)
   }
 }
@@ -184,7 +185,9 @@ function closeDrawerByRef() {
     <!-- 页面标题 -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">TDrawer 组件演示</h1>
+        <h1 class="text-3xl font-bold tracking-tight">
+          TDrawer 组件演示
+        </h1>
         <p class="text-muted-foreground mt-2">
           基于 antdv-next 封装的抽屉组件，支持多种使用场景
         </p>
@@ -226,7 +229,9 @@ function closeDrawerByRef() {
             </CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
-            <Button @click="basicOpen = true">打开基础抽屉</Button>
+            <Button @click="basicOpen = true">
+              打开基础抽屉
+            </Button>
 
             <TDrawer
               v-model:open="basicOpen"
@@ -291,8 +296,12 @@ function closeDrawerByRef() {
           </CardHeader>
           <CardContent class="space-y-4">
             <div class="flex gap-2">
-              <Button @click="openDrawerByRef">打开抽屉</Button>
-              <Button variant="outline" @click="closeDrawerByRef">关闭抽屉</Button>
+              <Button @click="openDrawerByRef">
+                打开抽屉
+              </Button>
+              <Button variant="outline" @click="closeDrawerByRef">
+                关闭抽屉
+              </Button>
             </div>
 
             <TDrawer
@@ -319,7 +328,9 @@ function closeDrawerByRef() {
             </CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
-            <Button @click="formOpen = true">打开表单抽屉</Button>
+            <Button @click="formOpen = true">
+              打开表单抽屉
+            </Button>
 
             <TDrawer
               v-model:open="formOpen"
@@ -357,7 +368,9 @@ function closeDrawerByRef() {
             </CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
-            <Button @click="tableOpen = true">打开表格抽屉</Button>
+            <Button @click="tableOpen = true">
+              打开表格抽屉
+            </Button>
 
             <TDrawer
               v-model:open="tableOpen"
@@ -382,9 +395,15 @@ function closeDrawerByRef() {
           </CardHeader>
           <CardContent class="space-y-4">
             <div class="flex flex-wrap gap-2">
-              <Button variant="outline" @click="openSizeDrawer('default')">默认 (378px)</Button>
-              <Button variant="outline" @click="openSizeDrawer('large')">大号 (736px)</Button>
-              <Button variant="outline" @click="openSizeDrawer(500)">自定义 (500px)</Button>
+              <Button variant="outline" @click="openSizeDrawer('default')">
+                默认 (378px)
+              </Button>
+              <Button variant="outline" @click="openSizeDrawer('large')">
+                大号 (736px)
+              </Button>
+              <Button variant="outline" @click="openSizeDrawer(500)">
+                自定义 (500px)
+              </Button>
             </div>
 
             <TDrawer
@@ -409,7 +428,9 @@ function closeDrawerByRef() {
             </CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
-            <Button @click="resizableOpen = true">打开可调整大小抽屉</Button>
+            <Button @click="resizableOpen = true">
+              打开可调整大小抽屉
+            </Button>
 
             <TDrawer
               v-model:open="resizableOpen"
@@ -439,7 +460,9 @@ function closeDrawerByRef() {
             </CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
-            <Button @click="customFooterOpen = true">打开自定义底部抽屉</Button>
+            <Button @click="customFooterOpen = true">
+              打开自定义底部抽屉
+            </Button>
 
             <TDrawer
               v-model:open="customFooterOpen"

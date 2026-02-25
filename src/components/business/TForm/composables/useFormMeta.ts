@@ -1,3 +1,4 @@
+import type { FormMeta } from '../types'
 /**
  * useFormMeta - 表单状态管理 Composable
  *
@@ -6,7 +7,6 @@
  *   const { meta, updateMeta, markTouched, resetMeta } = useFormMeta()
  */
 import { reactive, ref, toRaw } from 'vue'
-import type { FormMeta } from '../types'
 
 /**
  * 获取原始值 - 处理 Vue Proxy 对象
@@ -16,7 +16,8 @@ import type { FormMeta } from '../types'
 function getRawValue<T>(data: T): T {
   try {
     return toRaw(data)
-  } catch {
+  }
+  catch {
     return data
   }
 }
@@ -30,7 +31,8 @@ function deepClone<T>(data: T): T {
   try {
     const rawData = getRawValue(data)
     return JSON.parse(JSON.stringify(rawData))
-  } catch (e) {
+  }
+  catch (e) {
     console.warn('[useFormMeta] 深拷贝失败，使用浅拷贝', e)
     const rawData = getRawValue(data)
     return Array.isArray(rawData) ? [...rawData] as T : { ...rawData } as T
@@ -51,41 +53,51 @@ function isEqual(a: Record<string, any>, b: Record<string, any>): boolean {
     const keysA = Object.keys(rawA)
     const keysB = Object.keys(rawB)
 
-    if (keysA.length !== keysB.length) return false
+    if (keysA.length !== keysB.length)
+      return false
 
     for (const key of keysA) {
-      if (!keysB.includes(key)) return false
+      if (!keysB.includes(key))
+        return false
       const valA = rawA[key]
       const valB = rawB[key]
 
       if (valA instanceof Date && valB instanceof Date) {
-        if (valA.getTime() !== valB.getTime()) return false
+        if (valA.getTime() !== valB.getTime())
+          return false
         continue
       }
 
-      if (typeof valA !== typeof valB) return false
+      if (typeof valA !== typeof valB)
+        return false
 
       if (typeof valA === 'object' && valA !== null && valB !== null) {
         if (Array.isArray(valA) && Array.isArray(valB)) {
-          if (valA.length !== valB.length) return false
+          if (valA.length !== valB.length)
+            return false
           for (let i = 0; i < valA.length; i++) {
             if (typeof valA[i] === 'object' && valA[i] !== null) {
-              if (!isEqual(valA[i], valB[i])) return false
-            } else if (valA[i] !== valB[i]) {
+              if (!isEqual(valA[i], valB[i]))
+                return false
+            }
+            else if (valA[i] !== valB[i]) {
               return false
             }
           }
           continue
         }
-        if (!isEqual(valA, valB)) return false
+        if (!isEqual(valA, valB))
+          return false
         continue
       }
 
-      if (valA !== valB) return false
+      if (valA !== valB)
+        return false
     }
 
     return true
-  } catch (e) {
+  }
+  catch (e) {
     console.warn('[useFormMeta] 比较对象失败', e)
     return false
   }
@@ -109,7 +121,7 @@ export function useFormMeta() {
     /** 是否提交中 */
     submitting: false,
     /** 是否验证中 */
-    validating: false
+    validating: false,
   })
 
   /**
@@ -195,6 +207,6 @@ export function useFormMeta() {
     setSubmitting,
     setValidating,
     resetMeta,
-    getMetaSnapshot
+    getMetaSnapshot,
   }
 }

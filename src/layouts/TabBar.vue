@@ -1,75 +1,74 @@
 <script setup lang="ts">
-import { useTabBarStore } from '@/stores/global/tabbar';
-import { useTabBar } from '@/composables/useTabBar';
-import { useFullscreen } from '@/composables/useFullscreen';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from '@/components/ui/context-menu';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Icon } from '@/components/Icon';
 import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
   Ellipsis,
-  RotateCw,
-  X,
-  GripVertical,
-  Settings,
   Expand,
+  GripVertical,
+  RotateCw,
   Shrink,
-} from 'lucide-vue-next';
+  X,
+} from 'lucide-vue-next'
+import { Icon } from '@/components/Icon'
+import { Button } from '@/components/ui/button'
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { useFullscreen } from '@/composables/useFullscreen'
+import { useTabBar } from '@/composables/useTabBar'
+import { useTabBarStore } from '@/stores/global/tabbar'
 
-const { t, locale } = useI18n();
-const tabBarStore = useTabBarStore();
+const { t, locale } = useI18n()
+const tabBarStore = useTabBarStore()
 
 /**
  * 使用全屏功能
  */
-const { isFullscreen, toggle, isSupported } = useFullscreen();
+const { isFullscreen, toggle, isSupported } = useFullscreen()
 
 /**
  * 获取标签标题（支持多语言响应式切换）
  * @param titleKey - 国际化 key
  * @returns 翻译后的标题
  */
-const getTabTitle = (titleKey: string): string => {
+function getTabTitle(titleKey: string): string {
   // locale 被访问时会建立响应式依赖，语言切换时自动重新计算
-  return t(titleKey);
-};
+  return t(titleKey)
+}
 
 // Refs for scroll containers
-const scrollContainerRef = ref<HTMLElement | null>(null);
-const tabsContainerRef = ref<HTMLElement | null>(null);
+const scrollContainerRef = ref<HTMLElement | null>(null)
+const tabsContainerRef = ref<HTMLElement | null>(null)
 
 // Dragging state - 用于控制拖拽时的动画
-const isDragging = ref(false);
+const isDragging = ref(false)
 
 // 触摸滑动状态
-const touchStartX = ref(0);
-const touchStartY = ref(0);
-const touchEndX = ref(0);
-const isTouchScrolling = ref(false);
-const minSwipeDistance = 30; // 最小滑动距离
-const maxVerticalDistance = 50; // 最大垂直滑动距离
+const touchStartX = ref(0)
+const touchStartY = ref(0)
+const touchEndX = ref(0)
+const isTouchScrolling = ref(false)
+const minSwipeDistance = 30 // 最小滑动距离
+const maxVerticalDistance = 50 // 最大垂直滑动距离
 
 // Use the tab bar composable
 const {
@@ -94,13 +93,13 @@ const {
 } = useTabBar({
   scrollContainerRef,
   tabsContainerRef,
-});
+})
 
 // Get context menu items for a tab
-const getContextMenuItems = (tab: typeof tabBarStore.tabs[0]) => {
-  const tabIndex = tabBarStore.tabs.findIndex(t => t.path === tab.path);
-  const isFirst = tabIndex === 0;
-  const isLast = tabIndex === tabBarStore.tabs.length - 1;
+function getContextMenuItems(tab: typeof tabBarStore.tabs[0]) {
+  const tabIndex = tabBarStore.tabs.findIndex(t => t.path === tab.path)
+  const isFirst = tabIndex === 0
+  const isLast = tabIndex === tabBarStore.tabs.length - 1
 
   return [
     { key: 'refresh', label: t('common.tabbar.refresh'), icon: 'RotateCw', disabled: tab.isRefreshing },
@@ -111,77 +110,78 @@ const getContextMenuItems = (tab: typeof tabBarStore.tabs[0]) => {
     { key: 'closeRight', label: t('common.tabbar.closeRight'), icon: 'ChevronRight', disabled: isLast },
     { type: 'separator' as const },
     { key: 'closeAll', label: t('common.tabbar.closeAll'), icon: 'Ellipsis' },
-  ];
-};
+  ]
+}
 
 // Drag handlers with animation control
-const onDragStart = (event: DragEvent, path: string) => {
-  isDragging.value = true;
-  handleDragStart(event, path);
-};
+function onDragStart(event: DragEvent, path: string) {
+  isDragging.value = true
+  handleDragStart(event, path)
+}
 
-const onDragEnd = () => {
-  isDragging.value = false;
-  handleDragEnd();
-};
+function onDragEnd() {
+  isDragging.value = false
+  handleDragEnd()
+}
 
 /**
  * 处理触摸开始
  * @param e - 触摸事件
  */
-const handleTouchStart = (e: TouchEvent) => {
-  touchStartX.value = e.touches[0]?.clientX ?? 0;
-  touchStartY.value = e.touches[0]?.clientY ?? 0;
-  touchEndX.value = touchStartX.value;
-  isTouchScrolling.value = false;
-};
+function handleTouchStart(e: TouchEvent) {
+  touchStartX.value = e.touches[0]?.clientX ?? 0
+  touchStartY.value = e.touches[0]?.clientY ?? 0
+  touchEndX.value = touchStartX.value
+  isTouchScrolling.value = false
+}
 
 /**
  * 处理触摸移动
  * @param e - 触摸事件
  */
-const handleTouchMove = (e: TouchEvent) => {
-  touchEndX.value = e.touches[0]?.clientX ?? 0;
-  const currentY = e.touches[0]?.clientY ?? 0;
-  const verticalDistance = Math.abs(currentY - touchStartY.value);
+function handleTouchMove(e: TouchEvent) {
+  touchEndX.value = e.touches[0]?.clientX ?? 0
+  const currentY = e.touches[0]?.clientY ?? 0
+  const verticalDistance = Math.abs(currentY - touchStartY.value)
 
   // 如果垂直滑动超过阈值，不处理水平滑动
   if (verticalDistance > maxVerticalDistance) {
-    isTouchScrolling.value = false;
-    return;
+    isTouchScrolling.value = false
+    return
   }
 
   // 标记为触摸滑动状态
-  isTouchScrolling.value = true;
-};
+  isTouchScrolling.value = true
+}
 
 /**
  * 处理触摸结束 - 实现滑动切换标签
  */
-const handleTouchEnd = () => {
-  if (!isTouchScrolling.value) return;
+function handleTouchEnd() {
+  if (!isTouchScrolling.value)
+    return
 
-  const swipeDistance = touchStartX.value - touchEndX.value;
+  const swipeDistance = touchStartX.value - touchEndX.value
 
   // 左滑 - 切换到下一个标签
   if (swipeDistance > minSwipeDistance) {
-    const currentIndex = tabBarStore.tabs.findIndex(t => t.path === tabBarStore.activeTab);
+    const currentIndex = tabBarStore.tabs.findIndex(t => t.path === tabBarStore.activeTab)
     if (currentIndex < tabBarStore.tabs.length - 1) {
-      const nextTab = tabBarStore.tabs[currentIndex + 1];
-      handleTabClick(nextTab.path);
+      const nextTab = tabBarStore.tabs[currentIndex + 1]
+      handleTabClick(nextTab.path)
     }
   }
   // 右滑 - 切换到上一个标签
   else if (swipeDistance < -minSwipeDistance) {
-    const currentIndex = tabBarStore.tabs.findIndex(t => t.path === tabBarStore.activeTab);
+    const currentIndex = tabBarStore.tabs.findIndex(t => t.path === tabBarStore.activeTab)
     if (currentIndex > 0) {
-      const prevTab = tabBarStore.tabs[currentIndex - 1];
-      handleTabClick(prevTab.path);
+      const prevTab = tabBarStore.tabs[currentIndex - 1]
+      handleTabClick(prevTab.path)
     }
   }
 
-  isTouchScrolling.value = false;
-};
+  isTouchScrolling.value = false
+}
 </script>
 
 <template>
@@ -244,7 +244,7 @@ const handleTouchEnd = () => {
           name="tab"
           tag="div"
           class="flex items-center gap-1"
-          :class="{ 'dragging': isDragging }"
+          :class="{ dragging: isDragging }"
         >
           <div
             v-for="tab in tabBarStore.tabs"

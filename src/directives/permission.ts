@@ -10,17 +10,17 @@
  * 5. 角色检查(任一): v-role:any="['admin', 'editor']"
  */
 
-import type { Directive, DirectiveBinding } from 'vue';
-import { watch, computed } from 'vue';
-import { useAuthStore } from '@/stores/global/auth';
-import type { PermissionMode } from '@/composables/usePermission';
-import type { PermissionCode } from '@/constants/permissions';
+import type { Directive, DirectiveBinding } from 'vue'
+import type { PermissionMode } from '@/composables/usePermission'
+import type { PermissionCode } from '@/constants/permissions'
+import { computed, watch } from 'vue'
+import { useAuthStore } from '@/stores/global/auth'
 
 /** 权限指令绑定值类型 */
-export type PermissionBinding = PermissionCode | string | (PermissionCode | string)[];
+export type PermissionBinding = PermissionCode | string | (PermissionCode | string)[]
 
 /** 角色指令绑定值类型 */
-export type RoleBinding = string | string[];
+export type RoleBinding = string | string[]
 
 /**
  * 检查权限的工具函数
@@ -32,17 +32,17 @@ export type RoleBinding = string | string[];
 function checkPermissions(
   requiredPermissions: string[],
   userPermissions: string[],
-  mode: PermissionMode = 'all'
+  mode: PermissionMode = 'all',
 ): boolean {
   // 超级权限检查
   if (userPermissions.includes('*')) {
-    return true;
+    return true
   }
 
   if (mode === 'any') {
-    return requiredPermissions.some(perm => userPermissions.includes(perm));
+    return requiredPermissions.some(perm => userPermissions.includes(perm))
   }
-  return requiredPermissions.every(perm => userPermissions.includes(perm));
+  return requiredPermissions.every(perm => userPermissions.includes(perm))
 }
 
 /**
@@ -55,14 +55,15 @@ function checkPermissions(
 function checkRoles(
   requiredRoles: string[],
   userRole: string | undefined,
-  mode: PermissionMode = 'any'
+  mode: PermissionMode = 'any',
 ): boolean {
-  if (!userRole) return false;
+  if (!userRole)
+    return false
 
   if (mode === 'all') {
-    return requiredRoles.every(role => userRole === role);
+    return requiredRoles.every(role => userRole === role)
   }
-  return requiredRoles.some(role => userRole === role);
+  return requiredRoles.includes(userRole)
 }
 
 /**
@@ -73,18 +74,20 @@ function checkRoles(
 function handleNoPermission(el: HTMLElement, binding: DirectiveBinding): void {
   if (binding.modifiers.disabled) {
     // 禁用模式
-    el.setAttribute('disabled', 'true');
-    el.setAttribute('aria-disabled', 'true');
-    el.style.pointerEvents = 'none';
-    el.style.opacity = '0.5';
-    el.style.cursor = 'not-allowed';
-  } else if (binding.modifiers.hidden) {
+    el.setAttribute('disabled', 'true')
+    el.setAttribute('aria-disabled', 'true')
+    el.style.pointerEvents = 'none'
+    el.style.opacity = '0.5'
+    el.style.cursor = 'not-allowed'
+  }
+  else if (binding.modifiers.hidden) {
     // 隐藏模式
-    el.style.visibility = 'hidden';
-  } else {
+    el.style.visibility = 'hidden'
+  }
+  else {
     // 默认：隐藏元素
-    el.style.display = 'none';
-    el.setAttribute('aria-hidden', 'true');
+    el.style.display = 'none'
+    el.setAttribute('aria-hidden', 'true')
   }
 }
 
@@ -95,16 +98,18 @@ function handleNoPermission(el: HTMLElement, binding: DirectiveBinding): void {
  */
 function restoreElement(el: HTMLElement, binding: DirectiveBinding): void {
   if (binding.modifiers.disabled) {
-    el.removeAttribute('disabled');
-    el.removeAttribute('aria-disabled');
-    el.style.pointerEvents = '';
-    el.style.opacity = '';
-    el.style.cursor = '';
-  } else if (binding.modifiers.hidden) {
-    el.style.visibility = '';
-  } else {
-    el.style.display = '';
-    el.removeAttribute('aria-hidden');
+    el.removeAttribute('disabled')
+    el.removeAttribute('aria-disabled')
+    el.style.pointerEvents = ''
+    el.style.opacity = ''
+    el.style.cursor = ''
+  }
+  else if (binding.modifiers.hidden) {
+    el.style.visibility = ''
+  }
+  else {
+    el.style.display = ''
+    el.removeAttribute('aria-hidden')
   }
 }
 
@@ -118,28 +123,29 @@ function restoreElement(el: HTMLElement, binding: DirectiveBinding): void {
 function createPermissionWatcher(
   el: HTMLElement,
   binding: DirectiveBinding<PermissionBinding>,
-  authStore: ReturnType<typeof useAuthStore>
+  authStore: ReturnType<typeof useAuthStore>,
 ): () => void {
-  const { value, arg } = binding;
+  const { value, arg } = binding
 
   // 创建计算属性来监听权限变化
   const hasAuth = computed(() => {
     if (!authStore.isAuthenticated) {
-      return false;
+      return false
     }
 
-    const userPermissions = authStore.user?.permissions || [];
-    const permissions = Array.isArray(value) ? value : [value];
-    const mode: PermissionMode = arg === 'any' ? 'any' : 'all';
+    const userPermissions = authStore.user?.permissions || []
+    const permissions = Array.isArray(value) ? value : [value]
+    const mode: PermissionMode = arg === 'any' ? 'any' : 'all'
 
-    return checkPermissions(permissions as string[], userPermissions, mode);
-  });
+    return checkPermissions(permissions as string[], userPermissions, mode)
+  })
 
   // 立即执行一次检查
   if (hasAuth.value) {
-    restoreElement(el, binding);
-  } else {
-    handleNoPermission(el, binding);
+    restoreElement(el, binding)
+  }
+  else {
+    handleNoPermission(el, binding)
   }
 
   // 监听权限变化
@@ -147,15 +153,16 @@ function createPermissionWatcher(
     hasAuth,
     (newValue) => {
       if (newValue) {
-        restoreElement(el, binding);
-      } else {
-        handleNoPermission(el, binding);
+        restoreElement(el, binding)
+      }
+      else {
+        handleNoPermission(el, binding)
       }
     },
-    { immediate: false }
-  );
+    { immediate: false },
+  )
 
-  return stopWatch;
+  return stopWatch
 }
 
 /**
@@ -168,27 +175,28 @@ function createPermissionWatcher(
 function createRoleWatcher(
   el: HTMLElement,
   binding: DirectiveBinding<RoleBinding>,
-  authStore: ReturnType<typeof useAuthStore>
+  authStore: ReturnType<typeof useAuthStore>,
 ): () => void {
-  const { value, arg } = binding;
+  const { value, arg } = binding
 
   // 创建计算属性来监听角色变化
   const hasAuth = computed(() => {
     if (!authStore.isAuthenticated || !authStore.user) {
-      return false;
+      return false
     }
 
-    const roles = Array.isArray(value) ? value : [value];
-    const mode: PermissionMode = arg === 'all' ? 'all' : 'any';
+    const roles = Array.isArray(value) ? value : [value]
+    const mode: PermissionMode = arg === 'all' ? 'all' : 'any'
 
-    return checkRoles(roles, authStore.user.role, mode);
-  });
+    return checkRoles(roles, authStore.user.role, mode)
+  })
 
   // 立即执行一次检查
   if (hasAuth.value) {
-    restoreElement(el, binding);
-  } else {
-    handleNoPermission(el, binding);
+    restoreElement(el, binding)
+  }
+  else {
+    handleNoPermission(el, binding)
   }
 
   // 监听角色变化
@@ -196,20 +204,21 @@ function createRoleWatcher(
     hasAuth,
     (newValue) => {
       if (newValue) {
-        restoreElement(el, binding);
-      } else {
-        handleNoPermission(el, binding);
+        restoreElement(el, binding)
+      }
+      else {
+        handleNoPermission(el, binding)
       }
     },
-    { immediate: false }
-  );
+    { immediate: false },
+  )
 
-  return stopWatch;
+  return stopWatch
 }
 
 // 存储每个元素的 watcher 清理函数
-const permissionWatchers = new WeakMap<HTMLElement, () => void>();
-const roleWatchers = new WeakMap<HTMLElement, () => void>();
+const permissionWatchers = new WeakMap<HTMLElement, () => void>()
+const roleWatchers = new WeakMap<HTMLElement, () => void>()
 
 /**
  * 权限指令
@@ -228,30 +237,30 @@ const roleWatchers = new WeakMap<HTMLElement, () => void>();
  */
 export const permissionDirective: Directive<HTMLElement, PermissionBinding> = {
   mounted(el, binding) {
-    const authStore = useAuthStore();
-    const stopWatch = createPermissionWatcher(el, binding, authStore);
-    permissionWatchers.set(el, stopWatch);
+    const authStore = useAuthStore()
+    const stopWatch = createPermissionWatcher(el, binding, authStore)
+    permissionWatchers.set(el, stopWatch)
   },
   updated(el, binding) {
     // 清理旧的 watcher
-    const oldStopWatch = permissionWatchers.get(el);
+    const oldStopWatch = permissionWatchers.get(el)
     if (oldStopWatch) {
-      oldStopWatch();
+      oldStopWatch()
     }
     // 创建新的 watcher
-    const authStore = useAuthStore();
-    const stopWatch = createPermissionWatcher(el, binding, authStore);
-    permissionWatchers.set(el, stopWatch);
+    const authStore = useAuthStore()
+    const stopWatch = createPermissionWatcher(el, binding, authStore)
+    permissionWatchers.set(el, stopWatch)
   },
   unmounted(el) {
     // 清理 watcher
-    const stopWatch = permissionWatchers.get(el);
+    const stopWatch = permissionWatchers.get(el)
     if (stopWatch) {
-      stopWatch();
-      permissionWatchers.delete(el);
+      stopWatch()
+      permissionWatchers.delete(el)
     }
   },
-};
+}
 
 /**
  * 角色指令
@@ -267,38 +276,38 @@ export const permissionDirective: Directive<HTMLElement, PermissionBinding> = {
  */
 export const roleDirective: Directive<HTMLElement, RoleBinding> = {
   mounted(el, binding) {
-    const authStore = useAuthStore();
-    const stopWatch = createRoleWatcher(el, binding, authStore);
-    roleWatchers.set(el, stopWatch);
+    const authStore = useAuthStore()
+    const stopWatch = createRoleWatcher(el, binding, authStore)
+    roleWatchers.set(el, stopWatch)
   },
   updated(el, binding) {
     // 清理旧的 watcher
-    const oldStopWatch = roleWatchers.get(el);
+    const oldStopWatch = roleWatchers.get(el)
     if (oldStopWatch) {
-      oldStopWatch();
+      oldStopWatch()
     }
     // 创建新的 watcher
-    const authStore = useAuthStore();
-    const stopWatch = createRoleWatcher(el, binding, authStore);
-    roleWatchers.set(el, stopWatch);
+    const authStore = useAuthStore()
+    const stopWatch = createRoleWatcher(el, binding, authStore)
+    roleWatchers.set(el, stopWatch)
   },
   unmounted(el) {
     // 清理 watcher
-    const stopWatch = roleWatchers.get(el);
+    const stopWatch = roleWatchers.get(el)
     if (stopWatch) {
-      stopWatch();
-      roleWatchers.delete(el);
+      stopWatch()
+      roleWatchers.delete(el)
     }
   },
-};
+}
 
 /**
  * 注册权限指令
  * @param app - Vue 应用实例
  */
 export function registerPermissionDirectives(app: {
-  directive: (name: string, directive: Directive) => void;
+  directive: (name: string, directive: Directive) => void
 }): void {
-  app.directive('permission', permissionDirective);
-  app.directive('role', roleDirective);
+  app.directive('permission', permissionDirective)
+  app.directive('role', roleDirective)
 }

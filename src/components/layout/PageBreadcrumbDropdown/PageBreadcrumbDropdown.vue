@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import type { BreadcrumbChildItem, BreadcrumbItemData } from './types'
+import type { MenuItem } from '@/types/menu'
+import { ChevronDown, House } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { Icon } from '@/components/Icon'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Icon } from '@/components/Icon';
-import { useMenuStore } from '@/stores/global/menu';
-import type { MenuItem } from '@/types/menu';
-import type { BreadcrumbItemData, BreadcrumbChildItem } from './types';
-import { ChevronDown, House } from 'lucide-vue-next';
+} from '@/components/ui/dropdown-menu'
+import { useMenuStore } from '@/stores/global/menu'
 
-const { t } = useI18n();
-const route = useRoute();
-const router = useRouter();
-const menuStore = useMenuStore();
+const { t } = useI18n()
+const route = useRoute()
+const router = useRouter()
+const menuStore = useMenuStore()
 
 /**
  * 在菜单树中查找路径
@@ -23,33 +23,31 @@ const menuStore = useMenuStore();
  * @param currentPath 当前路径数组
  * @returns 路径数组或 null
  */
-const findPathInMenuTree = (
-  menus: MenuItem[],
-  targetPath: string,
-  currentPath: MenuItem[] = []
-): MenuItem[] | null => {
+function findPathInMenuTree(menus: MenuItem[], targetPath: string, currentPath: MenuItem[] = []): MenuItem[] | null {
   for (const menu of menus) {
-    const newPath = [...currentPath, menu];
+    const newPath = [...currentPath, menu]
 
     // 完全匹配
     if (menu.path === targetPath) {
-      return newPath;
+      return newPath
     }
 
     // 检查是否是父路径（用于子路由匹配）
-    if (targetPath.startsWith(menu.path + '/') && menu.children) {
-      const result = findPathInMenuTree(menu.children, targetPath, newPath);
-      if (result) return result;
+    if (targetPath.startsWith(`${menu.path}/`) && menu.children) {
+      const result = findPathInMenuTree(menu.children, targetPath, newPath)
+      if (result)
+        return result
     }
 
     // 继续搜索子菜单
     if (menu.children) {
-      const result = findPathInMenuTree(menu.children, targetPath, newPath);
-      if (result) return result;
+      const result = findPathInMenuTree(menu.children, targetPath, newPath)
+      if (result)
+        return result
     }
   }
-  return null;
-};
+  return null
+}
 
 /**
  * 获取菜单项的兄弟节点（同级菜单）
@@ -57,38 +55,39 @@ const findPathInMenuTree = (
  * @param targetPath 目标路径
  * @returns 兄弟节点数组
  */
-const findSiblingsInMenuTree = (menus: MenuItem[], targetPath: string): MenuItem[] => {
+function findSiblingsInMenuTree(menus: MenuItem[], targetPath: string): MenuItem[] {
   for (const menu of menus) {
     // 如果当前菜单就是要找的，返回所有兄弟
     if (menu.path === targetPath) {
-      return menus;
+      return menus
     }
 
     // 在子菜单中查找
     if (menu.children) {
-      const result = findSiblingsInMenuTree(menu.children, targetPath);
-      if (result.length > 0) return result;
+      const result = findSiblingsInMenuTree(menu.children, targetPath)
+      if (result.length > 0)
+        return result
     }
   }
-  return [];
-};
+  return []
+}
 
 /**
  * 获取菜单项的描述信息
  * @param menu 菜单项
  * @returns 描述文本
  */
-const getMenuDescription = (menu: MenuItem): string => {
+function getMenuDescription(menu: MenuItem): string {
   // 返回默认提示文本
-  return t('common.breadcrumb.clickToEnter');
-};
+  return t('common.breadcrumb.clickToEnter')
+}
 
 /**
  * 面包屑数据
  */
 const breadcrumbs = computed<BreadcrumbItemData[]>(() => {
-  const currentPath = route.path;
-  const result: BreadcrumbItemData[] = [];
+  const currentPath = route.path
+  const result: BreadcrumbItemData[] = []
 
   // 1. 首页（始终显示）
   result.push({
@@ -97,23 +96,23 @@ const breadcrumbs = computed<BreadcrumbItemData[]>(() => {
     icon: 'House',
     clickable: currentPath !== '/dashboard',
     isCurrent: currentPath === '/dashboard',
-  });
+  })
 
   // 如果当前就是首页，直接返回
   if (currentPath === '/dashboard') {
-    return result;
+    return result
   }
 
   // 2. 从菜单数据中查找路径
-  const menuPath = findPathInMenuTree(menuStore.menus, currentPath);
+  const menuPath = findPathInMenuTree(menuStore.menus, currentPath)
 
   if (menuPath && menuPath.length > 0) {
     // 使用菜单路径生成面包屑
     menuPath.forEach((menu, index) => {
-      const isLast = index === menuPath.length - 1;
-      
+      const isLast = index === menuPath.length - 1
+
       // 获取该层级的兄弟节点（用于下拉菜单）
-      const siblings = findSiblingsInMenuTree(menuStore.menus, menu.path);
+      const siblings = findSiblingsInMenuTree(menuStore.menus, menu.path)
       const children: BreadcrumbChildItem[] = siblings
         .filter(sibling => sibling.path !== menu.path)
         .map(sibling => ({
@@ -122,7 +121,7 @@ const breadcrumbs = computed<BreadcrumbItemData[]>(() => {
           icon: sibling.icon,
           description: getMenuDescription(sibling),
           isActive: false,
-        }));
+        }))
 
       result.push({
         title: t(menu.i18nKey),
@@ -131,18 +130,20 @@ const breadcrumbs = computed<BreadcrumbItemData[]>(() => {
         clickable: !isLast,
         isCurrent: isLast,
         children: children.length > 0 ? children : undefined,
-      });
-    });
-  } else {
+      })
+    })
+  }
+  else {
     // 3. 回退：使用路由匹配生成面包屑
-    const matchedRoutes = route.matched.filter(r => r.path !== '');
+    const matchedRoutes = route.matched.filter(r => r.path !== '')
 
     matchedRoutes.forEach((matched, index) => {
       // 跳过根路由和 dashboard
-      if (matched.path === '/' || matched.path === '/dashboard') return;
+      if (matched.path === '/' || matched.path === '/dashboard')
+        return
 
-      const isLast = index === matchedRoutes.length - 1;
-      const title = menuStore.getRouteTitle(matched.path);
+      const isLast = index === matchedRoutes.length - 1
+      const title = menuStore.getRouteTitle(matched.path)
 
       result.push({
         title: t(title),
@@ -150,41 +151,43 @@ const breadcrumbs = computed<BreadcrumbItemData[]>(() => {
         icon: undefined,
         clickable: !isLast && matched.path !== currentPath,
         isCurrent: isLast,
-      });
-    });
+      })
+    })
   }
 
-  return result;
-});
+  return result
+})
 
 /**
  * 处理面包屑点击
  * @param item 面包屑项
  */
-const handleBreadcrumbClick = (item: BreadcrumbItemData) => {
+function handleBreadcrumbClick(item: BreadcrumbItemData) {
   if (item.clickable && item.path) {
-    router.push(item.path);
+    router.push(item.path)
   }
-};
+}
 
 /**
  * 处理 Bento 卡片点击
  * @param path 路径
  */
-const handleBentoCardClick = (path: string) => {
-  router.push(path);
-};
+function handleBentoCardClick(path: string) {
+  router.push(path)
+}
 
 /**
  * 计算 Bento 网格的列数
  * @param childrenCount 子项数量
  * @returns 列数
  */
-const getGridCols = (childrenCount: number): string => {
-  if (childrenCount <= 2) return 'grid-cols-2';
-  if (childrenCount <= 4) return 'grid-cols-2';
-  return 'grid-cols-3';
-};
+function getGridCols(childrenCount: number): string {
+  if (childrenCount <= 2)
+    return 'grid-cols-2'
+  if (childrenCount <= 4)
+    return 'grid-cols-2'
+  return 'grid-cols-3'
+}
 </script>
 
 <template>
@@ -200,7 +203,7 @@ const getGridCols = (childrenCount: number): string => {
                 :class="[
                   item.isCurrent
                     ? 'bg-primary/8 text-foreground border border-primary/20'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50',
                 ]"
               >
                 <Icon
@@ -217,7 +220,7 @@ const getGridCols = (childrenCount: number): string => {
                 />
               </button>
             </DropdownMenuTrigger>
-            
+
             <!-- Bento 网格下拉面板 -->
             <DropdownMenuContent
               align="start"
@@ -236,15 +239,19 @@ const getGridCols = (childrenCount: number): string => {
                     <House v-else class="h-4 w-4 text-primary" />
                   </div>
                   <div class="flex-1 min-w-0 max-w-[180px]">
-                    <p class="text-[13px] font-medium text-foreground truncate" :title="item.title">{{ item.title }}</p>
-                    <p class="text-[11px] text-muted-foreground">{{ t('common.breadcrumb.selectModule') }}</p>
+                    <p class="text-[13px] font-medium text-foreground truncate" :title="item.title">
+                      {{ item.title }}
+                    </p>
+                    <p class="text-[11px] text-muted-foreground">
+                      {{ t('common.breadcrumb.selectModule') }}
+                    </p>
                   </div>
                 </div>
               </div>
 
               <!-- Bento 网格卡片 -->
               <div class="p-2.5 bg-popover">
-                <div 
+                <div
                   class="grid gap-1.5"
                   :class="getGridCols(item.children?.length || 0)"
                 >
@@ -264,7 +271,7 @@ const getGridCols = (childrenCount: number): string => {
                       />
                       <House v-else class="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
                     </div>
-                    
+
                     <!-- 文字内容 -->
                     <div class="flex-1 min-w-0 w-full">
                       <p

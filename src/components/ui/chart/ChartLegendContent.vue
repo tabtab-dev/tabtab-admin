@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue"
-import { computed, onMounted, ref } from "vue"
-import { cn } from "@/lib/utils"
-import { useChart } from "."
+import type { HTMLAttributes } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { cn } from '@/lib/utils'
+import { useChart } from '.'
 
 const props = withDefaults(defineProps<{
   hideIcon?: boolean
   nameKey?: string
-  verticalAlign?: "bottom" | "top"
+  verticalAlign?: 'bottom' | 'top'
   // payload?: any[]
-  class?: HTMLAttributes["class"]
+  class?: HTMLAttributes['class']
 }>(), {
-  verticalAlign: "bottom",
+  verticalAlign: 'bottom',
 })
 
 const { id, config } = useChart()
@@ -23,7 +23,7 @@ const payload = computed(() => Object.entries(config.value).map(([key, value]) =
   }
 }))
 
-const containerSelector = ref("")
+const containerSelector = ref('')
 onMounted(() => {
   containerSelector.value = `[data-chart="chart-${id}"]>[data-vis-xy-container]`
 })

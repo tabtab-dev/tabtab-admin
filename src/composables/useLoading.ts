@@ -1,47 +1,47 @@
+import type { ComputedRef } from 'vue'
 /**
  * 全局 Loading 状态管理
  * @description 提供全局 loading 状态管理和自动请求追踪
  */
-import { ref, computed } from 'vue';
-import type { ComputedRef } from 'vue';
+import { computed, ref } from 'vue'
 
-export type LoadingType = 'default' | 'fullscreen' | 'inline' | 'skeleton';
+export type LoadingType = 'default' | 'fullscreen' | 'inline' | 'skeleton'
 
 export interface LoadingOptions {
-  type?: LoadingType;
-  text?: string;
-  minDuration?: number;
+  type?: LoadingType
+  text?: string
+  minDuration?: number
 }
 
 interface LoadingState {
-  id: string;
-  type: LoadingType;
-  text: string;
-  startTime: number;
-  minDuration: number;
+  id: string
+  type: LoadingType
+  text: string
+  startTime: number
+  minDuration: number
 }
 
 export interface LocalLoadingState {
-  isLoading: ComputedRef<boolean>;
-  text: ComputedRef<string>;
-  start: (text?: string) => void;
-  stop: () => void;
-  wrap: <T extends (...args: any[]) => Promise<any>>(fn: T) => (...args: Parameters<T>) => Promise<ReturnType<T>>;
+  isLoading: ComputedRef<boolean>
+  text: ComputedRef<string>
+  start: (text?: string) => void
+  stop: () => void
+  wrap: <T extends (...args: any[]) => Promise<any>>(fn: T) => (...args: Parameters<T>) => Promise<ReturnType<T>>
 }
 
-const loadingStates = ref<Map<string, LoadingState>>(new Map());
+const loadingStates = ref<Map<string, LoadingState>>(new Map())
 
-const isLoading = computed(() => loadingStates.value.size > 0);
-const loadingText = computed(() => loadingStates.value.values().next().value?.text || '加载中...');
-const loadingType = computed<LoadingType>(() => loadingStates.value.values().next().value?.type || 'default');
+const isLoading = computed(() => loadingStates.value.size > 0)
+const loadingText = computed(() => loadingStates.value.values().next().value?.text || '加载中...')
+const loadingType = computed<LoadingType>(() => loadingStates.value.values().next().value?.type || 'default')
 
-let idCounter = 0;
+let idCounter = 0
 
 /**
  * 生成唯一 ID
  */
 function generateId(): string {
-  return `loading_${Date.now()}_${++idCounter}`;
+  return `loading_${Date.now()}_${++idCounter}`
 }
 
 /**
@@ -49,16 +49,17 @@ function generateId(): string {
  */
 function createWrap<T extends (...args: any[]) => Promise<any>>(
   start: () => string,
-  stop: (id: string) => void
+  stop: (id: string) => void,
 ): (fn: T) => (...args: Parameters<T>) => Promise<ReturnType<T>> {
   return (fn: T) => async (...args: Parameters<T>): Promise<ReturnType<T>> => {
-    const id = start();
+    const id = start()
     try {
-      return await fn(...args);
-    } finally {
-      stop(id);
+      return await fn(...args)
     }
-  };
+    finally {
+      stop(id)
+    }
+  }
 }
 
 /**
@@ -66,31 +67,33 @@ function createWrap<T extends (...args: any[]) => Promise<any>>(
  * @returns loading ID，用于停止 loading
  */
 export function startLoading(options: LoadingOptions = {}): string {
-  const id = generateId();
+  const id = generateId()
   loadingStates.value.set(id, {
     id,
     type: options.type || 'default',
     text: options.text || '加载中...',
     startTime: Date.now(),
     minDuration: options.minDuration || 0,
-  });
-  return id;
+  })
+  return id
 }
 
 /**
  * 停止指定 loading
  */
 export function stopLoading(id: string): void {
-  const state = loadingStates.value.get(id);
-  if (!state) return;
+  const state = loadingStates.value.get(id)
+  if (!state)
+    return
 
-  const elapsed = Date.now() - state.startTime;
-  const remaining = state.minDuration - elapsed;
+  const elapsed = Date.now() - state.startTime
+  const remaining = state.minDuration - elapsed
 
   if (remaining > 0) {
-    setTimeout(() => loadingStates.value.delete(id), remaining);
-  } else {
-    loadingStates.value.delete(id);
+    setTimeout(() => loadingStates.value.delete(id), remaining)
+  }
+  else {
+    loadingStates.value.delete(id)
   }
 }
 
@@ -98,7 +101,7 @@ export function stopLoading(id: string): void {
  * 停止所有 loading
  */
 export function stopAllLoading(): void {
-  loadingStates.value.clear();
+  loadingStates.value.clear()
 }
 
 /**
@@ -106,29 +109,29 @@ export function stopAllLoading(): void {
  */
 export function withLoading<T extends (...args: any[]) => Promise<any>>(
   fn: T,
-  options: LoadingOptions = {}
+  options: LoadingOptions = {},
 ): (...args: Parameters<T>) => Promise<ReturnType<T>> {
   return createWrap(
     () => startLoading(options),
-    stopLoading
-  )(fn);
+    stopLoading,
+  )(fn)
 }
 
 /**
  * 本地 loading 状态管理（组件级别）
  */
 export function useLocalLoading(): LocalLoadingState {
-  const localLoading = ref(false);
-  const localLoadingText = ref('加载中...');
+  const localLoading = ref(false)
+  const localLoadingText = ref('加载中...')
 
   const start = (text = '加载中...') => {
-    localLoading.value = true;
-    localLoadingText.value = text;
-  };
+    localLoading.value = true
+    localLoadingText.value = text
+  }
 
   const stop = () => {
-    localLoading.value = false;
-  };
+    localLoading.value = false
+  }
 
   return {
     isLoading: computed(() => localLoading.value),
@@ -136,10 +139,13 @@ export function useLocalLoading(): LocalLoadingState {
     start,
     stop,
     wrap: createWrap(
-      () => { start(); return 'local'; },
-      () => stop()
+      () => {
+        start()
+        return 'local'
+      },
+      () => stop(),
     ),
-  };
+  }
 }
 
 /**
@@ -155,5 +161,5 @@ export function useLoading() {
     stop: stopLoading,
     stopAll: stopAllLoading,
     wrap: withLoading,
-  };
+  }
 }

@@ -1,22 +1,22 @@
 <script setup lang="ts">
+import type { FormSchema } from '@/components/business/TForm'
+import type { TableSchema } from '@/components/business/TTable'
+import type { Tag } from '@/types'
+import {
+  Plus,
+  TagIcon,
+} from 'lucide-vue-next'
+import { categoriesApi } from '@/api'
+import { TForm } from '@/components/business/TForm'
+import { TModal } from '@/components/business/TModal'
+
 /**
  * 标签管理页
  */
 import { TTable } from '@/components/business/TTable'
-import { TForm } from '@/components/business/TForm'
-import { TModal } from '@/components/business/TModal'
-import type { TableSchema } from '@/components/business/TTable'
-import type { FormSchema } from '@/components/business/TForm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-
-import type { Tag } from '@/types'
-import { categoriesApi } from '@/api'
 import { useTableData } from '@/composables'
-import {
-  Plus,
-  TagIcon
-} from 'lucide-vue-next'
 
 const {
   data: tags,
@@ -34,11 +34,12 @@ const {
       list: response.list || [],
       total: response.total || 0,
       page: response.page || 1,
-      pageSize: response.pageSize || 10
+      pageSize: response.pageSize || 10,
     }
   },
   filterFn: (items, query) => {
-    if (!query) return items
+    if (!query)
+      return items
     const lowerQuery = query.toLowerCase()
     return items.filter(tag => tag.name.toLowerCase().includes(lowerQuery))
   },
@@ -53,7 +54,7 @@ const {
 })
 
 const searchFormData = ref({
-  keyword: ''
+  keyword: '',
 })
 
 const searchSchema: FormSchema = {
@@ -64,8 +65,8 @@ const searchSchema: FormSchema = {
       type: 'input',
       label: '',
       placeholder: '搜索标签名称...',
-      className: 'w-[240px]'
-    }
+      className: 'w-[240px]',
+    },
   ],
   searchConfig: {
     enabled: true,
@@ -79,8 +80,8 @@ const searchSchema: FormSchema = {
     },
     onReset: () => {
       searchQuery.value = ''
-    }
-  }
+    },
+  },
 }
 
 const tableSchema = computed<TableSchema>(() => ({
@@ -89,51 +90,51 @@ const tableSchema = computed<TableSchema>(() => ({
       title: '标签名称',
       dataIndex: 'name',
       width: 180,
-      slot: 'name'
+      slot: 'name',
     },
     {
       title: '颜色',
       dataIndex: 'color',
       width: 120,
-      slot: 'color'
+      slot: 'color',
     },
     {
       title: '关联商品',
       dataIndex: 'productCount',
       width: 120,
-      sorter: true
+      sorter: true,
     },
     {
       title: '创建时间',
       dataIndex: 'createdAt',
-      width: 150
-    }
+      width: 150,
+    },
   ],
   pagination: {
     pageSize: 10,
     show: true,
-    showSizeChanger: true
+    showSizeChanger: true,
   },
   rowSelection: {
     type: 'checkbox',
-    show: true
+    show: true,
   },
   actions: [
     {
       text: '编辑',
       type: 'primary',
-      onClick: (record) => handleEdit(record as unknown as Tag)
+      onClick: record => handleEdit(record as unknown as Tag),
     },
     {
       text: '删除',
       type: 'danger',
       confirm: true,
       confirmText: '确定要删除该标签吗？',
-      onClick: (record) => handleDelete((record as unknown as Tag).id)
-    }
+      onClick: record => handleDelete((record as unknown as Tag).id),
+    },
   ],
   actionWidth: 150,
-  actionFixed: 'right'
+  actionFixed: 'right',
 }))
 
 const tableData = computed(() => {
@@ -146,13 +147,13 @@ const editingItem = ref<Tag | null>(null)
 
 const addFormData = ref({
   name: '',
-  color: '#1890ff'
+  color: '#1890ff',
 })
 
 const editFormData = ref({
   id: '',
   name: '',
-  color: '#1890ff'
+  color: '#1890ff',
 })
 
 const addSchema: FormSchema = {
@@ -165,14 +166,14 @@ const addSchema: FormSchema = {
       type: 'input',
       label: '标签名称',
       placeholder: '请输入标签名称',
-      rules: [{ required: true, message: '标签名称不能为空' }]
+      rules: [{ required: true, message: '标签名称不能为空' }],
     },
     {
       name: 'color',
       type: 'input',
       label: '标签颜色',
-      placeholder: '请输入颜色值，如 #1890ff'
-    }
+      placeholder: '请输入颜色值，如 #1890ff',
+    },
   ],
   actions: {
     showSubmit: true,
@@ -180,8 +181,8 @@ const addSchema: FormSchema = {
     submitText: '添加标签',
     resetText: '取消',
     align: 'right',
-    onReset: () => { isAddOpen.value = false }
-  }
+    onReset: () => { isAddOpen.value = false },
+  },
 }
 
 const editSchema: FormSchema = {
@@ -194,14 +195,14 @@ const editSchema: FormSchema = {
       type: 'input',
       label: '标签名称',
       placeholder: '请输入标签名称',
-      rules: [{ required: true, message: '标签名称不能为空' }]
+      rules: [{ required: true, message: '标签名称不能为空' }],
     },
     {
       name: 'color',
       type: 'input',
       label: '标签颜色',
-      placeholder: '请输入颜色值'
-    }
+      placeholder: '请输入颜色值',
+    },
   ],
   actions: {
     showSubmit: true,
@@ -209,14 +210,14 @@ const editSchema: FormSchema = {
     submitText: '保存修改',
     resetText: '取消',
     align: 'right',
-    onReset: () => { isEditOpen.value = false }
-  }
+    onReset: () => { isEditOpen.value = false },
+  },
 }
 
 async function handleAddSubmit(values: Record<string, any>) {
   await categoriesApi.createTag({
     name: values.name,
-    color: values.color || '#1890ff'
+    color: values.color || '#1890ff',
   })
   isAddOpen.value = false
   addFormData.value = { name: '', color: '#1890ff' }
@@ -228,7 +229,7 @@ function handleEdit(item: Tag) {
   editFormData.value = {
     id: item.id,
     name: item.name,
-    color: item.color
+    color: item.color,
   }
   isEditOpen.value = true
 }
@@ -237,7 +238,7 @@ async function handleEditSubmit(values: Record<string, any>) {
   if (editingItem.value) {
     await categoriesApi.updateTag(editingItem.value.id, {
       name: values.name,
-      color: values.color
+      color: values.color,
     })
     isEditOpen.value = false
     editingItem.value = null
@@ -263,24 +264,27 @@ const statisticsCards = computed(() => [
     title: '标签总数',
     value: statistics.value.total || 0,
     icon: TagIcon,
-    color: 'text-primary'
+    color: 'text-primary',
   },
   {
     title: '关联商品',
     value: statistics.value.totalProducts || 0,
     icon: Plus,
-    color: 'text-green-500'
-  }
+    color: 'text-green-500',
+  },
 ])
-
 </script>
 
 <template>
   <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">标签管理</h1>
-        <p class="text-muted-foreground mt-1.5 text-sm">管理商品标签和标记</p>
+        <h1 class="text-3xl font-bold tracking-tight">
+          标签管理
+        </h1>
+        <p class="text-muted-foreground mt-1.5 text-sm">
+          管理商品标签和标记
+        </p>
       </div>
       <Button class="gap-2" @click="isAddOpen = true">
         <Plus class="h-4 w-4" />
@@ -302,7 +306,7 @@ const statisticsCards = computed(() => [
         :key="stat.title"
         class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
       >
-        <component :is="stat.icon" :class="['h-4 w-4', stat.color]" />
+        <component :is="stat.icon" class="h-4 w-4" :class="[stat.color]" />
         <div class="flex items-baseline gap-2">
           <span class="text-lg font-semibold">{{ stat.value }}</span>
           <span class="text-xs text-muted-foreground">{{ stat.title }}</span>
@@ -321,7 +325,9 @@ const statisticsCards = computed(() => [
     <Card class="bg-muted/40 border border-border/50 rounded-xl">
       <CardHeader class="pb-4">
         <div class="flex items-center gap-3">
-          <CardTitle class="text-base font-semibold">标签列表</CardTitle>
+          <CardTitle class="text-base font-semibold">
+            标签列表
+          </CardTitle>
           <span class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
             共 {{ tableData.length }} 个
           </span>
@@ -343,7 +349,7 @@ const statisticsCards = computed(() => [
 
           <template #color="slotProps">
             <div class="flex items-center gap-2">
-              <div 
+              <div
                 class="w-6 h-6 rounded border"
                 :style="{ backgroundColor: (slotProps as any).text }"
               />
@@ -356,8 +362,12 @@ const statisticsCards = computed(() => [
               <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
                 <TagIcon class="w-8 h-8 text-muted-foreground/50" />
               </div>
-              <p class="text-base font-medium mb-1">暂无标签数据</p>
-              <p class="text-sm text-muted-foreground mb-4">开始添加您的第一个标签吧</p>
+              <p class="text-base font-medium mb-1">
+                暂无标签数据
+              </p>
+              <p class="text-sm text-muted-foreground mb-4">
+                开始添加您的第一个标签吧
+              </p>
               <Button size="sm" @click="isAddOpen = true">
                 <Plus class="h-4 w-4 mr-1" />
                 添加标签

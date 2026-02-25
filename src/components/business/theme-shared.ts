@@ -1,3 +1,5 @@
+import type { ThemeConfig } from 'antdv-next'
+import { theme as antdTheme } from 'antdv-next'
 /**
  * 共享主题配置工具
  *
@@ -5,8 +7,6 @@
  * 包括：边框、阴影、圆角、颜色等视觉元素
  */
 import { useThemeStore } from '@/stores/global/theme'
-import { theme as antdTheme } from 'antdv-next'
-import type { ThemeConfig } from 'antdv-next'
 
 /**
  * 颜色转换映射表
@@ -75,15 +75,16 @@ function rgbToHex(r: number, g: number, b: number): string {
  * @param oklchColor - oklch 格式的颜色值
  * @returns { L, C, H, alpha } 或 null
  */
-function parseOklch(oklchColor: string): { L: number; C: number; H: number; alpha: number } | null {
+function parseOklch(oklchColor: string): { L: number, C: number, H: number, alpha: number } | null {
   const match = oklchColor.match(/oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+%?))?\s*\)/)
-  if (!match) return null
+  if (!match)
+    return null
 
   return {
-    L: parseFloat(match[1]),
-    C: parseFloat(match[2]),
-    H: parseFloat(match[3]),
-    alpha: match[4] ? (match[4].endsWith('%') ? parseFloat(match[4]) / 100 : parseFloat(match[4])) : 1,
+    L: Number.parseFloat(match[1]),
+    C: Number.parseFloat(match[2]),
+    H: Number.parseFloat(match[3]),
+    alpha: match[4] ? (match[4].endsWith('%') ? Number.parseFloat(match[4]) / 100 : Number.parseFloat(match[4])) : 1,
   }
 }
 
@@ -422,7 +423,7 @@ export function getSharedComponentConfig(colors: ReturnType<typeof useThemeStore
  * @description 所有业务组件应该使用此函数创建主题配置
  */
 export function createUnifiedThemeConfig(
-  componentSpecificConfig?: ThemeConfig['components']
+  componentSpecificConfig?: ThemeConfig['components'],
 ): ThemeConfig {
   const themeStore = useThemeStore()
   const isDark = themeStore.currentMode === 'dark'

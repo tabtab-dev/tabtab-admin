@@ -9,73 +9,73 @@ import type { CardColor, CardSize } from './types'
  * 颜色配置映射
  * @description 统一使用与 shadcn-vue Card 一致的风格：border + shadow-sm
  */
-export const colorConfig: Record<CardColor, { bg: string; text: string; border: string; iconBg: string }> = {
+export const colorConfig: Record<CardColor, { bg: string, text: string, border: string, iconBg: string }> = {
   blue: {
     bg: 'bg-card',
     text: 'text-blue-600',
     border: 'border-blue-200/50',
-    iconBg: 'bg-blue-100'
+    iconBg: 'bg-blue-100',
   },
   green: {
     bg: 'bg-card',
     text: 'text-green-600',
     border: 'border-green-200/50',
-    iconBg: 'bg-green-100'
+    iconBg: 'bg-green-100',
   },
   purple: {
     bg: 'bg-card',
     text: 'text-purple-600',
     border: 'border-purple-200/50',
-    iconBg: 'bg-purple-100'
+    iconBg: 'bg-purple-100',
   },
   orange: {
     bg: 'bg-card',
     text: 'text-orange-600',
     border: 'border-orange-200/50',
-    iconBg: 'bg-orange-100'
+    iconBg: 'bg-orange-100',
   },
   red: {
     bg: 'bg-card',
     text: 'text-red-600',
     border: 'border-red-200/50',
-    iconBg: 'bg-red-100'
+    iconBg: 'bg-red-100',
   },
   cyan: {
     bg: 'bg-card',
     text: 'text-cyan-600',
     border: 'border-cyan-200/50',
-    iconBg: 'bg-cyan-100'
+    iconBg: 'bg-cyan-100',
   },
   default: {
     bg: 'bg-card',
     text: 'text-foreground',
     border: 'border-border',
-    iconBg: 'bg-muted'
-  }
+    iconBg: 'bg-muted',
+  },
 }
 
 /**
  * 尺寸配置映射
  */
-export const sizeConfig: Record<CardSize, { padding: string; iconSize: string; titleSize: string; valueSize: string }> = {
+export const sizeConfig: Record<CardSize, { padding: string, iconSize: string, titleSize: string, valueSize: string }> = {
   sm: {
     padding: 'px-4 py-3',
     iconSize: 'w-8 h-8',
     titleSize: 'text-xs',
-    valueSize: 'text-lg'
+    valueSize: 'text-lg',
   },
   default: {
     padding: 'p-5',
     iconSize: 'w-10 h-10',
     titleSize: 'text-sm',
-    valueSize: 'text-2xl'
+    valueSize: 'text-2xl',
   },
   lg: {
     padding: 'p-6',
     iconSize: 'w-12 h-12',
     titleSize: 'text-base',
-    valueSize: 'text-3xl'
-  }
+    valueSize: 'text-3xl',
+  },
 }
 
 /**

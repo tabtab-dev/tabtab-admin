@@ -65,7 +65,7 @@ export interface TDataCardProps {
 /**
  * TDataCard Emits
  */
-export type TDataCardEmits = {
+export interface TDataCardEmits {
   /** 点击事件 */
   click: []
 }

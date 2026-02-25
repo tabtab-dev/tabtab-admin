@@ -1,29 +1,29 @@
+import type { AppError } from '@/utils/errorHandler'
 /**
  * 表单数据管理 Composable
  * @description 封装表单提交、验证等通用逻辑
  */
-import { ref } from 'vue';
-import { useMutation } from './useRequest';
-import { type AppError } from '@/utils/errorHandler';
+import { ref } from 'vue'
+import { useMutation } from './useRequest'
 
 /**
  * 表单数据配置选项
  */
 export interface UseFormDataOptions<T> {
   /** API 提交函数 */
-  apiCall: (data: T) => Promise<any>;
+  apiCall: (data: T) => Promise<any>
   /** 初始表单数据 */
-  initialData?: T;
+  initialData?: T
   /** 提交成功回调 */
-  onSuccess?: (response: any) => void;
+  onSuccess?: (response: any) => void
   /** 提交失败回调 */
-  onError?: (error: AppError) => void;
+  onError?: (error: AppError) => void
   /** 提交完成回调 */
-  onComplete?: () => void;
+  onComplete?: () => void
   /** 是否重置表单（提交成功后） */
-  resetOnSuccess?: boolean;
+  resetOnSuccess?: boolean
   /** 成功提示消息，设为 false 则不显示 */
-  successMessage?: string | false;
+  successMessage?: string | false
 }
 
 /**
@@ -31,13 +31,13 @@ export interface UseFormDataOptions<T> {
  */
 export interface FormDataState<T> {
   /** 表单数据 */
-  formData: T;
+  formData: T
   /** 提交状态 */
-  submitting: boolean;
+  submitting: boolean
   /** 错误信息 */
-  error: AppError | null;
+  error: AppError | null
   /** 是否已修改 */
-  isDirty: boolean;
+  isDirty: boolean
 }
 
 /**
@@ -63,10 +63,10 @@ export function useFormData<T = Record<string, any>>(options: UseFormDataOptions
     onComplete,
     resetOnSuccess = true,
     successMessage = '操作成功',
-  } = options;
+  } = options
 
-  const formData = ref<T>({ ...initialData });
-  const isDirty = ref(false);
+  const formData = ref<T>({ ...initialData })
+  const isDirty = ref(false)
 
   // 使用 useMutation 管理提交状态
   const {
@@ -78,41 +78,41 @@ export function useFormData<T = Record<string, any>>(options: UseFormDataOptions
     successMessage,
     onSuccess: (response) => {
       if (resetOnSuccess) {
-        reset();
+        reset()
       }
-      onSuccess?.(response);
+      onSuccess?.(response)
     },
     onError: (err) => {
-      onError?.(err);
+      onError?.(err)
     },
     onComplete: () => {
-      onComplete?.();
+      onComplete?.()
     },
-  });
+  })
 
   const submit = async () => {
-    isDirty.value = true;
-    return mutate(formData.value);
-  };
+    isDirty.value = true
+    return mutate(formData.value)
+  }
 
   const reset = () => {
-    formData.value = { ...initialData };
-    isDirty.value = false;
-  };
+    formData.value = { ...initialData }
+    isDirty.value = false
+  }
 
   const updateFormData = (updates: Partial<T>) => {
-    formData.value = { ...formData.value, ...updates };
-    isDirty.value = true;
-  };
+    formData.value = { ...formData.value, ...updates }
+    isDirty.value = true
+  }
 
   const setFieldValue = <K extends keyof T>(key: K, value: T[K]) => {
-    formData.value[key] = value;
-    isDirty.value = true;
-  };
+    formData.value[key] = value
+    isDirty.value = true
+  }
 
   const getFieldValue = <K extends keyof T>(key: K): T[K] => {
-    return formData.value[key];
-  };
+    return formData.value[key]
+  }
 
   return {
     formData,
@@ -124,5 +124,5 @@ export function useFormData<T = Record<string, any>>(options: UseFormDataOptions
     updateFormData,
     setFieldValue,
     getFieldValue,
-  };
+  }
 }

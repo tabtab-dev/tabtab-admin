@@ -1,13 +1,13 @@
+import Mock from 'mockjs'
 /**
  * 数据分析模块 MSW handlers
  * @description 数据分析相关接口
  */
-import { http, HttpResponse, delay } from 'msw';
-import Mock from 'mockjs';
+import { delay, http, HttpResponse } from 'msw'
 
 export const analyticsHandlers = [
   http.get('/mock-api/analytics/metrics', async () => {
-    await delay(300);
+    await delay(300)
     return HttpResponse.json({
       code: 200,
       data: {
@@ -21,11 +21,11 @@ export const analyticsHandlers = [
         avgOrderValueChange: Mock.mock('@float(-5, 10, 1, 1)'),
       },
       message: 'success',
-    });
+    })
   }),
 
   http.get('/mock-api/analytics/top-products', async () => {
-    await delay(300);
+    await delay(300)
     return HttpResponse.json({
       code: 200,
       data: [
@@ -36,11 +36,11 @@ export const analyticsHandlers = [
         { id: 'p-005', name: 'USB-C 数据线', sales: 67, revenue: 1273, trend: 3 },
       ],
       message: 'success',
-    });
+    })
   }),
 
   http.get('/mock-api/analytics/category-shares', async () => {
-    await delay(300);
+    await delay(300)
     return HttpResponse.json({
       code: 200,
       data: [
@@ -50,11 +50,11 @@ export const analyticsHandlers = [
         { name: '其他', percentage: 9, color: 'bg-orange-500', amount: 44900 },
       ],
       message: 'success',
-    });
+    })
   }),
 
   http.get('/mock-api/analytics/traffic', async () => {
-    await delay(300);
+    await delay(300)
     return HttpResponse.json({
       code: 200,
       data: [
@@ -67,11 +67,11 @@ export const analyticsHandlers = [
         { day: '周日', visits: 8800, orders: 210 },
       ],
       message: 'success',
-    });
+    })
   }),
 
   http.get('/mock-api/analytics/user-behavior', async () => {
-    await delay(300);
+    await delay(300)
     return HttpResponse.json({
       code: 200,
       data: [
@@ -81,6 +81,6 @@ export const analyticsHandlers = [
         { label: '回访率', value: '45.8%', change: 2.1, isPositive: true },
       ],
       message: 'success',
-    });
+    })
   }),
-];
+]

@@ -3,15 +3,15 @@
  */
 export interface BreadcrumbChildItem {
   /** 标题 */
-  title: string;
+  title: string
   /** 路径 */
-  path: string;
+  path: string
   /** 图标名称 */
-  icon?: string;
+  icon?: string
   /** 描述信息 */
-  description: string;
+  description: string
   /** 是否选中 */
-  isActive: boolean;
+  isActive: boolean
 }
 
 /**
@@ -19,15 +19,15 @@ export interface BreadcrumbChildItem {
  */
 export interface BreadcrumbItemData {
   /** 标题 */
-  title: string;
+  title: string
   /** 路径 */
-  path: string;
+  path: string
   /** 图标名称 */
-  icon?: string;
+  icon?: string
   /** 是否可点击 */
-  clickable: boolean;
+  clickable: boolean
   /** 是否是当前页面 */
-  isCurrent: boolean;
+  isCurrent: boolean
   /** 子菜单项（用于下拉） */
-  children?: BreadcrumbChildItem[];
+  children?: BreadcrumbChildItem[]
 }

@@ -1,16 +1,16 @@
 <script setup lang="ts">
+import type { CardColor, TDataCardExpose } from '@/components/business/TDataCard'
+import { DollarSign, Eye, MousePointer, ShoppingCart, TrendingUp, Users } from 'lucide-vue-next'
 /**
  * TDataCardDemo - TDataCard 组件演示页面
  *
  * @description 展示 TDataCard 统计卡片组件的各种使用场景和配置方式
  */
 import { TDataCard } from '@/components/business/TDataCard'
-import type { TDataCardExpose, CardColor, CardSize, TrendDirection } from '@/components/business/TDataCard'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Users, DollarSign, ShoppingCart, TrendingUp, Eye, MousePointer } from 'lucide-vue-next'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 /**
  * 组件引用
@@ -25,14 +25,14 @@ const loading = ref(false)
 /**
  * 颜色选项
  */
-const colorOptions: { label: string; value: CardColor; icon: string }[] = [
+const colorOptions: { label: string, value: CardColor, icon: string }[] = [
   { label: '默认', value: 'default', icon: 'Users' },
   { label: '蓝色', value: 'blue', icon: 'Users' },
   { label: '绿色', value: 'green', icon: 'DollarSign' },
   { label: '红色', value: 'red', icon: 'ShoppingCart' },
   { label: '黄色', value: 'yellow', icon: 'TrendingUp' },
   { label: '紫色', value: 'purple', icon: 'Eye' },
-  { label: '橙色', value: 'orange', icon: 'MousePointer' }
+  { label: '橙色', value: 'orange', icon: 'MousePointer' },
 ]
 
 /**
@@ -52,7 +52,7 @@ function getIconComponent(iconName: string) {
     ShoppingCart,
     TrendingUp,
     Eye,
-    MousePointer
+    MousePointer,
   }
   return icons[iconName]
 }
@@ -63,7 +63,9 @@ function getIconComponent(iconName: string) {
     <!-- 页面标题 -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">TDataCard 组件演示</h1>
+        <h1 class="text-3xl font-bold tracking-tight">
+          TDataCard 组件演示
+        </h1>
         <p class="text-muted-foreground mt-2">
           基于 antdv-next 和 lucide-vue-next 封装的统计卡片组件
         </p>
@@ -77,11 +79,21 @@ function getIconComponent(iconName: string) {
     <!-- 标签页 -->
     <Tabs default-value="basic" class="w-full">
       <TabsList class="grid w-full grid-cols-5 lg:w-[500px]">
-        <TabsTrigger value="basic">基础用法</TabsTrigger>
-        <TabsTrigger value="trend">趋势展示</TabsTrigger>
-        <TabsTrigger value="color">颜色主题</TabsTrigger>
-        <TabsTrigger value="size">尺寸设置</TabsTrigger>
-        <TabsTrigger value="advanced">高级功能</TabsTrigger>
+        <TabsTrigger value="basic">
+          基础用法
+        </TabsTrigger>
+        <TabsTrigger value="trend">
+          趋势展示
+        </TabsTrigger>
+        <TabsTrigger value="color">
+          颜色主题
+        </TabsTrigger>
+        <TabsTrigger value="size">
+          尺寸设置
+        </TabsTrigger>
+        <TabsTrigger value="advanced">
+          高级功能
+        </TabsTrigger>
       </TabsList>
 
       <!-- 基础用法 -->
@@ -464,37 +476,49 @@ function getIconComponent(iconName: string) {
           <CardContent>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">7 种颜色主题</h4>
+                <h4 class="font-medium mb-2">
+                  7 种颜色主题
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   支持 blue、green、red、yellow、purple、orange、default
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">3 种尺寸</h4>
+                <h4 class="font-medium mb-2">
+                  3 种尺寸
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   sm、default、lg 适应不同场景
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">趋势指示</h4>
+                <h4 class="font-medium mb-2">
+                  趋势指示
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   支持上升、下降、持平三种趋势
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">前缀/后缀</h4>
+                <h4 class="font-medium mb-2">
+                  前缀/后缀
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   支持添加货币符号、百分比等单位
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">加载状态</h4>
+                <h4 class="font-medium mb-2">
+                  加载状态
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   内置加载动画，提升用户体验
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">可点击</h4>
+                <h4 class="font-medium mb-2">
+                  可点击
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   支持点击交互，带有悬停效果
                 </p>

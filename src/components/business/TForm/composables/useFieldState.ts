@@ -1,3 +1,4 @@
+import type { FormField, NamePath } from '../types'
 /**
  * useFieldState - 字段状态管理 Composable
  *
@@ -6,7 +7,6 @@
  *   const { setFieldDisabled, setFieldHidden, getFieldDisabled, getFieldHidden } = useFieldState()
  */
 import { reactive } from 'vue'
-import type { FormField, NamePath } from '../types'
 
 /**
  * 获取字段名的字符串表示
@@ -104,6 +104,6 @@ export function useFieldState() {
     setFieldHidden,
     getFieldDisabled,
     getFieldHidden,
-    clearFieldStates
+    clearFieldStates,
   }
 }

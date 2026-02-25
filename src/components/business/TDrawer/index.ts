@@ -147,28 +147,28 @@
  * ```
  */
 
-// 导出组件
-export { default as TDrawer } from './TDrawer.vue'
-
-// 导出主题配置
-export { useTDrawerTheme, getTDrawerThemeConfig } from './theme'
 // 从共享主题导出颜色转换函数
 export { oklchToHex } from '../theme-shared'
 
+// 导出组件
+export { default as TDrawer } from './TDrawer.vue'
+// 导出主题配置
+export { getTDrawerThemeConfig, useTDrawerTheme } from './theme'
+
 // 导出类型
 export type {
-  // 核心类型
-  DrawerSchema,
-  TDrawerProps,
-  TDrawerEmits,
-  TDrawerExpose,
   // 配置类型
   ClosableType,
-  MaskType,
+  DrawerClassNamesType,
   DrawerPlacement,
+  // 核心类型
+  DrawerSchema,
   DrawerSize,
+  DrawerStylesType,
+  MaskType,
   PushConfig,
   ResizableConfig,
-  DrawerClassNamesType,
-  DrawerStylesType
+  TDrawerEmits,
+  TDrawerExpose,
+  TDrawerProps,
 } from './types'

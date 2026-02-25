@@ -1,44 +1,43 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import {
+  ChevronDown,
+  Globe,
+  LogOut,
+  Moon,
+  Palette,
+  Settings,
+  Sparkles,
+  Sun,
+  User,
+} from 'lucide-vue-next'
+import { computed, ref, watch } from 'vue'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useAuthStore } from '@/stores/global/auth';
-import { useThemeStore } from '@/stores/global/theme';
-import { useLocaleStore } from '@/stores/global/locale';
-import { Icon } from '@/components/Icon';
-import {
-  User,
-  Settings,
-  LogOut,
-  Moon,
-  Sun,
-  Globe,
-  Palette,
-  ChevronDown,
-  Sparkles,
-} from 'lucide-vue-next';
+} from '@/components/ui/dropdown-menu'
+import { useAuthStore } from '@/stores/global/auth'
+import { useLocaleStore } from '@/stores/global/locale'
+import { useThemeStore } from '@/stores/global/theme'
 
-const { t } = useI18n();
-const router = useRouter();
-const authStore = useAuthStore();
-const themeStore = useThemeStore();
-const localeStore = useLocaleStore();
+const { t } = useI18n()
+const router = useRouter()
+const authStore = useAuthStore()
+const themeStore = useThemeStore()
+const localeStore = useLocaleStore()
 
 /**
  * 下拉菜单打开状态
  */
-const isOpen = ref(false);
+const isOpen = ref(false)
 
 /**
  * 监听主题变化，关闭下拉菜单以避免 DOM 操作错误
  */
 watch(() => themeStore.currentMode, () => {
-  isOpen.value = false;
-});
+  isOpen.value = false
+})
 
 /**
  * 用户信息
@@ -48,17 +47,17 @@ const userInfo = computed(() => ({
   email: authStore.user?.email || 'user@example.com',
   avatar: authStore.user?.avatar,
   role: authStore.user?.role || 'admin',
-}));
+}))
 
 /**
  * 当前主题模式
  */
-const isDark = computed(() => themeStore.currentMode === 'dark');
+const isDark = computed(() => themeStore.currentMode === 'dark')
 
 /**
  * 当前语言
  */
-const currentLocale = computed(() => localeStore.currentLocale);
+const currentLocale = computed(() => localeStore.currentLocale)
 
 /**
  * 菜单项配置
@@ -90,11 +89,11 @@ const menuItems = computed(() => [
     visible: true,
     variant: 'default' as const,
     onClick: () => {
-      isOpen.value = false;
+      isOpen.value = false
       // 延迟执行主题切换，等待菜单关闭动画完成
       setTimeout(() => {
-        themeStore.toggleMode();
-      }, 150);
+        themeStore.toggleMode()
+      }, 150)
     },
   },
   {
@@ -105,37 +104,37 @@ const menuItems = computed(() => [
     visible: true,
     variant: 'default' as const,
     onClick: async () => {
-      await localeStore.toggleLocale();
+      await localeStore.toggleLocale()
     },
   },
-]);
+])
 
 /**
  * 可见的菜单项
  */
-const visibleMenuItems = computed(() => menuItems.value.filter(item => item.visible !== false));
+const visibleMenuItems = computed(() => menuItems.value.filter(item => item.visible !== false))
 
 /**
  * 处理菜单项点击
  * @param item 菜单项
  */
-const handleMenuItemClick = (item: typeof menuItems.value[0]) => {
-  item.onClick();
-};
+function handleMenuItemClick(item: typeof menuItems.value[0]) {
+  item.onClick()
+}
 
 /**
  * 处理登出
  */
-const handleLogout = async () => {
-  await authStore.logout();
-  router.push('/login');
-};
+async function handleLogout() {
+  await authStore.logout()
+  router.push('/login')
+}
 
 /**
  * 获取图标组件
  * @param iconName 图标名称
  */
-const getIconComponent = (iconName: string) => {
+function getIconComponent(iconName: string) {
   const iconMap: Record<string, typeof User> = {
     User,
     Settings,
@@ -143,66 +142,65 @@ const getIconComponent = (iconName: string) => {
     Sun,
     Globe,
     Palette,
-  };
-  return iconMap[iconName] || User;
-};
+  }
+  return iconMap[iconName] || User
+}
 
 /**
  * 获取卡片样式
  * @param variant 主题变体
  */
-const getCardClass = (variant: string): string => {
-  const baseClass = 'group relative flex flex-col items-start gap-1.5 p-2.5 rounded-lg border transition-all duration-200 text-left overflow-hidden';
+function getCardClass(variant: string): string {
+  const baseClass = 'group relative flex flex-col items-start gap-1.5 p-2.5 rounded-lg border transition-all duration-200 text-left overflow-hidden'
 
   switch (variant) {
     case 'primary':
-      return `${baseClass} bg-primary/5 hover:bg-primary/10 border-primary/20 hover:border-primary/40`;
+      return `${baseClass} bg-primary/5 hover:bg-primary/10 border-primary/20 hover:border-primary/40`
     case 'danger':
-      return `${baseClass} bg-red-50 hover:bg-red-100 border-red-200 hover:border-red-300`;
+      return `${baseClass} bg-red-50 hover:bg-red-100 border-red-200 hover:border-red-300`
     default:
-      return `${baseClass} bg-muted/50 hover:bg-muted border-border/50 hover:border-border`;
+      return `${baseClass} bg-muted/50 hover:bg-muted border-border/50 hover:border-border`
   }
-};
+}
 
 /**
  * 获取图标容器样式
  * @param variant 主题变体
  */
-const getIconContainerClass = (variant: string): string => {
-  const baseClass = 'relative h-8 w-8 rounded-lg flex items-center justify-center transition-all duration-200 shadow-sm';
+function getIconContainerClass(variant: string): string {
+  const baseClass = 'relative h-8 w-8 rounded-lg flex items-center justify-center transition-all duration-200 shadow-sm'
 
   switch (variant) {
     case 'primary':
-      return `${baseClass} bg-primary/10 group-hover:bg-primary/20`;
+      return `${baseClass} bg-primary/10 group-hover:bg-primary/20`
     case 'danger':
-      return `${baseClass} bg-red-100 group-hover:bg-red-200`;
+      return `${baseClass} bg-red-100 group-hover:bg-red-200`
     default:
-      return `${baseClass} bg-background border border-border/60 group-hover:border-primary/40 group-hover:shadow-md`;
+      return `${baseClass} bg-background border border-border/60 group-hover:border-primary/40 group-hover:shadow-md`
   }
-};
+}
 
 /**
  * 获取图标样式
  * @param variant 主题变体
  */
-const getIconClass = (variant: string): string => {
+function getIconClass(variant: string): string {
   switch (variant) {
     case 'primary':
-      return 'h-4 w-4 text-primary group-hover:text-primary transition-colors duration-200';
+      return 'h-4 w-4 text-primary group-hover:text-primary transition-colors duration-200'
     case 'danger':
-      return 'h-4 w-4 text-red-500 group-hover:text-red-600 transition-colors duration-200';
+      return 'h-4 w-4 text-red-500 group-hover:text-red-600 transition-colors duration-200'
     default:
-      return 'h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-200';
+      return 'h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-200'
   }
-};
+}
 </script>
 
 <template>
   <DropdownMenu v-model:open="isOpen">
     <DropdownMenuTrigger as-child>
       <button
-        class="group relative flex items-center gap-2 px-2 h-9 rounded-lg transition-all duration-200 overflow-hidden"
-        :class="'hover:bg-primary/10 hover:text-primary'"
+        class="group relative flex items-center gap-2 px-2 h-9 rounded-lg transition-all duration-200 overflow-hidden hover:bg-primary/10 hover:text-primary"
       >
         <!-- 悬停光效 -->
         <div
@@ -246,8 +244,12 @@ const getIconClass = (variant: string): string => {
             </AvatarFallback>
           </Avatar>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold text-foreground truncate">{{ userInfo.name }}</p>
-            <p class="text-[11px] text-muted-foreground truncate">{{ userInfo.email }}</p>
+            <p class="text-sm font-semibold text-foreground truncate">
+              {{ userInfo.name }}
+            </p>
+            <p class="text-[11px] text-muted-foreground truncate">
+              {{ userInfo.email }}
+            </p>
             <div class="flex items-center gap-1 mt-0.5">
               <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary">
                 {{ userInfo.role === 'admin' ? t('common.header.adminRole') : t('common.header.userRole') }}

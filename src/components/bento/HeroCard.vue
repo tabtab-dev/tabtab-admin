@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, TrendingUp, TrendingDown } from 'lucide-vue-next';
-import type { BentoCardProps } from '@/types/bento';
+import type { BentoCardProps } from '@/types/bento'
+import { ArrowRight, TrendingDown, TrendingUp } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 /**
  * HeroCard 组件 - 仪表板主卡片
@@ -11,22 +11,15 @@ import type { BentoCardProps } from '@/types/bento';
  */
 const props = withDefaults(defineProps<BentoCardProps>(), {
   size: 'xl',
-  variant: 'gradient'
-});
-
-/**
- * 计算趋势颜色
- */
-const trendColor = computed(() => {
-  return props.trend?.isPositive ? 'text-emerald-400' : 'text-red-400';
-});
+  variant: 'gradient',
+})
 
 /**
  * 计算趋势背景色
  */
 const trendBgColor = computed(() => {
-  return props.trend?.isPositive ? 'bg-emerald-500/20' : 'bg-red-500/20';
-});
+  return props.trend?.isPositive ? 'bg-emerald-500/20' : 'bg-red-500/20'
+})
 </script>
 
 <template>
@@ -35,54 +28,60 @@ const trendBgColor = computed(() => {
   >
     <!-- 渐变背景 -->
     <div class="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-primary/70" />
-    
+
     <!-- 装饰性光晕 -->
     <div class="absolute -top-24 -right-24 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
     <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-black/10 rounded-full blur-3xl" />
-    
+
     <!-- 网格纹理 -->
-    <div 
+    <div
       class="absolute inset-0 opacity-10"
       style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 20px 20px;"
     />
-    
+
     <CardHeader class="relative pb-2">
       <div class="flex items-start justify-between">
         <div class="flex items-center gap-4">
           <!-- 图标容器 -->
           <div class="p-3 bg-white/20 backdrop-blur-sm rounded-lg">
-            <component v-if="icon" :is="icon" class="h-8 w-8 text-white" />
+            <component :is="icon" v-if="icon" class="h-8 w-8 text-white" />
           </div>
           <div>
-            <p class="text-white/70 text-sm font-medium">{{ title }}</p>
-            <CardTitle class="text-3xl font-bold text-white mt-1">{{ value }}</CardTitle>
+            <p class="text-white/70 text-sm font-medium">
+              {{ title }}
+            </p>
+            <CardTitle class="text-3xl font-bold text-white mt-1">
+              {{ value }}
+            </CardTitle>
           </div>
         </div>
-        
+
         <!-- 趋势徽章 -->
         <div
           v-if="trend"
-          :class="['flex items-center gap-1 px-3 py-1.5 backdrop-blur-sm rounded-md', trendBgColor]"
+          class="flex items-center gap-1 px-3 py-1.5 backdrop-blur-sm rounded-md" :class="[trendBgColor]"
         >
           <component :is="trend.isPositive ? TrendingUp : TrendingDown" class="h-4 w-4 text-white" />
           <span class="text-sm font-semibold text-white">{{ Math.abs(trend.value) }}%</span>
         </div>
       </div>
-      
-      <p v-if="description" class="text-white/80 text-sm mt-3">{{ description }}</p>
+
+      <p v-if="description" class="text-white/80 text-sm mt-3">
+        {{ description }}
+      </p>
     </CardHeader>
-    
+
     <CardContent class="relative space-y-4">
       <!-- 插槽内容 -->
       <slot />
-      
+
       <!-- 操作按钮 -->
-      <Button 
-        v-if="action" 
-        @click="action.onClick" 
-        variant="secondary" 
-        size="default" 
+      <Button
+        v-if="action"
+        variant="secondary"
+        size="default"
         class="w-full bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm group/btn"
+        @click="action.onClick"
       >
         {{ action.label }}
         <ArrowRight class="h-4 w-4 ml-2 transition-transform group-hover/btn:translate-x-1" />

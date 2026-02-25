@@ -1,41 +1,41 @@
+import type { Order, PaginationData } from '@/types'
 /**
  * 订单管理相关 API
  * @description 订单的增删改查等接口
  */
-import { request } from '../client';
-import type { Order, PaginationData } from '@/types';
+import { request } from '../client'
 
 /**
  * 创建订单参数
  */
 export interface CreateOrderParams {
-  customer: string;
-  email: string;
-  phone: string;
-  items: number;
-  address: string;
-  note?: string;
+  customer: string
+  email: string
+  phone: string
+  items: number
+  address: string
+  note?: string
 }
 
 /**
  * 更新订单参数
  */
 export interface UpdateOrderParams {
-  customer?: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  note?: string;
+  customer?: string
+  email?: string
+  phone?: string
+  address?: string
+  note?: string
 }
 
 /**
  * 查询订单列表参数
  */
 export interface GetOrdersParams {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-  status?: Order['status'];
+  page?: number
+  pageSize?: number
+  search?: string
+  status?: Order['status']
 }
 
 /**
@@ -104,4 +104,4 @@ export const ordersApi = {
    */
   updateOrderStatus: (id: string, status: Order['status']) =>
     request.patch<Order>(`/orders/${id}/status`, { status }),
-};
+}

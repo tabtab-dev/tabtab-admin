@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import type { IconItem, TIconPickerEmits, TIconPickerProps } from './types'
+import { Modal } from 'antdv-next'
 import * as icons from 'lucide-vue-next'
-import { Input } from '@/components/ui/input'
+import { Search, Smile, X } from 'lucide-vue-next'
+import { computed, nextTick, ref, watch } from 'vue'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Modal } from 'antdv-next'
-import { Search, X, Smile } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
-import { ICON_CATEGORIES, getCategoryName } from './constants'
-import type { TIconPickerProps, TIconPickerEmits, IconItem } from './types'
+import { getCategoryName, ICON_CATEGORIES } from './constants'
 
 const props = withDefaults(defineProps<TIconPickerProps>(), {
   width: 720,
@@ -81,7 +81,7 @@ const filteredIcons = computed<IconItem[]>(() => {
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase()
     icons = icons.filter(icon =>
-      icon.name.toLowerCase().includes(query)
+      icon.name.toLowerCase().includes(query),
     )
   }
 
@@ -214,8 +214,12 @@ function getIconComponent(name: string) {
             <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-3">
               <Search class="h-8 w-8 opacity-30" />
             </div>
-            <p class="text-sm font-medium">{{ t('icon.noResults', '未找到匹配的图标') }}</p>
-            <p class="text-xs text-muted-foreground/60 mt-1">{{ t('icon.tryDifferentKeyword', '尝试使用其他关键词') }}</p>
+            <p class="text-sm font-medium">
+              {{ t('icon.noResults', '未找到匹配的图标') }}
+            </p>
+            <p class="text-xs text-muted-foreground/60 mt-1">
+              {{ t('icon.tryDifferentKeyword', '尝试使用其他关键词') }}
+            </p>
           </div>
 
           <!-- 按分类显示图标 -->
@@ -245,7 +249,7 @@ function getIconComponent(name: string) {
                     'bg-muted/30 hover:bg-accent hover:border-accent-foreground/30',
                     'transition-all duration-200 ease-out',
                     'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1',
-                    localSelectedIcon === icon.name && 'bg-primary/10 border-primary text-primary scale-105'
+                    localSelectedIcon === icon.name && 'bg-primary/10 border-primary text-primary scale-105',
                   )"
                   :title="icon.name"
                   @click="handleSelect(icon.name)"
@@ -277,7 +281,7 @@ function getIconComponent(name: string) {
                 'bg-muted/30 hover:bg-accent hover:border-accent-foreground/30',
                 'transition-all duration-200 ease-out',
                 'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1',
-                localSelectedIcon === icon.name && 'bg-primary/10 border-primary text-primary scale-105'
+                localSelectedIcon === icon.name && 'bg-primary/10 border-primary text-primary scale-105',
               )"
               :title="icon.name"
               @click="handleSelect(icon.name)"

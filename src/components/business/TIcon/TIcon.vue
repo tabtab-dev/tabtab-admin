@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import type { TIconEmits, TIconExpose, TIconProps } from './types'
 import * as icons from 'lucide-vue-next'
+import { ChevronDown, Smile, X } from 'lucide-vue-next'
+import { computed, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { Smile, X, ChevronDown } from 'lucide-vue-next'
 import TIconPicker from './TIconPicker.vue'
-import type { TIconProps, TIconEmits, TIconExpose } from './types'
 
 defineOptions({
-  name: 'TIcon'
+  name: 'TIcon',
 })
 
 const props = withDefaults(defineProps<TIconProps>(), {
@@ -33,7 +33,8 @@ const placeholderText = computed(() => {
 })
 
 const selectedIconComponent = computed(() => {
-  if (!props.modelValue) return null
+  if (!props.modelValue)
+    return null
   return (icons as Record<string, unknown>)[props.modelValue] as typeof Smile | null
 })
 
@@ -62,7 +63,8 @@ const sizeClasses = computed(() => {
 })
 
 function open() {
-  if (props.disabled) return
+  if (props.disabled)
+    return
   pickerVisible.value = true
 }
 
@@ -109,7 +111,7 @@ defineExpose<TIconExpose>({
         sizeClasses.trigger,
         !modelValue && 'text-muted-foreground',
         disabled && 'cursor-not-allowed opacity-50',
-        $attrs.class as string
+        $attrs.class as string,
       )"
       @click="open"
     >
@@ -139,7 +141,7 @@ defineExpose<TIconExpose>({
             't-icon-clear p-1 rounded-full',
             'hover:bg-destructive/10 hover:text-destructive',
             'focus:outline-none',
-            'transition-colors duration-150'
+            'transition-colors duration-150',
           )"
           :title="t('icon.clear', '清除')"
           @click="clear"
@@ -153,7 +155,7 @@ defineExpose<TIconExpose>({
           :class="cn(
             sizeClasses.arrow,
             'text-muted-foreground/70 transition-transform duration-300 ease-out',
-            pickerVisible && 'rotate-180 text-primary'
+            pickerVisible && 'rotate-180 text-primary',
           )"
         />
       </div>

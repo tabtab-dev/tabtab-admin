@@ -17,7 +17,7 @@ export const USER_PERMISSIONS = {
   EXPORT: 'user:export',
   /** 重置密码 */
   RESET_PASSWORD: 'user:reset_password',
-} as const;
+} as const
 
 /** 产品管理权限 */
 export const PRODUCT_PERMISSIONS = {
@@ -31,7 +31,7 @@ export const PRODUCT_PERMISSIONS = {
   DELETE: 'product:delete',
   /** 导出产品 */
   EXPORT: 'product:export',
-} as const;
+} as const
 
 /** 订单管理权限 */
 export const ORDER_PERMISSIONS = {
@@ -47,7 +47,7 @@ export const ORDER_PERMISSIONS = {
   EXPORT: 'order:export',
   /** 审核订单 */
   AUDIT: 'order:audit',
-} as const;
+} as const
 
 /** 分类管理权限 */
 export const CATEGORY_PERMISSIONS = {
@@ -59,7 +59,7 @@ export const CATEGORY_PERMISSIONS = {
   UPDATE: 'category:update',
   /** 删除分类 */
   DELETE: 'category:delete',
-} as const;
+} as const
 
 /** 库存管理权限 */
 export const INVENTORY_PERMISSIONS = {
@@ -71,7 +71,7 @@ export const INVENTORY_PERMISSIONS = {
   CHECK: 'inventory:check',
   /** 调整库存 */
   ADJUST: 'inventory:adjust',
-} as const;
+} as const
 
 /** 仓库管理权限 */
 export const WAREHOUSE_PERMISSIONS = {
@@ -83,7 +83,7 @@ export const WAREHOUSE_PERMISSIONS = {
   UPDATE: 'warehouse:update',
   /** 删除仓库 */
   DELETE: 'warehouse:delete',
-} as const;
+} as const
 
 /** 系统管理权限 */
 export const SYSTEM_PERMISSIONS = {
@@ -97,7 +97,7 @@ export const SYSTEM_PERMISSIONS = {
   ROLE_MANAGE: 'system:role:manage',
   /** 权限管理 */
   PERMISSION_MANAGE: 'system:permission:manage',
-} as const;
+} as const
 
 /** 数据分析权限 */
 export const ANALYTICS_PERMISSIONS = {
@@ -107,7 +107,7 @@ export const ANALYTICS_PERMISSIONS = {
   SALES_READ: 'analytics:sales:read',
   /** 查看用户分析 */
   USERS_READ: 'analytics:users:read',
-} as const;
+} as const
 
 /** 所有权限汇总 */
 export const PERMISSIONS = {
@@ -119,15 +119,15 @@ export const PERMISSIONS = {
   WAREHOUSE: WAREHOUSE_PERMISSIONS,
   SYSTEM: SYSTEM_PERMISSIONS,
   ANALYTICS: ANALYTICS_PERMISSIONS,
-} as const;
+} as const
 
 /** 权限码类型 */
-export type PermissionCode =
-  | typeof USER_PERMISSIONS[keyof typeof USER_PERMISSIONS]
-  | typeof PRODUCT_PERMISSIONS[keyof typeof PRODUCT_PERMISSIONS]
-  | typeof ORDER_PERMISSIONS[keyof typeof ORDER_PERMISSIONS]
-  | typeof CATEGORY_PERMISSIONS[keyof typeof CATEGORY_PERMISSIONS]
-  | typeof INVENTORY_PERMISSIONS[keyof typeof INVENTORY_PERMISSIONS]
-  | typeof WAREHOUSE_PERMISSIONS[keyof typeof WAREHOUSE_PERMISSIONS]
-  | typeof SYSTEM_PERMISSIONS[keyof typeof SYSTEM_PERMISSIONS]
-  | typeof ANALYTICS_PERMISSIONS[keyof typeof ANALYTICS_PERMISSIONS];
+export type PermissionCode
+  = | typeof USER_PERMISSIONS[keyof typeof USER_PERMISSIONS]
+    | typeof PRODUCT_PERMISSIONS[keyof typeof PRODUCT_PERMISSIONS]
+    | typeof ORDER_PERMISSIONS[keyof typeof ORDER_PERMISSIONS]
+    | typeof CATEGORY_PERMISSIONS[keyof typeof CATEGORY_PERMISSIONS]
+    | typeof INVENTORY_PERMISSIONS[keyof typeof INVENTORY_PERMISSIONS]
+    | typeof WAREHOUSE_PERMISSIONS[keyof typeof WAREHOUSE_PERMISSIONS]
+    | typeof SYSTEM_PERMISSIONS[keyof typeof SYSTEM_PERMISSIONS]
+    | typeof ANALYTICS_PERMISSIONS[keyof typeof ANALYTICS_PERMISSIONS]

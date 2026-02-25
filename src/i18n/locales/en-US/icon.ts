@@ -39,4 +39,4 @@ export default {
     health: 'Health',
     map: 'Map',
   },
-} as const;
+} as const

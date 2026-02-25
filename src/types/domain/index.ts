@@ -3,59 +3,59 @@
  * @description 统一导出所有业务领域类型
  */
 
-// 用户相关类型
-export type {
-  User,
-  UserRole,
-  UserStatus,
-  GetUsersParams,
-  CreateUserParams,
-  UpdateUserParams,
-  ChangePasswordParams,
-  UpdateProfileParams,
-} from './user';
-
-// 产品相关类型
-export type {
-  Product,
-  ProductStatus,
-  GetProductsParams,
-  CreateProductParams,
-  UpdateProductParams,
-} from './product';
-
-// 订单相关类型
-export type {
-  Order,
-  OrderItem,
-  OrderStatus,
-  ShippingAddress,
-  GetOrdersParams,
-  CreateOrderParams,
-  UpdateOrderParams,
-} from './order';
-
 // 分类和标签相关类型
 export type {
   Category,
   CategoryStatus,
-  Tag,
-  GetCategoriesParams,
   CreateCategoryParams,
-  UpdateCategoryParams,
   CreateTagParams,
+  GetCategoriesParams,
+  Tag,
+  UpdateCategoryParams,
   UpdateTagParams,
-} from './category';
+} from './category'
 
 // 库存相关类型
 export type {
-  Warehouse,
-  WarehouseStatus,
+  CreateWarehouseParams,
+  GetStockParams,
+  GetWarehousesParams,
   Stock,
   StockItem,
   StockMovement,
-  GetWarehousesParams,
-  GetStockParams,
-  CreateWarehouseParams,
   UpdateWarehouseParams,
-} from './inventory';
+  Warehouse,
+  WarehouseStatus,
+} from './inventory'
+
+// 订单相关类型
+export type {
+  CreateOrderParams,
+  GetOrdersParams,
+  Order,
+  OrderItem,
+  OrderStatus,
+  ShippingAddress,
+  UpdateOrderParams,
+} from './order'
+
+// 产品相关类型
+export type {
+  CreateProductParams,
+  GetProductsParams,
+  Product,
+  ProductStatus,
+  UpdateProductParams,
+} from './product'
+
+// 用户相关类型
+export type {
+  ChangePasswordParams,
+  CreateUserParams,
+  GetUsersParams,
+  UpdateProfileParams,
+  UpdateUserParams,
+  User,
+  UserRole,
+  UserStatus,
+} from './user'

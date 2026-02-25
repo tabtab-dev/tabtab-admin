@@ -58,7 +58,7 @@ export default {
     forgotPassword: 'Forgot password?',
     signIn: 'Sign In',
     signInWith: 'Or sign in with',
-    noAccount: "Don't have an account?",
+    noAccount: 'Don\'t have an account?',
     register: 'Register now',
     welcomeBack: 'Welcome back',
     loginSuccess: 'Login successful',
@@ -82,4 +82,4 @@ export default {
     description: 'Sorry, the page you are looking for does not exist or has been removed',
     backHome: 'Back to Home',
   },
-} as const;
+} as const

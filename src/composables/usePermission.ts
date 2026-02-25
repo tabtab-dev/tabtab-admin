@@ -3,19 +3,19 @@
  * @description 提供权限检查相关功能，用于组件内权限控制
  */
 
-import { computed } from 'vue';
-import { useAuthStore } from '@/stores/global/auth';
-import type { PermissionCode } from '@/constants/permissions';
+import type { PermissionCode } from '@/constants/permissions'
+import { computed } from 'vue'
+import { useAuthStore } from '@/stores/global/auth'
 
 /** 权限检查模式 */
-export type PermissionMode = 'all' | 'any';
+export type PermissionMode = 'all' | 'any'
 
 /**
  * 权限控制组合式函数
  * @returns 权限检查相关方法
  */
 export function usePermission() {
-  const authStore = useAuthStore();
+  const authStore = useAuthStore()
 
   /**
    * 检查是否拥有指定权限
@@ -23,8 +23,8 @@ export function usePermission() {
    * @returns 是否拥有权限
    */
   const hasPermission = (permission: PermissionCode | string): boolean => {
-    return authStore.hasPermission(permission);
-  };
+    return authStore.hasPermission(permission)
+  }
 
   /**
    * 检查是否拥有任意一个权限
@@ -32,9 +32,10 @@ export function usePermission() {
    * @returns 是否拥有任意一个权限
    */
   const hasAnyPermission = (permissions: (PermissionCode | string)[]): boolean => {
-    if (!permissions.length) return true;
-    return permissions.some(perm => authStore.hasPermission(perm));
-  };
+    if (!permissions.length)
+      return true
+    return permissions.some(perm => authStore.hasPermission(perm))
+  }
 
   /**
    * 检查是否拥有所有权限
@@ -42,9 +43,10 @@ export function usePermission() {
    * @returns 是否拥有所有权限
    */
   const hasAllPermissions = (permissions: (PermissionCode | string)[]): boolean => {
-    if (!permissions.length) return true;
-    return permissions.every(perm => authStore.hasPermission(perm));
-  };
+    if (!permissions.length)
+      return true
+    return permissions.every(perm => authStore.hasPermission(perm))
+  }
 
   /**
    * 检查是否拥有指定角色
@@ -52,8 +54,8 @@ export function usePermission() {
    * @returns 是否拥有该角色
    */
   const hasRole = (role: string): boolean => {
-    return authStore.user?.role === role;
-  };
+    return authStore.user?.role === role
+  }
 
   /**
    * 检查是否拥有任意一个角色
@@ -61,9 +63,10 @@ export function usePermission() {
    * @returns 是否拥有任意一个角色
    */
   const hasAnyRole = (roles: string[]): boolean => {
-    if (!roles.length) return true;
-    return roles.some(role => authStore.user?.role === role);
-  };
+    if (!roles.length)
+      return true
+    return roles.includes(authStore.user?.role)
+  }
 
   /**
    * 检查权限（支持单权限、多权限 any/all 模式）
@@ -73,15 +76,15 @@ export function usePermission() {
    */
   const checkPermission = (
     permission: PermissionCode | string | (PermissionCode | string)[],
-    mode: PermissionMode = 'all'
+    mode: PermissionMode = 'all',
   ): boolean => {
     if (Array.isArray(permission)) {
       return mode === 'any'
         ? hasAnyPermission(permission)
-        : hasAllPermissions(permission);
+        : hasAllPermissions(permission)
     }
-    return hasPermission(permission);
-  };
+    return hasPermission(permission)
+  }
 
   /**
    * 创建响应式权限计算属性
@@ -89,18 +92,18 @@ export function usePermission() {
    * @returns 响应式的权限状态
    */
   const usePermissionRef = (permission: PermissionCode | string) => {
-    return computed(() => hasPermission(permission));
-  };
+    return computed(() => hasPermission(permission))
+  }
 
   /**
    * 检查是否为管理员
    */
-  const isAdmin = computed(() => authStore.isAdmin);
+  const isAdmin = computed(() => authStore.isAdmin)
 
   /**
    * 检查是否已认证
    */
-  const isAuthenticated = computed(() => authStore.isAuthenticated);
+  const isAuthenticated = computed(() => authStore.isAuthenticated)
 
   return {
     // 方法
@@ -115,7 +118,7 @@ export function usePermission() {
     // 计算属性
     isAdmin,
     isAuthenticated,
-  };
+  }
 }
 
 /**
@@ -125,14 +128,15 @@ export function usePermission() {
 export function checkPermissionUtil(
   permissions: string[],
   userPermissions: string[],
-  mode: PermissionMode = 'all'
+  mode: PermissionMode = 'all',
 ): boolean {
-  if (!permissions.length) return true;
+  if (!permissions.length)
+    return true
 
   if (mode === 'any') {
-    return permissions.some(perm => userPermissions.includes(perm));
+    return permissions.some(perm => userPermissions.includes(perm))
   }
-  return permissions.every(perm => userPermissions.includes(perm));
+  return permissions.every(perm => userPermissions.includes(perm))
 }
 
 /**
@@ -141,5 +145,5 @@ export function checkPermissionUtil(
  * @returns 是否拥有超级权限
  */
 export function hasSuperPermission(userPermissions: string[]): boolean {
-  return userPermissions.includes('*');
+  return userPermissions.includes('*')
 }

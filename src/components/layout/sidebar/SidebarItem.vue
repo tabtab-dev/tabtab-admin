@@ -1,79 +1,80 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import type { SidebarMenuItem } from '@/types/menu'
+import { Icon } from '@/components/Icon'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Icon } from '@/components/Icon';
-import { useMenuUtils, formatBadge, getButtonVariant, getIconClass } from '@/layouts/composables/useMenuUtils';
-import type { SidebarMenuItem } from '@/types/menu';
+} from '@/components/ui/tooltip'
+import { formatBadge, getButtonVariant, getIconClass, useMenuUtils } from '@/layouts/composables/useMenuUtils'
 
-const { t } = useI18n();
+const props = defineProps<Props>()
+
+const emit = defineEmits<Emits>()
+
+const { t } = useI18n()
 
 /**
  * 组件属性
  */
 interface Props {
   /** 菜单项数据 */
-  item: SidebarMenuItem;
+  item: SidebarMenuItem
   /** 是否折叠 */
-  collapsed: boolean;
+  collapsed: boolean
   /** 是否激活 */
-  active: boolean;
+  active: boolean
 }
-
-const props = defineProps<Props>();
 
 /**
  * 组件事件
  */
 interface Emits {
   /** 导航事件 */
-  (e: 'navigate', path: string): void;
+  (e: 'navigate', path: string): void
 }
-
-const emit = defineEmits<Emits>();
 
 /**
  * 使用菜单工具
  */
-const { getAriaCurrent } = useMenuUtils();
+const { getAriaCurrent } = useMenuUtils()
 
 /**
  * 处理点击
  */
-const handleClick = (): void => {
-  emit('navigate', props.item.path);
-};
+function handleClick(): void {
+  emit('navigate', props.item.path)
+}
 
 /**
  * 按钮变体
  */
-const variant = computed(() => getButtonVariant(props.active));
+const variant = computed(() => getButtonVariant(props.active))
 
 /**
  * 图标类名
  */
-const iconClass = computed(() => getIconClass(props.active));
+const iconClass = computed(() => getIconClass(props.active))
 
 /**
  * 菜单标题（翻译后）
  */
 const menuTitle = computed(() => {
-  return props.item.i18nKey ? t(props.item.i18nKey) : props.item.title;
-});
+  return props.item.i18nKey ? t(props.item.i18nKey) : props.item.title
+})
 
 /**
  * ARIA 标签（折叠状态下使用）
  */
 const ariaLabel = computed(() => {
-  if (!props.collapsed) return undefined;
+  if (!props.collapsed)
+    return undefined
   return props.item.badge
     ? `${menuTitle.value} (${props.item.badge} 条通知)`
-    : menuTitle.value;
-});
+    : menuTitle.value
+})
 </script>
 
 <template>
@@ -86,9 +87,8 @@ const ariaLabel = computed(() => {
         role="menuitem"
         :aria-label="ariaLabel"
         :aria-current="getAriaCurrent(item.path)"
-        :class="[
-          'relative h-10 w-10 transition-colors duration-150 rounded-lg',
-          active ? 'bg-primary text-primary-foreground' : 'hover:bg-primary/10 hover:text-primary'
+        class="relative h-10 w-10 transition-colors duration-150 rounded-lg" :class="[
+          active ? 'bg-primary text-primary-foreground' : 'hover:bg-primary/10 hover:text-primary',
         ]"
         @click="handleClick"
       >
@@ -131,20 +131,18 @@ const ariaLabel = computed(() => {
     :variant="variant"
     role="menuitem"
     :aria-current="getAriaCurrent(item.path)"
-    :class="[
-      'w-full justify-start gap-2 h-9 px-3 group transition-colors duration-150 rounded-lg',
-      active 
-        ? 'bg-primary/10 text-primary hover:bg-primary/15' 
-        : 'hover:bg-accent hover:text-accent-foreground'
+    class="w-full justify-start gap-2 h-9 px-3 group transition-colors duration-150 rounded-lg" :class="[
+      active
+        ? 'bg-primary/10 text-primary hover:bg-primary/15'
+        : 'hover:bg-accent hover:text-accent-foreground',
     ]"
     @click="handleClick"
   >
     <Icon
       v-if="item.icon"
       :name="item.icon"
-      :class="[
-        'h-4 w-4',
-        active ? 'text-primary' : 'text-muted-foreground group-hover:text-accent-foreground'
+      class="h-4 w-4" :class="[
+        active ? 'text-primary' : 'text-muted-foreground group-hover:text-accent-foreground',
       ]"
       aria-hidden="true"
     />

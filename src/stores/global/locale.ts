@@ -1,52 +1,55 @@
-import { defineStore, acceptHMRUpdate } from 'pinia';
+import type { SupportedLocale } from '@/i18n'
+import { acceptHMRUpdate, defineStore } from 'pinia'
+import { STORAGE_KEYS } from '@/constants/common'
 import {
-  setLocale as setI18nLocale,
   getCurrentLocale,
+  initI18n,
+  setLocale as setI18nLocale,
+
   toggleLocale as toggleI18nLocale,
   updateDocumentTitle,
-  initI18n,
-  type SupportedLocale
-} from '@/i18n';
-import { localeNames, supportedLocales, preloadLocaleMessages } from '@/i18n/locales';
-import { STORAGE_KEYS } from '@/constants/common';
+} from '@/i18n'
+import { localeNames, preloadLocaleMessages, supportedLocales } from '@/i18n/locales'
 
 export const useLocaleStore = defineStore(
   'locale',
   () => {
-    const currentLocale = ref<SupportedLocale>(getCurrentLocale());
-    const isLoading = ref(false);
-    const error = ref<string | null>(null);
+    const currentLocale = ref<SupportedLocale>(getCurrentLocale())
+    const isLoading = ref(false)
+    const error = ref<string | null>(null)
 
-    const currentLocaleName = computed(() => localeNames[currentLocale.value]);
+    const currentLocaleName = computed(() => localeNames[currentLocale.value])
 
     const availableLocales = computed(() =>
       supportedLocales.map(locale => ({
         value: locale,
         label: localeNames[locale],
-      }))
-    );
+      })),
+    )
 
-    const isZhCN = computed(() => currentLocale.value === 'zh-CN');
-    const isEnUS = computed(() => currentLocale.value === 'en-US');
+    const isZhCN = computed(() => currentLocale.value === 'zh-CN')
+    const isEnUS = computed(() => currentLocale.value === 'en-US')
 
     /**
      * 执行异步操作并处理状态
      */
     async function executeAsync<T>(
       operation: () => Promise<T>,
-      errorMessage: string
+      errorMessage: string,
     ): Promise<T | null> {
-      isLoading.value = true;
-      error.value = null;
+      isLoading.value = true
+      error.value = null
 
       try {
-        return await operation();
-      } catch (err) {
-        error.value = err instanceof Error ? err.message : errorMessage;
-        console.error(errorMessage, err);
-        return null;
-      } finally {
-        isLoading.value = false;
+        return await operation()
+      }
+      catch (err) {
+        error.value = err instanceof Error ? err.message : errorMessage
+        console.error(errorMessage, err)
+        return null
+      }
+      finally {
+        isLoading.value = false
       }
     }
 
@@ -54,24 +57,26 @@ export const useLocaleStore = defineStore(
      * 更新语言后的通用处理
      */
     function afterLocaleChange(locale: SupportedLocale): void {
-      currentLocale.value = locale;
-      updateDocumentTitle();
-      preloadLocaleMessages(locale === 'zh-CN' ? 'en-US' : 'zh-CN');
+      currentLocale.value = locale
+      updateDocumentTitle()
+      preloadLocaleMessages(locale === 'zh-CN' ? 'en-US' : 'zh-CN')
     }
 
     /**
      * 设置语言
      */
     async function changeLocale(locale: SupportedLocale): Promise<boolean> {
-      if (locale === currentLocale.value) return true;
+      if (locale === currentLocale.value)
+        return true
 
       const result = await executeAsync(async () => {
-        const success = await setI18nLocale(locale);
-        if (success) afterLocaleChange(locale);
-        return success;
-      }, '切换语言失败');
+        const success = await setI18nLocale(locale)
+        if (success)
+          afterLocaleChange(locale)
+        return success
+      }, '切换语言失败')
 
-      return result ?? false;
+      return result ?? false
     }
 
     /**
@@ -79,10 +84,11 @@ export const useLocaleStore = defineStore(
      */
     async function toggleLocale(): Promise<SupportedLocale | null> {
       return await executeAsync(async () => {
-        const newLocale = await toggleI18nLocale();
-        if (newLocale) afterLocaleChange(newLocale);
-        return newLocale;
-      }, '切换语言失败');
+        const newLocale = await toggleI18nLocale()
+        if (newLocale)
+          afterLocaleChange(newLocale)
+        return newLocale
+      }, '切换语言失败')
     }
 
     /**
@@ -90,21 +96,21 @@ export const useLocaleStore = defineStore(
      */
     async function init(): Promise<boolean> {
       const result = await executeAsync(async () => {
-        const success = await initI18n();
+        const success = await initI18n()
         if (success) {
-          currentLocale.value = getCurrentLocale();
-          document.documentElement.setAttribute('lang', currentLocale.value);
-          updateDocumentTitle();
-          preloadLocaleMessages(currentLocale.value === 'zh-CN' ? 'en-US' : 'zh-CN');
+          currentLocale.value = getCurrentLocale()
+          document.documentElement.setAttribute('lang', currentLocale.value)
+          updateDocumentTitle()
+          preloadLocaleMessages(currentLocale.value === 'zh-CN' ? 'en-US' : 'zh-CN')
         }
-        return success;
-      }, '初始化语言设置失败');
+        return success
+      }, '初始化语言设置失败')
 
-      return result ?? false;
+      return result ?? false
     }
 
     function clearError() {
-      error.value = null;
+      error.value = null
     }
 
     return {
@@ -119,16 +125,16 @@ export const useLocaleStore = defineStore(
       toggleLocale,
       init,
       clearError,
-    };
+    }
   },
   {
     persist: {
       key: STORAGE_KEYS.LOCALE,
       pick: ['currentLocale'],
     },
-  }
-);
+  },
+)
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useLocaleStore, import.meta.hot));
+  import.meta.hot.accept(acceptHMRUpdate(useLocaleStore, import.meta.hot))
 }

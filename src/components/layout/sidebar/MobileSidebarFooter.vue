@@ -1,65 +1,65 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { LogOut, Settings, User } from 'lucide-vue-next'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useAuthStore } from '@/stores/global/auth';
-import { useAppStore } from '@/stores/global/app';
-import { Settings, LogOut, User } from 'lucide-vue-next';
+} from '@/components/ui/dropdown-menu'
+import { useAppStore } from '@/stores/global/app'
+import { useAuthStore } from '@/stores/global/auth'
 
-const { t } = useI18n();
+const { t } = useI18n()
 
 /**
  * 用户 store
  */
-const authStore = useAuthStore();
-const appStore = useAppStore();
+const authStore = useAuthStore()
+const appStore = useAppStore()
 
 /**
  * 路由实例
  */
-const router = useRouter();
+const router = useRouter()
 
 /**
  * 用户姓名首字母
  */
 const userInitials = computed(() => {
-  return authStore.user?.name?.charAt(0).toUpperCase() || 'U';
-});
+  return authStore.user?.name?.charAt(0).toUpperCase() || 'U'
+})
 
 /**
  * 用户菜单打开状态
  */
-const isUserMenuOpen = ref(false);
+const isUserMenuOpen = ref(false)
 
 /**
  * 处理导航到个人资料
  */
-const handleGoToProfile = () => {
-  appStore.setMobileSidebar(false);
-  router.push('/profile');
-};
+function handleGoToProfile() {
+  appStore.setMobileSidebar(false)
+  router.push('/profile')
+}
 
 /**
  * 处理导航到设置
  */
-const handleGoToSettings = () => {
-  appStore.setMobileSidebar(false);
-  router.push('/settings');
-};
+function handleGoToSettings() {
+  appStore.setMobileSidebar(false)
+  router.push('/settings')
+}
 
 /**
  * 处理退出登录
  */
-const handleLogout = async () => {
-  appStore.setMobileSidebar(false);
-  await authStore.logout();
-  router.push('/login');
-};
+async function handleLogout() {
+  appStore.setMobileSidebar(false)
+  await authStore.logout()
+  router.push('/login')
+}
 </script>
 
 <template>
@@ -94,20 +94,24 @@ const handleLogout = async () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" class="w-56" :side-offset="8">
         <div class="px-2 py-1.5">
-          <p class="text-xs font-medium text-muted-foreground">{{ t('common.sidebar.signedInAs') }}</p>
-          <p class="text-sm font-semibold truncate">{{ authStore.user?.email || 'user@example.com' }}</p>
+          <p class="text-xs font-medium text-muted-foreground">
+            {{ t('common.sidebar.signedInAs') }}
+          </p>
+          <p class="text-sm font-semibold truncate">
+            {{ authStore.user?.email || 'user@example.com' }}
+          </p>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem @click="handleGoToProfile" class="gap-2 cursor-pointer">
+        <DropdownMenuItem class="gap-2 cursor-pointer" @click="handleGoToProfile">
           <User class="h-4 w-4" />
           <span>{{ t('common.sidebar.profile') }}</span>
         </DropdownMenuItem>
-        <DropdownMenuItem @click="handleGoToSettings" class="gap-2 cursor-pointer">
+        <DropdownMenuItem class="gap-2 cursor-pointer" @click="handleGoToSettings">
           <Settings class="h-4 w-4" />
           <span>{{ t('common.sidebar.settings') }}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem @click="handleLogout" class="gap-2 cursor-pointer text-destructive focus:text-destructive">
+        <DropdownMenuItem class="gap-2 cursor-pointer text-destructive focus:text-destructive" @click="handleLogout">
           <LogOut class="h-4 w-4" />
           <span>{{ t('common.sidebar.logout') }}</span>
         </DropdownMenuItem>

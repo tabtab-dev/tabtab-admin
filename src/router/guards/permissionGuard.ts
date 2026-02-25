@@ -2,29 +2,29 @@
  * 权限守卫
  * @description 处理路由级别的权限控制
  */
-import type { RouteLocationNormalized, NavigationGuardNext } from 'vue-router';
-import { useAuthStore } from '@/stores/global/auth';
-import { toast } from 'vue-sonner';
+import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
+import { toast } from 'vue-sonner'
+import { useAuthStore } from '@/stores/global/auth'
 
 /**
  * 权限检查模式
  * - all: 需要拥有所有权限
  * - any: 拥有任一权限即可
  */
-export type PermissionMode = 'all' | 'any';
+export type PermissionMode = 'all' | 'any'
 
 /**
  * 路由权限配置
  */
 export interface RoutePermission {
   /** 权限列表 */
-  permissions: string[];
+  permissions: string[]
   /** 检查模式 */
-  mode?: PermissionMode;
+  mode?: PermissionMode
   /** 无权限时的跳转路由，默认 404 */
-  redirect?: string;
+  redirect?: string
   /** 是否显示无权限提示 */
-  showToast?: boolean;
+  showToast?: boolean
 }
 
 /**
@@ -35,18 +35,19 @@ export interface RoutePermission {
  */
 export function checkPermission(
   permissions: string[],
-  mode: PermissionMode = 'all'
+  mode: PermissionMode = 'all',
 ): boolean {
-  const authStore = useAuthStore();
+  const authStore = useAuthStore()
 
   if (!authStore.isAuthenticated) {
-    return false;
+    return false
   }
 
   if (mode === 'all') {
-    return permissions.every(perm => authStore.hasPermission(perm));
-  } else {
-    return permissions.some(perm => authStore.hasPermission(perm));
+    return permissions.every(perm => authStore.hasPermission(perm))
+  }
+  else {
+    return permissions.some(perm => authStore.hasPermission(perm))
   }
 }
 
@@ -58,20 +59,21 @@ export function checkPermission(
  */
 export function checkRole(
   roles: string[],
-  mode: PermissionMode = 'any'
+  mode: PermissionMode = 'any',
 ): boolean {
-  const authStore = useAuthStore();
+  const authStore = useAuthStore()
 
   if (!authStore.isAuthenticated || !authStore.user) {
-    return false;
+    return false
   }
 
-  const userRole = authStore.user.role;
+  const userRole = authStore.user.role
 
   if (mode === 'all') {
-    return roles.every(role => userRole === role);
-  } else {
-    return roles.some(role => userRole === role);
+    return roles.every(role => userRole === role)
+  }
+  else {
+    return roles.includes(userRole)
   }
 }
 
@@ -82,38 +84,38 @@ export function checkRole(
 export function permissionGuard(
   to: RouteLocationNormalized,
   from: RouteLocationNormalized,
-  next: NavigationGuardNext
+  next: NavigationGuardNext,
 ): void {
   // 检查权限配置
-  const permissionConfig = to.meta.permission as RoutePermission | undefined;
+  const permissionConfig = to.meta.permission as RoutePermission | undefined
 
   if (permissionConfig?.permissions?.length) {
-    const { permissions, mode = 'all', redirect = 'NotFound', showToast = true } = permissionConfig;
+    const { permissions, mode = 'all', redirect = 'NotFound', showToast = true } = permissionConfig
 
-    const hasPermission = checkPermission(permissions, mode);
+    const hasPermission = checkPermission(permissions, mode)
 
     if (!hasPermission) {
       if (showToast) {
-        toast.error('您没有权限访问此页面');
+        toast.error('您没有权限访问此页面')
       }
-      next({ name: redirect });
-      return;
+      next({ name: redirect })
+      return
     }
   }
 
   // 检查角色配置（简化版）
-  const roles = to.meta.roles as string[] | undefined;
+  const roles = to.meta.roles as string[] | undefined
   if (roles?.length) {
-    const hasRole = checkRole(roles, 'any');
+    const hasRole = checkRole(roles, 'any')
 
     if (!hasRole) {
-      toast.error('您没有权限访问此页面');
-      next({ name: 'NotFound' });
-      return;
+      toast.error('您没有权限访问此页面')
+      next({ name: 'NotFound' })
+      return
     }
   }
 
-  next();
+  next()
 }
 
 /**
@@ -125,22 +127,22 @@ export function createPermissionGuard(permissionConfig: RoutePermission) {
   return (
     to: RouteLocationNormalized,
     from: RouteLocationNormalized,
-    next: NavigationGuardNext
+    next: NavigationGuardNext,
   ): void => {
-    const { permissions, mode = 'all', redirect = 'NotFound', showToast = true } = permissionConfig;
+    const { permissions, mode = 'all', redirect = 'NotFound', showToast = true } = permissionConfig
 
-    const hasPermission = checkPermission(permissions, mode);
+    const hasPermission = checkPermission(permissions, mode)
 
     if (!hasPermission) {
       if (showToast) {
-        toast.error('您没有权限访问此页面');
+        toast.error('您没有权限访问此页面')
       }
-      next({ name: redirect });
-      return;
+      next({ name: redirect })
+      return
     }
 
-    next();
-  };
+    next()
+  }
 }
 
 /**

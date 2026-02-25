@@ -9,8 +9,8 @@
  * @returns 是否有效
  */
 export function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+  const emailRegex = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/
+  return emailRegex.test(email)
 }
 
 /**
@@ -19,8 +19,8 @@ export function isValidEmail(email: string): boolean {
  * @returns 是否有效
  */
 export function isValidPhone(phone: string): boolean {
-  const phoneRegex = /^1[3-9]\d{9}$/;
-  return phoneRegex.test(phone);
+  const phoneRegex = /^1[3-9]\d{9}$/
+  return phoneRegex.test(phone)
 }
 
 /**
@@ -30,10 +30,11 @@ export function isValidPhone(phone: string): boolean {
  */
 export function isValidUrl(url: string): boolean {
   try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
+    new URL(url)
+    return true
+  }
+  catch {
+    return false
   }
 }
 
@@ -43,8 +44,8 @@ export function isValidUrl(url: string): boolean {
  * @returns 是否有效
  */
 export function isValidIdCard(idCard: string): boolean {
-  const idCardRegex = /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/;
-  return idCardRegex.test(idCard);
+  const idCardRegex = /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9X]$/i
+  return idCardRegex.test(idCard)
 }
 
 /**
@@ -53,13 +54,18 @@ export function isValidIdCard(idCard: string): boolean {
  * @returns 强度等级（0-4）
  */
 export function getPasswordStrength(password: string): number {
-  let strength = 0;
-  
-  if (password.length >= 8) strength++;
-  if (password.length >= 12) strength++;
-  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-  if (/\d/.test(password)) strength++;
-  if (/[^a-zA-Z0-9]/.test(password)) strength++;
-  
-  return Math.min(strength, 4);
+  let strength = 0
+
+  if (password.length >= 8)
+    strength++
+  if (password.length >= 12)
+    strength++
+  if (/[a-z]/.test(password) && /[A-Z]/.test(password))
+    strength++
+  if (/\d/.test(password))
+    strength++
+  if (/[^a-z0-9]/i.test(password))
+    strength++
+
+  return Math.min(strength, 4)
 }

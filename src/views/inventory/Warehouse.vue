@@ -1,27 +1,27 @@
 <script setup lang="ts">
+import type { FormSchema } from '@/components/business/TForm'
+import type { TableSchema } from '@/components/business/TTable'
+import type { Warehouse } from '@/types'
+import {
+  Building,
+  CheckCircle,
+  MapPin,
+  Package,
+  Plus,
+  TrendingUp,
+  User,
+} from 'lucide-vue-next'
+import { inventoryApi } from '@/api'
+import { TForm } from '@/components/business/TForm'
+import { TModal } from '@/components/business/TModal'
 /**
  * 仓库管理页 - 使用 useMutation 重构
  */
 import { TTable } from '@/components/business/TTable'
-import { TForm } from '@/components/business/TForm'
-import { TModal } from '@/components/business/TModal'
-import type { TableSchema } from '@/components/business/TTable'
-import type { FormSchema } from '@/components/business/TForm'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import type { Warehouse } from '@/types'
-import { inventoryApi } from '@/api'
-import { useTableData, useMutation } from '@/composables'
-import {
-  Plus,
-  Building,
-  MapPin,
-  User,
-  CheckCircle,
-  Package,
-  TrendingUp
-} from 'lucide-vue-next'
+import { useMutation, useTableData } from '@/composables'
 import { WAREHOUSE_STATUS } from '@/constants'
 
 interface TableSlotProps {
@@ -49,8 +49,8 @@ const {
       const lowerQuery = query.toLowerCase()
       result = result.filter(
         warehouse =>
-          warehouse.name.toLowerCase().includes(lowerQuery) ||
-          warehouse.code.toLowerCase().includes(lowerQuery)
+          warehouse.name.toLowerCase().includes(lowerQuery)
+          || warehouse.code.toLowerCase().includes(lowerQuery),
       )
     }
 
@@ -84,14 +84,14 @@ const statisticsCards = computed(() => {
     { title: '仓库总数', value: stats.total || 0, icon: Building, color: 'text-blue-500' },
     { title: '运营中', value: stats.active || 0, icon: CheckCircle, color: 'text-green-500' },
     { title: '总容量', value: (stats.totalCapacity || 0).toLocaleString(), icon: Package, color: 'text-purple-500' },
-    { title: '使用率', value: (stats.utilizationRate || 0) + '%', icon: TrendingUp, color: 'text-orange-500' }
+    { title: '使用率', value: `${stats.utilizationRate || 0}%`, icon: TrendingUp, color: 'text-orange-500' },
   ]
 })
 
 // 搜索表单
 const searchFormData = ref({
   keyword: '',
-  status: ''
+  status: '',
 })
 
 const searchSchema: FormSchema = {
@@ -102,7 +102,7 @@ const searchSchema: FormSchema = {
       type: 'input',
       label: '',
       placeholder: '搜索仓库名称、编码...',
-      className: 'w-[240px]'
+      className: 'w-[240px]',
     },
     {
       name: 'status',
@@ -112,10 +112,10 @@ const searchSchema: FormSchema = {
       options: [
         { label: '全部状态', value: '' },
         { label: '运营中', value: WAREHOUSE_STATUS.ACTIVE },
-        { label: '已停用', value: WAREHOUSE_STATUS.INACTIVE }
+        { label: '已停用', value: WAREHOUSE_STATUS.INACTIVE },
       ],
-      className: 'w-[140px]'
-    }
+      className: 'w-[140px]',
+    },
   ],
   searchConfig: {
     enabled: true,
@@ -133,8 +133,8 @@ const searchSchema: FormSchema = {
     onReset: () => {
       searchQuery.value = ''
       filters.value = {}
-    }
-  }
+    },
+  },
 }
 
 // 表格配置
@@ -144,69 +144,69 @@ const tableSchema = computed<TableSchema>(() => ({
       title: '仓库信息',
       dataIndex: 'name',
       width: 200,
-      slot: 'name'
+      slot: 'name',
     },
     {
       title: '仓库编码',
       dataIndex: 'code',
-      width: 120
+      width: 120,
     },
     {
       title: '位置',
       dataIndex: 'location',
       width: 180,
-      slot: 'location'
+      slot: 'location',
     },
     {
       title: '负责人',
       dataIndex: 'manager',
       width: 120,
-      slot: 'manager'
+      slot: 'manager',
     },
     {
       title: '容量使用',
       dataIndex: 'capacity',
       width: 150,
-      slot: 'capacity'
+      slot: 'capacity',
     },
     {
       title: '商品数量',
       dataIndex: 'productCount',
       width: 100,
-      sorter: true
+      sorter: true,
     },
     {
       title: '状态',
       dataIndex: 'status',
       width: 100,
-      slot: 'status'
-    }
+      slot: 'status',
+    },
   ],
   pagination: {
     pageSize: 10,
     show: true,
-    showSizeChanger: true
+    showSizeChanger: true,
   },
   rowSelection: {
     type: 'checkbox',
-    show: true
+    show: true,
   },
   actions: [
     {
       text: '编辑',
       type: 'primary',
-      onClick: (record) => handleEdit(record as unknown as Warehouse)
+      onClick: record => handleEdit(record as unknown as Warehouse),
     },
     {
       text: '删除',
       type: 'danger',
       confirm: true,
       confirmText: '确定要删除该仓库吗？',
-      onClick: (record) => handleDelete((record as unknown as Warehouse).id)
-    }
+      onClick: record => handleDelete((record as unknown as Warehouse).id),
+    },
   ],
   actionWidth: 150,
-  actionFixed: 'right'
+  actionFixed: 'right',
 }))
 
 const tableData = computed(() => {
@@ -225,7 +225,7 @@ const addFormData = ref({
   manager: '',
   phone: '',
   capacity: 1000,
-  status: 'active' as 'active' | 'inactive'
+  status: 'active' as 'active' | 'inactive',
 })
 
 const editFormData = ref({
@@ -236,7 +236,7 @@ const editFormData = ref({
   manager: '',
   phone: '',
   capacity: 1000,
-  status: 'active' as 'active' | 'inactive'
+  status: 'active' as 'active' | 'inactive',
 })
 
 const addSchema: FormSchema = {
@@ -249,41 +249,41 @@ const addSchema: FormSchema = {
       type: 'input',
       label: '仓库名称',
       placeholder: '请输入仓库名称',
-      rules: [{ required: true, message: '仓库名称不能为空' }]
+      rules: [{ required: true, message: '仓库名称不能为空' }],
     },
     {
       name: 'code',
       type: 'input',
       label: '仓库编码',
       placeholder: '请输入仓库编码',
-      rules: [{ required: true, message: '仓库编码不能为空' }]
+      rules: [{ required: true, message: '仓库编码不能为空' }],
     },
     {
       name: 'location',
       type: 'input',
       label: '仓库位置',
       placeholder: '请输入详细地址',
-      rules: [{ required: true, message: '仓库位置不能为空' }]
+      rules: [{ required: true, message: '仓库位置不能为空' }],
     },
     {
       name: 'manager',
       type: 'input',
       label: '负责人',
       placeholder: '请输入负责人姓名',
-      rules: [{ required: true, message: '负责人不能为空' }]
+      rules: [{ required: true, message: '负责人不能为空' }],
     },
     {
       name: 'phone',
       type: 'input',
       label: '联系电话',
-      placeholder: '请输入联系电话'
+      placeholder: '请输入联系电话',
     },
     {
       name: 'capacity',
       type: 'number',
       label: '仓库容量',
       placeholder: '请输入容量',
-      rules: [{ required: true, message: '仓库容量不能为空' }]
+      rules: [{ required: true, message: '仓库容量不能为空' }],
     },
     {
       name: 'status',
@@ -292,9 +292,9 @@ const addSchema: FormSchema = {
       placeholder: '请选择状态',
       options: [
         { label: '运营中', value: 'active' },
-        { label: '已停用', value: 'inactive' }
-      ]
-    }
+        { label: '已停用', value: 'inactive' },
+      ],
+    },
   ],
   actions: {
     showSubmit: true,
@@ -302,8 +302,8 @@ const addSchema: FormSchema = {
     submitText: '添加仓库',
     resetText: '取消',
     align: 'right',
-    onReset: () => { isAddOpen.value = false }
-  }
+    onReset: () => { isAddOpen.value = false },
+  },
 }
 
 const editSchema: FormSchema = {
@@ -316,31 +316,31 @@ const editSchema: FormSchema = {
       type: 'input',
       label: '仓库名称',
       placeholder: '请输入仓库名称',
-      rules: [{ required: true, message: '仓库名称不能为空' }]
+      rules: [{ required: true, message: '仓库名称不能为空' }],
     },
     {
       name: 'location',
       type: 'input',
       label: '仓库位置',
-      placeholder: '请输入详细地址'
+      placeholder: '请输入详细地址',
     },
     {
       name: 'manager',
       type: 'input',
       label: '负责人',
-      placeholder: '请输入负责人姓名'
+      placeholder: '请输入负责人姓名',
     },
     {
       name: 'phone',
       type: 'input',
       label: '联系电话',
-      placeholder: '请输入联系电话'
+      placeholder: '请输入联系电话',
     },
     {
       name: 'capacity',
       type: 'number',
       label: '仓库容量',
-      placeholder: '请输入容量'
+      placeholder: '请输入容量',
     },
     {
       name: 'status',
@@ -349,9 +349,9 @@ const editSchema: FormSchema = {
       placeholder: '请选择状态',
       options: [
         { label: '运营中', value: 'active' },
-        { label: '已停用', value: 'inactive' }
-      ]
-    }
+        { label: '已停用', value: 'inactive' },
+      ],
+    },
   ],
   actions: {
     showSubmit: true,
@@ -359,8 +359,8 @@ const editSchema: FormSchema = {
     submitText: '保存修改',
     resetText: '取消',
     align: 'right',
-    onReset: () => { isEditOpen.value = false }
-  }
+    onReset: () => { isEditOpen.value = false },
+  },
 }
 
 const { mutate: createWarehouse } = useMutation({
@@ -379,29 +379,29 @@ const { mutate: createWarehouse } = useMutation({
     isAddOpen.value = false
     addFormData.value = { name: '', code: '', location: '', manager: '', phone: '', capacity: 1000, status: 'active' }
     fetchData()
-  }
+  },
 })
 
 const { mutate: updateWarehouse, loading: updating } = useMutation({
-  mutationFn: ({ id, values }: { id: string; values: Record<string, any> }) =>
+  mutationFn: ({ id, values }: { id: string, values: Record<string, any> }) =>
     inventoryApi.updateWarehouse(id, {
       name: values.name,
       location: values.location,
       manager: values.manager,
       phone: values.phone,
       capacity: Number(values.capacity),
-      status: values.status
+      status: values.status,
     }),
   onSuccess: () => {
     isEditOpen.value = false
     editingItem.value = null
     fetchData()
-  }
+  },
 })
 
 const { mutate: deleteWarehouse } = useMutation({
   mutationFn: (id: string) => inventoryApi.deleteWarehouse(id),
-  onSuccess: () => fetchData()
+  onSuccess: () => fetchData(),
 })
 
 // 事件处理
@@ -415,7 +415,7 @@ function handleEdit(item: Warehouse) {
     manager: item.manager,
     phone: item.phone,
     capacity: item.capacity,
-    status: item.status
+    status: item.status,
   }
   isEditOpen.value = true
 }
@@ -438,15 +438,18 @@ const selectedRowKeys = ref<(string | number)[]>([])
 function handleSelectChange(keys: (string | number)[]) {
   selectedRowKeys.value = keys
 }
-
 </script>
 
 <template>
   <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">仓库管理</h1>
-        <p class="text-muted-foreground mt-1.5 text-sm">管理仓库信息和容量</p>
+        <h1 class="text-3xl font-bold tracking-tight">
+          仓库管理
+        </h1>
+        <p class="text-muted-foreground mt-1.5 text-sm">
+          管理仓库信息和容量
+        </p>
       </div>
       <Button class="gap-2" @click="isAddOpen = true">
         <Plus class="h-4 w-4" />
@@ -468,7 +471,7 @@ function handleSelectChange(keys: (string | number)[]) {
         :key="stat.title"
         class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
       >
-        <component :is="stat.icon" :class="['h-4 w-4', stat.color]" />
+        <component :is="stat.icon" class="h-4 w-4" :class="[stat.color]" />
         <div class="flex items-baseline gap-2">
           <span class="text-lg font-semibold">{{ stat.value }}</span>
           <span class="text-xs text-muted-foreground">{{ stat.title }}</span>
@@ -487,7 +490,9 @@ function handleSelectChange(keys: (string | number)[]) {
     <Card class="bg-muted/40 border border-border/50 rounded-xl">
       <CardHeader class="pb-4">
         <div class="flex items-center gap-3">
-          <CardTitle class="text-base font-semibold">仓库列表</CardTitle>
+          <CardTitle class="text-base font-semibold">
+            仓库列表
+          </CardTitle>
           <span class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
             共 {{ tableData.length }} 个
           </span>
@@ -528,7 +533,7 @@ function handleSelectChange(keys: (string | number)[]) {
                 <span>{{ Math.round((((slotProps as TableSlotProps).record.usedCapacity ?? 0) / ((slotProps as TableSlotProps).text || 1)) * 100) }}%</span>
               </div>
               <div class="h-1.5 bg-muted rounded-full overflow-hidden">
-                <div 
+                <div
                   class="h-full bg-primary rounded-full"
                   :style="{ width: `${Math.min((((slotProps as TableSlotProps).record.usedCapacity ?? 0) / ((slotProps as TableSlotProps).text || 1)) * 100, 100)}%` }"
                 />
@@ -540,7 +545,7 @@ function handleSelectChange(keys: (string | number)[]) {
             <Badge
               :class="{
                 'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableSlotProps).text === WAREHOUSE_STATUS.ACTIVE,
-                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as TableSlotProps).text === WAREHOUSE_STATUS.INACTIVE
+                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as TableSlotProps).text === WAREHOUSE_STATUS.INACTIVE,
               }"
               variant="outline"
             >
@@ -553,8 +558,12 @@ function handleSelectChange(keys: (string | number)[]) {
               <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
                 <Building class="w-8 h-8 text-muted-foreground/50" />
               </div>
-              <p class="text-base font-medium mb-1">暂无仓库数据</p>
-              <p class="text-sm text-muted-foreground mb-4">开始添加您的第一个仓库吧</p>
+              <p class="text-base font-medium mb-1">
+                暂无仓库数据
+              </p>
+              <p class="text-sm text-muted-foreground mb-4">
+                开始添加您的第一个仓库吧
+              </p>
               <Button size="sm" @click="isAddOpen = true">
                 <Plus class="h-4 w-4 mr-1" />
                 添加仓库

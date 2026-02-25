@@ -3,17 +3,17 @@
  */
 export interface UserMenuItem {
   /** 标题 */
-  title: string;
+  title: string
   /** 描述 */
-  description: string;
+  description: string
   /** 图标名称 */
-  icon: string;
+  icon: string
   /** 点击处理函数 */
-  onClick: () => void;
+  onClick: () => void
   /** 是否显示 */
-  visible?: boolean;
+  visible?: boolean
   /** 主题色 */
-  variant?: 'default' | 'primary' | 'danger';
+  variant?: 'default' | 'primary' | 'danger'
 }
 
 /**
@@ -21,11 +21,11 @@ export interface UserMenuItem {
  */
 export interface UserInfo {
   /** 用户名 */
-  name: string;
+  name: string
   /** 用户邮箱 */
-  email: string;
+  email: string
   /** 用户头像 */
-  avatar?: string;
+  avatar?: string
   /** 用户角色 */
-  role?: string;
+  role?: string
 }

@@ -1,92 +1,92 @@
+import type { PaginationData } from '@/types'
+import type { MenuResponse } from '@/types/menu'
 /**
  * 菜单相关 API
  * @description 获取用户菜单、路由配置和菜单管理等接口
  */
-import { request } from '../client';
-import type { MenuResponse } from '@/types/menu';
-import type { PaginationData } from '@/types';
+import { request } from '../client'
 
 /**
  * 菜单类型
  */
-export type MenuType = 'directory' | 'menu' | 'button';
+export type MenuType = 'directory' | 'menu' | 'button'
 
 /**
  * 菜单数据（后端原始格式）
  */
 export interface Menu {
-  id: string;
-  name: string;
-  title: string;
-  path: string;
-  component: string;
-  icon: string;
-  parentId: string | null;
-  sort: number;
-  status: 'active' | 'inactive';
-  hidden: boolean;
-  keepAlive: boolean;
-  external: boolean;
-  permission: string;
+  id: string
+  name: string
+  title: string
+  path: string
+  component: string
+  icon: string
+  parentId: string | null
+  sort: number
+  status: 'active' | 'inactive'
+  hidden: boolean
+  keepAlive: boolean
+  external: boolean
+  permission: string
   /**
    * 菜单类型
    * @description directory: 目录, menu: 菜单, button: 按钮
    */
-  type: MenuType;
-  createdAt: string;
+  type: MenuType
+  createdAt: string
 }
 
 /**
  * 创建菜单参数
  */
 export interface CreateMenuParams {
-  name: string;
-  title: string;
-  path: string;
-  component: string;
-  icon?: string;
-  parentId?: string | null;
-  sort?: number;
-  status?: 'active' | 'inactive';
-  hidden?: boolean;
-  keepAlive?: boolean;
-  external?: boolean;
-  permission?: string;
+  name: string
+  title: string
+  path: string
+  component: string
+  icon?: string
+  parentId?: string | null
+  sort?: number
+  status?: 'active' | 'inactive'
+  hidden?: boolean
+  keepAlive?: boolean
+  external?: boolean
+  permission?: string
   /**
    * 菜单类型
    * @description directory: 目录, menu: 菜单, button: 按钮
    */
-  type: MenuType;
+  type: MenuType
 }
 
 /**
  * 更新菜单参数
  */
 export interface UpdateMenuParams {
-  name?: string;
-  title?: string;
-  path?: string;
-  component?: string;
-  icon?: string;
-  parentId?: string | null;
-  sort?: number;
-  status?: 'active' | 'inactive';
-  hidden?: boolean;
-  keepAlive?: boolean;
-  external?: boolean;
-  permission?: string;
+  name?: string
+  title?: string
+  path?: string
+  component?: string
+  icon?: string
+  parentId?: string | null
+  sort?: number
+  status?: 'active' | 'inactive'
+  hidden?: boolean
+  keepAlive?: boolean
+  external?: boolean
+  permission?: string
   /**
    * 菜单类型
    * @description directory: 目录, menu: 菜单, button: 按钮
    */
-  type?: MenuType;
+  type?: MenuType
 }
 
 /**
  * 查询菜单列表参数
  */
 export interface GetMenusParams {
-  search?: string;
+  search?: string
 }
 
 /**
@@ -149,4 +149,4 @@ export const menuApi = {
    */
   updateMenuStatus: (id: string, status: 'active' | 'inactive') =>
     request.patch<Menu>(`/menus/${id}/status`, { status }),
-};
+}

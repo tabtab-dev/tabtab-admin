@@ -6,7 +6,7 @@
 export { default as TBatchActions } from './TBatchActions.vue'
 export type {
   BatchAction,
-  TBatchActionsProps,
   TBatchActionsEmits,
-  TBatchActionsExpose
+  TBatchActionsExpose,
+  TBatchActionsProps,
 } from './types'

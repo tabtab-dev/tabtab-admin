@@ -1,19 +1,18 @@
 <script setup lang="ts">
+import type { FormSchema, TableSchema, TTableExpose } from '@/components/business'
+
+import type { User } from '@/types'
+import { Avatar, Space, Tag } from 'antdv-next'
+import { TrendingUp, UserCheck, UserCog, Users } from 'lucide-vue-next'
+import { usersApi } from '@/api'
 /**
  * 用户管理页面
  * @description 系统用户管理，包含用户的增删改查、状态管理等功能
  */
-import { TTable, TForm, TModal, TDataCard, TPageHeader, TBatchActions, TStatusBadge, TEmptyState } from '@/components/business'
-import type { TableSchema, TTableExpose } from '@/components/business'
-import type { FormSchema } from '@/components/business'
-import { Button } from '@/components/ui/button'
+import { TBatchActions, TDataCard, TEmptyState, TForm, TModal, TPageHeader, TStatusBadge, TTable } from '@/components/business'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { usersApi } from '@/api'
-import { useTableData, useMutation } from '@/composables'
-import type { User } from '@/types'
-import { Plus, Users, UserCheck, UserCog, TrendingUp, Search } from 'lucide-vue-next'
-import { Avatar, Space, Tag } from 'antdv-next'
-import { USER_STATUS, USER_ROLES, STATUS_CONFIG } from '@/constants'
+import { useMutation, useTableData } from '@/composables'
+import { STATUS_CONFIG, USER_ROLES, USER_STATUS } from '@/constants'
 
 // ==================== 类型定义 ====================
 interface TableSlotProps {
@@ -41,7 +40,7 @@ const {
     const res = await usersApi.getUsers(params)
     return res || { list: [], total: 0, page: 1, pageSize: 10 }
   },
-  apiCallParams: (ctx) => ({
+  apiCallParams: ctx => ({
     page: ctx.page,
     pageSize: ctx.pageSize,
     search: ctx.searchQuery,
@@ -52,7 +51,7 @@ const {
     const total = items.length
     const active = items.filter(u => u.status === USER_STATUS.ACTIVE).length
     const admins = items.filter(u => u.role === USER_ROLES.ADMIN).length
-    const today = items.filter(u => {
+    const today = items.filter((u) => {
       const created = new Date(u.createdAt)
       const now = new Date()
       return created.toDateString() === now.toDateString()
@@ -72,7 +71,7 @@ const { mutate: createUser } = useMutation({
     name: values.name,
     email: values.email,
     role: values.role,
-    status: values.status
+    status: values.status,
   }),
   successMessage: '用户创建成功',
   onSuccess: () => {
@@ -81,32 +80,32 @@ const { mutate: createUser } = useMutation({
       name: '',
       email: '',
       role: USER_ROLES.VIEWER,
-      status: USER_STATUS.ACTIVE
+      status: USER_STATUS.ACTIVE,
     }
     fetchData()
-  }
+  },
 })
 
 const { mutate: updateUser } = useMutation({
-  mutationFn: ({ id, values }: { id: string; values: Record<string, any> }) =>
+  mutationFn: ({ id, values }: { id: string, values: Record<string, any> }) =>
     usersApi.updateUser(id, {
       name: values.name,
       email: values.email,
       role: values.role,
-      status: values.status
+      status: values.status,
     }),
   successMessage: '用户更新成功',
   onSuccess: () => {
     isEditDialogOpen.value = false
     editingUser.value = null
     fetchData()
-  }
+  },
 })
 
 const { mutate: deleteUser } = useMutation({
   mutationFn: (id: string) => usersApi.deleteUser(id),
   successMessage: '用户删除成功',
-  onSuccess: () => fetchData()
+  onSuccess: () => fetchData(),
 })
 
 const { mutate: batchDeleteUsers } = useMutation({
@@ -115,7 +114,7 @@ const { mutate: batchDeleteUsers } = useMutation({
   onSuccess: () => {
     tableRef.value?.clearSelection()
     fetchData()
-  }
+  },
 })
 
 const statisticsCards = computed(() => {
@@ -124,14 +123,14 @@ const statisticsCards = computed(() => {
     { title: '总用户', value: stats.total || 0, icon: Users, color: 'text-blue-500', bgColor: 'bg-blue-50' },
     { title: '活跃用户', value: stats.active || 0, icon: UserCheck, color: 'text-green-500', bgColor: 'bg-green-50' },
     { title: '管理员', value: stats.admins || 0, icon: UserCog, color: 'text-purple-500', bgColor: 'bg-purple-50' },
-    { title: '今日新增', value: stats.today || 0, icon: TrendingUp, color: 'text-orange-500', bgColor: 'bg-orange-50' }
+    { title: '今日新增', value: stats.today || 0, icon: TrendingUp, color: 'text-orange-500', bgColor: 'bg-orange-50' },
   ]
 })
 
 const searchFormData = ref({
   keyword: '',
   role: '',
-  status: ''
+  status: '',
 })
 
 const searchSchema: FormSchema = {
@@ -142,7 +141,7 @@ const searchSchema: FormSchema = {
       type: 'input',
       label: '',
       placeholder: '搜索用户名或邮箱...',
-      className: 'w-[200px]'
+      className: 'w-[200px]',
     },
     {
       name: 'role',
@@ -153,9 +152,9 @@ const searchSchema: FormSchema = {
         { label: '全部角色', value: '' },
         { label: '管理员', value: USER_ROLES.ADMIN },
         { label: '编辑', value: USER_ROLES.EDITOR },
-        { label: '查看者', value: USER_ROLES.VIEWER }
+        { label: '查看者', value: USER_ROLES.VIEWER },
       ],
-      className: 'w-[140px]'
+      className: 'w-[140px]',
     },
     {
       name: 'status',
@@ -166,10 +165,10 @@ const searchSchema: FormSchema = {
         { label: '全部状态', value: '' },
         { label: STATUS_CONFIG.USER.ACTIVE.text, value: STATUS_CONFIG.USER.ACTIVE.value },
         { label: STATUS_CONFIG.USER.INACTIVE.text, value: STATUS_CONFIG.USER.INACTIVE.value },
-        { label: STATUS_CONFIG.USER.SUSPENDED.text, value: STATUS_CONFIG.USER.SUSPENDED.value }
+        { label: STATUS_CONFIG.USER.SUSPENDED.text, value: STATUS_CONFIG.USER.SUSPENDED.value },
       ],
-      className: 'w-[140px]'
-    }
+      className: 'w-[140px]',
+    },
   ],
   searchConfig: {
     enabled: true,
@@ -189,8 +188,8 @@ const searchSchema: FormSchema = {
     onReset: () => {
       searchQuery.value = ''
       filters.value = {}
-    }
-  }
+    },
+  },
 }
 
 const tableRef = ref<TTableExpose>()
@@ -201,7 +200,7 @@ const tableSchema = computed<TableSchema>(() => ({
       title: '用户',
       dataIndex: 'name',
       width: 200,
-      slot: 'user'
+      slot: 'user',
     },
     {
       title: '角色',
@@ -211,8 +210,8 @@ const tableSchema = computed<TableSchema>(() => ({
       filters: [
         { text: '管理员', value: USER_ROLES.ADMIN },
         { text: '编辑', value: USER_ROLES.EDITOR },
-        { text: '查看者', value: USER_ROLES.VIEWER }
-      ]
+        { text: '查看者', value: USER_ROLES.VIEWER },
+      ],
     },
     {
       title: '状态',
@@ -222,49 +221,49 @@ const tableSchema = computed<TableSchema>(() => ({
       filters: [
         { text: STATUS_CONFIG.USER.ACTIVE.text, value: STATUS_CONFIG.USER.ACTIVE.value },
         { text: STATUS_CONFIG.USER.INACTIVE.text, value: STATUS_CONFIG.USER.INACTIVE.value },
-        { text: STATUS_CONFIG.USER.SUSPENDED.text, value: STATUS_CONFIG.USER.SUSPENDED.value }
-      ]
+        { text: STATUS_CONFIG.USER.SUSPENDED.text, value: STATUS_CONFIG.USER.SUSPENDED.value },
+      ],
     },
     {
       title: '创建时间',
       dataIndex: 'createdAt',
       width: 120,
-      sorter: true
+      sorter: true,
     },
     {
       title: '最后登录',
       dataIndex: 'lastLogin',
       width: 120,
-      customRender: ({ text }) => text || '-'
-    }
+      customRender: ({ text }) => text || '-',
+    },
   ],
   pagination: {
     pageSize: 10,
     show: true,
     showSizeChanger: true,
     showQuickJumper: true,
-    total: total.value
+    total: total.value,
   },
   rowSelection: {
     type: 'checkbox',
-    show: true
+    show: true,
   },
   actions: [
     {
       text: '编辑',
       type: 'primary',
-      onClick: (record) => handleEditUser(record as unknown as User)
+      onClick: record => handleEditUser(record as unknown as User),
     },
     {
       text: '删除',
       type: 'danger',
       confirm: true,
       confirmText: '确定要删除该用户吗？此操作不可恢复。',
-      onClick: (record) => handleDeleteUser((record as unknown as User).id)
-    }
+      onClick: record => handleDeleteUser((record as unknown as User).id),
+    },
   ],
   actionWidth: 150,
-  actionFixed: 'right'
+  actionFixed: 'right',
 }))
 
 const isAddDialogOpen = ref(false)
@@ -275,7 +274,7 @@ const addFormData = ref({
   name: '',
   email: '',
   role: USER_ROLES.VIEWER,
-  status: USER_STATUS.ACTIVE
+  status: USER_STATUS.ACTIVE,
 })
 
 const editFormData = ref<{
@@ -289,7 +288,7 @@ const editFormData = ref<{
   name: '',
   email: '',
   role: USER_ROLES.VIEWER,
-  status: USER_STATUS.ACTIVE
+  status: USER_STATUS.ACTIVE,
 })
 
 // 共享的表单字段配置
@@ -301,8 +300,8 @@ const userFormFields = [
     placeholder: '请输入姓名',
     rules: [
       { required: true, message: '姓名不能为空' },
-      { min: 2, message: '姓名至少2个字符' }
-    ]
+      { min: 2, message: '姓名至少2个字符' },
+    ],
   },
   {
     name: 'email',
@@ -311,8 +310,8 @@ const userFormFields = [
     placeholder: '请输入邮箱',
     rules: [
       { required: true, message: '邮箱不能为空' },
-      { type: 'email', message: '邮箱格式不正确' }
-    ]
+      { type: 'email', message: '邮箱格式不正确' },
+    ],
   },
   {
     name: 'role',
@@ -322,9 +321,9 @@ const userFormFields = [
     options: [
       { label: '管理员', value: USER_ROLES.ADMIN },
       { label: '编辑', value: USER_ROLES.EDITOR },
-      { label: '查看者', value: USER_ROLES.VIEWER }
+      { label: '查看者', value: USER_ROLES.VIEWER },
     ],
-    rules: [{ required: true, message: '请选择角色' }]
+    rules: [{ required: true, message: '请选择角色' }],
   },
   {
     name: 'status',
@@ -334,17 +333,17 @@ const userFormFields = [
     options: [
       { label: STATUS_CONFIG.USER.ACTIVE.text, value: STATUS_CONFIG.USER.ACTIVE.value },
       { label: STATUS_CONFIG.USER.INACTIVE.text, value: STATUS_CONFIG.USER.INACTIVE.value },
-      { label: STATUS_CONFIG.USER.SUSPENDED.text, value: STATUS_CONFIG.USER.SUSPENDED.value }
+      { label: STATUS_CONFIG.USER.SUSPENDED.text, value: STATUS_CONFIG.USER.SUSPENDED.value },
     ],
-    rules: [{ required: true, message: '请选择状态' }]
-  }
+    rules: [{ required: true, message: '请选择状态' }],
+  },
 ]
 
 // 共享的表单布局配置
 const formLayoutConfig = {
   layout: 'horizontal' as const,
   labelCol: { span: 6 },
-  wrapperCol: { span: 18 }
+  wrapperCol: { span: 18 },
 }
 
 const addSchema: FormSchema = {
@@ -358,8 +357,8 @@ const addSchema: FormSchema = {
     align: 'right',
     onReset: () => {
       isAddDialogOpen.value = false
-    }
-  }
+    },
+  },
 }
 
 const editSchema: FormSchema = {
@@ -373,8 +372,8 @@ const editSchema: FormSchema = {
     align: 'right',
     onReset: () => {
       isEditDialogOpen.value = false
-    }
-  }
+    },
+  },
 }
 
 function handleEditUser(user: User): void {
@@ -384,7 +383,7 @@ function handleEditUser(user: User): void {
     name: user.name,
     email: user.email,
     role: user.role,
-    status: user.status
+    status: user.status,
   }
   isEditDialogOpen.value = true
 }
@@ -443,7 +442,7 @@ function handleTableChange(pagination: any): void {
       title="用户管理"
       subtitle="管理系统用户账号和权限分配"
       :actions="[
-        { text: '添加用户', type: 'primary', iconName: 'Plus', onClick: () => isAddDialogOpen = true }
+        { text: '添加用户', type: 'primary', iconName: 'Plus', onClick: () => isAddDialogOpen = true },
       ]"
     />
 
@@ -480,7 +479,9 @@ function handleTableChange(pagination: any): void {
       <CardHeader>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <CardTitle class="text-base font-semibold">用户列表</CardTitle>
+            <CardTitle class="text-base font-semibold">
+              用户列表
+            </CardTitle>
             <span class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
               共 {{ total }} 人
             </span>
@@ -496,8 +497,8 @@ function handleTableChange(pagination: any): void {
                 type: 'danger',
                 confirm: true,
                 confirmText: '确定要删除选中的用户吗？此操作不可恢复。',
-                onClick: handleBatchDelete
-              }
+                onClick: handleBatchDelete,
+              },
             ]"
             @clear="handleClearSelection"
           />
@@ -516,14 +517,18 @@ function handleTableChange(pagination: any): void {
             <Space>
               <Avatar
                 :style="{
-                  backgroundColor: (slotProps as any).record.status === USER_STATUS.ACTIVE ? '#87d068' : '#ccc'
+                  backgroundColor: (slotProps as any).record.status === USER_STATUS.ACTIVE ? '#87d068' : '#ccc',
                 }"
               >
                 {{ (slotProps as any).record.name.charAt(0) }}
               </Avatar>
               <div>
-                <div class="font-medium">{{ (slotProps as any).record.name }}</div>
-                <div class="text-sm text-muted-foreground">{{ (slotProps as any).record.email }}</div>
+                <div class="font-medium">
+                  {{ (slotProps as any).record.name }}
+                </div>
+                <div class="text-sm text-muted-foreground">
+                  {{ (slotProps as any).record.email }}
+                </div>
               </div>
             </Space>
           </template>
@@ -540,7 +545,7 @@ function handleTableChange(pagination: any): void {
               :status-map="{
                 [USER_STATUS.ACTIVE]: { text: '启用', color: 'success' },
                 [USER_STATUS.INACTIVE]: { text: '禁用', color: 'default' },
-                [USER_STATUS.SUSPENDED]: { text: '已暂停', color: 'error' }
+                [USER_STATUS.SUSPENDED]: { text: '已暂停', color: 'error' },
               }"
             />
           </template>

@@ -82,4 +82,4 @@ export default {
     description: '抱歉，您访问的页面不存在或已被移除',
     backHome: '返回首页',
   },
-} as const;
+} as const

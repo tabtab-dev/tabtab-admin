@@ -15,39 +15,37 @@ export const STORAGE_KEYS = {
   SIDEBAR_STATE: 'sidebar-state',
   TABBAR: 'tabbar-tabs',
   TABBAR_ACTIVE: 'tabbar-active',
-} as const;
+} as const
 
 /** StorageKey 类型 */
-export type StorageKey = typeof STORAGE_KEYS[keyof typeof STORAGE_KEYS];
+export type StorageKey = typeof STORAGE_KEYS[keyof typeof STORAGE_KEYS]
 
 /** 主题模式 */
 export const THEME_MODE = {
   LIGHT: 'light',
   DARK: 'dark',
   AUTO: 'auto',
-} as const;
-
-
+} as const
 
 /** 用户角色 */
 export const USER_ROLES = {
   ADMIN: 'admin',
   EDITOR: 'editor',
   VIEWER: 'viewer',
-} as const;
+} as const
 
 /** 用户角色类型 */
-export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
+export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES]
 
 /** 用户状态 */
 export const USER_STATUS = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
   SUSPENDED: 'suspended',
-} as const;
+} as const
 
 /** 用户状态类型 */
-export type UserStatus = typeof USER_STATUS[keyof typeof USER_STATUS];
+export type UserStatus = typeof USER_STATUS[keyof typeof USER_STATUS]
 
 /** 订单状态 */
 export const ORDER_STATUS = {
@@ -55,45 +53,45 @@ export const ORDER_STATUS = {
   PROCESSING: 'processing',
   COMPLETED: 'completed',
   CANCELLED: 'cancelled',
-} as const;
+} as const
 
 /** 订单状态类型 */
-export type OrderStatus = typeof ORDER_STATUS[keyof typeof ORDER_STATUS];
+export type OrderStatus = typeof ORDER_STATUS[keyof typeof ORDER_STATUS]
 
 /** 产品状态 */
 export const PRODUCT_STATUS = {
   ACTIVE: 'active',
   LOW_STOCK: 'low-stock',
   OUT_OF_STOCK: 'out-of-stock',
-} as const;
+} as const
 
 /** 产品状态类型 */
-export type ProductStatus = typeof PRODUCT_STATUS[keyof typeof PRODUCT_STATUS];
+export type ProductStatus = typeof PRODUCT_STATUS[keyof typeof PRODUCT_STATUS]
 
 /** 仓库状态 */
 export const WAREHOUSE_STATUS = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
-} as const;
+} as const
 
 /** 仓库状态类型 */
-export type WarehouseStatus = typeof WAREHOUSE_STATUS[keyof typeof WAREHOUSE_STATUS];
+export type WarehouseStatus = typeof WAREHOUSE_STATUS[keyof typeof WAREHOUSE_STATUS]
 
 /** 分类状态 */
 export const CATEGORY_STATUS = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
-} as const;
+} as const
 
 /** 分类状态类型 */
-export type CategoryStatus = typeof CATEGORY_STATUS[keyof typeof CATEGORY_STATUS];
+export type CategoryStatus = typeof CATEGORY_STATUS[keyof typeof CATEGORY_STATUS]
 
 /** 盘点状态 */
 export const STOCK_CHECK_STATUS = {
   PENDING: 'pending',
   CONFIRMED: 'confirmed',
   ADJUSTED: 'adjusted',
-} as const;
+} as const
 
 /** 活动类型 */
 export const ACTIVITY_TYPE = {
@@ -101,7 +99,7 @@ export const ACTIVITY_TYPE = {
   INFO: 'info',
   WARNING: 'warning',
   ERROR: 'error',
-} as const;
+} as const
 
 /** 按钮变体 */
 export const BUTTON_VARIANT = {
@@ -109,7 +107,7 @@ export const BUTTON_VARIANT = {
   DEFAULT: 'default',
   DANGER: 'danger',
   LINK: 'link',
-} as const;
+} as const
 
 /** 状态配置映射 */
 export const STATUS_CONFIG = {
@@ -132,4 +130,4 @@ export const STATUS_CONFIG = {
     COMPLETED: { value: ORDER_STATUS.COMPLETED, text: '已完成', color: 'success' },
     CANCELLED: { value: ORDER_STATUS.CANCELLED, text: '已取消', color: 'error' },
   },
-} as const;
+} as const

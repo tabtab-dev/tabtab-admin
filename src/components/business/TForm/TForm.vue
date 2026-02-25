@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import type { FormInstance as AntdFormInstance } from 'antdv-next'
+import type { FieldWatch, FormField, FormResponsiveConfig, FormValidateErrorInfo, NamePath, TFormEmits, TFormExpose, TFormProps } from './types'
+import { ConfigProvider } from 'antdv-next'
+import dayjs from 'dayjs'
+import { ChevronDown, RotateCcw, Search } from 'lucide-vue-next'
 /**
  * TForm - 基于 antdv-next 的 JSON 配置化表单组件
  *
@@ -21,22 +26,17 @@
  *   // 模板中使用
  *   // <TForm ref="formRef" v-model="formData" :schema="schema" />
  */
-import { computed, reactive, ref, watch, useSlots, nextTick } from 'vue'
+import { computed, nextTick, reactive, ref, useSlots, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ConfigProvider } from 'antdv-next'
-import type { FormInstance as AntdFormInstance } from 'antdv-next'
-import dayjs from 'dayjs'
-import 'dayjs/locale/zh-cn'
-import 'dayjs/locale/en'
 import { Button } from '@/components/ui/button'
+import { useResponsive } from '@/composables/useResponsive'
+import { getAntdvLocale } from '@/i18n/locales'
 import { cn } from '@/lib/utils'
-import { ChevronDown, ChevronUp, Search, RotateCcw } from 'lucide-vue-next'
+import { useFormMeta, useSearchForm } from './composables'
 import TFormItem from './TFormItem.vue'
 import { useTFormTheme } from './theme'
-import { useSearchForm, useFormMeta } from './composables'
-import { getAntdvLocale } from '@/i18n/locales'
-import { useResponsive } from '@/composables/useResponsive'
-import type { FormSchema, TFormProps, TFormEmits, TFormExpose, FormField, NamePath, FieldWatch, FormValidateErrorInfo, FormResponsiveConfig } from './types'
+import 'dayjs/locale/zh-cn'
+import 'dayjs/locale/en'
 
 /**
  * 导入样式
@@ -47,7 +47,7 @@ import './TForm.css'
  * 组件选项
  */
 defineOptions({
-  name: 'TForm'
+  name: 'TForm',
 })
 
 /**
@@ -56,7 +56,7 @@ defineOptions({
 const props = withDefaults(defineProps<TFormProps>(), {
   modelValue: () => ({}),
   loading: false,
-  embedded: false
+  embedded: false,
 })
 
 /**
@@ -69,7 +69,7 @@ const emit = defineEmits<TFormEmits>()
  */
 const { t, locale } = useI18n()
 
-const { smallerThan, isMobile } = useResponsive()
+const { smallerThan } = useResponsive()
 
 const responsiveConfig = computed<FormResponsiveConfig>(() => {
   return props.schema.responsive || { enabled: true }
@@ -80,30 +80,35 @@ const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== fa
 const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
 
 const isMobileView = computed(() => {
-  if (!isResponsiveEnabled.value) return false
+  if (!isResponsiveEnabled.value)
+    return false
   return smallerThan(mobileBreakpoint.value)
 })
 
 const responsiveLayout = computed(() => {
-  if (!isMobileView.value) return props.schema.layout
+  if (!isMobileView.value)
+    return props.schema.layout
 
   return responsiveConfig.value.mobileLayout || 'vertical'
 })
 
 const responsiveColumns = computed(() => {
-  if (!isMobileView.value) return props.schema.columns
+  if (!isMobileView.value)
+    return props.schema.columns
 
   return responsiveConfig.value.mobileColumns || 1
 })
 
 const responsiveLabelCol = computed(() => {
-  if (!isMobileView.value) return props.schema.labelCol
+  if (!isMobileView.value)
+    return props.schema.labelCol
 
   return responsiveConfig.value.mobileLabelCol || props.schema.labelCol
 })
 
 const responsiveWrapperCol = computed(() => {
-  if (!isMobileView.value) return props.schema.wrapperCol
+  if (!isMobileView.value)
+    return props.schema.wrapperCol
 
   return responsiveConfig.value.mobileWrapperCol || props.schema.wrapperCol
 })
@@ -180,11 +185,11 @@ const {
   searchVisibleFields,
   hasMoreFields,
   shouldShowInline,
-  toggleCollapse
+  toggleCollapse,
 } = useSearchForm({
   schema: props.schema,
   formData,
-  locale: searchFormLocale
+  locale: searchFormLocale,
 })
 
 /**
@@ -198,7 +203,7 @@ const {
   setValid,
   setSubmitting,
   setValidating,
-  getMetaSnapshot
+  getMetaSnapshot,
 } = useFormMeta()
 
 /**
@@ -339,14 +344,14 @@ const formMethods = {
     return formRef.value?.getFieldValue(name)
   },
   setFieldDisabled,
-  setFieldHidden
+  setFieldHidden,
 }
 
 /**
  * 收集所有字段的 watch 配置
  */
 const allWatches = computed(() => {
-  const watches: Array<{ field: string; watch: FieldWatch }> = []
+  const watches: Array<{ field: string, watch: FieldWatch }> = []
   props.schema.fields.forEach((field) => {
     if (field.watch && field.watch.length > 0) {
       field.watch.forEach((w) => {
@@ -388,14 +393,15 @@ function handleValuesChangeWithWatch(changedValues: Record<string, any>): void {
  * @description 用于水平布局时按钮的对齐
  */
 const actionWrapperCol = computed(() => {
-  if (responsiveLayout.value !== 'horizontal') return undefined
+  if (responsiveLayout.value !== 'horizontal')
+    return undefined
 
   const labelSpan = responsiveLabelCol.value?.span || 0
   const wrapperSpan = responsiveWrapperCol.value?.span || 24
 
   return {
     offset: labelSpan,
-    span: wrapperSpan
+    span: wrapperSpan,
   }
 })
 
@@ -502,7 +508,7 @@ defineExpose<TFormExpose>({
    */
   getFormInstance: () => {
     return formRef.value ?? undefined
-  }
+  },
 })
 
 /**
@@ -515,7 +521,7 @@ watch(
       Object.assign(formData, newVal)
     }
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
 )
 
 /**
@@ -526,7 +532,7 @@ watch(
   () => {
     initFormData()
   },
-  { deep: true }
+  { deep: true },
 )
 
 /**
@@ -558,106 +564,46 @@ initFormData()
         {
           't-form-search': isSearchMode,
           't-form-collapsed': isSearchMode && isCollapsed,
-          't-form-mobile': isMobileView
+          't-form-mobile': isMobileView,
         },
-        $attrs.class as string
+        $attrs.class as string,
       )"
       @finish="handleSearch"
       @finish-failed="handleFinishFailed"
       @values-change="handleValuesChangeWithWatch"
       @fields-change="handleFieldsChange"
     >
-    <!-- 搜索表单布局 -->
-    <template v-if="isSearchMode">
-      <!-- 同行布局：条件少时横向排列 -->
-      <div
-        v-if="shouldShowInline"
-        class="search-form-inline"
-      >
-        <div class="search-form-fields">
-          <TFormItem
-            v-for="field in searchVisibleFields"
-            :key="String(field.name)"
-            :field="field"
-            :form-data="formData"
-            class="search-form-item-inline"
-          >
-            <!-- 自定义插槽透传 -->
-            <template
-              v-if="field.type === 'custom' && field.slot && slots[field.slot]"
-              v-slot:[field.slot]="slotProps"
-            >
-              <slot :name="field.slot" v-bind="slotProps" />
-            </template>
-          </TFormItem>
-        </div>
-
-        <!-- 搜索表单操作按钮 -->
-        <div class="search-form-actions-inline">
-          <button
-            type="submit"
-            :disabled="loading"
-            class="inline-flex items-center justify-center rounded-md bg-primary px-3 py-[5px] text-sm font-medium text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-          >
-            <Search class="w-4 h-4 mr-1" />
-            {{ searchConfig.searchText }}
-          </button>
-          <button
-            v-if="searchConfig.showReset"
-            type="button"
-            class="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-[5px] text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-            @click="handleReset"
-          >
-            <RotateCcw class="w-4 h-4 mr-1" />
-            {{ searchConfig.resetText }}
-          </button>
-          <button
-            v-if="searchConfig.showCollapseButton && hasMoreFields"
-            type="button"
-            class="collapse-btn"
-            :data-collapsed="isCollapsed"
-            @click="toggleCollapse"
-          >
-            {{ isCollapsed ? searchConfig.expandButtonText : searchConfig.collapseButtonText }}
-            <ChevronDown class="chevron-icon w-4 h-4 ml-1" />
-          </button>
-        </div>
-      </div>
-
-      <!-- 网格布局：条件多时纵向排列 -->
-      <template v-else>
-        <!-- 折叠状态：搜索条件 + 展开按钮同行 -->
+      <!-- 搜索表单布局 -->
+      <template v-if="isSearchMode">
+        <!-- 同行布局：条件少时横向排列 -->
         <div
-          v-if="isCollapsed"
-          class="search-form-container search-form-collapsed-row"
-          :style="{
-            display: 'grid',
-            gridTemplateColumns: `repeat(${searchConfig.columns}, minmax(0, 1fr))`,
-            gap: `${searchConfig.gutter}px`
-          }"
+          v-if="shouldShowInline"
+          class="search-form-inline"
         >
-          <TFormItem
-            v-for="field in searchVisibleFields"
-            :key="String(field.name)"
-            :field="field"
-            :form-data="formData"
-            class="search-form-item"
-          >
-            <!-- 自定义插槽透传 -->
-            <template
-              v-if="field.type === 'custom' && field.slot && slots[field.slot]"
-              v-slot:[field.slot]="slotProps"
+          <div class="search-form-fields">
+            <TFormItem
+              v-for="field in searchVisibleFields"
+              :key="String(field.name)"
+              :field="field"
+              :form-data="formData"
+              class="search-form-item-inline"
             >
-              <slot :name="field.slot" v-bind="slotProps" />
-            </template>
-          </TFormItem>
+              <!-- 自定义插槽透传 -->
+              <template
+                v-if="field.type === 'custom' && field.slot && slots[field.slot]"
+                #[field.slot]="slotProps"
+              >
+                <slot :name="field.slot" v-bind="slotProps" />
+              </template>
+            </TFormItem>
+          </div>
 
-          <!-- 折叠状态下的操作按钮（放在最后一列） -->
-          <div class="search-form-actions-collapsed">
+          <!-- 搜索表单操作按钮 -->
+          <div class="search-form-actions-inline">
             <button
               type="submit"
               :disabled="loading"
-              class="search-btn-collapsed"
+              class="inline-flex items-center justify-center rounded-md bg-primary px-3 py-[5px] text-sm font-medium text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
             >
               <Search class="w-4 h-4 mr-1" />
               {{ searchConfig.searchText }}
@@ -665,7 +611,7 @@ initFormData()
             <button
               v-if="searchConfig.showReset"
               type="button"
-              class="reset-btn-collapsed"
+              class="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-[5px] text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               @click="handleReset"
             >
               <RotateCcw class="w-4 h-4 mr-1" />
@@ -674,24 +620,26 @@ initFormData()
             <button
               v-if="searchConfig.showCollapseButton && hasMoreFields"
               type="button"
-              class="collapse-btn collapse-btn-inline"
+              class="collapse-btn"
               :data-collapsed="isCollapsed"
               @click="toggleCollapse"
             >
-              {{ searchConfig.expandButtonText }}
+              {{ isCollapsed ? searchConfig.expandButtonText : searchConfig.collapseButtonText }}
               <ChevronDown class="chevron-icon w-4 h-4 ml-1" />
             </button>
           </div>
         </div>
 
-        <!-- 展开状态：搜索条件网格 + 按钮同行（放在最后一列） -->
+        <!-- 网格布局：条件多时纵向排列 -->
         <template v-else>
+          <!-- 折叠状态：搜索条件 + 展开按钮同行 -->
           <div
-            class="search-form-container search-form-expanded-row"
+            v-if="isCollapsed"
+            class="search-form-container search-form-collapsed-row"
             :style="{
               display: 'grid',
               gridTemplateColumns: `repeat(${searchConfig.columns}, minmax(0, 1fr))`,
-              gap: `${searchConfig.gutter}px`
+              gap: `${searchConfig.gutter}px`,
             }"
           >
             <TFormItem
@@ -704,18 +652,18 @@ initFormData()
               <!-- 自定义插槽透传 -->
               <template
                 v-if="field.type === 'custom' && field.slot && slots[field.slot]"
-                v-slot:[field.slot]="slotProps"
+                #[field.slot]="slotProps"
               >
                 <slot :name="field.slot" v-bind="slotProps" />
               </template>
             </TFormItem>
 
-            <!-- 展开状态下的操作按钮（放在最后一列） -->
-            <div class="search-form-actions-expanded">
+            <!-- 折叠状态下的操作按钮（放在最后一列） -->
+            <div class="search-form-actions-collapsed">
               <button
                 type="submit"
                 :disabled="loading"
-                class="search-btn-expanded"
+                class="search-btn-collapsed"
               >
                 <Search class="w-4 h-4 mr-1" />
                 {{ searchConfig.searchText }}
@@ -723,7 +671,7 @@ initFormData()
               <button
                 v-if="searchConfig.showReset"
                 type="button"
-                class="reset-btn-expanded"
+                class="reset-btn-collapsed"
                 @click="handleReset"
               >
                 <RotateCcw class="w-4 h-4 mr-1" />
@@ -736,98 +684,156 @@ initFormData()
                 :data-collapsed="isCollapsed"
                 @click="toggleCollapse"
               >
-                {{ searchConfig.collapseButtonText }}
+                {{ searchConfig.expandButtonText }}
                 <ChevronDown class="chevron-icon w-4 h-4 ml-1" />
               </button>
             </div>
           </div>
+
+          <!-- 展开状态：搜索条件网格 + 按钮同行（放在最后一列） -->
+          <template v-else>
+            <div
+              class="search-form-container search-form-expanded-row"
+              :style="{
+                display: 'grid',
+                gridTemplateColumns: `repeat(${searchConfig.columns}, minmax(0, 1fr))`,
+                gap: `${searchConfig.gutter}px`,
+              }"
+            >
+              <TFormItem
+                v-for="field in searchVisibleFields"
+                :key="String(field.name)"
+                :field="field"
+                :form-data="formData"
+                class="search-form-item"
+              >
+                <!-- 自定义插槽透传 -->
+                <template
+                  v-if="field.type === 'custom' && field.slot && slots[field.slot]"
+                  #[field.slot]="slotProps"
+                >
+                  <slot :name="field.slot" v-bind="slotProps" />
+                </template>
+              </TFormItem>
+
+              <!-- 展开状态下的操作按钮（放在最后一列） -->
+              <div class="search-form-actions-expanded">
+                <button
+                  type="submit"
+                  :disabled="loading"
+                  class="search-btn-expanded"
+                >
+                  <Search class="w-4 h-4 mr-1" />
+                  {{ searchConfig.searchText }}
+                </button>
+                <button
+                  v-if="searchConfig.showReset"
+                  type="button"
+                  class="reset-btn-expanded"
+                  @click="handleReset"
+                >
+                  <RotateCcw class="w-4 h-4 mr-1" />
+                  {{ searchConfig.resetText }}
+                </button>
+                <button
+                  v-if="searchConfig.showCollapseButton && hasMoreFields"
+                  type="button"
+                  class="collapse-btn collapse-btn-inline"
+                  :data-collapsed="isCollapsed"
+                  @click="toggleCollapse"
+                >
+                  {{ searchConfig.collapseButtonText }}
+                  <ChevronDown class="chevron-icon w-4 h-4 ml-1" />
+                </button>
+              </div>
+            </div>
+          </template>
         </template>
       </template>
-    </template>
 
-    <!-- 普通表单布局 -->
-    <template v-else>
-      <!-- 多列布局容器 -->
-      <div
-        v-if="responsiveColumns && responsiveColumns > 1"
-        class="t-form-grid"
-        :style="{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${responsiveColumns}, 1fr)`,
-          gap: '16px 24px'
-        }"
-      >
-        <!-- 表单字段 -->
-        <TFormItem
-          v-for="field in visibleFields"
-          :key="String(field.name)"
-          :field="field"
-          :form-data="formData"
-          style="margin-bottom: 0"
-        >
-          <!-- 自定义插槽透传 -->
-          <template
-            v-if="field.type === 'custom' && field.slot && slots[field.slot]"
-            v-slot:[field.slot]="slotProps"
-          >
-            <slot :name="field.slot" v-bind="slotProps" />
-          </template>
-        </TFormItem>
-      </div>
-
-      <!-- 单列布局 -->
+      <!-- 普通表单布局 -->
       <template v-else>
-        <!-- 表单字段 -->
-        <TFormItem
-          v-for="field in visibleFields"
-          :key="String(field.name)"
-          :field="field"
-          :form-data="formData"
-        >
-          <!-- 自定义插槽透传 -->
-          <template
-            v-if="field.type === 'custom' && field.slot && slots[field.slot]"
-            v-slot:[field.slot]="slotProps"
-          >
-            <slot :name="field.slot" v-bind="slotProps" />
-          </template>
-        </TFormItem>
-      </template>
-
-      <!-- 操作按钮 - 嵌入模式下隐藏 -->
-      <a-form-item
-        v-if="!props.embedded && (schema.actions?.showSubmit !== false || schema.actions?.showReset)"
-        :wrapper-col="actionWrapperCol"
-        :class="{ 't-form-actions-fullwidth': responsiveColumns && responsiveColumns > 1 }"
-      >
+        <!-- 多列布局容器 -->
         <div
-          :class="cn(
-            'flex gap-2',
-            {
-              'justify-start': schema.actions?.align === 'left',
-              'justify-center': schema.actions?.align === 'center',
-              'justify-end': !schema.actions?.align || schema.actions?.align === 'right'
-            }
-          )"
+          v-if="responsiveColumns && responsiveColumns > 1"
+          class="t-form-grid"
+          :style="{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${responsiveColumns}, 1fr)`,
+            gap: '16px 24px',
+          }"
         >
-          <Button
-            v-if="schema.actions?.showSubmit !== false"
-            type="submit"
-            :loading="loading"
+          <!-- 表单字段 -->
+          <TFormItem
+            v-for="field in visibleFields"
+            :key="String(field.name)"
+            :field="field"
+            :form-data="formData"
+            style="margin-bottom: 0"
           >
-            {{ schema.actions?.submitText || t('common.submit') }}
-          </Button>
-          <Button
-            v-if="schema.actions?.showReset"
-            type="button"
-            variant="outline"
-            @click="handleReset"
-          >
-            {{ schema.actions?.resetText || t('common.reset') }}
-          </Button>
+            <!-- 自定义插槽透传 -->
+            <template
+              v-if="field.type === 'custom' && field.slot && slots[field.slot]"
+              #[field.slot]="slotProps"
+            >
+              <slot :name="field.slot" v-bind="slotProps" />
+            </template>
+          </TFormItem>
         </div>
-      </a-form-item>
-    </template>
+
+        <!-- 单列布局 -->
+        <template v-else>
+          <!-- 表单字段 -->
+          <TFormItem
+            v-for="field in visibleFields"
+            :key="String(field.name)"
+            :field="field"
+            :form-data="formData"
+          >
+            <!-- 自定义插槽透传 -->
+            <template
+              v-if="field.type === 'custom' && field.slot && slots[field.slot]"
+              #[field.slot]="slotProps"
+            >
+              <slot :name="field.slot" v-bind="slotProps" />
+            </template>
+          </TFormItem>
+        </template>
+
+        <!-- 操作按钮 - 嵌入模式下隐藏 -->
+        <a-form-item
+          v-if="!props.embedded && (schema.actions?.showSubmit !== false || schema.actions?.showReset)"
+          :wrapper-col="actionWrapperCol"
+          :class="{ 't-form-actions-fullwidth': responsiveColumns && responsiveColumns > 1 }"
+        >
+          <div
+            :class="cn(
+              'flex gap-2',
+              {
+                'justify-start': schema.actions?.align === 'left',
+                'justify-center': schema.actions?.align === 'center',
+                'justify-end': !schema.actions?.align || schema.actions?.align === 'right',
+              },
+            )"
+          >
+            <Button
+              v-if="schema.actions?.showSubmit !== false"
+              type="submit"
+              :loading="loading"
+            >
+              {{ schema.actions?.submitText || t('common.submit') }}
+            </Button>
+            <Button
+              v-if="schema.actions?.showReset"
+              type="button"
+              variant="outline"
+              @click="handleReset"
+            >
+              {{ schema.actions?.resetText || t('common.reset') }}
+            </Button>
+          </div>
+        </a-form-item>
+      </template>
     </a-form>
   </ConfigProvider>
 </template>

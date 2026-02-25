@@ -1,26 +1,26 @@
 <script setup lang="ts">
+import {
+  Activity,
+  ArrowDownRight,
+  ArrowUpRight,
+  BarChart3,
+  Calendar,
+  DollarSign,
+  Download,
+  Eye,
+  PieChart,
+  ShoppingCart,
+  TrendingUp,
+  Users,
+} from 'lucide-vue-next'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 /**
  * 数据分析页 - 优化版
  *
  * @description 业务数据分析和趋势展示
  */
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import {
-  TrendingUp,
-  Users,
-  ShoppingCart,
-  DollarSign,
-  Eye,
-  Download,
-  Calendar,
-  ArrowUpRight,
-  ArrowDownRight,
-  BarChart3,
-  PieChart,
-  Activity
-} from 'lucide-vue-next'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 // 时间范围
 const timeRange = ref('7d')
@@ -34,7 +34,7 @@ const metrics = computed(() => [
     isPositive: true,
     icon: Eye,
     color: 'text-blue-500',
-    bgColor: 'bg-blue-50'
+    bgColor: 'bg-blue-50',
   },
   {
     title: '新用户',
@@ -43,7 +43,7 @@ const metrics = computed(() => [
     isPositive: true,
     icon: Users,
     color: 'text-green-500',
-    bgColor: 'bg-green-50'
+    bgColor: 'bg-green-50',
   },
   {
     title: '转化率',
@@ -52,7 +52,7 @@ const metrics = computed(() => [
     isPositive: false,
     icon: TrendingUp,
     color: 'text-purple-500',
-    bgColor: 'bg-purple-50'
+    bgColor: 'bg-purple-50',
   },
   {
     title: '平均订单价值',
@@ -61,8 +61,8 @@ const metrics = computed(() => [
     isPositive: true,
     icon: DollarSign,
     color: 'text-orange-500',
-    bgColor: 'bg-orange-50'
-  }
+    bgColor: 'bg-orange-50',
+  },
 ])
 
 // 热销商品
@@ -71,7 +71,7 @@ const topProducts = ref([
   { name: '智能手表 Pro', sales: 187, revenue: 112013, trend: 8 },
   { name: '便携式充电宝', sales: 156, revenue: 7644, trend: -5 },
   { name: '蓝牙音箱', sales: 89, revenue: 11481, trend: 12 },
-  { name: 'USB-C 数据线', sales: 67, revenue: 1273, trend: 3 }
+  { name: 'USB-C 数据线', sales: 67, revenue: 1273, trend: 3 },
 ])
 
 // 分类占比
@@ -79,7 +79,7 @@ const topCategories = ref([
   { name: '电子产品', percentage: 45, color: 'bg-blue-500', amount: 224500 },
   { name: '配件', percentage: 28, color: 'bg-green-500', amount: 139600 },
   { name: '音频设备', percentage: 18, color: 'bg-purple-500', amount: 89800 },
-  { name: '其他', percentage: 9, color: 'bg-orange-500', amount: 44900 }
+  { name: '其他', percentage: 9, color: 'bg-orange-500', amount: 44900 },
 ])
 
 // 访问趋势数据
@@ -90,7 +90,7 @@ const trafficData = ref([
   { day: '周四', visits: 7200, orders: 168 },
   { day: '周五', visits: 8100, orders: 195 },
   { day: '周六', visits: 9500, orders: 230 },
-  { day: '周日', visits: 8800, orders: 210 }
+  { day: '周日', visits: 8800, orders: 210 },
 ])
 
 // 用户行为数据
@@ -98,7 +98,7 @@ const userBehavior = ref([
   { label: '平均会话时长', value: '4m 32s', change: 12, isPositive: true },
   { label: '跳出率', value: '32.5%', change: 3.2, isPositive: false },
   { label: '页面浏览量', value: '128,456', change: 8.5, isPositive: true },
-  { label: '回访率', value: '45.8%', change: 2.1, isPositive: true }
+  { label: '回访率', value: '45.8%', change: 2.1, isPositive: true },
 ])
 </script>
 
@@ -107,8 +107,12 @@ const userBehavior = ref([
     <!-- 页面标题 -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">数据分析</h1>
-        <p class="text-muted-foreground mt-1.5 text-sm">查看业务数据和趋势分析</p>
+        <h1 class="text-3xl font-bold tracking-tight">
+          数据分析
+        </h1>
+        <p class="text-muted-foreground mt-1.5 text-sm">
+          查看业务数据和趋势分析
+        </p>
       </div>
       <div class="flex items-center gap-2">
         <Button variant="outline" size="sm" class="gap-2">
@@ -132,18 +136,21 @@ const userBehavior = ref([
         <CardContent class="p-4">
           <div class="flex items-start justify-between">
             <div class="flex items-center gap-3">
-              <div :class="['p-2.5 rounded-xl', metric.bgColor]">
-                <component :is="metric.icon" :class="['h-5 w-5', metric.color]" />
+              <div class="p-2.5 rounded-xl" :class="[metric.bgColor]">
+                <component :is="metric.icon" class="h-5 w-5" :class="[metric.color]" />
               </div>
               <div>
-                <p class="text-sm text-muted-foreground">{{ metric.title }}</p>
-                <p class="text-xl font-bold">{{ metric.value }}</p>
+                <p class="text-sm text-muted-foreground">
+                  {{ metric.title }}
+                </p>
+                <p class="text-xl font-bold">
+                  {{ metric.value }}
+                </p>
               </div>
             </div>
             <div
-              :class="[
-                'flex items-center gap-0.5 text-xs font-medium',
-                metric.isPositive ? 'text-green-500' : 'text-red-500'
+              class="flex items-center gap-0.5 text-xs font-medium" :class="[
+                metric.isPositive ? 'text-green-500' : 'text-red-500',
               ]"
             >
               <component :is="metric.isPositive ? ArrowUpRight : ArrowDownRight" class="h-3 w-3" />
@@ -244,7 +251,7 @@ const userBehavior = ref([
               </div>
               <div class="h-2 bg-muted rounded-full overflow-hidden">
                 <div
-                  :class="['h-full rounded-full transition-all duration-500', category.color]"
+                  class="h-full rounded-full transition-all duration-500" :class="[category.color]"
                   :style="{ width: `${category.percentage}%` }"
                 />
               </div>
@@ -284,24 +291,28 @@ const userBehavior = ref([
             >
               <div class="flex items-center gap-3">
                 <div
-                  :class="[
-                    'w-8 h-8 flex items-center justify-center rounded-lg font-medium text-sm',
-                    index < 3 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                  class="w-8 h-8 flex items-center justify-center rounded-lg font-medium text-sm" :class="[
+                    index < 3 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
                   ]"
                 >
                   {{ index + 1 }}
                 </div>
                 <div>
-                  <p class="font-medium text-sm">{{ product.name }}</p>
-                  <p class="text-xs text-muted-foreground">销量: {{ product.sales }}</p>
+                  <p class="font-medium text-sm">
+                    {{ product.name }}
+                  </p>
+                  <p class="text-xs text-muted-foreground">
+                    销量: {{ product.sales }}
+                  </p>
                 </div>
               </div>
               <div class="text-right">
-                <p class="font-medium">¥{{ product.revenue.toLocaleString() }}</p>
+                <p class="font-medium">
+                  ¥{{ product.revenue.toLocaleString() }}
+                </p>
                 <p
-                  :class="[
-                    'text-xs flex items-center justify-end gap-0.5',
-                    product.trend > 0 ? 'text-green-500' : 'text-red-500'
+                  class="text-xs flex items-center justify-end gap-0.5" :class="[
+                    product.trend > 0 ? 'text-green-500' : 'text-red-500',
                   ]"
                 >
                   <component :is="product.trend > 0 ? ArrowUpRight : ArrowDownRight" class="h-3 w-3" />
@@ -333,12 +344,15 @@ const userBehavior = ref([
               :key="item.label"
               class="p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
             >
-              <p class="text-sm text-muted-foreground">{{ item.label }}</p>
-              <p class="text-xl font-bold mt-1">{{ item.value }}</p>
+              <p class="text-sm text-muted-foreground">
+                {{ item.label }}
+              </p>
+              <p class="text-xl font-bold mt-1">
+                {{ item.value }}
+              </p>
               <p
-                :class="[
-                  'text-xs flex items-center gap-0.5 mt-1',
-                  item.isPositive ? 'text-green-500' : 'text-red-500'
+                class="text-xs flex items-center gap-0.5 mt-1" :class="[
+                  item.isPositive ? 'text-green-500' : 'text-red-500',
                 ]"
               >
                 <component :is="item.isPositive ? ArrowUpRight : ArrowDownRight" class="h-3 w-3" />

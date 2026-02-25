@@ -6,4 +6,4 @@
  */
 
 // 从新的位置重新导出
-export { USE_MOCK, MOCK_BASE_URL, MOCK_DELAY } from '@/mocks/config';
+export { MOCK_BASE_URL, MOCK_DELAY, USE_MOCK } from '@/mocks/config'

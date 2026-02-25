@@ -3,19 +3,19 @@
  * @description 组合 authStore 和 menuStore，处理登录/登出完整流程
  * 避免 store 之间的直接耦合
  */
-import { computed } from 'vue';
-import { useAuthStore } from '@/stores/global/auth';
-import { useMenuStore } from '@/stores/global/menu';
-import { normalizeError } from '@/utils/errorHandler';
+import { computed } from 'vue'
+import { useAuthStore } from '@/stores/global/auth'
+import { useMenuStore } from '@/stores/global/menu'
+import { normalizeError } from '@/utils/errorHandler'
 
 export interface LoginCredentials {
-  email: string;
-  password: string;
+  email: string
+  password: string
 }
 
 export interface AuthFlowResult {
-  success: boolean;
-  error?: string;
+  success: boolean
+  error?: string
 }
 
 /**
@@ -23,8 +23,8 @@ export interface AuthFlowResult {
  * @returns 登录、登出方法和状态
  */
 export function useAuthFlow() {
-  const authStore = useAuthStore();
-  const menuStore = useMenuStore();
+  const authStore = useAuthStore()
+  const menuStore = useMenuStore()
 
   /**
    * 执行登录流程
@@ -33,26 +33,27 @@ export function useAuthFlow() {
    */
   const login = async (credentials: LoginCredentials): Promise<AuthFlowResult> => {
     try {
-      const success = await authStore.login(credentials.email, credentials.password);
+      const success = await authStore.login(credentials.email, credentials.password)
 
       if (!success) {
-        return { success: false, error: '登录失败，请检查邮箱和密码' };
+        return { success: false, error: '登录失败，请检查邮箱和密码' }
       }
 
       // 登录成功后获取菜单
-      const menuSuccess = await menuStore.fetchMenus();
+      const menuSuccess = await menuStore.fetchMenus()
       if (!menuSuccess) {
         // 菜单获取失败，执行登出清理
-        await authStore.logout();
-        return { success: false, error: '获取菜单失败，请稍后重试' };
+        await authStore.logout()
+        return { success: false, error: '获取菜单失败，请稍后重试' }
       }
 
-      return { success: true };
-    } catch (error) {
-      const appError = normalizeError(error);
-      return { success: false, error: appError.message };
+      return { success: true }
     }
-  };
+    catch (error) {
+      const appError = normalizeError(error)
+      return { success: false, error: appError.message }
+    }
+  }
 
   /**
    * 执行登出流程
@@ -63,17 +64,18 @@ export function useAuthFlow() {
   const logout = async (): Promise<AuthFlowResult> => {
     try {
       // 先清理菜单（移除动态路由）
-      menuStore.reset();
+      menuStore.reset()
 
       // 再执行登出
-      await authStore.logout();
+      await authStore.logout()
 
-      return { success: true };
-    } catch (error) {
-      const appError = normalizeError(error);
-      return { success: false, error: appError.message };
+      return { success: true }
     }
-  };
+    catch (error) {
+      const appError = normalizeError(error)
+      return { success: false, error: appError.message }
+    }
+  }
 
   /**
    * 初始化认证状态
@@ -82,29 +84,31 @@ export function useAuthFlow() {
    */
   const initialize = async (): Promise<AuthFlowResult> => {
     try {
-      await authStore.initialize();
+      await authStore.initialize()
 
       // 如果已登录，尝试获取菜单
       if (authStore.isAuthenticated) {
-        console.log('[AuthFlow] User is authenticated, fetching menus...');
-        const menuSuccess = await menuStore.fetchMenus();
+        console.log('[AuthFlow] User is authenticated, fetching menus...')
+        const menuSuccess = await menuStore.fetchMenus()
 
         if (!menuSuccess) {
-          console.warn('[AuthFlow] Failed to fetch menus, but keeping user logged in');
+          console.warn('[AuthFlow] Failed to fetch menus, but keeping user logged in')
           // 菜单加载失败不登出用户，只是记录错误
           // 这样用户刷新页面后不会因为菜单加载失败而被登出
-        } else {
-          console.log('[AuthFlow] Menus fetched successfully');
+        }
+        else {
+          console.log('[AuthFlow] Menus fetched successfully')
         }
       }
 
-      return { success: true };
-    } catch (error) {
-      const appError = normalizeError(error);
-      console.error('[AuthFlow] Initialization error:', appError);
-      return { success: false, error: appError.message };
+      return { success: true }
     }
-  };
+    catch (error) {
+      const appError = normalizeError(error)
+      console.error('[AuthFlow] Initialization error:', appError)
+      return { success: false, error: appError.message }
+    }
+  }
 
   return {
     // 状态（从 store 透传）
@@ -122,5 +126,5 @@ export function useAuthFlow() {
     // 原始 store 方法（如需直接使用）
     fetchCurrentUser: authStore.fetchCurrentUser,
     hasPermission: authStore.hasPermission,
-  };
+  }
 }

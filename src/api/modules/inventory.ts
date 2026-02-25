@@ -1,53 +1,53 @@
+import type { PaginationData, StockItem, Warehouse } from '@/types'
 /**
  * 库存管理相关 API
  * @description 仓库和库存的增删改查等接口
  */
-import { request } from '../client';
-import type { Warehouse, StockItem, PaginationData } from '@/types';
+import { request } from '../client'
 
 /**
  * 创建仓库参数
  */
 export interface CreateWarehouseParams {
-  name: string;
-  code: string;
-  location: string;
-  manager: string;
-  phone: string;
-  capacity: number;
+  name: string
+  code: string
+  location: string
+  manager: string
+  phone: string
+  capacity: number
 }
 
 /**
  * 更新仓库参数
  */
 export interface UpdateWarehouseParams {
-  name?: string;
-  code?: string;
-  location?: string;
-  manager?: string;
-  phone?: string;
-  status?: Warehouse['status'];
-  capacity?: number;
+  name?: string
+  code?: string
+  location?: string
+  manager?: string
+  phone?: string
+  status?: Warehouse['status']
+  capacity?: number
 }
 
 /**
  * 查询仓库列表参数
  */
 export interface GetWarehousesParams {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-  status?: Warehouse['status'];
+  page?: number
+  pageSize?: number
+  search?: string
+  status?: Warehouse['status']
 }
 
 /**
  * 查询库存列表参数
  */
 export interface GetStockParams {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-  warehouseId?: string;
+  page?: number
+  pageSize?: number
+  search?: string
+  warehouseId?: string
 }
 
 /**
@@ -123,4 +123,4 @@ export const inventoryApi = {
    */
   updateStock: (id: string, quantity: number) =>
     request.patch<StockItem>(`/stock/${id}`, { quantity }),
-};
+}

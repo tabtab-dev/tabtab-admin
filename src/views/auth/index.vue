@@ -1,34 +1,34 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { TForm } from '@/components/business/TForm';
-import type { FormSchema, TFormExpose } from '@/components/business/TForm';
-import { useAuthFlow } from '@/composables/useAuthFlow';
-import { useThemeStore } from '@/stores/global/theme';
-import Logo from '@/components/layout/Logo.vue';
+import type { FormSchema, TFormExpose } from '@/components/business/TForm'
 import {
   ArrowRight,
-  Zap,
   BarChart3,
-  Users,
-  Layers,
-  Sparkles,
   CheckCircle2,
-  Sun,
-  Moon,
-  Mail,
+  Layers,
+  Loader2,
   Lock,
-  Loader2
-} from 'lucide-vue-next';
+  Mail,
+  Moon,
+  Sparkles,
+  Sun,
+  Users,
+  Zap,
+} from 'lucide-vue-next'
+import { TForm } from '@/components/business/TForm'
+import Logo from '@/components/layout/Logo.vue'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { useAuthFlow } from '@/composables/useAuthFlow'
+import { useThemeStore } from '@/stores/global/theme'
 
-const router = useRouter();
-const { login, isLoading: authLoading } = useAuthFlow();
-const themeStore = useThemeStore();
+const router = useRouter()
+const { login, isLoading: authLoading } = useAuthFlow()
+const themeStore = useThemeStore()
 
 /**
  * 表单引用
  */
-const formRef = ref<TFormExpose>();
+const formRef = ref<TFormExpose>()
 
 /**
  * 表单数据 - 默认填充演示账户
@@ -36,18 +36,18 @@ const formRef = ref<TFormExpose>();
 const formData = ref({
   email: 'admin@example.com',
   password: 'admin123',
-  rememberMe: true
-});
+  rememberMe: true,
+})
 
 /**
  * 登录加载状态 - 从 useAuthFlow 获取
  */
-const isLoading = authLoading;
+const isLoading = authLoading
 
 /**
  * 错误提示信息
  */
-const errorMessage = ref('');
+const errorMessage = ref('')
 
 /**
  * 登录表单 Schema 配置
@@ -62,13 +62,13 @@ const loginSchema: FormSchema = {
       placeholder: 'admin@example.com',
       rules: [
         { required: true, message: '请输入邮箱地址' },
-        { type: 'email', message: '请输入有效的邮箱地址' }
+        { type: 'email', message: '请输入有效的邮箱地址' },
       ],
       props: {
         size: 'large',
         prefix: h(Mail, { class: 'w-4 h-4 text-muted-foreground' }),
-        autocomplete: 'username'
-      }
+        autocomplete: 'username',
+      },
     },
     {
       name: 'password',
@@ -76,59 +76,60 @@ const loginSchema: FormSchema = {
       label: '密码',
       placeholder: '••••••••',
       rules: [
-        { required: true, message: '请输入密码' }
+        { required: true, message: '请输入密码' },
       ],
       props: {
         size: 'large',
         prefix: h(Lock, { class: 'w-4 h-4 text-muted-foreground' }),
-        autocomplete: 'current-password'
-      }
-    }
+        autocomplete: 'current-password',
+      },
+    },
   ],
   actions: {
     showSubmit: false,
-    showReset: false
-  }
-};
+    showReset: false,
+  },
+}
 
 /**
  * 处理登录表单提交
  * @param values - 表单值
  */
-const handleLogin = async (values: Record<string, any>) => {
-  errorMessage.value = '';
+async function handleLogin(values: Record<string, any>) {
+  errorMessage.value = ''
 
   const result = await login({
     email: values.email,
-    password: values.password
-  });
+    password: values.password,
+  })
 
   if (result.success) {
-    router.push('/');
-  } else {
-    errorMessage.value = result.error || '登录失败，请检查账户信息';
+    router.push('/')
   }
-};
+  else {
+    errorMessage.value = result.error || '登录失败，请检查账户信息'
+  }
+}
 
 /**
  * 处理表单提交失败
  * @param errorInfo - 错误信息
  */
-const handleFinishFailed = (errorInfo: any) => {
+function handleFinishFailed(errorInfo: any) {
   if (errorInfo?.errorFields?.length > 0) {
-    errorMessage.value = errorInfo.errorFields[0].errors[0] || '请检查表单填写是否正确';
+    errorMessage.value = errorInfo.errorFields[0].errors[0] || '请检查表单填写是否正确'
   }
-};
+}
 
 /**
  * 处理登录按钮点击
  * @description 触发表单验证，验证通过后自动触发 submit 事件
  */
-const handleLoginClick = async () => {
-  errorMessage.value = '';
-  await formRef.value?.validate();
-  await handleLogin(formData.value);
-};
+async function handleLoginClick() {
+  errorMessage.value = ''
+  await formRef.value?.validate()
+  await handleLogin(formData.value)
+}
 
 /**
  * 特性列表数据
@@ -138,7 +139,7 @@ const features = [
   { icon: Users, text: '团队协作管理' },
   { icon: Layers, text: '模块化架构' },
   { icon: Zap, text: '高性能体验' },
-];
+]
 </script>
 
 <template>
@@ -146,10 +147,10 @@ const features = [
     <!-- 左侧品牌展示区 -->
     <div class="hidden lg:flex lg:w-1/2 xl:w-[55%] relative overflow-hidden">
       <!-- 动态背景层 - 使用主题主色 -->
-      <div 
+      <div
         class="absolute inset-0 bg-gradient-to-br from-primary via-primary/95 to-primary/75 transition-colors duration-500"
-        :style="{ 
-          background: `linear-gradient(135deg, ${themeStore.currentColors?.primary || 'oklch(0.205 0 0)'} 0%, ${themeStore.currentColors?.primary || 'oklch(0.205 0 0)'}ee 50%, ${themeStore.currentColors?.primary || 'oklch(0.205 0 0)'}cc 100%)`
+        :style="{
+          background: `linear-gradient(135deg, ${themeStore.currentColors?.primary || 'oklch(0.205 0 0)'} 0%, ${themeStore.currentColors?.primary || 'oklch(0.205 0 0)'}ee 50%, ${themeStore.currentColors?.primary || 'oklch(0.205 0 0)'}cc 100%)`,
         }"
       >
         <!-- 动态光晕效果 -->
@@ -165,7 +166,7 @@ const features = [
       <div class="relative z-10 flex flex-col justify-between w-full p-12 xl:p-16">
         <!-- Logo -->
         <div class="flex items-center gap-3 animate-fade-in">
-          <div 
+          <div
             class="flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg"
             :style="{ borderRadius: `calc(var(--radius) * 1.5)` }"
           >
@@ -177,7 +178,7 @@ const features = [
         <!-- 主文案 -->
         <div class="space-y-8 animate-fade-in-up">
           <div class="space-y-4">
-            <div 
+            <div
               class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-sm"
               :style="{ borderRadius: `calc(var(--radius) * 2)` }"
             >
@@ -185,7 +186,7 @@ const features = [
               <span>全新版本 1.0 现已发布</span>
             </div>
             <h1 class="text-4xl xl:text-5xl font-bold text-white leading-tight">
-              智能化<br />
+              智能化<br>
               <span class="text-white/80">后台管理系统</span>
             </h1>
             <p class="text-lg text-white/70 max-w-md leading-relaxed">
@@ -202,7 +203,7 @@ const features = [
               :style="{ borderRadius: `calc(var(--radius) * 1.5)` }"
               :class="`animate-fade-in-up animation-delay-${index + 1}`"
             >
-              <div 
+              <div
                 class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/10"
                 :style="{ borderRadius: `calc(var(--radius))` }"
               >
@@ -227,11 +228,11 @@ const features = [
     <div class="w-full lg:w-1/2 xl:w-[45%] flex items-center justify-center p-6 sm:p-8 lg:p-12 relative">
       <!-- 背景装饰 - 使用主题色 -->
       <div class="absolute inset-0 pointer-events-none overflow-hidden">
-        <div 
+        <div
           class="absolute top-20 right-20 w-64 h-64 rounded-full blur-[80px] opacity-50 transition-colors duration-500"
           :style="{ backgroundColor: themeStore.currentColors?.primary || 'oklch(0.205 0 0)' }"
         />
-        <div 
+        <div
           class="absolute bottom-20 left-20 w-48 h-48 rounded-full blur-[60px] opacity-30 transition-colors duration-500"
           :style="{ backgroundColor: themeStore.currentColors?.accent || themeStore.currentColors?.primary || 'oklch(0.205 0 0)' }"
         />
@@ -242,10 +243,10 @@ const features = [
         <Button
           variant="ghost"
           size="icon"
-          @click="themeStore.toggleMode"
           class="h-10 w-10 rounded-xl bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-background transition-all duration-200 shadow-sm"
           :style="{ borderRadius: `calc(var(--radius) * 1.5)` }"
           :title="themeStore.currentMode === 'dark' ? '切换到浅色模式' : '切换到深色模式'"
+          @click="themeStore.toggleMode"
         >
           <Sun v-if="themeStore.currentMode === 'dark'" class="h-5 w-5 text-foreground" />
           <Moon v-else class="h-5 w-5 text-foreground" />
@@ -255,7 +256,7 @@ const features = [
       <div class="relative z-10 w-full max-w-[400px] space-y-6">
         <!-- 移动端 Logo -->
         <div class="lg:hidden flex flex-col items-center gap-3 mb-8 animate-fade-in">
-          <div 
+          <div
             class="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg"
             :style="{ borderRadius: `calc(var(--radius) * 1.5)` }"
           >
@@ -266,8 +267,12 @@ const features = [
 
         <!-- 登录表单标题 -->
         <div class="space-y-2 animate-fade-in-up">
-          <h2 class="text-2xl font-bold text-foreground">欢迎回来</h2>
-          <p class="text-muted-foreground">请输入您的账户信息以继续</p>
+          <h2 class="text-2xl font-bold text-foreground">
+            欢迎回来
+          </h2>
+          <p class="text-muted-foreground">
+            请输入您的账户信息以继续
+          </p>
         </div>
 
         <!-- 错误提示 -->
@@ -343,7 +348,7 @@ const features = [
         </Button>
 
         <!-- 演示账户 -->
-        <div 
+        <div
           class="p-4 bg-muted/50 border border-border/50 animate-fade-in-up animation-delay-3"
           :style="{ borderRadius: `calc(var(--radius) * 1.5)` }"
         >
@@ -353,7 +358,7 @@ const features = [
           </div>
           <p class="text-xs text-muted-foreground leading-relaxed">
             邮箱: <span class="text-foreground font-medium">admin@example.com</span>
-            <br />
+            <br>
             密码: <span class="text-foreground font-medium">admin123</span>
           </p>
         </div>

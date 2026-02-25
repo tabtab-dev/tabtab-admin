@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { BreadcrumbItem, PageAction, PageHeaderResponsiveConfig, TPageHeaderEmits, TPageHeaderExpose, TPageHeaderProps } from './types'
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import * as icons from 'lucide-vue-next'
 /**
  * TPageHeader - 页面头部组件
  *
@@ -31,18 +34,15 @@
  */
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-vue-next'
-import * as icons from 'lucide-vue-next'
 import { useResponsive } from '@/composables/useResponsive'
-import type { TPageHeaderProps, TPageHeaderEmits, TPageHeaderExpose, PageAction, BreadcrumbItem, PageHeaderResponsiveConfig } from './types'
+import { cn } from '@/lib/utils'
 
 /**
  * 组件选项
  */
 defineOptions({
-  name: 'TPageHeader'
+  name: 'TPageHeader',
 })
 
 /**
@@ -52,7 +52,7 @@ const props = withDefaults(defineProps<TPageHeaderProps>(), {
   showBack: false,
   sticky: false,
   stickyOffset: 0,
-  showExtra: false
+  showExtra: false,
 })
 
 /**
@@ -65,7 +65,7 @@ const emit = defineEmits<TPageHeaderEmits>()
  */
 const router = useRouter()
 
-const { smallerThan, isMobile } = useResponsive()
+const { smallerThan } = useResponsive()
 
 const responsiveConfig = computed<PageHeaderResponsiveConfig>(() => {
   return props.responsive || { enabled: true }
@@ -76,7 +76,8 @@ const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== fa
 const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
 
 const isMobileView = computed(() => {
-  if (!isResponsiveEnabled.value) return false
+  if (!isResponsiveEnabled.value)
+    return false
   return smallerThan(mobileBreakpoint.value)
 })
 
@@ -106,6 +107,18 @@ const titleSizeClass = computed(() => {
   return 'text-2xl sm:text-3xl'
 })
 
+/**
+ * 过滤后的操作按钮
+ */
+const visibleActions = computed(() => {
+  return (props.actions || []).filter((action) => {
+    if (typeof action.show === 'function') {
+      return action.show()
+    }
+    return action.show !== false
+  })
+})
+
 const primaryAction = computed(() => {
   if (!isMobileView.value || !responsiveConfig.value.collapseActionsOnMobile) {
     return null
@@ -114,24 +127,13 @@ const primaryAction = computed(() => {
 })
 
 /**
- * 过滤后的操作按钮
- */
-const visibleActions = computed(() => {
-  return (props.actions || []).filter(action => {
-    if (typeof action.show === 'function') {
-      return action.show()
-    }
-    return action.show !== false
-  })
-})
-
-/**
  * 处理返回
  */
 function handleBack() {
   if (props.onBack) {
     props.onBack()
-  } else {
+  }
+  else {
     router.back()
   }
   emit('back')
@@ -179,7 +181,8 @@ function isButtonDisabled(action: PageAction) {
  * 获取图标组件
  */
 function getIconComponent(action: PageAction) {
-  if (action.icon) return action.icon
+  if (action.icon)
+    return action.icon
   if (action.iconName) {
     return (icons as Record<string, unknown>)[action.iconName] as typeof ChevronLeft | null
   }
@@ -205,7 +208,7 @@ function goBack() {
  */
 defineExpose<TPageHeaderExpose>({
   getTitle,
-  goBack
+  goBack,
 })
 </script>
 
@@ -215,7 +218,7 @@ defineExpose<TPageHeaderExpose>({
       't-page-header pb-6',
       sticky && 'sticky z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
       { 't-page-header-mobile': isMobileView },
-      className
+      className,
     )"
     :style="sticky ? { top: `${stickyOffset}px` } : undefined"
   >
@@ -232,7 +235,7 @@ defineExpose<TPageHeaderExpose>({
               'transition-colors',
               item.path && item.clickable !== false
                 ? 'hover:text-foreground cursor-pointer'
-                : 'text-foreground font-medium'
+                : 'text-foreground font-medium',
             )"
             @click="handleBreadcrumbClick(item, index)"
           >

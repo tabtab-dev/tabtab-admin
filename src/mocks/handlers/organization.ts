@@ -2,9 +2,9 @@
  * 组织架构模块 MSW handlers
  * @description 组织架构管理相关接口
  */
-import { http, HttpResponse, delay } from 'msw';
+import { delay, http, HttpResponse } from 'msw'
 
-let organizationData = [
+const organizationData = [
   {
     id: '1',
     name: '总公司',
@@ -77,49 +77,49 @@ let organizationData = [
     description: '后端开发团队',
     createdAt: '2024-01-04',
   },
-];
+]
 
 export const organizationHandlers = [
   http.get('/mock-api/organizations', async ({ request }) => {
-    await delay(300);
-    const url = new URL(request.url);
-    const search = url.searchParams.get('search');
-    const status = url.searchParams.get('status');
+    await delay(300)
+    const url = new URL(request.url)
+    const search = url.searchParams.get('search')
+    const status = url.searchParams.get('status')
 
-    let filteredData = [...organizationData];
+    let filteredData = [...organizationData]
 
     if (search) {
-      const lowerSearch = search.toLowerCase();
+      const lowerSearch = search.toLowerCase()
       filteredData = filteredData.filter(
         o =>
-          o.name.toLowerCase().includes(lowerSearch) ||
-          o.code.toLowerCase().includes(lowerSearch)
-      );
+          o.name.toLowerCase().includes(lowerSearch)
+          || o.code.toLowerCase().includes(lowerSearch),
+      )
     }
 
     if (status) {
-      filteredData = filteredData.filter(o => o.status === status);
+      filteredData = filteredData.filter(o => o.status === status)
     }
 
     return HttpResponse.json({
       code: 200,
       data: { list: filteredData, total: filteredData.length, page: 1, pageSize: 100 },
       message: 'success',
-    });
+    })
   }),
 
   http.get('/mock-api/organizations/:id', async ({ params }) => {
-    await delay(200);
-    const org = organizationData.find(o => o.id === params.id);
+    await delay(200)
+    const org = organizationData.find(o => o.id === params.id)
     if (!org) {
-      return HttpResponse.json({ code: 404, data: null, message: '组织不存在' });
+      return HttpResponse.json({ code: 404, data: null, message: '组织不存在' })
     }
-    return HttpResponse.json({ code: 200, data: org, message: 'success' });
+    return HttpResponse.json({ code: 200, data: org, message: 'success' })
   }),
 
   http.post('/mock-api/organizations', async ({ request }) => {
-    await delay(300);
-    const body = (await request.json()) as Record<string, unknown>;
+    await delay(300)
+    const body = (await request.json()) as Record<string, unknown>
     const newOrg = {
       id: String(Date.now()),
       name: body.name as string,
@@ -131,49 +131,49 @@ export const organizationHandlers = [
       status: (body.status as string) || 'active',
       description: (body.description as string) || '',
       createdAt: new Date().toISOString().split('T')[0],
-    };
+    }
 
-    organizationData.push(newOrg);
-    return HttpResponse.json({ code: 200, data: newOrg, message: 'success' });
+    organizationData.push(newOrg)
+    return HttpResponse.json({ code: 200, data: newOrg, message: 'success' })
   }),
 
   http.put('/mock-api/organizations/:id', async ({ params, request }) => {
-    await delay(300);
-    const index = organizationData.findIndex(o => o.id === params.id);
+    await delay(300)
+    const index = organizationData.findIndex(o => o.id === params.id)
     if (index === -1) {
-      return HttpResponse.json({ code: 404, data: null, message: '组织不存在' });
+      return HttpResponse.json({ code: 404, data: null, message: '组织不存在' })
     }
 
-    const body = (await request.json()) as Record<string, unknown>;
-    organizationData[index] = { ...organizationData[index], ...body } as typeof organizationData[0];
-    return HttpResponse.json({ code: 200, data: organizationData[index], message: 'success' });
+    const body = (await request.json()) as Record<string, unknown>
+    organizationData[index] = { ...organizationData[index], ...body } as typeof organizationData[0]
+    return HttpResponse.json({ code: 200, data: organizationData[index], message: 'success' })
   }),
 
   http.delete('/mock-api/organizations/:id', async ({ params }) => {
-    await delay(200);
-    const index = organizationData.findIndex(o => o.id === params.id);
+    await delay(200)
+    const index = organizationData.findIndex(o => o.id === params.id)
     if (index === -1) {
-      return HttpResponse.json({ code: 404, data: null, message: '组织不存在' });
+      return HttpResponse.json({ code: 404, data: null, message: '组织不存在' })
     }
 
-    const hasChildren = organizationData.some(o => o.parentId === params.id);
+    const hasChildren = organizationData.some(o => o.parentId === params.id)
     if (hasChildren) {
-      return HttpResponse.json({ code: 400, data: null, message: '该组织下存在子组织，无法删除' });
+      return HttpResponse.json({ code: 400, data: null, message: '该组织下存在子组织，无法删除' })
     }
 
-    organizationData.splice(index, 1);
-    return HttpResponse.json({ code: 200, data: null, message: 'success' });
+    organizationData.splice(index, 1)
+    return HttpResponse.json({ code: 200, data: null, message: 'success' })
   }),
 
   http.patch('/mock-api/organizations/:id/status', async ({ params, request }) => {
-    await delay(200);
-    const index = organizationData.findIndex(o => o.id === params.id);
+    await delay(200)
+    const index = organizationData.findIndex(o => o.id === params.id)
     if (index === -1) {
-      return HttpResponse.json({ code: 404, data: null, message: '组织不存在' });
+      return HttpResponse.json({ code: 404, data: null, message: '组织不存在' })
     }
 
-    const body = (await request.json()) as { status?: string };
-    organizationData[index].status = body.status || 'active';
-    return HttpResponse.json({ code: 200, data: organizationData[index], message: 'success' });
+    const body = (await request.json()) as { status?: string }
+    organizationData[index].status = body.status || 'active'
+    return HttpResponse.json({ code: 200, data: organizationData[index], message: 'success' })
   }),
-];
+]

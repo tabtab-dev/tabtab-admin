@@ -10,8 +10,8 @@ export const commonFormConfig = {
   actions: {
     showSubmit: true,
     showReset: true,
-    align: 'right' as const
-  }
+    align: 'right' as const,
+  },
 } as const
 
 /**
@@ -23,8 +23,8 @@ export function createFormSchema(config: Partial<FormSchema>): FormSchema {
     ...config,
     actions: {
       ...commonFormConfig.actions,
-      ...config.actions
-    }
+      ...config.actions,
+    },
   }
 }
 
@@ -37,5 +37,5 @@ export const commonFormRules = {
   minLength: (min: number, message?: string) => ({ min, message: message || `至少${min}个字符` }),
   maxLength: (max: number, message?: string) => ({ max, message: message || `最多${max}个字符` }),
   minNumber: (min: number, message?: string) => ({ type: 'number' as const, min, message: message || `不能小于${min}` }),
-  maxNumber: (max: number, message?: string) => ({ type: 'number' as const, max, message: message || `不能大于${max}` })
+  maxNumber: (max: number, message?: string) => ({ type: 'number' as const, max, message: message || `不能大于${max}` }),
 } as const

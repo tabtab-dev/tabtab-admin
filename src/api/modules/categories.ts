@@ -1,60 +1,60 @@
+import type { Category, PaginationData, Tag } from '@/types'
 /**
  * 分类和标签管理相关 API
  * @description 分类和标签的增删改查等接口
  */
-import { request } from '../client';
-import type { Category, Tag, PaginationData } from '@/types';
+import { request } from '../client'
 
 /**
  * 创建分类参数
  */
 export interface CreateCategoryParams {
-  name: string;
-  code: string;
-  level: 1 | 2;
-  parentId?: string;
-  sort: number;
-  description?: string;
+  name: string
+  code: string
+  level: 1 | 2
+  parentId?: string
+  sort: number
+  description?: string
 }
 
 /**
  * 更新分类参数
  */
 export interface UpdateCategoryParams {
-  name?: string;
-  code?: string;
-  level?: 1 | 2;
-  parentId?: string;
-  sort?: number;
-  status?: Category['status'];
-  description?: string;
+  name?: string
+  code?: string
+  level?: 1 | 2
+  parentId?: string
+  sort?: number
+  status?: Category['status']
+  description?: string
 }
 
 /**
  * 查询分类列表参数
  */
 export interface GetCategoriesParams {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-  level?: 1 | 2;
-  status?: Category['status'];
+  page?: number
+  pageSize?: number
+  search?: string
+  level?: 1 | 2
+  status?: Category['status']
 }
 
 /**
  * 创建标签参数
  */
 export interface CreateTagParams {
-  name: string;
-  color: string;
+  name: string
+  color: string
 }
 
 /**
  * 更新标签参数
  */
 export interface UpdateTagParams {
-  name?: string;
-  color?: string;
+  name?: string
+  color?: string
 }
 
 /**
@@ -121,7 +121,7 @@ export const categoriesApi = {
    * @param params - 查询参数
    * @returns 分页标签列表
    */
-  getTags: (params: { page?: number; pageSize?: number; search?: string } = {}) =>
+  getTags: (params: { page?: number, pageSize?: number, search?: string } = {}) =>
     request.get<PaginationData<Tag>>('/tags', {
       params: {
         page: params.page || 1,
@@ -168,4 +168,4 @@ export const categoriesApi = {
    */
   batchDeleteTags: (ids: string[]) =>
     request.post<void>('/tags/batch-delete', { ids }),
-};
+}

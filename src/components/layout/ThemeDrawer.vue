@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Palette } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
+import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
   SheetTrigger,
-} from '@/components/ui/sheet';
-import ThemeSettings from './ThemeSettings.vue';
-import { Palette } from 'lucide-vue-next';
-import { useI18n } from 'vue-i18n';
+} from '@/components/ui/sheet'
+import ThemeSettings from './ThemeSettings.vue'
 
-const { t } = useI18n();
+const { t } = useI18n()
 
 /**
  * 是否打开抽屉
  */
-const isOpen = defineModel<boolean>('open', { default: false });
+const isOpen = defineModel<boolean>('open', { default: false })
 </script>
 
 <template>

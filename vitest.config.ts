@@ -1,6 +1,6 @@
-import { defineConfig } from 'vitest/config';
-import vue from '@vitejs/plugin-vue';
-import path from 'node:path';
+import path from 'node:path'
+import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   plugins: [vue()],
@@ -38,4 +38,4 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-});
+})

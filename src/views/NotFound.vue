@@ -1,25 +1,29 @@
 <script setup lang="ts">
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Home, ArrowLeft } from 'lucide-vue-next';
+import { ArrowLeft, Home } from 'lucide-vue-next'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-const router = useRouter();
+const router = useRouter()
 
-const goHome = () => {
-  router.push('/');
-};
+function goHome() {
+  router.push('/')
+}
 
-const goBack = () => {
-  router.back();
-};
+function goBack() {
+  router.back()
+}
 </script>
 
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-4">
     <Card class="w-full max-w-md text-center bg-muted/40 border border-border/50 rounded-xl">
       <CardHeader>
-        <div class="text-6xl mb-4">🔍</div>
-        <CardTitle class="text-2xl">404 - 页面未找到</CardTitle>
+        <div class="text-6xl mb-4">
+          🔍
+        </div>
+        <CardTitle class="text-2xl">
+          404 - 页面未找到
+        </CardTitle>
         <CardDescription>抱歉，您访问的页面不存在</CardDescription>
       </CardHeader>
       <CardContent class="space-y-3">

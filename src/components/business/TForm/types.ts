@@ -2,40 +2,40 @@
  * 表单字段类型
  * @description 支持的表单控件类型
  */
-export type FormFieldType =
-  | 'input'
-  | 'password'
-  | 'textarea'
-  | 'number'
-  | 'select'
-  | 'radio'
-  | 'radio-button'
-  | 'checkbox'
-  | 'checkbox-single'
-  | 'switch'
-  | 'slider'
-  | 'rate'
-  | 'date-picker'
-  | 'month-picker'
-  | 'quarter-picker'
-  | 'year-picker'
-  | 'week-picker'
-  | 'range-picker'
-  | 'time-picker'
-  | 'time-range-picker'
-  | 'cascader'
-  | 'tree-select'
-  | 'tree'
-  | 'auto-complete'
-  | 'mention'
-  | 'upload'
-  | 'transfer'
-  | 'color-picker'
-  | 'segmented'
-  | 'icon'
-  | 'group'
-  | 'list'
-  | 'custom'
+export type FormFieldType
+  = | 'input'
+    | 'password'
+    | 'textarea'
+    | 'number'
+    | 'select'
+    | 'radio'
+    | 'radio-button'
+    | 'checkbox'
+    | 'checkbox-single'
+    | 'switch'
+    | 'slider'
+    | 'rate'
+    | 'date-picker'
+    | 'month-picker'
+    | 'quarter-picker'
+    | 'year-picker'
+    | 'week-picker'
+    | 'range-picker'
+    | 'time-picker'
+    | 'time-range-picker'
+    | 'cascader'
+    | 'tree-select'
+    | 'tree'
+    | 'auto-complete'
+    | 'mention'
+    | 'upload'
+    | 'transfer'
+    | 'color-picker'
+    | 'segmented'
+    | 'icon'
+    | 'group'
+    | 'list'
+    | 'custom'
 
 /**
  * 选项类型
@@ -225,9 +225,9 @@ export interface FormField<T extends Record<string, any> = Record<string, any>> 
   /** 自定义插槽名（type='custom' 时使用） */
   slot?: string
   /** 标签布局 */
-  labelCol?: { span?: number; offset?: number }
+  labelCol?: { span?: number, offset?: number }
   /** 控件布局 */
-  wrapperCol?: { span?: number; offset?: number }
+  wrapperCol?: { span?: number, offset?: number }
   /** 列表配置（type='list' 时使用） */
   listConfig?: ListFieldConfig<T>
   /** 分组配置（type='group' 时使用） */
@@ -350,7 +350,7 @@ export interface ScrollToFirstErrorOptions {
   /** 水平对齐方式 */
   inline?: ScrollLogicalPosition
   /** 偏移量 */
-  offset?: { top?: number; left?: number }
+  offset?: { top?: number, left?: number }
 }
 
 /**
@@ -363,16 +363,16 @@ export interface FormResponsiveConfig {
   mobileBreakpoint?: 'xs' | 'sm' | 'md'
   mobileLayout?: FormLayout
   mobileColumns?: number
-  mobileLabelCol?: { span?: number; offset?: number }
-  mobileWrapperCol?: { span?: number; offset?: number }
+  mobileLabelCol?: { span?: number, offset?: number }
+  mobileWrapperCol?: { span?: number, offset?: number }
   hideLabelsOnMobile?: boolean
 }
 
 export interface FormSchema<T extends Record<string, any> = Record<string, any>> {
   fields: FormField<T>[]
   layout?: FormLayout
-  labelCol?: { span?: number; offset?: number }
-  wrapperCol?: { span?: number; offset?: number }
+  labelCol?: { span?: number, offset?: number }
+  wrapperCol?: { span?: number, offset?: number }
   labelAlign?: LabelAlign
   size?: FormSize
   disabled?: boolean

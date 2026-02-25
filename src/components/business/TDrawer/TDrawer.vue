@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { DrawerResponsiveConfig, TDrawerEmits, TDrawerExpose, TDrawerProps } from './types'
+import { useScrollLock } from '@vueuse/core'
+import { ConfigProvider, Drawer } from 'antdv-next'
 /**
  * TDrawer - 基于 antdv-next 的抽屉组件
  *
@@ -28,12 +31,9 @@
  */
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ConfigProvider, Drawer } from 'antdv-next'
-import { useScrollLock } from '@vueuse/core'
-import { cn } from '@/lib/utils'
-import { getAntdvLocale } from '@/i18n/locales'
 import { useResponsive } from '@/composables/useResponsive'
-import type { TDrawerProps, TDrawerEmits, TDrawerExpose, DrawerResponsiveConfig } from './types'
+import { getAntdvLocale } from '@/i18n/locales'
+import { cn } from '@/lib/utils'
 
 /**
  * 导入主题配置
@@ -49,15 +49,39 @@ import './TDrawer.css'
  * 组件选项
  */
 defineOptions({
-  name: 'TDrawer'
+  name: 'TDrawer',
 })
+
+/**
+ * Props 定义
+ */
+const props = withDefaults(defineProps<TDrawerProps>(), {
+  open: false,
+  placement: 'right',
+  size: 'default',
+  mask: true,
+  maskClosable: true,
+  keyboard: true,
+  destroyOnHidden: false,
+  closable: true,
+  zIndex: 1000,
+  loading: false,
+  forceRender: false,
+  push: () => ({ distance: 180 }),
+  getContainer: () => document.body,
+})
+
+/**
+ * Emits 定义
+ */
+const emit = defineEmits<TDrawerEmits>()
 
 /**
  * i18n
  */
 const { locale } = useI18n()
 
-const { smallerThan, isMobile } = useResponsive()
+const { smallerThan } = useResponsive()
 
 const responsiveConfig = computed<DrawerResponsiveConfig>(() => {
   return props.responsive || { enabled: true }
@@ -68,12 +92,14 @@ const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== fa
 const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
 
 const isMobileView = computed(() => {
-  if (!isResponsiveEnabled.value) return false
+  if (!isResponsiveEnabled.value)
+    return false
   return smallerThan(mobileBreakpoint.value)
 })
 
 const responsiveSize = computed(() => {
-  if (!isMobileView.value) return props.size
+  if (!isMobileView.value)
+    return props.size
 
   if (responsiveConfig.value.fullWidthOnMobile) {
     return 'large'
@@ -101,30 +127,6 @@ async function loadAntdvLocale() {
 watch(locale, loadAntdvLocale, { immediate: true })
 
 /**
- * Props 定义
- */
-const props = withDefaults(defineProps<TDrawerProps>(), {
-  open: false,
-  placement: 'right',
-  size: 'default',
-  mask: true,
-  maskClosable: true,
-  keyboard: true,
-  destroyOnHidden: false,
-  closable: true,
-  zIndex: 1000,
-  loading: false,
-  forceRender: false,
-  push: () => ({ distance: 180 }),
-  getContainer: () => document.body
-})
-
-/**
- * Emits 定义
- */
-const emit = defineEmits<TDrawerEmits>()
-
-/**
  * 内部状态
  */
 const internalOpen = ref(props.open)
@@ -143,7 +145,7 @@ watch(
   (open) => {
     isLocked.value = open
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 /**
@@ -154,7 +156,7 @@ watch(
   (newVal) => {
     internalOpen.value = newVal
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 /**
@@ -272,7 +274,7 @@ function isOpen(): boolean {
 defineExpose<TDrawerExpose>({
   open,
   close,
-  isOpen
+  isOpen,
 })
 </script>
 

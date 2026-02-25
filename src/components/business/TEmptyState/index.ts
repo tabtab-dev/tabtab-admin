@@ -5,10 +5,10 @@
 
 export { default as TEmptyState } from './TEmptyState.vue'
 export type {
+  EmptyAction,
   EmptySize,
   EmptyType,
-  EmptyAction,
-  TEmptyStateProps,
   TEmptyStateEmits,
-  TEmptyStateExpose
+  TEmptyStateExpose,
+  TEmptyStateProps,
 } from './types'

@@ -1,25 +1,25 @@
 <script setup lang="ts">
+import type { FormSchema } from '@/components/business/TForm'
+import type { TableSchema } from '@/components/business/TTable'
+import type { StockItem } from '@/types'
+import {
+  AlertTriangle,
+  CheckCircle,
+  ClipboardList,
+  History,
+  Plus,
+} from 'lucide-vue-next'
+import { inventoryApi } from '@/api'
+import { TForm } from '@/components/business/TForm'
+import { TModal } from '@/components/business/TModal'
 /**
  * 库存盘点页
  */
 import { TTable } from '@/components/business/TTable'
-import { TForm } from '@/components/business/TForm'
-import { TModal } from '@/components/business/TModal'
-import type { TableSchema } from '@/components/business/TTable'
-import type { FormSchema } from '@/components/business/TForm'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import type { StockItem } from '@/types'
-import { inventoryApi } from '@/api'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { useTableData } from '@/composables'
-import {
-  Plus,
-  ClipboardList,
-  AlertTriangle,
-  CheckCircle,
-  History
-} from 'lucide-vue-next'
 import { STOCK_CHECK_STATUS } from '@/constants'
 
 interface TableSlotProps {
@@ -38,7 +38,7 @@ const warehouses = computed(() => {
   const warehouseIds = new Set(stockItems.value.map(item => item.warehouseId))
   return Array.from(warehouseIds).map(id => ({
     id,
-    name: stockItems.value.find(item => item.warehouseId === id)?.warehouseName || `仓库 ${id}`
+    name: stockItems.value.find(item => item.warehouseId === id)?.warehouseName || `仓库 ${id}`,
   }))
 })
 
@@ -69,7 +69,7 @@ const stockChecks = ref<StockCheck[]>([
     reason: '损坏报废',
     operator: '张三',
     checkTime: '2024-02-01 10:30',
-    status: 'adjusted'
+    status: 'adjusted',
   },
   {
     id: '2',
@@ -82,7 +82,7 @@ const stockChecks = ref<StockCheck[]>([
     reason: '入库未登记',
     operator: '张三',
     checkTime: '2024-02-01 11:00',
-    status: 'adjusted'
+    status: 'adjusted',
   },
   {
     id: '3',
@@ -95,8 +95,8 @@ const stockChecks = ref<StockCheck[]>([
     reason: '-',
     operator: '李四',
     checkTime: '2024-02-02 09:00',
-    status: 'confirmed'
-  }
+    status: 'confirmed',
+  },
 ])
 
 // 统计标签
@@ -109,14 +109,14 @@ const statistics = computed(() => {
     { title: '盘点记录', value: total, icon: ClipboardList, color: 'text-blue-500' },
     { title: '待确认', value: pending, icon: AlertTriangle, color: 'text-yellow-500' },
     { title: '已调整', value: adjusted, icon: History, color: 'text-purple-500' },
-    { title: '已确认', value: confirmed, icon: CheckCircle, color: 'text-green-500' }
+    { title: '已确认', value: confirmed, icon: CheckCircle, color: 'text-green-500' },
   ]
 })
 
 // 搜索表单
 const searchFormData = ref({
   keyword: '',
-  warehouse: ''
+  warehouse: '',
 })
 
 const searchSchema: FormSchema = {
@@ -127,7 +127,7 @@ const searchSchema: FormSchema = {
       type: 'input',
       label: '',
       placeholder: '搜索商品名称、SKU...',
-      className: 'w-[240px]'
+      className: 'w-[240px]',
     },
     {
       name: 'warehouse',
@@ -136,10 +136,10 @@ const searchSchema: FormSchema = {
       placeholder: '全部仓库',
       options: [
         { label: '全部仓库', value: '' },
-        ...warehouses.value.map(w => ({ label: w.name, value: w.id }))
+        ...warehouses.value.map(w => ({ label: w.name, value: w.id })),
       ],
-      className: 'w-[140px]'
-    }
+      className: 'w-[140px]',
+    },
   ],
   searchConfig: {
     enabled: true,
@@ -147,8 +147,8 @@ const searchSchema: FormSchema = {
     showCollapseButton: false,
     searchText: '搜索',
     resetText: '重置',
-    showReset: true
-  }
+    showReset: true,
+  },
 }
 
 // 表格配置
@@ -158,56 +158,56 @@ const tableSchema = computed<TableSchema>(() => ({
       title: '商品信息',
       dataIndex: 'productName',
       width: 200,
-      slot: 'product'
+      slot: 'product',
     },
     {
       title: '仓库',
       dataIndex: 'warehouseName',
-      width: 120
+      width: 120,
     },
     {
       title: '系统库存',
       dataIndex: 'systemStock',
-      width: 100
+      width: 100,
     },
     {
       title: '实际库存',
       dataIndex: 'actualStock',
-      width: 100
+      width: 100,
     },
     {
       title: '差异',
       dataIndex: 'difference',
       width: 100,
-      slot: 'difference'
+      slot: 'difference',
     },
     {
       title: '原因',
       dataIndex: 'reason',
-      width: 150
+      width: 150,
     },
     {
       title: '盘点时间',
       dataIndex: 'checkTime',
-      width: 150
+      width: 150,
     },
     {
       title: '状态',
       dataIndex: 'status',
       width: 100,
-      slot: 'status'
-    }
+      slot: 'status',
+    },
   ],
   pagination: {
     pageSize: 10,
     show: true,
-    showSizeChanger: true
+    showSizeChanger: true,
   },
   rowSelection: {
     type: 'checkbox',
-    show: true
+    show: true,
   },
-  showTotalBadge: true
+  showTotalBadge: true,
 }))
 
 // 新增盘点
@@ -216,7 +216,7 @@ const addFormData = ref({
   productId: '',
   warehouseId: '',
   actualStock: 0,
-  reason: ''
+  reason: '',
 })
 
 const addSchema: FormSchema = {
@@ -230,7 +230,7 @@ const addSchema: FormSchema = {
       label: '商品',
       placeholder: '请选择商品',
       options: stockItems.value.map(item => ({ label: item.productName, value: item.id })),
-      rules: [{ required: true, message: '请选择商品' }]
+      rules: [{ required: true, message: '请选择商品' }],
     },
     {
       name: 'warehouseId',
@@ -238,21 +238,21 @@ const addSchema: FormSchema = {
       label: '仓库',
       placeholder: '请选择仓库',
       options: warehouses.value.map(w => ({ label: w.name, value: w.id })),
-      rules: [{ required: true, message: '请选择仓库' }]
+      rules: [{ required: true, message: '请选择仓库' }],
     },
     {
       name: 'actualStock',
       type: 'number',
       label: '实际库存',
       placeholder: '请输入实际库存数量',
-      rules: [{ required: true, message: '请输入实际库存' }]
+      rules: [{ required: true, message: '请输入实际库存' }],
     },
     {
       name: 'reason',
       type: 'textarea',
       label: '差异原因',
-      placeholder: '请输入差异原因（可选）'
-    }
+      placeholder: '请输入差异原因（可选）',
+    },
   ],
   actions: {
     showSubmit: true,
@@ -260,8 +260,8 @@ const addSchema: FormSchema = {
     submitText: '提交盘点',
     resetText: '取消',
     align: 'right',
-    onReset: () => { isAddOpen.value = false }
-  }
+    onReset: () => { isAddOpen.value = false },
+  },
 }
 
 function handleAddSubmit(_values: Record<string, any>) {
@@ -273,15 +273,18 @@ const selectedRowKeys = ref<(string | number)[]>([])
 function handleSelectChange(keys: (string | number)[]) {
   selectedRowKeys.value = keys
 }
-
 </script>
 
 <template>
   <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">库存盘点</h1>
-        <p class="text-muted-foreground mt-1.5 text-sm">定期盘点库存，确保账实相符</p>
+        <h1 class="text-3xl font-bold tracking-tight">
+          库存盘点
+        </h1>
+        <p class="text-muted-foreground mt-1.5 text-sm">
+          定期盘点库存，确保账实相符
+        </p>
       </div>
       <Button class="gap-2" @click="isAddOpen = true">
         <Plus class="h-4 w-4" />
@@ -299,7 +302,7 @@ function handleSelectChange(keys: (string | number)[]) {
         :key="stat.title"
         class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
       >
-        <component :is="stat.icon" :class="['h-4 w-4', stat.color]" />
+        <component :is="stat.icon" class="h-4 w-4" :class="[stat.color]" />
         <div class="flex items-baseline gap-2">
           <span class="text-lg font-semibold">{{ stat.value }}</span>
           <span class="text-xs text-muted-foreground">{{ stat.title }}</span>
@@ -325,17 +328,22 @@ function handleSelectChange(keys: (string | number)[]) {
         >
           <template #product="slotProps">
             <div>
-              <div class="font-medium">{{ (slotProps as TableSlotProps).text }}</div>
-              <div class="text-xs text-muted-foreground font-mono">{{ (slotProps as TableSlotProps).record.sku }}</div>
+              <div class="font-medium">
+                {{ (slotProps as TableSlotProps).text }}
+              </div>
+              <div class="text-xs text-muted-foreground font-mono">
+                {{ (slotProps as TableSlotProps).record.sku }}
+              </div>
             </div>
           </template>
 
           <template #difference="slotProps">
-            <span :class="[
-              'font-medium',
-              (slotProps as TableSlotProps).text > 0 ? 'text-green-500' : 
-              (slotProps as TableSlotProps).text < 0 ? 'text-red-500' : 'text-gray-500'
-            ]">
+            <span
+              class="font-medium" :class="[
+                (slotProps as TableSlotProps).text > 0 ? 'text-green-500'
+                : (slotProps as TableSlotProps).text < 0 ? 'text-red-500' : 'text-gray-500',
+              ]"
+            >
               {{ (slotProps as TableSlotProps).text > 0 ? '+' : '' }}{{ (slotProps as TableSlotProps).text }}
             </span>
           </template>
@@ -345,12 +353,12 @@ function handleSelectChange(keys: (string | number)[]) {
               :class="{
                 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20': (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.PENDING,
                 'bg-purple-500/10 text-purple-500 border-purple-500/20': (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.ADJUSTED,
-                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.CONFIRMED
+                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.CONFIRMED,
               }"
               variant="outline"
             >
-              {{ (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.PENDING ? '待确认' : 
-                 (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.ADJUSTED ? '已调整' : '已确认' }}
+              {{ (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.PENDING ? '待确认'
+                : (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.ADJUSTED ? '已调整' : '已确认' }}
             </Badge>
           </template>
 
@@ -359,8 +367,12 @@ function handleSelectChange(keys: (string | number)[]) {
               <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
                 <ClipboardList class="w-8 h-8 text-muted-foreground/50" />
               </div>
-              <p class="text-base font-medium mb-1">暂无盘点记录</p>
-              <p class="text-sm text-muted-foreground mb-4">开始创建您的第一条盘点记录吧</p>
+              <p class="text-base font-medium mb-1">
+                暂无盘点记录
+              </p>
+              <p class="text-sm text-muted-foreground mb-4">
+                开始创建您的第一条盘点记录吧
+              </p>
               <Button size="sm" @click="isAddOpen = true">
                 <Plus class="h-4 w-4 mr-1" />
                 新增盘点

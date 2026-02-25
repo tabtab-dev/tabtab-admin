@@ -1,19 +1,17 @@
 <script setup lang="ts">
+import type { FormSchema, TableSchema, TreeNode, TTableExpose, TTreeExpose } from '@/components/business'
+import { Badge, Switch, Tag, Tooltip } from 'antdv-next'
+import { Check, Key, Shield, Users } from 'lucide-vue-next'
+import { nextTick } from 'vue'
+import { roleApi } from '@/api'
 /**
  * 角色管理页面
  * @description 管理系统角色和权限分配
  */
-import { TTable, TForm, TModal, TDrawer, TDataCard, TPageHeader, TBatchActions, TStatusBadge, TEmptyState, TTree } from '@/components/business'
-import type { TableSchema, TTableExpose } from '@/components/business'
-import type { FormSchema } from '@/components/business'
-import type { TTreeExpose, TreeNode } from '@/components/business'
+import { TBatchActions, TDataCard, TDrawer, TEmptyState, TForm, TModal, TPageHeader, TStatusBadge, TTable, TTree } from '@/components/business'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { roleApi } from '@/api'
-import { useTableData, useMutation } from '@/composables'
-import { Plus, Shield, Users, Key, Search, Check, Edit, Trash2, Lock } from 'lucide-vue-next'
-import { Tag, Checkbox, Space, Tooltip, Switch, Badge } from 'antdv-next'
-import { nextTick } from 'vue'
+import { useMutation, useTableData } from '@/composables'
 
 // ==================== 类型定义 ====================
 interface Role {
@@ -50,7 +48,7 @@ const {
     const res = await roleApi.getRoles(params)
     return res || { list: [], total: 0, page: 1, pageSize: 10 }
   },
-  apiCallParams: (ctx) => ({
+  apiCallParams: ctx => ({
     page: ctx.page,
     pageSize: ctx.pageSize,
     search: ctx.searchQuery,
@@ -63,37 +61,37 @@ const { mutate: createRole } = useMutation({
     code: values.code,
     description: values.description,
     permissions: values.permissions || [],
-    status: values.status
+    status: values.status,
   }),
   successMessage: '角色创建成功',
   onSuccess: () => {
     isAddDialogOpen.value = false
     resetAddForm()
     fetchData()
-  }
+  },
 })
 
 const { mutate: updateRole } = useMutation({
-  mutationFn: ({ id, values }: { id: string; values: Record<string, any> }) =>
+  mutationFn: ({ id, values }: { id: string, values: Record<string, any> }) =>
     roleApi.updateRole(id, {
       name: values.name,
       code: values.code,
       description: values.description,
       permissions: values.permissions,
-      status: values.status
+      status: values.status,
     }),
   successMessage: '角色更新成功',
   onSuccess: () => {
     isEditDialogOpen.value = false
     editingRole.value = null
     fetchData()
-  }
+  },
 })
 
 const { mutate: deleteRole } = useMutation({
   mutationFn: (id: string) => roleApi.deleteRole(id),
   successMessage: '角色删除成功',
-  onSuccess: () => fetchData()
+  onSuccess: () => fetchData(),
 })
 
 const { mutate: batchDeleteRoles } = useMutation({
@@ -102,18 +100,18 @@ const { mutate: batchDeleteRoles } = useMutation({
   onSuccess: () => {
     tableRef.value?.clearSelection()
     fetchData()
-  }
+  },
 })
 
 const { mutate: updateRolePermissions } = useMutation({
-  mutationFn: ({ id, permissions }: { id: string; permissions: string[] }) =>
+  mutationFn: ({ id, permissions }: { id: string, permissions: string[] }) =>
     roleApi.updateRolePermissions(id, permissions),
   successMessage: '权限分配成功',
   onSuccess: () => {
     isPermissionDrawerOpen.value = false
     currentRole.value = null
     fetchData()
-  }
+  },
 })
 
 // ==================== 权限数据 ====================
@@ -124,8 +122,8 @@ const permissionTree = ref<Permission[]>([
     code: 'dashboard',
     children: [
       { id: 'dashboard:view', name: '查看仪表盘', code: 'dashboard:view' },
-      { id: 'dashboard:export', name: '导出数据', code: 'dashboard:export' }
-    ]
+      { id: 'dashboard:export', name: '导出数据', code: 'dashboard:export' },
+    ],
   },
   {
     id: 'system',
@@ -140,8 +138,8 @@ const permissionTree = ref<Permission[]>([
           { id: 'system:user:view', name: '查看用户', code: 'system:user:view' },
           { id: 'system:user:create', name: '创建用户', code: 'system:user:create' },
           { id: 'system:user:update', name: '编辑用户', code: 'system:user:update' },
-          { id: 'system:user:delete', name: '删除用户', code: 'system:user:delete' }
-        ]
+          { id: 'system:user:delete', name: '删除用户', code: 'system:user:delete' },
+        ],
       },
       {
         id: 'system:organization',
@@ -151,8 +149,8 @@ const permissionTree = ref<Permission[]>([
           { id: 'system:organization:view', name: '查看部门', code: 'system:organization:view' },
           { id: 'system:organization:create', name: '创建部门', code: 'system:organization:create' },
           { id: 'system:organization:update', name: '编辑部门', code: 'system:organization:update' },
-          { id: 'system:organization:delete', name: '删除部门', code: 'system:organization:delete' }
-        ]
+          { id: 'system:organization:delete', name: '删除部门', code: 'system:organization:delete' },
+        ],
       },
       {
         id: 'system:role',
@@ -163,8 +161,8 @@ const permissionTree = ref<Permission[]>([
           { id: 'system:role:create', name: '创建角色', code: 'system:role:create' },
           { id: 'system:role:update', name: '编辑角色', code: 'system:role:update' },
           { id: 'system:role:delete', name: '删除角色', code: 'system:role:delete' },
-          { id: 'system:role:permission', name: '分配权限', code: 'system:role:permission' }
-        ]
+          { id: 'system:role:permission', name: '分配权限', code: 'system:role:permission' },
+        ],
       },
       {
         id: 'system:menu',
@@ -174,10 +172,10 @@ const permissionTree = ref<Permission[]>([
           { id: 'system:menu:view', name: '查看菜单', code: 'system:menu:view' },
           { id: 'system:menu:create', name: '创建菜单', code: 'system:menu:create' },
           { id: 'system:menu:update', name: '编辑菜单', code: 'system:menu:update' },
-          { id: 'system:menu:delete', name: '删除菜单', code: 'system:menu:delete' }
-        ]
-      }
-    ]
+          { id: 'system:menu:delete', name: '删除菜单', code: 'system:menu:delete' },
+        ],
+      },
+    ],
   },
   {
     id: 'products',
@@ -187,8 +185,8 @@ const permissionTree = ref<Permission[]>([
       { id: 'products:view', name: '查看商品', code: 'products:view' },
       { id: 'products:create', name: '创建商品', code: 'products:create' },
       { id: 'products:update', name: '编辑商品', code: 'products:update' },
-      { id: 'products:delete', name: '删除商品', code: 'products:delete' }
-    ]
+      { id: 'products:delete', name: '删除商品', code: 'products:delete' },
+    ],
   },
   {
     id: 'orders',
@@ -198,14 +196,14 @@ const permissionTree = ref<Permission[]>([
       { id: 'orders:view', name: '查看订单', code: 'orders:view' },
       { id: 'orders:create', name: '创建订单', code: 'orders:create' },
       { id: 'orders:update', name: '编辑订单', code: 'orders:update' },
-      { id: 'orders:delete', name: '删除订单', code: 'orders:delete' }
-    ]
-  }
+      { id: 'orders:delete', name: '删除订单', code: 'orders:delete' },
+    ],
+  },
 ])
 
 // ==================== 搜索 ====================
 const searchFormData = ref({
-  keyword: ''
+  keyword: '',
 })
 
 const searchSchema: FormSchema = {
@@ -216,8 +214,8 @@ const searchSchema: FormSchema = {
       type: 'input',
       label: '',
       placeholder: '搜索角色名称或编码...',
-      className: 'w-[280px]'
-    }
+      className: 'w-[280px]',
+    },
   ],
   searchConfig: {
     enabled: true,
@@ -231,8 +229,8 @@ const searchSchema: FormSchema = {
     },
     onReset: () => {
       searchQuery.value = ''
-    }
-  }
+    },
+  },
 }
 
 // ==================== 表格配置 ====================
@@ -244,77 +242,77 @@ const tableSchema = computed<TableSchema>(() => ({
       title: '角色名称',
       dataIndex: 'name',
       width: 180,
-      slot: 'name'
+      slot: 'name',
     },
     {
       title: '角色编码',
       dataIndex: 'code',
-      width: 150
+      width: 150,
     },
     {
       title: '用户数',
       dataIndex: 'userCount',
       width: 100,
       align: 'center',
-      slot: 'userCount'
+      slot: 'userCount',
     },
     {
       title: '权限数',
       dataIndex: 'permissions',
       width: 100,
       align: 'center',
-      slot: 'permissionCount'
+      slot: 'permissionCount',
     },
     {
       title: '状态',
       dataIndex: 'status',
       width: 100,
-      slot: 'status'
+      slot: 'status',
     },
     {
       title: '描述',
       dataIndex: 'description',
       ellipsis: true,
-      slot: 'description'
+      slot: 'description',
     },
     {
       title: '创建时间',
       dataIndex: 'createdAt',
-      width: 150
-    }
+      width: 150,
+    },
   ],
   pagination: {
     pageSize: 10,
     show: true,
     showSizeChanger: true,
     showQuickJumper: true,
-    total: total.value
+    total: total.value,
   },
   rowSelection: {
     type: 'checkbox',
-    show: true
+    show: true,
   },
   actions: [
     {
       text: '权限',
       type: 'default',
-      onClick: (record) => handleOpenPermissionDrawer(record as unknown as Role)
+      onClick: record => handleOpenPermissionDrawer(record as unknown as Role),
     },
     {
       text: '编辑',
       type: 'primary',
-      onClick: (record) => handleEditRole(record as unknown as Role)
+      onClick: record => handleEditRole(record as unknown as Role),
     },
     {
       text: '删除',
       type: 'danger',
       confirm: true,
       confirmText: '确定要删除该角色吗？此操作不可恢复。',
-      onClick: (record) => handleDeleteRole((record as unknown as Role).id)
-    }
+      onClick: record => handleDeleteRole((record as unknown as Role).id),
+    },
   ],
   actionWidth: 260,
-  actionFixed: 'right'
+  actionFixed: 'right',
 }))
 
 // ==================== 弹窗和表单 ====================
@@ -338,7 +336,7 @@ const permissionTreeData = computed<TreeNode[]>(() => {
     return items.map(item => ({
       key: item.id,
       title: item.name,
-      children: item.children ? convert(item.children) : undefined
+      children: item.children ? convert(item.children) : undefined,
     }))
   }
   return convert(permissionTree.value)
@@ -349,7 +347,7 @@ const addFormData = ref({
   code: '',
   description: '',
   permissions: [] as string[],
-  status: 'active'
+  status: 'active',
 })
 
 const editFormData = ref({
@@ -358,7 +356,7 @@ const editFormData = ref({
   code: '',
   description: '',
   permissions: [] as string[],
-  status: 'active'
+  status: 'active',
 })
 
 const addSchema: FormSchema = {
@@ -373,8 +371,8 @@ const addSchema: FormSchema = {
       placeholder: '请输入角色名称',
       rules: [
         { required: true, message: '角色名称不能为空' },
-        { min: 2, message: '角色名称至少2个字符' }
-      ]
+        { min: 2, message: '角色名称至少2个字符' },
+      ],
     },
     {
       name: 'code',
@@ -383,8 +381,8 @@ const addSchema: FormSchema = {
       placeholder: '请输入角色编码',
       rules: [
         { required: true, message: '角色编码不能为空' },
-        { pattern: /^[A-Za-z0-9_]+$/, message: '编码只能包含字母、数字和下划线' }
-      ]
+        { pattern: /^\w+$/, message: '编码只能包含字母、数字和下划线' },
+      ],
     },
     {
       name: 'status',
@@ -393,17 +391,17 @@ const addSchema: FormSchema = {
       placeholder: '请选择状态',
       options: [
         { label: '启用', value: 'active' },
-        { label: '禁用', value: 'inactive' }
+        { label: '禁用', value: 'inactive' },
       ],
-      rules: [{ required: true, message: '请选择状态' }]
+      rules: [{ required: true, message: '请选择状态' }],
     },
     {
       name: 'description',
       type: 'textarea',
       label: '描述',
       placeholder: '请输入角色描述',
-      rows: 3
-    }
+      rows: 3,
+    },
   ],
   actions: {
     showSubmit: true,
@@ -413,8 +411,8 @@ const addSchema: FormSchema = {
     align: 'right',
     onReset: () => {
       isAddDialogOpen.value = false
-    }
-  }
+    },
+  },
 }
 
 const editSchema: FormSchema = {
@@ -429,8 +427,8 @@ const editSchema: FormSchema = {
       placeholder: '请输入角色名称',
       rules: [
         { required: true, message: '角色名称不能为空' },
-        { min: 2, message: '角色名称至少2个字符' }
-      ]
+        { min: 2, message: '角色名称至少2个字符' },
+      ],
     },
     {
       name: 'code',
@@ -439,8 +437,8 @@ const editSchema: FormSchema = {
       placeholder: '请输入角色编码',
       disabled: true,
       rules: [
-        { required: true, message: '角色编码不能为空' }
-      ]
+        { required: true, message: '角色编码不能为空' },
+      ],
     },
     {
       name: 'status',
@@ -449,17 +447,17 @@ const editSchema: FormSchema = {
       placeholder: '请选择状态',
       options: [
         { label: '启用', value: 'active' },
-        { label: '禁用', value: 'inactive' }
+        { label: '禁用', value: 'inactive' },
       ],
-      rules: [{ required: true, message: '请选择状态' }]
+      rules: [{ required: true, message: '请选择状态' }],
     },
     {
       name: 'description',
       type: 'textarea',
       label: '描述',
       placeholder: '请输入角色描述',
-      rows: 3
-    }
+      rows: 3,
+    },
   ],
   actions: {
     showSubmit: true,
@@ -469,8 +467,8 @@ const editSchema: FormSchema = {
     align: 'right',
     onReset: () => {
       isEditDialogOpen.value = false
-    }
-  }
+    },
+  },
 }
 
 // ==================== 事件处理 ====================
@@ -482,7 +480,7 @@ function handleEditRole(role: Role): void {
     code: role.code,
     description: role.description,
     permissions: role.permissions || [],
-    status: role.status
+    status: role.status,
   }
   isEditDialogOpen.value = true
 }
@@ -540,7 +538,7 @@ function resetAddForm(): void {
     code: '',
     description: '',
     permissions: [],
-    status: 'active'
+    status: 'active',
   }
 }
 
@@ -581,7 +579,8 @@ function handleCheckStrictlyChange(value: boolean): void {
   checkStrictly.value = value
   if (value) {
     halfCheckedKeys.value = []
-  } else {
+  }
+  else {
     nextTick(() => {
       const halfKeys = permissionTreeRef.value?.getHalfCheckedKeys()
       if (halfKeys) {
@@ -598,14 +597,14 @@ function handleSavePermissions(): void {
   if (currentRole.value) {
     const permissions = Array.isArray(selectedPermissions.value) ? selectedPermissions.value : []
     const halfKeys = Array.isArray(halfCheckedKeys.value) ? halfCheckedKeys.value : []
-    
+
     const permissionsToSave = checkStrictly.value
       ? permissions
       : [...permissions, ...halfKeys]
 
     updateRolePermissions({
       id: currentRole.value.id,
-      permissions: [...new Set(permissionsToSave)]
+      permissions: [...new Set(permissionsToSave)],
     })
   }
 }
@@ -622,7 +621,7 @@ const statisticsCards = computed(() => {
     { title: '角色总数', value: total, icon: Shield, color: 'text-blue-500' },
     { title: '启用角色', value: active, icon: Check, color: 'text-green-500' },
     { title: '关联用户', value: totalUsers, icon: Users, color: 'text-purple-500' },
-    { title: '权限总数', value: totalPermissions, icon: Key, color: 'text-orange-500' }
+    { title: '权限总数', value: totalPermissions, icon: Key, color: 'text-orange-500' },
   ]
 })
 </script>
@@ -633,7 +632,7 @@ const statisticsCards = computed(() => {
       title="角色管理"
       subtitle="管理系统角色和权限分配"
       :actions="[
-        { text: '添加角色', type: 'primary', iconName: 'Plus', onClick: () => isAddDialogOpen = true }
+        { text: '添加角色', type: 'primary', iconName: 'Plus', onClick: () => isAddDialogOpen = true },
       ]"
     />
 
@@ -660,7 +659,9 @@ const statisticsCards = computed(() => {
       <CardHeader>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <CardTitle class="text-base font-semibold">角色列表</CardTitle>
+            <CardTitle class="text-base font-semibold">
+              角色列表
+            </CardTitle>
             <span class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
               共 {{ roles?.length || 0 }} 个角色
             </span>
@@ -676,8 +677,8 @@ const statisticsCards = computed(() => {
                 type: 'danger',
                 confirm: true,
                 confirmText: '确定要删除选中的角色吗？此操作不可恢复。',
-                onClick: handleBatchDelete
-              }
+                onClick: handleBatchDelete,
+              },
             ]"
             @clear="handleClearSelection"
           />
@@ -700,11 +701,15 @@ const statisticsCards = computed(() => {
           </template>
 
           <template #userCount="slotProps">
-            <Tag color="blue">{{ (slotProps as any).text }}人</Tag>
+            <Tag color="blue">
+              {{ (slotProps as any).text }}人
+            </Tag>
           </template>
 
           <template #permissionCount="slotProps">
-            <Tag color="purple">{{ ((slotProps as any).text as string[])?.length || 0 }}</Tag>
+            <Tag color="purple">
+              {{ ((slotProps as any).text as string[])?.length || 0 }}
+            </Tag>
           </template>
 
           <template #status="slotProps">
@@ -713,7 +718,7 @@ const statisticsCards = computed(() => {
               :status-map="{
                 active: { text: '启用', color: 'success' },
                 inactive: { text: '禁用', color: 'default' },
-                disabled: { text: '停用', color: 'error' }
+                disabled: { text: '停用', color: 'error' },
               }"
             />
           </template>
@@ -783,13 +788,17 @@ const statisticsCards = computed(() => {
             <Shield class="h-5 w-5 text-primary" />
           </div>
           <div class="flex-1 min-w-0">
-            <div class="font-medium text-base">{{ currentRole.name }}</div>
-            <div class="text-sm text-muted-foreground truncate">{{ currentRole.code }}</div>
+            <div class="font-medium text-base">
+              {{ currentRole.name }}
+            </div>
+            <div class="text-sm text-muted-foreground truncate">
+              {{ currentRole.code }}
+            </div>
           </div>
           <Badge
             :class="{
               'bg-green-500/10 text-green-500 border-green-500/20': currentRole.status === 'active',
-              'bg-gray-500/10 text-gray-500 border-gray-500/20': currentRole.status === 'inactive'
+              'bg-gray-500/10 text-gray-500 border-gray-500/20': currentRole.status === 'inactive',
             }"
             variant="outline"
           >
@@ -801,7 +810,9 @@ const statisticsCards = computed(() => {
         <div class="flex items-center justify-between px-1 flex-wrap gap-y-2">
           <div class="flex items-center gap-2">
             <span class="text-sm font-medium">权限列表</span>
-            <Tag color="blue">{{ permissionTreeData.length }} 个模块</Tag>
+            <Tag color="blue">
+              {{ permissionTreeData.length }} 个模块
+            </Tag>
           </div>
         </div>
 

@@ -8,15 +8,15 @@
  * 通过环境变量 VITE_USE_MOCK 控制
  * 在生产环境构建 Demo 时，默认启用 Mock
  */
-export const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true' || import.meta.env.MODE === 'demo';
+export const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true' || import.meta.env.MODE === 'demo'
 
 /**
  * Mock 基础 URL
  */
-export const MOCK_BASE_URL = '/mock-api';
+export const MOCK_BASE_URL = '/mock-api'
 
 /**
  * Mock 延迟时间（毫秒）
  * 用于模拟网络请求延迟
  */
-export const MOCK_DELAY = 300;
+export const MOCK_DELAY = 300

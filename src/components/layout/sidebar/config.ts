@@ -2,7 +2,7 @@
  * 侧边栏配置
  * @description 侧边栏配置和工具函数
  */
-import type { MenuItem, SidebarMenuItem, SidebarConfig } from '@/types/menu';
+import type { MenuItem, SidebarConfig, SidebarMenuItem } from '@/types/menu'
 
 /**
  * 将 API 菜单项转换为 Sidebar 菜单项
@@ -20,7 +20,7 @@ export function convertMenuItem(menu: MenuItem, index: number = 0): SidebarMenuI
     i18nKey: menu.i18nKey,
     badge: menu.badge,
     children: menu.children?.map((child, idx) => convertMenuItem(child, idx)),
-  };
+  }
 }
 
 /**
@@ -29,7 +29,7 @@ export function convertMenuItem(menu: MenuItem, index: number = 0): SidebarMenuI
  * @returns 转换后的 Sidebar 菜单列表
  */
 export function convertMenuItems(menus: MenuItem[]): SidebarMenuItem[] {
-  return menus.map((menu, index) => convertMenuItem(menu, index));
+  return menus.map((menu, index) => convertMenuItem(menu, index))
 }
 
 /**
@@ -41,4 +41,4 @@ export const defaultSidebarConfig: SidebarConfig = {
   maxWidth: 400,
   defaultWidth: 260,
   menus: [],
-};
+}

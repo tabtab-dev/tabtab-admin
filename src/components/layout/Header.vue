@@ -1,49 +1,48 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button';
-import { useAppStore } from '@/stores/global/app';
-import { useThemeStore } from '@/stores/global/theme';
-import { useMenuStore } from '@/stores/global/menu';
-import LanguageSwitch from './LanguageSwitch.vue';
-import MenuSearchDialog from './MenuSearchDialog.vue';
-import NotificationPanel from './NotificationPanel.vue';
-import HeaderSearch from './HeaderSearch.vue';
-import ThemeToggle from './ThemeToggle.vue';
-import ThemeDrawer from './ThemeDrawer.vue';
-import { Home } from 'lucide-vue-next';
-import { PageBreadcrumbDropdown } from './PageBreadcrumbDropdown';
-import { UserMenu } from './UserMenu';
-
-const { t } = useI18n();
-const route = useRoute();
-const router = useRouter();
-const appStore = useAppStore();
-const themeStore = useThemeStore();
-const menuStore = useMenuStore();
-
-const isThemeDrawerOpen = ref(false);
-const isMenuSearchOpen = ref(false);
-
-/**
- * 当前路由标题
- */
-const currentRouteTitle = computed(() => {
-  return menuStore.getRouteTitle(route.path);
-});
-
-/**
- * 跳转到首页
- */
-const goToHome = () => {
-  router.push('/');
-};
+import { Home } from 'lucide-vue-next'
+import { Button } from '@/components/ui/button'
+import { useAppStore } from '@/stores/global/app'
+import { useMenuStore } from '@/stores/global/menu'
+import { useThemeStore } from '@/stores/global/theme'
+import HeaderSearch from './HeaderSearch.vue'
+import LanguageSwitch from './LanguageSwitch.vue'
+import MenuSearchDialog from './MenuSearchDialog.vue'
+import NotificationPanel from './NotificationPanel.vue'
+import { PageBreadcrumbDropdown } from './PageBreadcrumbDropdown'
+import ThemeDrawer from './ThemeDrawer.vue'
+import ThemeToggle from './ThemeToggle.vue'
+import { UserMenu } from './UserMenu'
 
 /**
  * 组件属性
  */
 defineProps<{
   /** 侧栏是否折叠 */
-  sidebarCollapsed?: boolean;
-}>();
+  sidebarCollapsed?: boolean
+}>()
+
+const route = useRoute()
+const router = useRouter()
+const appStore = useAppStore()
+const themeStore = useThemeStore()
+const menuStore = useMenuStore()
+
+const isThemeDrawerOpen = ref(false)
+const isMenuSearchOpen = ref(false)
+
+/**
+ * 当前路由标题
+ */
+const currentRouteTitle = computed(() => {
+  return menuStore.getRouteTitle(route.path)
+})
+
+/**
+ * 跳转到首页
+ */
+function goToHome() {
+  router.push('/')
+}
 </script>
 
 <template>
@@ -54,8 +53,8 @@ defineProps<{
         <Button
           variant="ghost"
           size="icon"
-          @click="appStore.toggleMobileSidebar"
           class="lg:hidden hover:bg-primary/10 hover:text-primary h-8 w-8 rounded-lg flex-shrink-0"
+          @click="appStore.toggleMobileSidebar"
         >
           <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -71,7 +70,7 @@ defineProps<{
 
         <!-- 面包屑隐藏时，显示页面标题 -->
         <div v-if="!themeStore.layoutConfig.showBreadcrumb" class="hidden md:flex items-center gap-2 min-w-0">
-          <div 
+          <div
             class="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 cursor-pointer hover:bg-primary/20 transition-colors"
             @click="goToHome"
           >

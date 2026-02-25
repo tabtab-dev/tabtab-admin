@@ -4,7 +4,7 @@
  * @description 提供 TForm 组件相关的可复用逻辑
  */
 
-export { useFieldState, getFieldKey } from './useFieldState'
+export { getFieldKey, useFieldState } from './useFieldState'
 export { useFormMeta } from './useFormMeta'
 export { useFormWatch } from './useFormWatch'
 export { useSearchForm } from './useSearchForm'

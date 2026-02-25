@@ -184,4 +184,4 @@ export default {
     settings: 'Settings',
     logout: 'Logout',
   },
-} as const;
+} as const

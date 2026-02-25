@@ -1,17 +1,16 @@
 <script setup lang="ts">
+import type { BreadcrumbItem, PageAction, TPageHeaderExpose } from '@/components/business/TPageHeader'
+import { Heading1 } from 'lucide-vue-next'
 /**
  * TPageHeaderDemo - TPageHeader 组件演示页面
  *
  * @description 展示 TPageHeader 页面头部组件的各种使用场景和配置方式
  */
 import { TPageHeader } from '@/components/business/TPageHeader'
-import type { TPageHeaderExpose, PageAction, BreadcrumbItem } from '@/components/business/TPageHeader'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { Heading1, Plus, Download, Settings, Trash2, ArrowLeft } from 'lucide-vue-next'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 /**
  * 组件引用
@@ -22,7 +21,7 @@ const headerRef = ref<TPageHeaderExpose>()
  * 基础操作按钮
  */
 const basicActions: PageAction[] = [
-  { text: '添加用户', type: 'primary', iconName: 'Plus', onClick: () => alert('点击添加') }
+  { text: '添加用户', type: 'primary', iconName: 'Plus', onClick: () => alert('点击添加') },
 ]
 
 /**
@@ -31,7 +30,7 @@ const basicActions: PageAction[] = [
 const multipleActions: PageAction[] = [
   { text: '添加用户', type: 'primary', iconName: 'Plus', onClick: () => alert('点击添加') },
   { text: '导出数据', type: 'default', iconName: 'Download', onClick: () => alert('点击导出') },
-  { text: '设置', type: 'ghost', iconName: 'Settings', onClick: () => alert('点击设置') }
+  { text: '设置', type: 'ghost', iconName: 'Settings', onClick: () => alert('点击设置') },
 ]
 
 /**
@@ -39,7 +38,7 @@ const multipleActions: PageAction[] = [
  */
 const dangerActions: PageAction[] = [
   { text: '添加用户', type: 'primary', iconName: 'Plus', onClick: () => alert('点击添加') },
-  { text: '批量删除', type: 'danger', iconName: 'Trash2', onClick: () => alert('点击删除') }
+  { text: '批量删除', type: 'danger', iconName: 'Trash2', onClick: () => alert('点击删除') },
 ]
 
 /**
@@ -49,7 +48,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   { title: '首页', path: '/' },
   { title: '系统管理', path: '/system' },
   { title: '用户管理', path: '/system/user' },
-  { title: '用户详情' }
+  { title: '用户详情' },
 ]
 
 /**
@@ -58,7 +57,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 const clickableBreadcrumbs: BreadcrumbItem[] = [
   { title: '首页', path: '/', clickable: true },
   { title: '产品中心', path: '/products', clickable: true },
-  { title: '产品详情', clickable: false }
+  { title: '产品详情', clickable: false },
 ]
 
 /**
@@ -81,7 +80,9 @@ function handleBack() {
     <!-- 页面标题 -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">TPageHeader 组件演示</h1>
+        <h1 class="text-3xl font-bold tracking-tight">
+          TPageHeader 组件演示
+        </h1>
         <p class="text-muted-foreground mt-2">
           统一的页面头部组件，包含标题、副标题、面包屑、操作按钮等
         </p>
@@ -95,10 +96,18 @@ function handleBack() {
     <!-- 标签页 -->
     <Tabs default-value="basic" class="w-full">
       <TabsList class="grid w-full grid-cols-4 lg:w-[400px]">
-        <TabsTrigger value="basic">基础用法</TabsTrigger>
-        <TabsTrigger value="breadcrumb">面包屑</TabsTrigger>
-        <TabsTrigger value="actions">操作按钮</TabsTrigger>
-        <TabsTrigger value="advanced">高级功能</TabsTrigger>
+        <TabsTrigger value="basic">
+          基础用法
+        </TabsTrigger>
+        <TabsTrigger value="breadcrumb">
+          面包屑
+        </TabsTrigger>
+        <TabsTrigger value="actions">
+          操作按钮
+        </TabsTrigger>
+        <TabsTrigger value="advanced">
+          高级功能
+        </TabsTrigger>
       </TabsList>
 
       <!-- 基础用法 -->
@@ -303,13 +312,13 @@ function handleBack() {
                 :breadcrumbs="[
                   { title: '首页', path: '/' },
                   { title: '订单管理', path: '/orders' },
-                  { title: '订单 #2024001' }
+                  { title: '订单 #2024001' },
                 ]"
                 show-back
                 :actions="[
                   { text: '打印订单', type: 'default', onClick: () => alert('打印') },
                   { text: '发货', type: 'primary', onClick: () => alert('发货') },
-                  { text: '取消订单', type: 'danger', onClick: () => alert('取消') }
+                  { text: '取消订单', type: 'danger', onClick: () => alert('取消') },
                 ]"
               />
             </div>
@@ -364,7 +373,9 @@ function handleBack() {
                   <div class="flex items-center gap-4 p-3 bg-muted rounded-lg">
                     <div class="flex items-center gap-2">
                       <span class="text-sm text-muted-foreground">状态:</span>
-                      <Badge variant="default">进行中</Badge>
+                      <Badge variant="default">
+                        进行中
+                      </Badge>
                     </div>
                     <Separator orientation="vertical" class="h-4" />
                     <div class="flex items-center gap-2">
@@ -393,7 +404,9 @@ function handleBack() {
           <CardContent>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div class="border rounded-lg p-6 bg-background">
-                <p class="text-xs text-muted-foreground mb-2">桌面端布局</p>
+                <p class="text-xs text-muted-foreground mb-2">
+                  桌面端布局
+                </p>
                 <TPageHeader
                   title="桌面端标题"
                   subtitle="操作按钮在右侧"
@@ -401,7 +414,9 @@ function handleBack() {
                 />
               </div>
               <div class="border rounded-lg p-6 bg-background max-w-xs">
-                <p class="text-xs text-muted-foreground mb-2">移动端布局（模拟）</p>
+                <p class="text-xs text-muted-foreground mb-2">
+                  移动端布局（模拟）
+                </p>
                 <TPageHeader
                   title="移动端标题"
                   subtitle="操作按钮在下方"
@@ -422,37 +437,49 @@ function handleBack() {
           <CardContent>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">面包屑导航</h4>
+                <h4 class="font-medium mb-2">
+                  面包屑导航
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   支持多级面包屑，可配置点击行为
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">返回按钮</h4>
+                <h4 class="font-medium mb-2">
+                  返回按钮
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   内置返回按钮，支持自定义返回逻辑
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">操作按钮</h4>
+                <h4 class="font-medium mb-2">
+                  操作按钮
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   支持多种按钮类型：primary、default、danger、ghost、link
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">粘性定位</h4>
+                <h4 class="font-medium mb-2">
+                  粘性定位
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   支持 sticky 定位，滚动时固定在顶部
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">响应式布局</h4>
+                <h4 class="font-medium mb-2">
+                  响应式布局
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   自动适应不同屏幕尺寸
                 </p>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">额外内容</h4>
+                <h4 class="font-medium mb-2">
+                  额外内容
+                </h4>
                 <p class="text-sm text-muted-foreground">
                   支持 extra 插槽添加自定义内容
                 </p>

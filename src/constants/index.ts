@@ -3,6 +3,6 @@
  * @description 统一导出所有常量
  */
 
-export * from './api';
-export * from './common';
-export * from './permissions';
+export * from './api'
+export * from './common'
+export * from './permissions'

@@ -1,85 +1,91 @@
-import type { Ref } from 'vue';
-import type { MenuItem, SidebarMenuItem } from '@/types/menu';
+import type { Ref } from 'vue'
+import type { MenuItem, SidebarMenuItem } from '@/types/menu'
 
-export type MatchMode = 'exact' | 'startsWith' | 'smart';
+export type MatchMode = 'exact' | 'startsWith' | 'smart'
 
 export interface UseMenuUtilsOptions {
-  expandedKeys?: Ref<Set<string>>;
-  matchMode?: MatchMode;
+  expandedKeys?: Ref<Set<string>>
+  matchMode?: MatchMode
 }
 
 export function useMenuUtils(options: UseMenuUtilsOptions = {}) {
-  const route = useRoute();
-  const { expandedKeys, matchMode = 'smart' } = options;
+  const route = useRoute()
+  const { expandedKeys, matchMode = 'smart' } = options
 
   const isActive = (path: string): boolean => {
-    const currentPath = route.path;
+    const currentPath = route.path
 
     switch (matchMode) {
       case 'exact':
-        return currentPath === path;
+        return currentPath === path
 
       case 'startsWith':
-        if (path === '/') return currentPath === '/';
-        return currentPath.startsWith(path);
+        if (path === '/')
+          return currentPath === '/'
+        return currentPath.startsWith(path)
 
       case 'smart':
       default:
-        if (currentPath === path) return true;
-        if (path === '/') return false;
+        if (currentPath === path)
+          return true
+        if (path === '/')
+          return false
 
-        const pathWithSlash = path.endsWith('/') ? path : `${path}/`;
-        if (!currentPath.startsWith(pathWithSlash)) return false;
+        const pathWithSlash = path.endsWith('/') ? path : `${path}/`
+        if (!currentPath.startsWith(pathWithSlash))
+          return false
 
-        const remainingPath = currentPath.slice(pathWithSlash.length);
-        return !remainingPath.includes('/');
+        const remainingPath = currentPath.slice(pathWithSlash.length)
+        return !remainingPath.includes('/')
     }
-  };
+  }
 
   const isExpanded = (key: string): boolean => {
-    return expandedKeys?.value.has(key) ?? false;
-  };
+    return expandedKeys?.value.has(key) ?? false
+  }
 
   const hasActiveChild = (children?: Array<{ path: string }>): boolean => {
-    if (!children) return false;
-    return children.some((child) => isActive(child.path));
-  };
+    if (!children)
+      return false
+    return children.some(child => isActive(child.path))
+  }
 
   const getExpandedKeysByPath = (menus: MenuItem[] | SidebarMenuItem[]): Set<string> => {
-    const keys = new Set<string>();
+    const keys = new Set<string>()
 
     const traverse = (items: (MenuItem | SidebarMenuItem)[], parentKeys: string[] = []) => {
       for (const item of items) {
-        const currentKeys = [...parentKeys, item.key];
+        const currentKeys = [...parentKeys, item.key]
 
         if (isActive(item.path)) {
-          parentKeys.forEach((key) => keys.add(key));
-          return true;
+          parentKeys.forEach(key => keys.add(key))
+          return true
         }
 
         if (item.children) {
-          const hasActive = traverse(item.children, currentKeys);
+          const hasActive = traverse(item.children, currentKeys)
           if (hasActive) {
-            keys.add(item.key);
-            return true;
+            keys.add(item.key)
+            return true
           }
         }
       }
-      return false;
-    };
+      return false
+    }
 
-    traverse(menus);
-    return keys;
-  };
+    traverse(menus)
+    return keys
+  }
 
   const getAriaCurrent = (path: string): 'page' | undefined => {
-    return isActive(path) ? 'page' : undefined;
-  };
+    return isActive(path) ? 'page' : undefined
+  }
 
   const getAriaExpanded = (key: string): boolean | undefined => {
-    if (!expandedKeys) return undefined;
-    return isExpanded(key);
-  };
+    if (!expandedKeys)
+      return undefined
+    return isExpanded(key)
+  }
 
   return {
     isActive,
@@ -88,47 +94,49 @@ export function useMenuUtils(options: UseMenuUtilsOptions = {}) {
     getExpandedKeysByPath,
     getAriaCurrent,
     getAriaExpanded,
-  };
+  }
 }
 
 export function formatBadge(num: number): string {
-  return num > 99 ? '99+' : String(num);
+  return num > 99 ? '99+' : String(num)
 }
 
 export function getButtonVariant(active: boolean): 'default' | 'ghost' {
-  return active ? 'default' : 'ghost';
+  return active ? 'default' : 'ghost'
 }
 
 export function getIconClass(active: boolean): string {
   return active
     ? 'h-5 w-5 text-primary-foreground'
-    : 'h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors';
+    : 'h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors'
 }
 
 export function flattenMenus<T extends { children?: T[] }>(menus: T[]): T[] {
   return menus.reduce((acc: T[], item) => {
-    acc.push(item);
+    acc.push(item)
     if (item.children) {
-      acc.push(...flattenMenus(item.children));
+      acc.push(...flattenMenus(item.children))
     }
-    return acc;
-  }, []);
+    return acc
+  }, [])
 }
 
-export function findMenuByPath<T extends { path: string; children?: T[] }>(
+export function findMenuByPath<T extends { path: string, children?: T[] }>(
   menus: T[],
-  path: string
+  path: string,
 ): T | undefined {
   for (const menu of menus) {
-    if (menu.path === path) return menu;
+    if (menu.path === path)
+      return menu
     if (menu.children) {
-      const found = findMenuByPath(menu.children, path);
-      if (found) return found;
+      const found = findMenuByPath(menu.children, path)
+      if (found)
+        return found
     }
   }
-  return undefined;
+  return undefined
 }
 
 export function pxToPercent(px: number, windowWidth: number): number {
-  return (px / windowWidth) * 100;
+  return (px / windowWidth) * 100
 }

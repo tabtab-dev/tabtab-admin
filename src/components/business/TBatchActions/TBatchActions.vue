@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { BatchAction, BatchActionsResponsiveConfig, TBatchActionsEmits, TBatchActionsExpose, TBatchActionsProps } from './types'
+import { AlertCircle, X } from 'lucide-vue-next'
+import * as icons from 'lucide-vue-next'
 /**
  * TBatchActions - 批量操作栏组件
  *
@@ -29,19 +32,16 @@
  *   />
  */
 import { computed, ref } from 'vue'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { X, AlertCircle, MoreHorizontal } from 'lucide-vue-next'
-import * as icons from 'lucide-vue-next'
 import { TModal } from '@/components/business/TModal'
+import { Button } from '@/components/ui/button'
 import { useResponsive } from '@/composables/useResponsive'
-import type { TBatchActionsProps, TBatchActionsEmits, TBatchActionsExpose, BatchAction, BatchActionsResponsiveConfig } from './types'
+import { cn } from '@/lib/utils'
 
 /**
  * 组件选项
  */
 defineOptions({
-  name: 'TBatchActions'
+  name: 'TBatchActions',
 })
 
 /**
@@ -52,7 +52,7 @@ const props = withDefaults(defineProps<TBatchActionsProps>(), {
   showClear: true,
   clearText: '清除选择',
   sticky: false,
-  stickyOffset: 0
+  stickyOffset: 0,
 })
 
 /**
@@ -71,7 +71,8 @@ const isResponsiveEnabled = computed(() => responsiveConfig.value.enabled !== fa
 const mobileBreakpoint = computed(() => responsiveConfig.value.mobileBreakpoint || 'md')
 
 const isMobileView = computed(() => {
-  if (!isResponsiveEnabled.value) return false
+  if (!isResponsiveEnabled.value)
+    return false
   return smallerThan(mobileBreakpoint.value)
 })
 
@@ -99,7 +100,7 @@ const pendingAction = ref<BatchAction | null>(null)
  * 过滤后的操作按钮
  */
 const visibleActions = computed(() => {
-  return (props.actions || []).filter(action => {
+  return (props.actions || []).filter((action) => {
     if (typeof action.show === 'function') {
       return action.show()
     }
@@ -152,7 +153,8 @@ function isButtonDisabled(action: BatchAction) {
  * 获取图标组件
  */
 function getIconComponent(action: BatchAction) {
-  if (action.icon) return action.icon
+  if (action.icon)
+    return action.icon
   if (action.iconName) {
     return (icons as Record<string, unknown>)[action.iconName] as typeof X | null
   }
@@ -166,7 +168,8 @@ function handleActionClick(action: BatchAction) {
   if (action.confirm) {
     pendingAction.value = action
     confirmModalOpen.value = true
-  } else {
+  }
+  else {
     action.onClick()
     emit('actionClick', action)
   }
@@ -210,7 +213,7 @@ function clearSelection() {
  */
 defineExpose<TBatchActionsExpose>({
   getCount,
-  clearSelection
+  clearSelection,
 })
 </script>
 
@@ -221,7 +224,7 @@ defineExpose<TBatchActionsExpose>({
       't-batch-actions flex items-center justify-between gap-4 px-3 py-2 rounded-lg border bg-card ml-auto',
       sticky && 'sticky z-20',
       { 't-batch-actions-mobile': isMobileView, 't-batch-actions-compact': isMobileView && responsiveConfig.compactOnMobile },
-      className
+      className,
     )"
     :style="sticky ? { top: `${stickyOffset}px` } : undefined"
   >

@@ -5,39 +5,39 @@
 /** API 响应数据结构 */
 export interface ApiResponse<T = unknown> {
   /** 业务状态码 */
-  code: number;
+  code: number
   /** 响应数据 */
-  data: T;
+  data: T
   /** 响应消息 */
-  message: string;
+  message: string
 }
 
 /** 分页参数 */
 export interface PaginationParams {
   /** 当前页码 */
-  page: number;
+  page: number
   /** 每页数量 */
-  pageSize: number;
+  pageSize: number
 }
 
 /** 分页响应数据 */
 export interface PaginationData<T> {
   /** 数据列表 */
-  list: T[];
+  list: T[]
   /** 总记录数 */
-  total: number;
+  total: number
   /** 当前页码 */
-  page: number;
+  page: number
   /** 每页数量 */
-  pageSize: number;
+  pageSize: number
 }
 
 /** 请求配置选项 */
 export interface RequestConfig {
   /** 请求参数 */
-  params?: Record<string, any>;
+  params?: Record<string, any>
   /** 请求头 */
-  headers?: Record<string, string>;
+  headers?: Record<string, string>
   /** 超时时间（毫秒） */
-  timeout?: number;
+  timeout?: number
 }

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { FormField, ListFieldConfig } from './types'
+import { Plus, Trash2 } from 'lucide-vue-next'
 /**
  * TFormList - 动态表单列表组件
  *
@@ -13,9 +15,9 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
-import { Plus, Trash2 } from 'lucide-vue-next'
 import TFormItem from './TFormItem.vue'
-import type { FormField, ListFieldConfig } from './types'
+
+const props = defineProps<Props>()
 
 /**
  * i18n
@@ -33,8 +35,6 @@ interface Props {
   /** 列表配置 */
   listConfig: ListFieldConfig
 }
-
-const props = defineProps<Props>()
 
 /**
  * 列表项唯一标识计数器
@@ -61,7 +61,7 @@ const listData = computed<any[]>({
   get: () => props.formData[props.field.name as string] || [],
   set: (val) => {
     props.formData[props.field.name as string] = val
-  }
+  },
 })
 
 /**
@@ -106,8 +106,10 @@ function removeItem(index: number): void {
  * 判断是否可添加
  */
 const canAdd = computed(() => {
-  if (!props.listConfig.showAdd && props.listConfig.showAdd !== undefined) return false
-  if (props.listConfig.max && listData.value.length >= props.listConfig.max) return false
+  if (!props.listConfig.showAdd && props.listConfig.showAdd !== undefined)
+    return false
+  if (props.listConfig.max && listData.value.length >= props.listConfig.max)
+    return false
   return true
 })
 
@@ -115,8 +117,10 @@ const canAdd = computed(() => {
  * 判断是否可删除
  */
 const canRemove = computed(() => {
-  if (!props.listConfig.showRemove && props.listConfig.showRemove !== undefined) return false
-  if (props.listConfig.min && listData.value.length <= props.listConfig.min) return false
+  if (!props.listConfig.showRemove && props.listConfig.showRemove !== undefined)
+    return false
+  if (props.listConfig.min && listData.value.length <= props.listConfig.min)
+    return false
   return true
 })
 
@@ -166,7 +170,7 @@ initListData()
             :key="String(subField.name)"
             :field="{
               ...subField,
-              name: [field.name, index, subField.name] as any
+              name: [field.name, index, subField.name] as any,
             }"
             :form-data="formData"
           />

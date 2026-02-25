@@ -4,19 +4,19 @@
  */
 
 // 基础类型
-export * from './base';
-
-// 领域模型类型
-export * from './domain';
-
-// 通用类型
-export * from './common';
-
-// 菜单相关类型
-export * from './menu';
-
-// TabBar 相关类型
-export * from './tabbar';
+export * from './base'
 
 // Bento 组件类型
-export * from './bento';
+export * from './bento'
+
+// 通用类型
+export * from './common'
+
+// 领域模型类型
+export * from './domain'
+
+// 菜单相关类型
+export * from './menu'
+
+// TabBar 相关类型
+export * from './tabbar'

@@ -1,38 +1,35 @@
 <script setup lang="ts">
+import {
+  Activity,
+  BarChart3,
+  Clock,
+  Download,
+  ExternalLink,
+  Eye,
+  Globe,
+  Link2,
+  MapPin,
+  Monitor,
+  MousePointer,
+  PieChart,
+  Search,
+  Share2,
+  Smartphone,
+  Tablet,
+  TrendingUp,
+  Users,
+} from 'lucide-vue-next'
+import { analyticsApi } from '@/api/modules/analytics'
+import { StatCard } from '@/components/bento'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 /**
  * 流量分析页 - 优化版
  *
  * @description 网站流量分析和用户行为统计
  */
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  TrendingUp,
-  Users,
-  Eye,
-  MousePointer,
-  Clock,
-  Globe,
-  Monitor,
-  Smartphone,
-  Tablet,
-  MapPin,
-  BarChart3,
-  PieChart,
-  ArrowUpRight,
-  ArrowDownRight,
-  Download,
-  Calendar,
-  Activity,
-  ExternalLink,
-  Search,
-  Share2,
-  Link2
-} from 'lucide-vue-next'
-import { StatCard, MiniChart } from '@/components/bento'
-import { analyticsApi } from '@/api/modules/analytics'
 
 /**
  * 时间范围
@@ -48,13 +45,13 @@ const trafficData = ref({
   pageViews: 0,
   avgDuration: '0:00',
   bounceRate: '0%',
-  growth: 0
+  growth: 0,
 })
 
 /**
  * 访问趋势数据
  */
-const trafficTrendData = ref<{ day: string; visits: number; orders: number }[]>([])
+const trafficTrendData = ref<{ day: string, visits: number, orders: number }[]>([])
 
 /**
  * 核心指标配置
@@ -68,7 +65,7 @@ const metrics = computed(() => [
     icon: Eye,
     colorTheme: 'blue' as const,
     description: '较上周 +12.5%',
-    chartData: [45, 52, 48, 65, 72, 68, 75]
+    chartData: [45, 52, 48, 65, 72, 68, 75],
   },
   {
     title: '独立访客',
@@ -78,7 +75,7 @@ const metrics = computed(() => [
     icon: Users,
     colorTheme: 'green' as const,
     description: '新访客占比 32%',
-    chartData: [38, 42, 45, 48, 52, 55, 58]
+    chartData: [38, 42, 45, 48, 52, 55, 58],
   },
   {
     title: '页面浏览量',
@@ -88,7 +85,7 @@ const metrics = computed(() => [
     icon: MousePointer,
     colorTheme: 'purple' as const,
     description: '人均浏览 3.2 页',
-    chartData: [55, 58, 62, 68, 72, 78, 82]
+    chartData: [55, 58, 62, 68, 72, 78, 82],
   },
   {
     title: '平均停留',
@@ -98,8 +95,8 @@ const metrics = computed(() => [
     icon: Clock,
     colorTheme: 'orange' as const,
     description: '跳出率 42.3%',
-    chartData: [40, 42, 45, 48, 52, 55, 58]
-  }
+    chartData: [40, 42, 45, 48, 52, 55, 58],
+  },
 ])
 
 /**
@@ -109,7 +106,7 @@ const trafficSources = ref([
   { name: '直接访问', percentage: 35, visits: 15831, icon: ExternalLink, color: 'bg-blue-500' },
   { name: '搜索引擎', percentage: 28, visits: 12665, icon: Search, color: 'bg-green-500' },
   { name: '社交媒体', percentage: 22, visits: 9951, icon: Share2, color: 'bg-purple-500' },
-  { name: '外部链接', percentage: 15, visits: 6785, icon: Link2, color: 'bg-orange-500' }
+  { name: '外部链接', percentage: 15, visits: 6785, icon: Link2, color: 'bg-orange-500' },
 ])
 
 /**
@@ -118,7 +115,7 @@ const trafficSources = ref([
 const deviceData = ref([
   { name: '桌面端', percentage: 58, visits: 26234, icon: Monitor, color: 'bg-blue-500' },
   { name: '移动端', percentage: 35, visits: 15831, icon: Smartphone, color: 'bg-green-500' },
-  { name: '平板', percentage: 7, visits: 3166, icon: Tablet, color: 'bg-purple-500' }
+  { name: '平板', percentage: 7, visits: 3166, icon: Tablet, color: 'bg-purple-500' },
 ])
 
 /**
@@ -129,7 +126,7 @@ const regionData = ref([
   { name: '上海', visits: 9876, percentage: 22 },
   { name: '广州', visits: 6789, percentage: 15 },
   { name: '深圳', visits: 5432, percentage: 12 },
-  { name: '杭州', visits: 4321, percentage: 10 }
+  { name: '杭州', visits: 4321, percentage: 10 },
 ])
 
 /**
@@ -140,7 +137,7 @@ const topPages = ref([
   { path: '/home', title: '首页', visits: 9876, avgTime: '1m 48s', bounceRate: 28 },
   { path: '/cart', title: '购物车', visits: 6789, avgTime: '3m 12s', bounceRate: 45 },
   { path: '/checkout', title: '结算页', visits: 5432, avgTime: '4m 05s', bounceRate: 52 },
-  { path: '/about', title: '关于我们', visits: 3210, avgTime: '1m 20s', bounceRate: 65 }
+  { path: '/about', title: '关于我们', visits: 3210, avgTime: '1m 20s', bounceRate: 65 },
 ])
 
 /**
@@ -158,17 +155,17 @@ const hourlyData = ref([
   { hour: '16:00', visits: 650 },
   { hour: '18:00', visits: 580 },
   { hour: '20:00', visits: 920 },
-  { hour: '22:00', visits: 480 }
+  { hour: '22:00', visits: 480 },
 ])
 
 /**
  * 获取流量数据
  */
-const fetchTrafficData = async () => {
+async function fetchTrafficData() {
   try {
     const [metricsData, trendData] = await Promise.all([
       analyticsApi.getCoreMetrics(timeRange.value),
-      analyticsApi.getTrafficData(timeRange.value)
+      analyticsApi.getTrafficData(timeRange.value),
     ])
 
     trafficData.value = {
@@ -177,11 +174,12 @@ const fetchTrafficData = async () => {
       pageViews: metricsData.totalVisits * 3,
       avgDuration: '3:42',
       bounceRate: '42.3%',
-      growth: metricsData.visitsChange
+      growth: metricsData.visitsChange,
     }
 
     trafficTrendData.value = trendData
-  } catch (error) {
+  }
+  catch (error) {
     console.error('获取流量数据失败:', error)
   }
 }
@@ -189,7 +187,7 @@ const fetchTrafficData = async () => {
 /**
  * 处理时间范围切换
  */
-const handleTimeRangeChange = (value: string) => {
+function handleTimeRangeChange(value: string) {
   timeRange.value = value
   fetchTrafficData()
 }
@@ -204,15 +202,25 @@ onMounted(() => {
     <!-- 页面标题 -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">流量分析</h1>
-        <p class="text-muted-foreground mt-1.5 text-sm">分析网站访问流量和用户行为</p>
+        <h1 class="text-3xl font-bold tracking-tight">
+          流量分析
+        </h1>
+        <p class="text-muted-foreground mt-1.5 text-sm">
+          分析网站访问流量和用户行为
+        </p>
       </div>
       <div class="flex items-center gap-2">
         <Tabs :model-value="timeRange" @update:model-value="handleTimeRangeChange">
           <TabsList class="h-9">
-            <TabsTrigger value="7d" class="text-xs">近7天</TabsTrigger>
-            <TabsTrigger value="30d" class="text-xs">近30天</TabsTrigger>
-            <TabsTrigger value="90d" class="text-xs">近90天</TabsTrigger>
+            <TabsTrigger value="7d" class="text-xs">
+              近7天
+            </TabsTrigger>
+            <TabsTrigger value="30d" class="text-xs">
+              近30天
+            </TabsTrigger>
+            <TabsTrigger value="90d" class="text-xs">
+              近90天
+            </TabsTrigger>
           </TabsList>
         </Tabs>
         <Button variant="outline" size="sm" class="gap-2">
@@ -358,8 +366,8 @@ onMounted(() => {
             >
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <div :class="['p-1.5 rounded-lg', source.color.replace('bg-', 'bg-').replace('500', '500/10')]">
-                    <component :is="source.icon" :class="['h-4 w-4', source.color.replace('bg-', 'text-')]" />
+                  <div class="p-1.5 rounded-lg" :class="[source.color.replace('bg-', 'bg-').replace('500', '500/10')]">
+                    <component :is="source.icon" class="h-4 w-4" :class="[source.color.replace('bg-', 'text-')]" />
                   </div>
                   <span class="text-sm font-medium">{{ source.name }}</span>
                 </div>
@@ -370,7 +378,7 @@ onMounted(() => {
               </div>
               <div class="h-2 bg-muted rounded-full overflow-hidden">
                 <div
-                  :class="['h-full rounded-full transition-all duration-500', source.color]"
+                  class="h-full rounded-full transition-all duration-500" :class="[source.color]"
                   :style="{ width: `${source.percentage}%` }"
                 />
               </div>
@@ -401,8 +409,8 @@ onMounted(() => {
             >
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <div :class="['p-1.5 rounded-lg', device.color.replace('bg-', 'bg-').replace('500', '500/10')]">
-                    <component :is="device.icon" :class="['h-4 w-4', device.color.replace('bg-', 'text-')]" />
+                  <div class="p-1.5 rounded-lg" :class="[device.color.replace('bg-', 'bg-').replace('500', '500/10')]">
+                    <component :is="device.icon" class="h-4 w-4" :class="[device.color.replace('bg-', 'text-')]" />
                   </div>
                   <span class="text-sm font-medium">{{ device.name }}</span>
                 </div>
@@ -413,7 +421,7 @@ onMounted(() => {
               </div>
               <div class="h-2 bg-muted rounded-full overflow-hidden">
                 <div
-                  :class="['h-full rounded-full transition-all duration-500', device.color]"
+                  class="h-full rounded-full transition-all duration-500" :class="[device.color]"
                   :style="{ width: `${device.percentage}%` }"
                 />
               </div>
@@ -422,16 +430,28 @@ onMounted(() => {
           <div class="mt-6 pt-4 border-t">
             <div class="grid grid-cols-3 gap-2 text-center">
               <div class="p-2 bg-muted/50 rounded-lg">
-                <p class="text-lg font-semibold">1920</p>
-                <p class="text-xs text-muted-foreground">平均分辨率</p>
+                <p class="text-lg font-semibold">
+                  1920
+                </p>
+                <p class="text-xs text-muted-foreground">
+                  平均分辨率
+                </p>
               </div>
               <div class="p-2 bg-muted/50 rounded-lg">
-                <p class="text-lg font-semibold">Chrome</p>
-                <p class="text-xs text-muted-foreground">主流浏览器</p>
+                <p class="text-lg font-semibold">
+                  Chrome
+                </p>
+                <p class="text-xs text-muted-foreground">
+                  主流浏览器
+                </p>
               </div>
               <div class="p-2 bg-muted/50 rounded-lg">
-                <p class="text-lg font-semibold">Win10</p>
-                <p class="text-xs text-muted-foreground">主流系统</p>
+                <p class="text-lg font-semibold">
+                  Win10
+                </p>
+                <p class="text-xs text-muted-foreground">
+                  主流系统
+                </p>
               </div>
             </div>
           </div>
@@ -460,9 +480,8 @@ onMounted(() => {
             >
               <div class="flex items-center gap-3">
                 <div
-                  :class="[
-                    'w-8 h-8 flex items-center justify-center rounded-lg font-medium text-sm',
-                    index < 3 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                  class="w-8 h-8 flex items-center justify-center rounded-lg font-medium text-sm" :class="[
+                    index < 3 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
                   ]"
                 >
                   {{ index + 1 }}
@@ -470,8 +489,12 @@ onMounted(() => {
                 <span class="font-medium text-sm">{{ region.name }}</span>
               </div>
               <div class="text-right">
-                <p class="font-medium">{{ region.visits?.toLocaleString() ?? 0 }}</p>
-                <p class="text-xs text-muted-foreground">{{ region.percentage }}%</p>
+                <p class="font-medium">
+                  {{ region.visits?.toLocaleString() ?? 0 }}
+                </p>
+                <p class="text-xs text-muted-foreground">
+                  {{ region.percentage }}%
+                </p>
               </div>
             </div>
           </div>
@@ -503,12 +526,24 @@ onMounted(() => {
           <table class="w-full">
             <thead>
               <tr class="border-b">
-                <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">排名</th>
-                <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">页面路径</th>
-                <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">页面标题</th>
-                <th class="text-right py-3 px-4 text-sm font-medium text-muted-foreground">访问量</th>
-                <th class="text-right py-3 px-4 text-sm font-medium text-muted-foreground">平均停留</th>
-                <th class="text-right py-3 px-4 text-sm font-medium text-muted-foreground">跳出率</th>
+                <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                  排名
+                </th>
+                <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                  页面路径
+                </th>
+                <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                  页面标题
+                </th>
+                <th class="text-right py-3 px-4 text-sm font-medium text-muted-foreground">
+                  访问量
+                </th>
+                <th class="text-right py-3 px-4 text-sm font-medium text-muted-foreground">
+                  平均停留
+                </th>
+                <th class="text-right py-3 px-4 text-sm font-medium text-muted-foreground">
+                  跳出率
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -519,18 +554,25 @@ onMounted(() => {
               >
                 <td class="py-3 px-4">
                   <div
-                    :class="[
-                      'w-6 h-6 flex items-center justify-center rounded font-medium text-xs',
-                      index < 3 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                    class="w-6 h-6 flex items-center justify-center rounded font-medium text-xs" :class="[
+                      index < 3 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
                     ]"
                   >
                     {{ index + 1 }}
                   </div>
                 </td>
-                <td class="py-3 px-4 text-sm font-mono text-muted-foreground">{{ page.path }}</td>
-                <td class="py-3 px-4 text-sm font-medium">{{ page.title }}</td>
-                <td class="py-3 px-4 text-right text-sm">{{ page.visits?.toLocaleString() ?? 0 }}</td>
-                <td class="py-3 px-4 text-right text-sm">{{ page.avgTime }}</td>
+                <td class="py-3 px-4 text-sm font-mono text-muted-foreground">
+                  {{ page.path }}
+                </td>
+                <td class="py-3 px-4 text-sm font-medium">
+                  {{ page.title }}
+                </td>
+                <td class="py-3 px-4 text-right text-sm">
+                  {{ page.visits?.toLocaleString() ?? 0 }}
+                </td>
+                <td class="py-3 px-4 text-right text-sm">
+                  {{ page.avgTime }}
+                </td>
                 <td class="py-3 px-4 text-right">
                   <Badge
                     :variant="page.bounceRate > 50 ? 'destructive' : 'secondary'"

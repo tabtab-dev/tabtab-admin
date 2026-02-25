@@ -3,15 +3,15 @@
  * @description 状态徽章组件
  */
 
+export { getSizeConfig, getStatusColorConfig, getVariantConfig, statusColorConfig } from './theme'
 export { default as TStatusBadge } from './TStatusBadge.vue'
-export { getStatusColorConfig, getVariantConfig, getSizeConfig, statusColorConfig } from './theme'
 export type {
   BadgeSize,
   BadgeVariant,
-  StatusType,
   StatusConfig,
   StatusMap,
-  TStatusBadgeProps,
+  StatusType,
   TStatusBadgeEmits,
-  TStatusBadgeExpose
+  TStatusBadgeExpose,
+  TStatusBadgeProps,
 } from './types'

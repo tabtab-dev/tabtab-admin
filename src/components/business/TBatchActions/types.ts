@@ -62,7 +62,7 @@ export interface TBatchActionsProps {
 /**
  * TBatchActions Emits
  */
-export type TBatchActionsEmits = {
+export interface TBatchActionsEmits {
   /** 清除选择 */
   clear: []
   /** 操作按钮点击 */

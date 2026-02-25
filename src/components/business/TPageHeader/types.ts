@@ -70,7 +70,7 @@ export interface TPageHeaderProps {
 /**
  * TPageHeader Emits
  */
-export type TPageHeaderEmits = {
+export interface TPageHeaderEmits {
   /** 返回按钮点击 */
   back: []
   /** 面包屑点击 */

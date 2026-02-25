@@ -1,23 +1,23 @@
 <script setup lang="ts">
+import type { FormSchema } from '@/components/business/TForm'
+import type { TableSchema } from '@/components/business/TTable'
+import type { StockItem } from '@/types'
+import {
+  AlertTriangle,
+  CheckCircle,
+  Package,
+  Warehouse,
+} from 'lucide-vue-next'
+
+import { inventoryApi } from '@/api'
+import { TForm } from '@/components/business/TForm'
 /**
  * 库存管理页
  */
 import { TTable } from '@/components/business/TTable'
-import { TForm } from '@/components/business/TForm'
-import type { TableSchema } from '@/components/business/TTable'
-import type { FormSchema } from '@/components/business/TForm'
-
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import type { StockItem } from '@/types'
-import { inventoryApi } from '@/api'
+import { Card, CardContent } from '@/components/ui/card'
 import { useTableData } from '@/composables'
-import {
-  Warehouse,
-  Package,
-  AlertTriangle,
-  CheckCircle
-} from 'lucide-vue-next'
 
 interface TableSlotProps {
   record: StockItem
@@ -55,7 +55,7 @@ const warehouses = computed(() => {
   const warehouseIds = new Set(stockItems.value.map(item => item.warehouseId))
   return Array.from(warehouseIds).map(id => ({
     id,
-    name: stockItems.value.find(item => item.warehouseId === id)?.warehouseName || `仓库 ${id}`
+    name: stockItems.value.find(item => item.warehouseId === id)?.warehouseName || `仓库 ${id}`,
   }))
 })
 
@@ -66,14 +66,14 @@ const statisticsCards = computed(() => {
     { title: '仓库总数', value: stats.totalWarehouses || 0, icon: Warehouse, color: 'text-blue-500' },
     { title: '运营中', value: stats.activeWarehouses || 0, icon: CheckCircle, color: 'text-green-500' },
     { title: '库存总量', value: stats.totalProducts || 0, icon: Package, color: 'text-purple-500' },
-    { title: '库存预警', value: stats.lowStockItems || 0, icon: AlertTriangle, color: 'text-red-500' }
+    { title: '库存预警', value: stats.lowStockItems || 0, icon: AlertTriangle, color: 'text-red-500' },
   ]
 })
 
 // 搜索表单
 const searchFormData = ref({
   keyword: '',
-  warehouse: ''
+  warehouse: '',
 })
 
 const searchSchema: FormSchema = {
@@ -84,7 +84,7 @@ const searchSchema: FormSchema = {
       type: 'input',
       label: '',
       placeholder: '搜索商品名称、SKU...',
-      className: 'w-[240px]'
+      className: 'w-[240px]',
     },
     {
       name: 'warehouse',
@@ -93,10 +93,10 @@ const searchSchema: FormSchema = {
       placeholder: '全部仓库',
       options: [
         { label: '全部仓库', value: '' },
-        ...warehouses.value.map(w => ({ label: w.name, value: w.id }))
+        ...warehouses.value.map(w => ({ label: w.name, value: w.id })),
       ],
-      className: 'w-[140px]'
-    }
+      className: 'w-[140px]',
+    },
   ],
   searchConfig: {
     enabled: true,
@@ -114,8 +114,8 @@ const searchSchema: FormSchema = {
     onReset: () => {
       searchQuery.value = ''
       filters.value = {}
-    }
-  }
+    },
+  },
 }
 
 // 表格配置
@@ -126,52 +126,52 @@ const tableSchema = computed<TableSchema>(() => ({
       title: '商品信息',
       dataIndex: 'productName',
       width: 200,
-      slot: 'product'
+      slot: 'product',
     },
     {
       title: '仓库',
       dataIndex: 'warehouseName',
-      width: 120
+      width: 120,
     },
     {
       title: '总库存',
       dataIndex: 'quantity',
       width: 100,
-      sorter: true
+      sorter: true,
     },
     {
       title: '预留',
       dataIndex: 'reserved',
-      width: 100
+      width: 100,
     },
     {
       title: '可用',
       dataIndex: 'available',
       width: 100,
-      slot: 'available'
+      slot: 'available',
     },
     {
       title: '库存状态',
       dataIndex: 'available',
       width: 120,
-      slot: 'status'
+      slot: 'status',
     },
     {
       title: '更新时间',
       dataIndex: 'lastUpdated',
-      width: 120
-    }
+      width: 120,
+    },
   ],
   pagination: {
     pageSize: 10,
     show: true,
-    showSizeChanger: true
+    showSizeChanger: true,
   },
   rowSelection: {
     type: 'checkbox',
-    show: true
+    show: true,
   },
-  showTotalBadge: true
+  showTotalBadge: true,
 }))
 
 // 表格数据
@@ -183,7 +183,6 @@ const selectedRowKeys = ref<(string | number)[]>([])
 function handleSelectChange(keys: (string | number)[]) {
   selectedRowKeys.value = keys
 }
-
 </script>
 
 <template>
@@ -191,8 +190,12 @@ function handleSelectChange(keys: (string | number)[]) {
     <!-- 页面标题 -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">库存管理</h1>
-        <p class="text-muted-foreground mt-1.5 text-sm">管理仓库和库存分布</p>
+        <h1 class="text-3xl font-bold tracking-tight">
+          库存管理
+        </h1>
+        <p class="text-muted-foreground mt-1.5 text-sm">
+          管理仓库和库存分布
+        </p>
       </div>
     </div>
 
@@ -203,7 +206,7 @@ function handleSelectChange(keys: (string | number)[]) {
         :key="stat.title"
         class="flex items-center gap-3 px-4 py-2.5 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
       >
-        <component :is="stat.icon" :class="['h-4 w-4', stat.color]" />
+        <component :is="stat.icon" class="h-4 w-4" :class="[stat.color]" />
         <div class="flex items-baseline gap-2">
           <span class="text-lg font-semibold">{{ stat.value }}</span>
           <span class="text-xs text-muted-foreground">{{ stat.title }}</span>
@@ -235,17 +238,22 @@ function handleSelectChange(keys: (string | number)[]) {
           <!-- 商品列 -->
           <template #product="slotProps">
             <div>
-              <div class="font-medium">{{ (slotProps as TableSlotProps).text }}</div>
-              <div class="text-xs text-muted-foreground font-mono">{{ (slotProps as TableSlotProps).record.sku }}</div>
+              <div class="font-medium">
+                {{ (slotProps as TableSlotProps).text }}
+              </div>
+              <div class="text-xs text-muted-foreground font-mono">
+                {{ (slotProps as TableSlotProps).record.sku }}
+              </div>
             </div>
           </template>
 
           <!-- 可用库存列 -->
           <template #available="slotProps">
-            <span :class="[
-              'font-medium',
-              (slotProps as TableSlotProps).record.available <= (slotProps as TableSlotProps).record.minStock ? 'text-red-500' : 'text-green-500'
-            ]">
+            <span
+              class="font-medium" :class="[
+                (slotProps as TableSlotProps).record.available <= (slotProps as TableSlotProps).record.minStock ? 'text-red-500' : 'text-green-500',
+              ]"
+            >
               {{ (slotProps as TableSlotProps).text }}
             </span>
           </template>
@@ -256,12 +264,12 @@ function handleSelectChange(keys: (string | number)[]) {
               :class="{
                 'bg-red-500/10 text-red-500 border-red-500/20': (slotProps as TableSlotProps).record.available <= (slotProps as TableSlotProps).record.minStock,
                 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20': (slotProps as TableSlotProps).record.available > (slotProps as TableSlotProps).record.minStock && (slotProps as TableSlotProps).record.available <= (slotProps as TableSlotProps).record.minStock * 1.5,
-                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableSlotProps).record.available > (slotProps as TableSlotProps).record.minStock * 1.5
+                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableSlotProps).record.available > (slotProps as TableSlotProps).record.minStock * 1.5,
               }"
               variant="outline"
             >
-              {{ (slotProps as TableSlotProps).record.available <= (slotProps as TableSlotProps).record.minStock ? '库存不足' : 
-                 (slotProps as TableSlotProps).record.available <= (slotProps as TableSlotProps).record.minStock * 1.5 ? '库存偏低' : '库存充足' }}
+              {{ (slotProps as TableSlotProps).record.available <= (slotProps as TableSlotProps).record.minStock ? '库存不足'
+                : (slotProps as TableSlotProps).record.available <= (slotProps as TableSlotProps).record.minStock * 1.5 ? '库存偏低' : '库存充足' }}
             </Badge>
           </template>
 
@@ -271,8 +279,12 @@ function handleSelectChange(keys: (string | number)[]) {
               <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
                 <Package class="w-8 h-8 text-muted-foreground/50" />
               </div>
-              <p class="text-base font-medium mb-1">暂无库存数据</p>
-              <p class="text-sm text-muted-foreground">请先添加仓库和商品</p>
+              <p class="text-base font-medium mb-1">
+                暂无库存数据
+              </p>
+              <p class="text-sm text-muted-foreground">
+                请先添加仓库和商品
+              </p>
             </div>
           </template>
         </TTable>

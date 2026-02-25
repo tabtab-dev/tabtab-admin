@@ -1,57 +1,57 @@
+import type { PaginationData } from '@/types'
 /**
  * 组织架构相关 API
  * @description 部门的增删改查等接口
  */
-import { request } from '../client';
-import type { PaginationData } from '@/types';
+import { request } from '../client'
 
 /**
  * 部门数据
  */
 export interface Organization {
-  id: string;
-  name: string;
-  code: string;
-  parentId: string | null;
-  leader: string;
-  memberCount: number;
-  sort: number;
-  status: 'active' | 'inactive';
-  description: string;
-  createdAt: string;
+  id: string
+  name: string
+  code: string
+  parentId: string | null
+  leader: string
+  memberCount: number
+  sort: number
+  status: 'active' | 'inactive'
+  description: string
+  createdAt: string
 }
 
 /**
  * 创建部门参数
  */
 export interface CreateOrganizationParams {
-  name: string;
-  code: string;
-  parentId?: string | null;
-  leader?: string;
-  sort?: number;
-  status?: 'active' | 'inactive';
-  description?: string;
+  name: string
+  code: string
+  parentId?: string | null
+  leader?: string
+  sort?: number
+  status?: 'active' | 'inactive'
+  description?: string
 }
 
 /**
  * 更新部门参数
  */
 export interface UpdateOrganizationParams {
-  name?: string;
-  code?: string;
-  parentId?: string | null;
-  leader?: string;
-  sort?: number;
-  status?: 'active' | 'inactive';
-  description?: string;
+  name?: string
+  code?: string
+  parentId?: string | null
+  leader?: string
+  sort?: number
+  status?: 'active' | 'inactive'
+  description?: string
 }
 
 /**
  * 查询部门列表参数
  */
 export interface GetOrganizationsParams {
-  search?: string;
+  search?: string
 }
 
 /**
@@ -109,4 +109,4 @@ export const organizationApi = {
    */
   updateOrganizationStatus: (id: string, status: 'active' | 'inactive') =>
     request.patch<Organization>(`/organizations/${id}/status`, { status }),
-};
+}

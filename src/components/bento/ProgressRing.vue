@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from 'vue'
 
 /**
  * ProgressRing 组件 - 环形进度条
@@ -7,17 +7,17 @@ import { computed } from 'vue';
  */
 interface ProgressRingProps {
   /** 进度值 0-100 */
-  progress: number;
+  progress: number
   /** 圆环大小 */
-  size?: number;
+  size?: number
   /** 线条粗细 */
-  strokeWidth?: number;
+  strokeWidth?: number
   /** 主颜色类名 */
-  color?: string;
+  color?: string
   /** 是否显示中心文字 */
-  showText?: boolean;
+  showText?: boolean
   /** 中心文字 */
-  text?: string;
+  text?: string
 }
 
 const props = withDefaults(defineProps<ProgressRingProps>(), {
@@ -25,34 +25,35 @@ const props = withDefaults(defineProps<ProgressRingProps>(), {
   strokeWidth: 8,
   color: 'text-primary',
   showText: true,
-  text: ''
-});
+  text: '',
+})
 
 /**
  * 计算圆环半径
  */
-const radius = computed(() => (props.size - props.strokeWidth) / 2);
+const radius = computed(() => (props.size - props.strokeWidth) / 2)
 
 /**
  * 计算圆周长
  */
-const circumference = computed(() => 2 * Math.PI * radius.value);
+const circumference = computed(() => 2 * Math.PI * radius.value)
 
 /**
  * 计算进度偏移量
  */
 const strokeDashoffset = computed(() => {
-  const progress = Math.min(Math.max(props.progress, 0), 100);
-  return circumference.value - (progress / 100) * circumference.value;
-});
+  const progress = Math.min(Math.max(props.progress, 0), 100)
+  return circumference.value - (progress / 100) * circumference.value
+})
 
 /**
  * 计算中心显示文字
  */
 const displayText = computed(() => {
-  if (props.text) return props.text;
-  return `${Math.round(props.progress)}%`;
-});
+  if (props.text)
+    return props.text
+  return `${Math.round(props.progress)}%`
+})
 </script>
 
 <template>
@@ -73,7 +74,7 @@ const displayText = computed(() => {
         :stroke-width="strokeWidth"
         stroke="currentColor"
       />
-      
+
       <!-- 进度圆环 -->
       <circle
         :cx="size / 2"
@@ -89,7 +90,7 @@ const displayText = computed(() => {
         class="transition-all duration-1000 ease-out"
       />
     </svg>
-    
+
     <!-- 中心文字 -->
     <div v-if="showText" class="absolute inset-0 flex flex-col items-center justify-center">
       <span class="text-lg font-bold">{{ displayText }}</span>

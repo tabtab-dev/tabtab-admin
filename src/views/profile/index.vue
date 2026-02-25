@@ -1,13 +1,25 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue';
-import { message } from 'antdv-next';
-import { TPageHeader } from '@/components/business';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { message } from 'antdv-next'
+import {
+  Briefcase,
+  Building,
+  Calendar,
+  FileText,
+  Loader2,
+  Lock,
+  Mail,
+  MapPin,
+  Save,
+  Shield,
+  Upload,
+  User,
+} from 'lucide-vue-next'
+import { computed, onMounted, reactive, ref } from 'vue'
+import { authApi } from '@/api'
+import { TPageHeader } from '@/components/business'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -15,28 +27,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { useAuthStore } from '@/stores/global/auth';
-import { authApi } from '@/api';
-import {
-  Save,
-  User,
-  Mail,
-  Upload,
-  Lock,
-  Loader2,
-  Building,
-  Briefcase,
-  MapPin,
-  FileText,
-  Shield,
-  Calendar
-} from 'lucide-vue-next';
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
+import { useAuthStore } from '@/stores/global/auth'
 
-const authStore = useAuthStore();
+const authStore = useAuthStore()
 
 /** 表单验证错误 */
-const formErrors = reactive<Record<string, string>>({});
+const formErrors = reactive<Record<string, string>>({})
 
 /** 个人资料表单 */
 const profileForm = reactive({
@@ -48,14 +48,14 @@ const profileForm = reactive({
   department: '',
   position: '',
   bio: '',
-});
+})
 
 /** 加载状态 */
 const loadingStates = reactive({
   profile: false,
   avatar: false,
   password: false,
-});
+})
 
 /** 密码修改弹窗 */
 const passwordDialog = reactive({
@@ -63,71 +63,72 @@ const passwordDialog = reactive({
   oldPassword: '',
   newPassword: '',
   confirmPassword: '',
-});
+})
 
 /** 密码错误 */
-const passwordErrors = reactive<Record<string, string>>({});
+const passwordErrors = reactive<Record<string, string>>({})
 
 /** 头像文件输入引用 */
-const avatarInputRef = ref<HTMLInputElement | null>(null);
+const avatarInputRef = ref<HTMLInputElement | null>(null)
 
 /**
  * 初始化表单数据
  */
-const initProfileForm = () => {
-  const user = authStore.user;
+function initProfileForm() {
+  const user = authStore.user
   if (user) {
-    profileForm.name = user.name || '';
-    profileForm.email = user.email || '';
-    profileForm.phone = user.phone || '';
-    profileForm.avatar = user.avatar || '';
-    profileForm.address = user.address || '';
-    profileForm.department = user.department || '';
-    profileForm.position = user.position || '';
-    profileForm.bio = user.bio || '';
+    profileForm.name = user.name || ''
+    profileForm.email = user.email || ''
+    profileForm.phone = user.phone || ''
+    profileForm.avatar = user.avatar || ''
+    profileForm.address = user.address || ''
+    profileForm.department = user.department || ''
+    profileForm.position = user.position || ''
+    profileForm.bio = user.bio || ''
   }
-};
+}
 
 /**
  * 验证个人资料表单
  */
-const validateProfileForm = (): boolean => {
-  formErrors.name = '';
-  formErrors.phone = '';
-  formErrors.email = '';
+function validateProfileForm(): boolean {
+  formErrors.name = ''
+  formErrors.phone = ''
+  formErrors.email = ''
 
-  let isValid = true;
+  let isValid = true
 
   if (!profileForm.name.trim()) {
-    formErrors.name = '请输入姓名';
-    isValid = false;
-  } else if (profileForm.name.length < 2 || profileForm.name.length > 20) {
-    formErrors.name = '姓名长度应在 2-20 个字符之间';
-    isValid = false;
+    formErrors.name = '请输入姓名'
+    isValid = false
+  }
+  else if (profileForm.name.length < 2 || profileForm.name.length > 20) {
+    formErrors.name = '姓名长度应在 2-20 个字符之间'
+    isValid = false
   }
 
   if (profileForm.phone && !/^1[3-9]\d{9}$/.test(profileForm.phone)) {
-    formErrors.phone = '请输入有效的手机号码';
-    isValid = false;
+    formErrors.phone = '请输入有效的手机号码'
+    isValid = false
   }
 
-  if (profileForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileForm.email)) {
-    formErrors.email = '请输入有效的邮箱地址';
-    isValid = false;
+  if (profileForm.email && !/^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/.test(profileForm.email)) {
+    formErrors.email = '请输入有效的邮箱地址'
+    isValid = false
   }
 
-  return isValid;
-};
+  return isValid
+}
 
 /**
  * 保存个人资料
  */
-const handleSaveProfile = async () => {
+async function handleSaveProfile() {
   if (!validateProfileForm()) {
-    return;
+    return
   }
 
-  loadingStates.profile = true;
+  loadingStates.profile = true
   try {
     const updatedUser = await authApi.updateProfile({
       name: profileForm.name,
@@ -137,160 +138,170 @@ const handleSaveProfile = async () => {
       position: profileForm.position,
       bio: profileForm.bio,
       avatar: profileForm.avatar,
-    });
+    })
 
     // 更新 store 中的用户信息
-    authStore.user = { ...authStore.user, ...updatedUser };
+    authStore.user = { ...authStore.user, ...updatedUser }
 
-    message.success('个人资料保存成功');
-  } catch (error) {
-    console.error('保存个人资料失败:', error);
-    message.error('保存失败，请稍后重试');
-  } finally {
-    loadingStates.profile = false;
+    message.success('个人资料保存成功')
   }
-};
+  catch (error) {
+    console.error('保存个人资料失败:', error)
+    message.error('保存失败，请稍后重试')
+  }
+  finally {
+    loadingStates.profile = false
+  }
+}
 
 /**
  * 触发头像上传
  */
-const handleAvatarClick = () => {
-  avatarInputRef.value?.click();
-};
+function handleAvatarClick() {
+  avatarInputRef.value?.click()
+}
 
 /**
  * 处理头像文件选择
  */
-const handleAvatarChange = async (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
+async function handleAvatarChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
 
-  if (!file) return;
+  if (!file)
+    return
 
   // 验证文件类型
   if (!file.type.startsWith('image/')) {
-    message.error('请选择图片文件');
-    return;
+    message.error('请选择图片文件')
+    return
   }
 
   // 验证文件大小（最大 2MB）
   if (file.size > 2 * 1024 * 1024) {
-    message.error('图片大小不能超过 2MB');
-    return;
+    message.error('图片大小不能超过 2MB')
+    return
   }
 
-  loadingStates.avatar = true;
+  loadingStates.avatar = true
   try {
-    const { avatarUrl } = await authApi.uploadAvatar(file);
-    profileForm.avatar = avatarUrl;
+    const { avatarUrl } = await authApi.uploadAvatar(file)
+    profileForm.avatar = avatarUrl
 
     // 同时更新用户资料
-    await authApi.updateProfile({ avatar: avatarUrl });
+    await authApi.updateProfile({ avatar: avatarUrl })
 
     // 更新 store
     if (authStore.user) {
-      authStore.user.avatar = avatarUrl;
+      authStore.user.avatar = avatarUrl
     }
 
-    message.success('头像上传成功');
-  } catch (error) {
-    console.error('上传头像失败:', error);
-    message.error('上传失败，请稍后重试');
-  } finally {
-    loadingStates.avatar = false;
+    message.success('头像上传成功')
+  }
+  catch (error) {
+    console.error('上传头像失败:', error)
+    message.error('上传失败，请稍后重试')
+  }
+  finally {
+    loadingStates.avatar = false
     // 清空 input 值，允许重复选择同一文件
     if (avatarInputRef.value) {
-      avatarInputRef.value.value = '';
+      avatarInputRef.value.value = ''
     }
   }
-};
+}
 
 /**
  * 打开修改密码弹窗
  */
-const handleOpenPasswordDialog = () => {
-  passwordDialog.open = true;
-  passwordDialog.oldPassword = '';
-  passwordDialog.newPassword = '';
-  passwordDialog.confirmPassword = '';
-  passwordErrors.oldPassword = '';
-  passwordErrors.newPassword = '';
-  passwordErrors.confirmPassword = '';
-};
+function handleOpenPasswordDialog() {
+  passwordDialog.open = true
+  passwordDialog.oldPassword = ''
+  passwordDialog.newPassword = ''
+  passwordDialog.confirmPassword = ''
+  passwordErrors.oldPassword = ''
+  passwordErrors.newPassword = ''
+  passwordErrors.confirmPassword = ''
+}
 
 /**
  * 验证密码表单
  */
-const validatePasswordForm = (): boolean => {
-  passwordErrors.oldPassword = '';
-  passwordErrors.newPassword = '';
-  passwordErrors.confirmPassword = '';
+function validatePasswordForm(): boolean {
+  passwordErrors.oldPassword = ''
+  passwordErrors.newPassword = ''
+  passwordErrors.confirmPassword = ''
 
-  let isValid = true;
+  let isValid = true
 
   if (!passwordDialog.oldPassword) {
-    passwordErrors.oldPassword = '请输入当前密码';
-    isValid = false;
+    passwordErrors.oldPassword = '请输入当前密码'
+    isValid = false
   }
 
   if (!passwordDialog.newPassword) {
-    passwordErrors.newPassword = '请输入新密码';
-    isValid = false;
-  } else if (passwordDialog.newPassword.length < 6) {
-    passwordErrors.newPassword = '密码长度至少为 6 位';
-    isValid = false;
+    passwordErrors.newPassword = '请输入新密码'
+    isValid = false
+  }
+  else if (passwordDialog.newPassword.length < 6) {
+    passwordErrors.newPassword = '密码长度至少为 6 位'
+    isValid = false
   }
 
   if (!passwordDialog.confirmPassword) {
-    passwordErrors.confirmPassword = '请确认新密码';
-    isValid = false;
-  } else if (passwordDialog.newPassword !== passwordDialog.confirmPassword) {
-    passwordErrors.confirmPassword = '两次输入的密码不一致';
-    isValid = false;
+    passwordErrors.confirmPassword = '请确认新密码'
+    isValid = false
+  }
+  else if (passwordDialog.newPassword !== passwordDialog.confirmPassword) {
+    passwordErrors.confirmPassword = '两次输入的密码不一致'
+    isValid = false
   }
 
-  return isValid;
-};
+  return isValid
+}
 
 /**
  * 修改密码
  */
-const handleChangePassword = async () => {
+async function handleChangePassword() {
   if (!validatePasswordForm()) {
-    return;
+    return
   }
 
-  loadingStates.password = true;
+  loadingStates.password = true
   try {
     await authApi.changePassword({
       oldPassword: passwordDialog.oldPassword,
       newPassword: passwordDialog.newPassword,
-    });
+    })
 
-    message.success('密码修改成功');
-    passwordDialog.open = false;
-  } catch (error) {
-    console.error('修改密码失败:', error);
-    message.error('修改密码失败，请检查当前密码是否正确');
-  } finally {
-    loadingStates.password = false;
+    message.success('密码修改成功')
+    passwordDialog.open = false
   }
-};
+  catch (error) {
+    console.error('修改密码失败:', error)
+    message.error('修改密码失败，请检查当前密码是否正确')
+  }
+  finally {
+    loadingStates.password = false
+  }
+}
 
 /** 获取用户首字母 */
 const userInitials = computed(() => {
-  return profileForm.name?.charAt(0).toUpperCase() || 'U';
-});
+  return profileForm.name?.charAt(0).toUpperCase() || 'U'
+})
 
 /** 格式化日期 */
-const formatDate = (dateString?: string) => {
-  if (!dateString) return '-';
-  return new Date(dateString).toLocaleDateString('zh-CN');
-};
+function formatDate(dateString?: string) {
+  if (!dateString)
+    return '-'
+  return new Date(dateString).toLocaleDateString('zh-CN')
+}
 
 onMounted(() => {
-  initProfileForm();
-});
+  initProfileForm()
+})
 </script>
 
 <template>
@@ -337,7 +348,7 @@ onMounted(() => {
                   accept="image/*"
                   class="hidden"
                   @change="handleAvatarChange"
-                />
+                >
                 <Button
                   variant="outline"
                   :disabled="loadingStates.avatar"
@@ -368,7 +379,9 @@ onMounted(() => {
                   :class="{ 'border-destructive': formErrors.name }"
                   placeholder="请输入姓名"
                 />
-                <p v-if="formErrors.name" class="text-xs text-destructive">{{ formErrors.name }}</p>
+                <p v-if="formErrors.name" class="text-xs text-destructive">
+                  {{ formErrors.name }}
+                </p>
               </div>
 
               <!-- 邮箱 -->
@@ -380,7 +393,9 @@ onMounted(() => {
                   type="email"
                   disabled
                 />
-                <p class="text-xs text-muted-foreground">邮箱不可修改</p>
+                <p class="text-xs text-muted-foreground">
+                  邮箱不可修改
+                </p>
               </div>
 
               <!-- 电话 -->
@@ -393,7 +408,9 @@ onMounted(() => {
                   :class="{ 'border-destructive': formErrors.phone }"
                   placeholder="请输入手机号码"
                 />
-                <p v-if="formErrors.phone" class="text-xs text-destructive">{{ formErrors.phone }}</p>
+                <p v-if="formErrors.phone" class="text-xs text-destructive">
+                  {{ formErrors.phone }}
+                </p>
               </div>
 
               <!-- 部门 -->
@@ -453,8 +470,8 @@ onMounted(() => {
 
             <div class="flex justify-end">
               <Button
-                @click="handleSaveProfile"
                 :disabled="loadingStates.profile"
+                @click="handleSaveProfile"
               >
                 <Loader2 v-if="loadingStates.profile" class="h-4 w-4 mr-2 animate-spin" />
                 <Save v-else class="h-4 w-4 mr-2" />
@@ -476,7 +493,9 @@ onMounted(() => {
             <div class="flex items-center gap-3 text-sm">
               <Mail class="h-4 w-4 text-muted-foreground" />
               <div>
-                <p class="text-xs text-muted-foreground">邮箱</p>
+                <p class="text-xs text-muted-foreground">
+                  邮箱
+                </p>
                 <p>{{ authStore.user?.email }}</p>
               </div>
             </div>
@@ -484,7 +503,9 @@ onMounted(() => {
             <div class="flex items-center gap-3 text-sm">
               <Shield class="h-4 w-4 text-muted-foreground" />
               <div>
-                <p class="text-xs text-muted-foreground">角色</p>
+                <p class="text-xs text-muted-foreground">
+                  角色
+                </p>
                 <p>{{ authStore.user?.role }}</p>
               </div>
             </div>
@@ -492,7 +513,9 @@ onMounted(() => {
             <div class="flex items-center gap-3 text-sm">
               <User class="h-4 w-4 text-muted-foreground" />
               <div>
-                <p class="text-xs text-muted-foreground">状态</p>
+                <p class="text-xs text-muted-foreground">
+                  状态
+                </p>
                 <p>{{ authStore.user?.status === 'active' ? '正常' : '停用' }}</p>
               </div>
             </div>
@@ -500,7 +523,9 @@ onMounted(() => {
             <div class="flex items-center gap-3 text-sm">
               <Calendar class="h-4 w-4 text-muted-foreground" />
               <div>
-                <p class="text-xs text-muted-foreground">注册时间</p>
+                <p class="text-xs text-muted-foreground">
+                  注册时间
+                </p>
                 <p>{{ formatDate(authStore.user?.createdAt) }}</p>
               </div>
             </div>
@@ -527,7 +552,9 @@ onMounted(() => {
         <!-- 危险区域卡片 -->
         <Card class="bg-muted/40 border border-border/50 rounded-xl border-destructive/50">
           <CardHeader>
-            <CardTitle class="text-destructive">危险区域</CardTitle>
+            <CardTitle class="text-destructive">
+              危险区域
+            </CardTitle>
             <CardDescription>不可逆的操作</CardDescription>
           </CardHeader>
           <CardContent>
@@ -606,8 +633,8 @@ onMounted(() => {
             取消
           </Button>
           <Button
-            @click="handleChangePassword"
             :disabled="loadingStates.password"
+            @click="handleChangePassword"
           >
             <Loader2 v-if="loadingStates.password" class="h-4 w-4 mr-2 animate-spin" />
             {{ loadingStates.password ? '修改中...' : '确认修改' }}

@@ -1,31 +1,31 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useThemeStore } from '@/stores/global/theme';
+import { computed } from 'vue'
+import { useThemeStore } from '@/stores/global/theme'
 
 /**
  * 组件属性
  */
 interface Props {
   /** 尺寸 */
-  size?: number;
+  size?: number
   /** 是否折叠状态 */
-  collapsed?: boolean;
+  collapsed?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   size: 36,
   collapsed: false,
-});
+})
 
-const themeStore = useThemeStore();
+const themeStore = useThemeStore()
 
 /**
  * 实际尺寸 - 确保为整数像素
  */
 const actualSize = computed(() => {
   // 折叠状态下与菜单按钮大小保持一致 (48px)
-  return props.collapsed ? 48 : props.size;
-});
+  return props.collapsed ? 48 : props.size
+})
 
 /**
  * 计算圆角半径 - 与主题设置保持一致
@@ -33,17 +33,17 @@ const actualSize = computed(() => {
  * 主题 radius 范围 0-1.5rem，对应 SVG rx 范围 0-60 (相对于 200x200 viewBox)
  */
 const borderRadius = computed(() => {
-  const maxRadius = 60; // 对应 1.5rem 的最大圆角
-  const themeRadius = themeStore.layoutConfig.radius;
+  const maxRadius = 60 // 对应 1.5rem 的最大圆角
+  const themeRadius = themeStore.layoutConfig.radius
   // 按比例计算，最大 1.5rem 对应 60px 圆角
-  return Math.round((themeRadius / 1.5) * maxRadius);
-});
+  return Math.round((themeRadius / 1.5) * maxRadius)
+})
 </script>
 
 <template>
   <div
     class="logo-container"
-    :style="{ width: actualSize + 'px', height: actualSize + 'px' }"
+    :style="{ width: `${actualSize}px`, height: `${actualSize}px` }"
   >
     <svg
       :width="actualSize"

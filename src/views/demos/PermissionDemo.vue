@@ -1,19 +1,19 @@
 <script setup lang="ts">
+import { CheckCircle, Info, Package, Shield, ShoppingCart, User, XCircle } from 'lucide-vue-next'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 /**
  * PermissionDemo - 权限控制演示页面
  *
  * @description 展示 RBAC 权限控制的各种使用方式，包括指令、组合式函数等
  */
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { usePermission } from '@/composables'
-import { USER_PERMISSIONS, PRODUCT_PERMISSIONS, ORDER_PERMISSIONS } from '@/constants'
+import { ORDER_PERMISSIONS, PRODUCT_PERMISSIONS, USER_PERMISSIONS } from '@/constants'
 import { useAuthStore } from '@/stores/global/auth'
-import { Shield, User, Package, ShoppingCart, Info, CheckCircle, XCircle } from 'lucide-vue-next'
 
 /**
  * 权限控制组合式函数
@@ -81,7 +81,7 @@ const combinedChecks = [
   {
     name: '是管理员角色',
     result: computed(() => authStore.user?.role === 'admin'),
-    description: "hasRole('admin')",
+    description: 'hasRole(\'admin\')',
   },
   {
     name: '是管理员（计算属性）',
@@ -103,7 +103,7 @@ const mockRoles = [
 /**
  * 切换角色和权限
  */
-const switchRole = (roleData: { role: string; permissions: string[] }) => {
+function switchRole(roleData: { role: string, permissions: string[] }) {
   if (authStore.user) {
     authStore.user.role = roleData.role
     authStore.user.permissions = roleData.permissions
@@ -115,7 +115,9 @@ const switchRole = (roleData: { role: string; permissions: string[] }) => {
   <div class="container mx-auto p-6 space-y-6">
     <!-- 页面标题 -->
     <div class="space-y-2">
-      <h1 class="text-3xl font-bold tracking-tight">权限控制演示 (RBAC Demo)</h1>
+      <h1 class="text-3xl font-bold tracking-tight">
+        权限控制演示 (RBAC Demo)
+      </h1>
       <p class="text-muted-foreground">
         本页面展示如何使用 v-permission 指令和 usePermission 组合式函数进行权限控制
       </p>
@@ -158,11 +160,17 @@ const switchRole = (roleData: { role: string; permissions: string[] }) => {
       </CardContent>
     </Card>
 
-    <Tabs defaultValue="directive" class="w-full">
+    <Tabs default-value="directive" class="w-full">
       <TabsList class="grid w-full grid-cols-3">
-        <TabsTrigger value="directive">指令方式 (v-permission)</TabsTrigger>
-        <TabsTrigger value="composable">组合式函数 (usePermission)</TabsTrigger>
-        <TabsTrigger value="role">角色控制 (v-role)</TabsTrigger>
+        <TabsTrigger value="directive">
+          指令方式 (v-permission)
+        </TabsTrigger>
+        <TabsTrigger value="composable">
+          组合式函数 (usePermission)
+        </TabsTrigger>
+        <TabsTrigger value="role">
+          角色控制 (v-role)
+        </TabsTrigger>
       </TabsList>
 
       <!-- 指令方式 -->
@@ -175,7 +183,9 @@ const switchRole = (roleData: { role: string; permissions: string[] }) => {
           <CardContent class="space-y-6">
             <!-- 单个权限 -->
             <div class="space-y-2">
-              <h4 class="text-sm font-semibold">1. 单个权限检查</h4>
+              <h4 class="text-sm font-semibold">
+                1. 单个权限检查
+              </h4>
               <div class="flex flex-wrap gap-2">
                 <Button v-permission="USER_PERMISSIONS.CREATE">
                   <User class="h-4 w-4 mr-2" />
@@ -199,7 +209,9 @@ const switchRole = (roleData: { role: string; permissions: string[] }) => {
 
             <!-- 多个权限（任一） -->
             <div class="space-y-2">
-              <h4 class="text-sm font-semibold">2. 多个权限 - 任一通过 (v-permission:any)</h4>
+              <h4 class="text-sm font-semibold">
+                2. 多个权限 - 任一通过 (v-permission:any)
+              </h4>
               <div class="flex flex-wrap gap-2">
                 <Button v-permission:any="[USER_PERMISSIONS.CREATE, USER_PERMISSIONS.UPDATE]">
                   用户管理（创建或编辑）
@@ -218,7 +230,9 @@ const switchRole = (roleData: { role: string; permissions: string[] }) => {
 
             <!-- 多个权限（全部） -->
             <div class="space-y-2">
-              <h4 class="text-sm font-semibold">3. 多个权限 - 全部通过 (v-permission:all)</h4>
+              <h4 class="text-sm font-semibold">
+                3. 多个权限 - 全部通过 (v-permission:all)
+              </h4>
               <div class="flex flex-wrap gap-2">
                 <Button v-permission:all="[USER_PERMISSIONS.CREATE, USER_PERMISSIONS.UPDATE, USER_PERMISSIONS.DELETE]">
                   完整用户管理（需全部权限）
@@ -233,7 +247,9 @@ const switchRole = (roleData: { role: string; permissions: string[] }) => {
 
             <!-- 禁用模式 -->
             <div class="space-y-2">
-              <h4 class="text-sm font-semibold">4. 禁用模式 (v-permission.disabled)</h4>
+              <h4 class="text-sm font-semibold">
+                4. 禁用模式 (v-permission.disabled)
+              </h4>
               <div class="flex flex-wrap gap-2">
                 <Button v-permission.disabled="USER_PERMISSIONS.DELETE" variant="destructive">
                   删除（无权限时禁用）
@@ -261,7 +277,9 @@ const switchRole = (roleData: { role: string; permissions: string[] }) => {
           <CardContent class="space-y-6">
             <!-- 单个权限检查 -->
             <div class="space-y-2">
-              <h4 class="text-sm font-semibold">单个权限检查结果</h4>
+              <h4 class="text-sm font-semibold">
+                单个权限检查结果
+              </h4>
               <div class="grid gap-2">
                 <div
                   v-for="check in permissionChecks"
@@ -282,7 +300,9 @@ const switchRole = (roleData: { role: string; permissions: string[] }) => {
 
             <!-- 组合权限检查 -->
             <div class="space-y-2">
-              <h4 class="text-sm font-semibold">组合权限检查结果</h4>
+              <h4 class="text-sm font-semibold">
+                组合权限检查结果
+              </h4>
               <div class="grid gap-2">
                 <div
                   v-for="check in combinedChecks"
@@ -290,8 +310,12 @@ const switchRole = (roleData: { role: string; permissions: string[] }) => {
                   class="flex items-center justify-between p-2 rounded border"
                 >
                   <div>
-                    <p class="text-sm font-medium">{{ check.name }}</p>
-                    <p class="text-xs text-muted-foreground">{{ check.description }}</p>
+                    <p class="text-sm font-medium">
+                      {{ check.name }}
+                    </p>
+                    <p class="text-xs text-muted-foreground">
+                      {{ check.description }}
+                    </p>
                   </div>
                   <Badge :variant="check.result.value ? 'default' : 'secondary'">
                     {{ check.result.value ? '通过' : '未通过' }}
@@ -304,7 +328,9 @@ const switchRole = (roleData: { role: string; permissions: string[] }) => {
 
             <!-- 代码示例 -->
             <div class="space-y-2">
-              <h4 class="text-sm font-semibold">使用示例代码</h4>
+              <h4 class="text-sm font-semibold">
+                使用示例代码
+              </h4>
               <pre class="p-4 bg-muted rounded-lg text-xs overflow-x-auto"><code>// 在 script setup 中使用
 const { hasPermission, hasAnyPermission, hasAllPermissions } = usePermission()
 
@@ -334,7 +360,9 @@ const canManage = hasAllPermissions([USER_PERMISSIONS.CREATE, USER_PERMISSIONS.U
           <CardContent class="space-y-6">
             <!-- 单个角色 -->
             <div class="space-y-2">
-              <h4 class="text-sm font-semibold">1. 单个角色检查</h4>
+              <h4 class="text-sm font-semibold">
+                1. 单个角色检查
+              </h4>
               <div class="flex flex-wrap gap-2">
                 <Button v-role="'admin'" variant="default">
                   <Shield class="h-4 w-4 mr-2" />
@@ -353,7 +381,9 @@ const canManage = hasAllPermissions([USER_PERMISSIONS.CREATE, USER_PERMISSIONS.U
 
             <!-- 多个角色（任一） -->
             <div class="space-y-2">
-              <h4 class="text-sm font-semibold">2. 多个角色 - 任一通过 (v-role:any)</h4>
+              <h4 class="text-sm font-semibold">
+                2. 多个角色 - 任一通过 (v-role:any)
+              </h4>
               <div class="flex flex-wrap gap-2">
                 <Button v-role:any="['admin', 'editor']" variant="default">
                   <Shield class="h-4 w-4 mr-2" />
@@ -369,7 +399,9 @@ const canManage = hasAllPermissions([USER_PERMISSIONS.CREATE, USER_PERMISSIONS.U
 
             <!-- 禁用模式 -->
             <div class="space-y-2">
-              <h4 class="text-sm font-semibold">3. 角色禁用模式 (v-role.disabled)</h4>
+              <h4 class="text-sm font-semibold">
+                3. 角色禁用模式 (v-role.disabled)
+              </h4>
               <div class="flex flex-wrap gap-2">
                 <Button v-role.disabled="'admin'" variant="destructive">
                   管理员操作（无权限时禁用）
@@ -384,10 +416,16 @@ const canManage = hasAllPermissions([USER_PERMISSIONS.CREATE, USER_PERMISSIONS.U
 
             <!-- 当前角色信息 -->
             <div class="space-y-2">
-              <h4 class="text-sm font-semibold">当前角色信息</h4>
+              <h4 class="text-sm font-semibold">
+                当前角色信息
+              </h4>
               <div class="p-4 bg-muted rounded-lg">
-                <p class="text-sm"><strong>当前角色:</strong> {{ currentUser?.role || '未登录' }}</p>
-                <p class="text-sm"><strong>是否管理员:</strong> {{ isAdmin ? '是' : '否' }}</p>
+                <p class="text-sm">
+                  <strong>当前角色:</strong> {{ currentUser?.role || '未登录' }}
+                </p>
+                <p class="text-sm">
+                  <strong>是否管理员:</strong> {{ isAdmin ? '是' : '否' }}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -403,7 +441,9 @@ const canManage = hasAllPermissions([USER_PERMISSIONS.CREATE, USER_PERMISSIONS.U
       <CardContent class="space-y-4">
         <div class="grid gap-4 md:grid-cols-2">
           <div class="space-y-2">
-            <h4 class="font-semibold">指令方式 (模板中直接使用)</h4>
+            <h4 class="font-semibold">
+              指令方式 (模板中直接使用)
+            </h4>
             <ul class="text-sm text-muted-foreground space-y-1 list-disc list-inside">
               <li>v-permission="'user:create'" - 单个权限</li>
               <li>v-permission:any="[...]" - 任一权限</li>
@@ -413,7 +453,9 @@ const canManage = hasAllPermissions([USER_PERMISSIONS.CREATE, USER_PERMISSIONS.U
             </ul>
           </div>
           <div class="space-y-2">
-            <h4 class="font-semibold">组合式函数方式 (script setup 中使用)</h4>
+            <h4 class="font-semibold">
+              组合式函数方式 (script setup 中使用)
+            </h4>
             <ul class="text-sm text-muted-foreground space-y-1 list-disc list-inside">
               <li>hasPermission(permission) - 检查单个权限</li>
               <li>hasAnyPermission([...]) - 任一权限通过</li>

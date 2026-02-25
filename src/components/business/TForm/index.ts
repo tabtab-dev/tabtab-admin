@@ -55,59 +55,59 @@
  * ```
  */
 
-// 导出组件
-export { default as TForm } from './TForm.vue'
-export { default as TFormItem } from './TFormItem.vue'
-export { default as TFormList } from './TFormList.vue'
-export { default as TFormGroup } from './TFormGroup.vue'
-
+// 从共享主题导出颜色转换函数
+export { oklchToHex } from '../theme-shared'
 // 导出 composables
 export {
+  getFieldKey,
   useFieldState,
   useFormMeta,
   useFormWatch,
-  getFieldKey
 } from './composables'
+// 导出组件
+export { default as TForm } from './TForm.vue'
+export { default as TFormGroup } from './TFormGroup.vue'
 
+export { default as TFormItem } from './TFormItem.vue'
+
+export { default as TFormList } from './TFormList.vue'
 // 导出主题配置
 export {
+  getTFormThemeConfig,
   useTFormTheme,
-  getTFormThemeConfig
 } from './theme'
-// 从共享主题导出颜色转换函数
-export { oklchToHex } from '../theme-shared'
 
 // 导出类型
 export type {
-  // 核心类型
-  FormSchema,
+  AsyncOptionsLoader,
+  FieldChangeInfo,
+  FieldDependency,
+  FieldTooltip,
+  FieldWatch,
+  FormActions,
   FormField,
   FormFieldType,
-  FormOption,
-  FormRule,
-  FieldDependency,
-  FieldWatch,
-  FormMethods,
-  ListFieldConfig,
-  GroupFieldConfig,
-  FormActions,
-  FormLayout,
-  LabelAlign,
-  FormSize,
-  AsyncOptionsLoader,
-  FormMeta,
-  // 组件类型
-  TFormProps,
-  TFormExpose,
-  TFormEmits,
   // 新增类型
   FormInstance,
+  FormLayout,
+  FormMeta,
+  FormMethods,
+  FormOption,
+  FormRule,
+  // 核心类型
+  FormSchema,
+  FormSize,
   FormValidateError,
   FormValidateErrorInfo,
-  FieldChangeInfo,
   // antdv-next 新特性类型
   FormVariant,
+  GroupFieldConfig,
+  LabelAlign,
+  ListFieldConfig,
   ScrollToFirstErrorOptions,
-  FieldTooltip,
-  VirtualScrollConfig
+  TFormEmits,
+  TFormExpose,
+  // 组件类型
+  TFormProps,
+  VirtualScrollConfig,
 } from './types'

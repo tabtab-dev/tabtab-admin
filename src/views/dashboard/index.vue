@@ -1,57 +1,58 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue';
-import { 
-  HeroCard, 
-  StatCard, 
-  ActivityCard, 
-  QuickActions,
+import type { ActivityItem, QuickAction } from '@/types/bento'
+import {
+  Activity,
+  AlertCircle,
+  ArrowUpRight,
+  DollarSign,
+  Download,
+  FileText,
+  Plus,
+  Settings,
+  ShoppingCart,
+  TrendingUp,
+  Users,
+} from 'lucide-vue-next'
+import {
+  ActivityCard,
+  HeroCard,
   MiniChart,
   ProgressRing,
-} from '@/components/bento';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { 
-  Users, 
-  DollarSign, 
-  ShoppingCart, 
-  TrendingUp, 
-  Activity, 
-  Settings, 
-  FileText, 
-  AlertCircle, 
-  ArrowUpRight,
-  Download,
-  Plus
-} from 'lucide-vue-next';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import type { ActivityItem, QuickAction } from '@/types/bento';
-import { ACTIVITY_TYPE, BUTTON_VARIANT } from '@/constants';
+  QuickActions,
+  StatCard,
+} from '@/components/bento'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { ACTIVITY_TYPE, BUTTON_VARIANT } from '@/constants'
 
-const { t, locale } = useI18n();
+const { t, locale } = useI18n()
 
 /**
  * 当前日期格式化
  */
 const currentDate = computed(() => {
-  const date = new Date();
-  const options: Intl.DateTimeFormatOptions = { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric', 
-    weekday: 'long' 
-  };
-  return date.toLocaleDateString(locale.value, options);
-});
+  const date = new Date()
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'long',
+  }
+  return date.toLocaleDateString(locale.value, options)
+})
 
 /**
  * 问候语
  */
 const greeting = computed(() => {
-  const hour = new Date().getHours();
-  if (hour < 12) return t('pages.dashboard.morning');
-  if (hour < 18) return t('pages.dashboard.afternoon');
-  return t('pages.dashboard.evening');
-});
+  const hour = new Date().getHours()
+  if (hour < 12)
+    return t('pages.dashboard.morning')
+  if (hour < 18)
+    return t('pages.dashboard.afternoon')
+  return t('pages.dashboard.evening')
+})
 
 /**
  * 活动列表数据
@@ -62,8 +63,8 @@ const activities = ref<ActivityItem[]>([
   { id: '3', type: ACTIVITY_TYPE.WARNING, title: '库存预警', description: '商品 SKU-001 库存低于阈值', time: '1 小时前' },
   { id: '4', type: ACTIVITY_TYPE.SUCCESS, title: '支付成功', description: '收到支付 $299.00', time: '2 小时前' },
   { id: '5', type: ACTIVITY_TYPE.ERROR, title: '系统错误', description: 'API 响应超时', time: '3 小时前' },
-  { id: '6', type: ACTIVITY_TYPE.SUCCESS, title: '退款完成', description: '订单 #12340 退款已处理', time: '4 小时前' }
-]);
+  { id: '6', type: ACTIVITY_TYPE.SUCCESS, title: '退款完成', description: '订单 #12340 退款已处理', time: '4 小时前' },
+])
 
 /**
  * 快捷操作列表
@@ -72,50 +73,50 @@ const quickActions = ref<QuickAction[]>([
   { id: '1', label: '新建订单', icon: ShoppingCart, onClick: () => {}, variant: BUTTON_VARIANT.PRIMARY },
   { id: '2', label: '添加用户', icon: Users, onClick: () => {}, variant: BUTTON_VARIANT.DEFAULT },
   { id: '3', label: '生成报表', icon: FileText, onClick: () => {}, variant: BUTTON_VARIANT.DEFAULT },
-  { id: '4', label: '系统设置', icon: Settings, onClick: () => {}, variant: BUTTON_VARIANT.DEFAULT }
-]);
+  { id: '4', label: '系统设置', icon: Settings, onClick: () => {}, variant: BUTTON_VARIANT.DEFAULT },
+])
 
 /**
  * 核心指标数据
  */
 const metrics = ref([
-  { 
-    title: '总用户数', 
-    value: '12,847', 
-    change: 12.5, 
-    icon: Users, 
+  {
+    title: '总用户数',
+    value: '12,847',
+    change: 12.5,
+    icon: Users,
     description: '活跃用户占比 68%',
     colorTheme: 'blue' as const,
-    chartData: [45, 52, 48, 65, 72, 68, 75, 82, 78, 85, 88, 92]
+    chartData: [45, 52, 48, 65, 72, 68, 75, 82, 78, 85, 88, 92],
   },
-  { 
-    title: '总收入', 
-    value: '$84,230', 
-    change: 8.2, 
-    icon: DollarSign, 
+  {
+    title: '总收入',
+    value: '$84,230',
+    change: 8.2,
+    icon: DollarSign,
     description: '本月目标完成率 92%',
     colorTheme: 'green' as const,
-    chartData: [60, 65, 58, 70, 75, 72, 80, 85, 82, 88, 90, 95]
+    chartData: [60, 65, 58, 70, 75, 72, 80, 85, 82, 88, 90, 95],
   },
-  { 
-    title: '订单数', 
-    value: '3,421', 
-    change: -2.4, 
-    icon: ShoppingCart, 
+  {
+    title: '订单数',
+    value: '3,421',
+    change: -2.4,
+    icon: ShoppingCart,
     description: '待处理订单 156',
     colorTheme: 'orange' as const,
-    chartData: [70, 68, 72, 65, 60, 58, 62, 65, 68, 70, 72, 75]
+    chartData: [70, 68, 72, 65, 60, 58, 62, 65, 68, 70, 72, 75],
   },
-  { 
-    title: '转化率', 
-    value: '4.28%', 
-    change: 1.8, 
-    icon: TrendingUp, 
+  {
+    title: '转化率',
+    value: '4.28%',
+    change: 1.8,
+    icon: TrendingUp,
     description: '高于行业平均 15%',
     colorTheme: 'purple' as const,
-    chartData: [35, 38, 42, 40, 45, 48, 52, 50, 55, 58, 60, 65]
-  }
-]);
+    chartData: [35, 38, 42, 40, 45, 48, 52, 50, 55, 58, 60, 65],
+  },
+])
 
 /**
  * 系统状态数据
@@ -124,8 +125,8 @@ const systemStatus = ref([
   { name: 'API 服务', status: 'running', uptime: '99.9%' },
   { name: '数据库', status: 'running', uptime: '99.8%' },
   { name: '缓存服务', status: 'running', uptime: '99.9%' },
-  { name: '消息队列', status: 'running', uptime: '99.5%' }
-]);
+  { name: '消息队列', status: 'running', uptime: '99.5%' },
+])
 
 /**
  * 待处理事项
@@ -134,8 +135,8 @@ const pendingTasks = ref([
   { label: '库存预警', count: 5, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
   { label: '待审核订单', count: 12, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
   { label: '待处理退款', count: 2, color: 'text-purple-500', bgColor: 'bg-purple-500/10' },
-  { label: '系统通知', count: 8, color: 'text-cyan-500', bgColor: 'bg-cyan-500/10' }
-]);
+  { label: '系统通知', count: 8, color: 'text-cyan-500', bgColor: 'bg-cyan-500/10' },
+])
 </script>
 
 <template>
@@ -143,8 +144,12 @@ const pendingTasks = ref([
     <!-- 页面标题区域 -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">{{ $t('pages.dashboard.title') }}</h1>
-        <p class="text-muted-foreground mt-1">{{ $t('pages.dashboard.greeting') }}，{{ greeting }}！{{ $t('pages.dashboard.today') }} {{ currentDate }}</p>
+        <h1 class="text-3xl font-bold tracking-tight">
+          {{ $t('pages.dashboard.title') }}
+        </h1>
+        <p class="text-muted-foreground mt-1">
+          {{ $t('pages.dashboard.greeting') }}，{{ greeting }}！{{ $t('pages.dashboard.today') }} {{ currentDate }}
+        </p>
       </div>
       <div class="flex items-center gap-2">
         <Button variant="outline" size="sm" class="gap-2">
@@ -188,16 +193,28 @@ const pendingTasks = ref([
         >
           <div class="grid grid-cols-3 gap-3 mt-2">
             <div class="text-center p-3 bg-white/10 backdrop-blur-sm rounded-lg">
-              <p class="text-xs text-white/70">本周收入</p>
-              <p class="text-lg font-semibold text-white">$18.5k</p>
+              <p class="text-xs text-white/70">
+                本周收入
+              </p>
+              <p class="text-lg font-semibold text-white">
+                $18.5k
+              </p>
             </div>
             <div class="text-center p-3 bg-white/10 backdrop-blur-sm rounded-lg">
-              <p class="text-xs text-white/70">本周订单</p>
-              <p class="text-lg font-semibold text-white">856</p>
+              <p class="text-xs text-white/70">
+                本周订单
+              </p>
+              <p class="text-lg font-semibold text-white">
+                856
+              </p>
             </div>
             <div class="text-center p-3 bg-white/10 backdrop-blur-sm rounded-lg">
-              <p class="text-xs text-white/70">新客户</p>
-              <p class="text-lg font-semibold text-white">128</p>
+              <p class="text-xs text-white/70">
+                新客户
+              </p>
+              <p class="text-lg font-semibold text-white">
+                128
+              </p>
             </div>
           </div>
         </HeroCard>
@@ -210,7 +227,9 @@ const pendingTasks = ref([
           <CardHeader class="pb-4">
             <div class="flex items-center justify-between">
               <div>
-                <CardTitle class="text-base">本周趋势</CardTitle>
+                <CardTitle class="text-base">
+                  本周趋势
+                </CardTitle>
                 <CardDescription>过去 7 天数据变化</CardDescription>
               </div>
               <Badge variant="default" class="gap-1">
@@ -245,7 +264,9 @@ const pendingTasks = ref([
         <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader class="pb-4">
             <div class="flex items-center justify-between">
-              <CardTitle class="text-base">系统状态</CardTitle>
+              <CardTitle class="text-base">
+                系统状态
+              </CardTitle>
               <Badge variant="outline" class="text-emerald-500 border-emerald-500/20 bg-emerald-500/10">
                 <div class="w-1.5 h-1.5 bg-emerald-500 mr-1.5 animate-pulse rounded-full" />
                 正常运行
@@ -272,7 +293,9 @@ const pendingTasks = ref([
         <!-- 订单状态分布 -->
         <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader class="pb-4">
-            <CardTitle class="text-base">订单状态</CardTitle>
+            <CardTitle class="text-base">
+              订单状态
+            </CardTitle>
           </CardHeader>
           <CardContent class="pt-0">
             <div class="flex items-center justify-center mb-4">
@@ -280,20 +303,36 @@ const pendingTasks = ref([
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div class="text-center p-2 bg-muted/50 rounded-lg">
-                <p class="text-lg font-semibold">28</p>
-                <p class="text-xs text-muted-foreground">新订单</p>
+                <p class="text-lg font-semibold">
+                  28
+                </p>
+                <p class="text-xs text-muted-foreground">
+                  新订单
+                </p>
               </div>
               <div class="text-center p-2 bg-muted/50 rounded-lg">
-                <p class="text-lg font-semibold">15</p>
-                <p class="text-xs text-muted-foreground">处理中</p>
+                <p class="text-lg font-semibold">
+                  15
+                </p>
+                <p class="text-xs text-muted-foreground">
+                  处理中
+                </p>
               </div>
               <div class="text-center p-2 bg-muted/50 rounded-lg">
-                <p class="text-lg font-semibold">8</p>
-                <p class="text-xs text-muted-foreground">配送中</p>
+                <p class="text-lg font-semibold">
+                  8
+                </p>
+                <p class="text-xs text-muted-foreground">
+                  配送中
+                </p>
               </div>
               <div class="text-center p-2 bg-muted/50 rounded-lg">
-                <p class="text-lg font-semibold">42</p>
-                <p class="text-xs text-muted-foreground">已完成</p>
+                <p class="text-lg font-semibold">
+                  42
+                </p>
+                <p class="text-xs text-muted-foreground">
+                  已完成
+                </p>
               </div>
             </div>
           </CardContent>
@@ -306,8 +345,12 @@ const pendingTasks = ref([
         <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader class="pb-4">
             <div class="flex items-center justify-between">
-              <CardTitle class="text-base">待处理事项</CardTitle>
-              <Badge variant="secondary">{{ pendingTasks.reduce((acc, t) => acc + t.count, 0) }}</Badge>
+              <CardTitle class="text-base">
+                待处理事项
+              </CardTitle>
+              <Badge variant="secondary">
+                {{ pendingTasks.reduce((acc, t) => acc + t.count, 0) }}
+              </Badge>
             </div>
           </CardHeader>
           <CardContent class="pt-0">
@@ -318,13 +361,13 @@ const pendingTasks = ref([
                 class="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors cursor-pointer group rounded-lg"
               >
                 <div class="flex items-center gap-3">
-                  <div :class="['w-8 h-8 flex items-center justify-center rounded-lg', task.bgColor]">
-                    <AlertCircle :class="['h-4 w-4', task.color]" />
+                  <div class="w-8 h-8 flex items-center justify-center rounded-lg" :class="[task.bgColor]">
+                    <AlertCircle class="h-4 w-4" :class="[task.color]" />
                   </div>
                   <span class="text-sm">{{ task.label }}</span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span :class="['text-sm font-semibold', task.color]">{{ task.count }}</span>
+                  <span class="text-sm font-semibold" :class="[task.color]">{{ task.count }}</span>
                   <ArrowUpRight class="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </div>
@@ -335,7 +378,9 @@ const pendingTasks = ref([
         <!-- 处理效率 -->
         <Card class="bg-muted/40 border border-border/50 rounded-xl">
           <CardHeader class="pb-4">
-            <CardTitle class="text-base">平均处理时间</CardTitle>
+            <CardTitle class="text-base">
+              平均处理时间
+            </CardTitle>
           </CardHeader>
           <CardContent class="pt-0">
             <div class="space-y-4">

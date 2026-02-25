@@ -61,4 +61,4 @@ export default {
   groupAnalytics: '数据分析',
   groupSystem: '系统管理',
   groupDemos: '组件示例',
-} as const;
+} as const

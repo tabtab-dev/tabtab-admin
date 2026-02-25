@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { TooltipProvider } from '@/components/ui/tooltip'
-import { onMounted, onUnmounted } from 'vue'
-import Sonner from '@/components/ui/sonner/Sonner.vue'
+import { onMounted } from 'vue'
 import ErrorBoundary from '@/components/layout/ErrorBoundary.vue'
+import Sonner from '@/components/ui/sonner/Sonner.vue'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { setupGlobalErrorHandler } from '@/utils/errorHandler'
 
 /**

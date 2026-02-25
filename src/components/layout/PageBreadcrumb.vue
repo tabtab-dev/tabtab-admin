@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { MenuItem } from '@/types/menu'
+import { Icon } from '@/components/Icon'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,28 +8,26 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
-import { Icon } from '@/components/Icon';
-import { useMenuStore } from '@/stores/global/menu';
-import type { MenuItem } from '@/types/menu';
+} from '@/components/ui/breadcrumb'
+import { useMenuStore } from '@/stores/global/menu'
 
-const { t } = useI18n();
-const route = useRoute();
-const router = useRouter();
-const menuStore = useMenuStore();
+const { t } = useI18n()
+const route = useRoute()
+const router = useRouter()
+const menuStore = useMenuStore()
 
 /**
  * 面包屑项
  */
 interface BreadcrumbItemData {
   /** 标题 */
-  title: string;
+  title: string
   /** 路径 */
-  path: string;
+  path: string
   /** 图标名称 */
-  icon?: string;
+  icon?: string
   /** 是否可点击 */
-  clickable: boolean;
+  clickable: boolean
 }
 
 /**
@@ -37,40 +37,38 @@ interface BreadcrumbItemData {
  * @param currentPath 当前路径数组
  * @returns 路径数组或 null
  */
-const findPathInMenuTree = (
-  menus: MenuItem[],
-  targetPath: string,
-  currentPath: MenuItem[] = []
-): MenuItem[] | null => {
+function findPathInMenuTree(menus: MenuItem[], targetPath: string, currentPath: MenuItem[] = []): MenuItem[] | null {
   for (const menu of menus) {
-    const newPath = [...currentPath, menu];
+    const newPath = [...currentPath, menu]
 
     // 完全匹配
     if (menu.path === targetPath) {
-      return newPath;
+      return newPath
     }
 
     // 检查是否是父路径（用于子路由匹配）
-    if (targetPath.startsWith(menu.path + '/') && menu.children) {
-      const result = findPathInMenuTree(menu.children, targetPath, newPath);
-      if (result) return result;
+    if (targetPath.startsWith(`${menu.path}/`) && menu.children) {
+      const result = findPathInMenuTree(menu.children, targetPath, newPath)
+      if (result)
+        return result
     }
 
     // 继续搜索子菜单
     if (menu.children) {
-      const result = findPathInMenuTree(menu.children, targetPath, newPath);
-      if (result) return result;
+      const result = findPathInMenuTree(menu.children, targetPath, newPath)
+      if (result)
+        return result
     }
   }
-  return null;
-};
+  return null
+}
 
 /**
  * 面包屑数据
  */
 const breadcrumbs = computed<BreadcrumbItemData[]>(() => {
-  const currentPath = route.path;
-  const result: BreadcrumbItemData[] = [];
+  const currentPath = route.path
+  const result: BreadcrumbItemData[] = []
 
   // 1. 首页（始终显示）
   result.push({
@@ -78,59 +76,61 @@ const breadcrumbs = computed<BreadcrumbItemData[]>(() => {
     path: '/dashboard',
     icon: 'House',
     clickable: currentPath !== '/dashboard',
-  });
+  })
 
   // 如果当前就是首页，直接返回
   if (currentPath === '/dashboard') {
-    return result;
+    return result
   }
 
   // 2. 从菜单数据中查找路径
-  const menuPath = findPathInMenuTree(menuStore.menus, currentPath);
+  const menuPath = findPathInMenuTree(menuStore.menus, currentPath)
 
   if (menuPath && menuPath.length > 0) {
     // 使用菜单路径生成面包屑
     menuPath.forEach((menu, index) => {
-      const isLast = index === menuPath.length - 1;
+      const isLast = index === menuPath.length - 1
       result.push({
         title: t(menu.i18nKey),
         path: menu.path,
         icon: menu.icon,
         clickable: !isLast,
-      });
-    });
-  } else {
+      })
+    })
+  }
+  else {
     // 3. 回退：使用路由匹配生成面包屑
-    const matchedRoutes = route.matched.filter(r => r.path !== '');
+    const matchedRoutes = route.matched.filter(r => r.path !== '')
 
     matchedRoutes.forEach((matched, index) => {
       // 跳过根路由和 dashboard
-      if (matched.path === '/' || matched.path === '/dashboard') return;
+      if (matched.path === '/' || matched.path === '/dashboard')
+        return
 
-      const isLast = index === matchedRoutes.length - 1;
-      const title = menuStore.getRouteTitle(matched.path);
+      const isLast = index === matchedRoutes.length - 1
+      const title = menuStore.getRouteTitle(matched.path)
 
       result.push({
         title: t(title),
         path: matched.path,
         icon: undefined,
         clickable: !isLast && matched.path !== currentPath,
-      });
-    });
+      })
+    })
   }
 
-  return result;
-});
+  return result
+})
 
 /**
  * 处理面包屑点击
  * @param item 面包屑项
  */
-const handleBreadcrumbClick = (item: BreadcrumbItemData) => {
+function handleBreadcrumbClick(item: BreadcrumbItemData) {
   if (item.clickable && item.path) {
-    router.push(item.path);
+    router.push(item.path)
   }
-};
+}
 </script>
 
 <template>

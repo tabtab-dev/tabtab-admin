@@ -1,21 +1,22 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
-import { useThemeStore, presetThemes, type LayoutConfig } from '@/stores/global/theme';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import type { LayoutConfig } from '@/stores/global/theme'
+import { Check, CircleDot, Download, FolderTree, Layout, Monitor, Moon, Palette, PanelLeft, PanelTop, Sun, Type } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Slider } from '@/components/ui/slider'
 
-import { Sun, Moon, Monitor, Palette, Layout, Type, CircleDot, PanelLeft, PanelTop, FolderTree, Download, Check } from 'lucide-vue-next';
+import { Switch } from '@/components/ui/switch'
+import { useThemeStore } from '@/stores/global/theme'
 
-const { t } = useI18n();
-const themeStore = useThemeStore();
+const { t } = useI18n()
+const themeStore = useThemeStore()
 
 /**
  * 复制成功状态
  */
-const copied = ref(false);
+const copied = ref(false)
 
 /**
  * 主题颜色映射（用于显示色块）
@@ -41,7 +42,7 @@ const themeColorMap: Record<string, string> = {
   purple: 'bg-purple-500',
   fuchsia: 'bg-fuchsia-500',
   pink: 'bg-pink-500',
-};
+}
 
 /**
  * 字体大小选项
@@ -50,70 +51,70 @@ const fontSizes = [
   { value: 'sm', labelKey: 'common.theme.small', size: '14px' },
   { value: 'base', labelKey: 'common.theme.medium', size: '16px' },
   { value: 'lg', labelKey: 'common.theme.large', size: '18px' },
-];
+]
 
 /**
  * 更新圆角
  */
-const updateRadius = (value: number[]) => {
-  themeStore.updateLayoutConfig({ radius: value[0] });
-};
+function updateRadius(value: number[]) {
+  themeStore.updateLayoutConfig({ radius: value[0] })
+}
 
 /**
  * 更新侧边栏宽度
  */
-const updateSidebarWidth = (value: number[]) => {
-  themeStore.updateLayoutConfig({ sidebarWidth: value[0] });
-};
+function updateSidebarWidth(value: number[]) {
+  themeStore.updateLayoutConfig({ sidebarWidth: value[0] })
+}
 
 /**
  * 更新字体大小
  */
-const updateFontSize = (value: string) => {
-  themeStore.updateLayoutConfig({ fontSize: value as LayoutConfig['fontSize'] });
-};
+function updateFontSize(value: string) {
+  themeStore.updateLayoutConfig({ fontSize: value as LayoutConfig['fontSize'] })
+}
 
 /**
  * 更新动画开关
  */
-const updateAnimations = (value: boolean) => {
-  themeStore.updateLayoutConfig({ animations: value });
-};
+function updateAnimations(value: boolean) {
+  themeStore.updateLayoutConfig({ animations: value })
+}
 
 /**
  * 更新侧边栏折叠状态
  */
-const updateSidebarCollapsed = (value: boolean) => {
-  themeStore.updateLayoutConfig({ sidebarCollapsed: value });
-};
+function updateSidebarCollapsed(value: boolean) {
+  themeStore.updateLayoutConfig({ sidebarCollapsed: value })
+}
 
 /**
  * 更新标签栏显示状态
  */
-const updateShowTabBar = (value: boolean) => {
-  themeStore.updateLayoutConfig({ showTabBar: value });
-};
+function updateShowTabBar(value: boolean) {
+  themeStore.updateLayoutConfig({ showTabBar: value })
+}
 
 /**
  * 更新面包屑显示状态
  */
-const updateShowBreadcrumb = (value: boolean) => {
-  themeStore.updateLayoutConfig({ showBreadcrumb: value });
-};
+function updateShowBreadcrumb(value: boolean) {
+  themeStore.updateLayoutConfig({ showBreadcrumb: value })
+}
 
 /**
  * 更新固定标签栏状态
  */
-const updateFixedTabBar = (value: boolean) => {
-  themeStore.updateLayoutConfig({ fixedTabBar: value });
-};
+function updateFixedTabBar(value: boolean) {
+  themeStore.updateLayoutConfig({ fixedTabBar: value })
+}
 
 /**
  * 生成主题配置代码
  * @returns 可用于 theme.config.ts 的配置代码
  */
-const generateThemeConfigCode = (): string => {
-  const layout = themeStore.layoutConfig;
+function generateThemeConfigCode(): string {
+  const layout = themeStore.layoutConfig
   const config = {
     theme: themeStore.currentTheme,
     mode: themeStore.currentMode,
@@ -128,25 +129,26 @@ const generateThemeConfigCode = (): string => {
       fixedTabBar: layout.fixedTabBar,
     },
     customThemes: {},
-  };
-  return JSON.stringify(config, null, 2);
-};
+  }
+  return JSON.stringify(config, null, 2)
+}
 
 /**
  * 复制配置到剪贴板
  */
-const copyConfig = async () => {
-  const code = generateThemeConfigCode();
+async function copyConfig() {
+  const code = generateThemeConfigCode()
   try {
-    await navigator.clipboard.writeText(code);
-    copied.value = true;
+    await navigator.clipboard.writeText(code)
+    copied.value = true
     setTimeout(() => {
-      copied.value = false;
-    }, 2000);
-  } catch (err) {
-    console.error('复制失败:', err);
+      copied.value = false
+    }, 2000)
   }
-};
+  catch (err) {
+    console.error('复制失败:', err)
+  }
+}
 </script>
 
 <template>

@@ -2,71 +2,71 @@
  * 数据分析相关 API
  * @description 数据分析、统计报表等接口
  */
-import { api } from '../client';
+import { api } from '../client'
 
 /**
  * 核心指标数据
  */
 export interface CoreMetrics {
-  totalVisits: number;
-  visitsChange: number;
-  newUsers: number;
-  newUsersChange: number;
-  conversionRate: number;
-  conversionRateChange: number;
-  avgOrderValue: number;
-  avgOrderValueChange: number;
+  totalVisits: number
+  visitsChange: number
+  newUsers: number
+  newUsersChange: number
+  conversionRate: number
+  conversionRateChange: number
+  avgOrderValue: number
+  avgOrderValueChange: number
 }
 
 /**
  * 热销商品
  */
 export interface TopProduct {
-  id: string;
-  name: string;
-  sales: number;
-  revenue: number;
-  trend: number;
+  id: string
+  name: string
+  sales: number
+  revenue: number
+  trend: number
 }
 
 /**
  * 分类占比
  */
 export interface CategoryShare {
-  name: string;
-  percentage: number;
-  color: string;
-  amount: number;
+  name: string
+  percentage: number
+  color: string
+  amount: number
 }
 
 /**
  * 访问趋势数据
  */
 export interface TrafficData {
-  day: string;
-  visits: number;
-  orders: number;
+  day: string
+  visits: number
+  orders: number
 }
 
 /**
  * 用户行为数据
  */
 export interface UserBehavior {
-  label: string;
-  value: string;
-  change: number;
-  isPositive: boolean;
+  label: string
+  value: string
+  change: number
+  isPositive: boolean
 }
 
 /**
  * 分析数据响应
  */
 export interface AnalyticsData {
-  coreMetrics: CoreMetrics;
-  topProducts: TopProduct[];
-  categoryShares: CategoryShare[];
-  trafficData: TrafficData[];
-  userBehavior: UserBehavior[];
+  coreMetrics: CoreMetrics
+  topProducts: TopProduct[]
+  categoryShares: CategoryShare[]
+  trafficData: TrafficData[]
+  userBehavior: UserBehavior[]
 }
 
 /**
@@ -126,4 +126,4 @@ export const analyticsApi = {
     api.get<AnalyticsData>('/analytics/dashboard', {
       params: { timeRange },
     }),
-};
+}

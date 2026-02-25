@@ -61,4 +61,4 @@ export default {
   groupAnalytics: 'Analytics',
   groupSystem: 'System Management',
   groupDemos: 'Component Demos',
-} as const;
+} as const

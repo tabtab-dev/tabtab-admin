@@ -1,16 +1,16 @@
 <script setup lang="ts">
+import type { FormSchema, TableSchema, TFormExpose, TModalExpose } from '@/components/business'
+import { FormInput, LayoutTemplate, MessageSquare, Table2 } from 'lucide-vue-next'
 /**
  * TModalDemo - TModal 组件演示页面
  *
  * @description 展示 TModal 对话框组件的各种使用场景和配置方式
  */
-import { TModal, TForm, TTable } from '@/components/business'
-import type { TModalExpose, TFormExpose, FormSchema, TableSchema } from '@/components/business'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { TForm, TModal, TTable } from '@/components/business'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { MessageSquare, LayoutTemplate, Table2, FormInput } from 'lucide-vue-next'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 /**
  * Modal 引用
@@ -36,7 +36,7 @@ const formMode1Open = ref(false)
 const formMode1Data = ref({
   name: '',
   email: '',
-  role: 'viewer'
+  role: 'viewer',
 })
 
 /**
@@ -50,7 +50,7 @@ const formMode1Schema: FormSchema = {
       type: 'input',
       label: '姓名',
       placeholder: '请输入姓名',
-      rules: [{ required: true, message: '姓名不能为空' }]
+      rules: [{ required: true, message: '姓名不能为空' }],
     },
     {
       name: 'email',
@@ -59,8 +59,8 @@ const formMode1Schema: FormSchema = {
       placeholder: '请输入邮箱',
       rules: [
         { required: true, message: '邮箱不能为空' },
-        { type: 'email', message: '邮箱格式不正确' }
-      ]
+        { type: 'email', message: '邮箱格式不正确' },
+      ],
     },
     {
       name: 'role',
@@ -69,10 +69,10 @@ const formMode1Schema: FormSchema = {
       options: [
         { label: '管理员', value: 'admin' },
         { label: '编辑', value: 'editor' },
-        { label: '访客', value: 'viewer' }
-      ]
-    }
-  ]
+        { label: '访客', value: 'viewer' },
+      ],
+    },
+  ],
 }
 
 /**
@@ -96,7 +96,7 @@ const formMode2Open = ref(false)
 const formMode2Data = ref({
   name: '',
   email: '',
-  role: 'viewer'
+  role: 'viewer',
 })
 
 /**
@@ -110,7 +110,7 @@ const formMode2Schema: FormSchema = {
       type: 'input',
       label: '姓名',
       placeholder: '请输入姓名',
-      rules: [{ required: true, message: '姓名不能为空' }]
+      rules: [{ required: true, message: '姓名不能为空' }],
     },
     {
       name: 'email',
@@ -119,8 +119,8 @@ const formMode2Schema: FormSchema = {
       placeholder: '请输入邮箱',
       rules: [
         { required: true, message: '邮箱不能为空' },
-        { type: 'email', message: '邮箱格式不正确' }
-      ]
+        { type: 'email', message: '邮箱格式不正确' },
+      ],
     },
     {
       name: 'role',
@@ -129,10 +129,10 @@ const formMode2Schema: FormSchema = {
       options: [
         { label: '管理员', value: 'admin' },
         { label: '编辑', value: 'editor' },
-        { label: '访客', value: 'viewer' }
-      ]
-    }
-  ]
+        { label: '访客', value: 'viewer' },
+      ],
+    },
+  ],
 }
 
 /**
@@ -157,9 +157,9 @@ const tableSchema: TableSchema = {
     { title: 'ID', dataIndex: 'id', width: 80 },
     { title: '姓名', dataIndex: 'name', width: 120 },
     { title: '邮箱', dataIndex: 'email' },
-    { title: '角色', dataIndex: 'role', width: 100 }
+    { title: '角色', dataIndex: 'role', width: 100 },
   ],
-  pagination: { pageSize: 5, show: true }
+  pagination: { pageSize: 5, show: true },
 }
 
 /**
@@ -170,7 +170,7 @@ const tableData = ref([
   { id: 2, name: '李四', email: 'lisi@example.com', role: '编辑' },
   { id: 3, name: '王五', email: 'wangwu@example.com', role: '访客' },
   { id: 4, name: '赵六', email: 'zhaoliu@example.com', role: '编辑' },
-  { id: 5, name: '孙七', email: 'sunqi@example.com', role: '访客' }
+  { id: 5, name: '孙七', email: 'sunqi@example.com', role: '访客' },
 ])
 
 /**
@@ -204,8 +204,6 @@ const customFooterContentOpen = ref(false)
  */
 const widthOpen = ref(false)
 const modalWidth = ref(520)
-
-
 
 /**
  * 处理异步确认
@@ -247,7 +245,9 @@ function closeModalByRef() {
     <!-- 页面标题 -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">TModal 组件演示</h1>
+        <h1 class="text-3xl font-bold tracking-tight">
+          TModal 组件演示
+        </h1>
         <p class="text-muted-foreground mt-2">
           基于 antdv-next 封装的对话框组件，支持多种使用场景
         </p>
@@ -289,7 +289,9 @@ function closeModalByRef() {
             </CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
-            <Button @click="basicOpen = true">打开基础弹窗</Button>
+            <Button @click="basicOpen = true">
+              打开基础弹窗
+            </Button>
 
             <TModal
               v-model:open="basicOpen"
@@ -313,8 +315,12 @@ function closeModalByRef() {
           </CardHeader>
           <CardContent class="space-y-4">
             <div class="flex gap-2">
-              <Button @click="openModalByRef">打开弹窗</Button>
-              <Button variant="outline" @click="closeModalByRef">关闭弹窗</Button>
+              <Button @click="openModalByRef">
+                打开弹窗
+              </Button>
+              <Button variant="outline" @click="closeModalByRef">
+                关闭弹窗
+              </Button>
             </div>
 
             <TModal
@@ -338,7 +344,9 @@ function closeModalByRef() {
             </CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
-            <Button variant="outline" @click="noFooterOpen = true">打开无底部弹窗</Button>
+            <Button variant="outline" @click="noFooterOpen = true">
+              打开无底部弹窗
+            </Button>
 
             <TModal
               v-model:open="noFooterOpen"
@@ -362,9 +370,15 @@ function closeModalByRef() {
           </CardHeader>
           <CardContent class="space-y-4">
             <div class="flex flex-wrap gap-2">
-              <Button variant="outline" @click="openWidthModal(400)">窄弹窗 (400px)</Button>
-              <Button variant="outline" @click="openWidthModal(600)">中等弹窗 (600px)</Button>
-              <Button variant="outline" @click="openWidthModal(800)">宽弹窗 (800px)</Button>
+              <Button variant="outline" @click="openWidthModal(400)">
+                窄弹窗 (400px)
+              </Button>
+              <Button variant="outline" @click="openWidthModal(600)">
+                中等弹窗 (600px)
+              </Button>
+              <Button variant="outline" @click="openWidthModal(800)">
+                宽弹窗 (800px)
+              </Button>
             </div>
 
             <TModal
@@ -388,14 +402,18 @@ function closeModalByRef() {
           <CardHeader>
             <CardTitle class="flex items-center gap-2">
               模式1：TModal 控制提交
-              <Badge variant="default" class="text-xs">推荐</Badge>
+              <Badge variant="default" class="text-xs">
+                推荐
+              </Badge>
             </CardTitle>
             <CardDescription>
               TModal 显示底部按钮，通过 form-ref 关联 TForm，点击确定自动触发表单验证和提交
             </CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
-            <Button @click="formMode1Open = true">打开表单弹窗（模式1）</Button>
+            <Button @click="formMode1Open = true">
+              打开表单弹窗（模式1）
+            </Button>
 
             <TModal
               v-model:open="formMode1Open"
@@ -414,7 +432,9 @@ function closeModalByRef() {
 
             <!-- 代码示例 -->
             <div class="p-3 bg-muted rounded-lg text-xs">
-              <p class="font-medium mb-1">使用方式：</p>
+              <p class="font-medium mb-1">
+                使用方式：
+              </p>
               <pre class="text-muted-foreground overflow-x-auto">
 &lt;TModal v-model:open="open" title="编辑" :form-ref="formRef" @submit="handleSubmit"&gt;
   &lt;TForm ref="formRef" v-model="formData" :schema="schema" embedded /&gt;
@@ -432,7 +452,9 @@ function closeModalByRef() {
             </CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
-            <Button variant="outline" @click="formMode2Open = true">打开表单弹窗（模式2）</Button>
+            <Button variant="outline" @click="formMode2Open = true">
+              打开表单弹窗（模式2）
+            </Button>
 
             <TModal
               v-model:open="formMode2Open"
@@ -448,7 +470,9 @@ function closeModalByRef() {
 
             <!-- 代码示例 -->
             <div class="p-3 bg-muted rounded-lg text-xs">
-              <p class="font-medium mb-1">使用方式：</p>
+              <p class="font-medium mb-1">
+                使用方式：
+              </p>
               <pre class="text-muted-foreground overflow-x-auto">
 &lt;TModal v-model:open="open" title="编辑" :footer="false"&gt;
   &lt;TForm v-model="formData" :schema="schema" @submit="handleSubmit" /&gt;
@@ -470,7 +494,9 @@ function closeModalByRef() {
               <div class="p-4 border rounded-lg border-primary/50 bg-primary/5">
                 <h4 class="font-medium mb-2 text-primary flex items-center gap-2">
                   模式1：TModal 控制提交
-                  <Badge variant="default" class="text-xs">推荐</Badge>
+                  <Badge variant="default" class="text-xs">
+                    推荐
+                  </Badge>
                 </h4>
                 <ul class="space-y-1 text-sm text-muted-foreground list-disc list-inside">
                   <li>统一使用 TModal 的 confirmLoading 管理 loading</li>
@@ -481,7 +507,9 @@ function closeModalByRef() {
                 </ul>
               </div>
               <div class="p-4 border rounded-lg">
-                <h4 class="font-medium mb-2">模式2：TForm 控制提交</h4>
+                <h4 class="font-medium mb-2">
+                  模式2：TForm 控制提交
+                </h4>
                 <ul class="space-y-1 text-sm text-muted-foreground list-disc list-inside">
                   <li>表单逻辑自包含</li>
                   <li>无需处理 form-ref 关联</li>
@@ -502,7 +530,9 @@ function closeModalByRef() {
             </CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
-            <Button @click="asyncOpen = true">打开异步弹窗</Button>
+            <Button @click="asyncOpen = true">
+              打开异步弹窗
+            </Button>
 
             <TModal
               v-model:open="asyncOpen"
@@ -528,8 +558,12 @@ function closeModalByRef() {
           </CardHeader>
           <CardContent class="space-y-4">
             <div class="flex flex-wrap gap-2">
-              <Button variant="outline" @click="noFooterOpen = true">无底部按钮</Button>
-              <Button variant="outline" @click="customFooterContentOpen = true">自定义底部内容</Button>
+              <Button variant="outline" @click="noFooterOpen = true">
+                无底部按钮
+              </Button>
+              <Button variant="outline" @click="customFooterContentOpen = true">
+                自定义底部内容
+              </Button>
             </div>
 
             <!-- 无底部按钮 -->
@@ -568,7 +602,9 @@ function closeModalByRef() {
 
             <!-- 代码示例 -->
             <div class="p-3 bg-muted rounded-lg text-xs">
-              <p class="font-medium mb-1">使用方式：</p>
+              <p class="font-medium mb-1">
+                使用方式：
+              </p>
               <pre class="text-muted-foreground overflow-x-auto">
 <!-- 隐藏底部按钮 -->
 &lt;TModal v-model:open="open" title="标题" :footer="false"&gt;
@@ -598,7 +634,9 @@ function closeModalByRef() {
             </CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
-            <Button @click="tableOpen = true">打开表格弹窗</Button>
+            <Button @click="tableOpen = true">
+              打开表格弹窗
+            </Button>
 
             <TModal
               v-model:open="tableOpen"
@@ -622,7 +660,9 @@ function closeModalByRef() {
             </CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
-            <Button @click="centeredOpen = true">打开居中弹窗</Button>
+            <Button @click="centeredOpen = true">
+              打开居中弹窗
+            </Button>
 
             <TModal
               v-model:open="centeredOpen"
@@ -646,7 +686,9 @@ function closeModalByRef() {
             </CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
-            <Button @click="customFooterOpen = true">打开自定义底部弹窗</Button>
+            <Button @click="customFooterOpen = true">
+              打开自定义底部弹窗
+            </Button>
 
             <TModal
               v-model:open="customFooterOpen"

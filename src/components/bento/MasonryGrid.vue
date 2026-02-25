@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from 'vue'
 
 /**
  * MasonryGrid Props 接口定义
@@ -9,14 +9,14 @@ import { computed } from 'vue';
  */
 interface MasonryGridProps {
   columns?: {
-    default?: number;
-    sm?: number;
-    md?: number;
-    lg?: number;
-    xl?: number;
-  };
-  gap?: 'sm' | 'md' | 'lg';
-  className?: string;
+    default?: number
+    sm?: number
+    md?: number
+    lg?: number
+    xl?: number
+  }
+  gap?: 'sm' | 'md' | 'lg'
+  className?: string
 }
 
 const props = withDefaults(defineProps<MasonryGridProps>(), {
@@ -25,11 +25,11 @@ const props = withDefaults(defineProps<MasonryGridProps>(), {
     sm: 1,
     md: 2,
     lg: 3,
-    xl: 4
+    xl: 4,
   }),
   gap: 'md',
-  className: ''
-});
+  className: '',
+})
 
 /**
  * 计算间距类名
@@ -39,10 +39,10 @@ const gapClasses = computed(() => {
   const gaps = {
     sm: 'gap-3',
     md: 'gap-4',
-    lg: 'gap-6'
-  };
-  return gaps[props.gap];
-});
+    lg: 'gap-6',
+  }
+  return gaps[props.gap]
+})
 
 /**
  * 计算 CSS columns 样式
@@ -50,20 +50,20 @@ const gapClasses = computed(() => {
  * @returns CSS 样式对象
  */
 const columnStyles = computed(() => {
-  const cols = props.columns;
+  const cols = props.columns
   return {
     '--masonry-cols-default': cols.default || 1,
     '--masonry-cols-sm': cols.sm || cols.default || 1,
     '--masonry-cols-md': cols.md || cols.sm || cols.default || 1,
     '--masonry-cols-lg': cols.lg || cols.md || cols.sm || cols.default || 1,
-    '--masonry-cols-xl': cols.xl || cols.lg || cols.md || cols.sm || cols.default || 1
-  };
-});
+    '--masonry-cols-xl': cols.xl || cols.lg || cols.md || cols.sm || cols.default || 1,
+  }
+})
 </script>
 
 <template>
-  <div 
-    class="masonry-grid" 
+  <div
+    class="masonry-grid"
     :class="[gapClasses, className]"
     :style="columnStyles"
   >

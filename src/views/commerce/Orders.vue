@@ -1,28 +1,27 @@
 <script setup lang="ts">
+import type { FormSchema, TableSchema, TTableExpose } from '@/components/business'
+
+import type { Order } from '@/types'
+import { Space, Tag } from 'antdv-next'
+import {
+  CheckCircle,
+  Clock,
+  DollarSign,
+  Package,
+  ShoppingCart,
+  XCircle,
+} from 'lucide-vue-next'
+
+import { ordersApi } from '@/api'
 /**
  * 订单管理页 - 使用 useMutation 重构
  *
  * @description 基于 JSON 配置化的订单管理页面
  */
-import { TTable, TForm, TModal, TDataCard, TPageHeader, TBatchActions, TStatusBadge, TEmptyState } from '@/components/business'
-import type { TableSchema, TTableExpose } from '@/components/business'
-import type { FormSchema } from '@/components/business'
+import { TBatchActions, TDataCard, TEmptyState, TForm, TModal, TPageHeader, TStatusBadge, TTable } from '@/components/business'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-
-import type { Order } from '@/types'
-import { ordersApi } from '@/api'
-import { useTableData, useMutation } from '@/composables'
-import {
-  Plus,
-  ShoppingCart,
-  Clock,
-  Package,
-  CheckCircle,
-  XCircle,
-  DollarSign
-} from 'lucide-vue-next'
-import { Tag, Space } from 'antdv-next'
+import { useMutation, useTableData } from '@/composables'
 import { ORDER_STATUS, STATUS_CONFIG } from '@/constants'
 
 // ==================== 类型定义 ====================
@@ -56,7 +55,7 @@ const {
     return res || { list: [], total: 0, page: 1, pageSize: 10 }
   },
   // 构建 API 请求参数
-  apiCallParams: (ctx) => ({
+  apiCallParams: ctx => ({
     page: ctx.page,
     pageSize: ctx.pageSize,
     search: ctx.searchQuery,
@@ -91,7 +90,7 @@ const { mutate: createOrder } = useMutation({
     total: Number(values.total),
     items: Number(values.items),
     status: values.status,
-    note: values.note
+    note: values.note,
   }),
   onSuccess: () => {
     isAddDialogOpen.value = false
@@ -103,15 +102,15 @@ const { mutate: createOrder } = useMutation({
       total: 0,
       items: 1,
       status: ORDER_STATUS.PENDING,
-      note: ''
+      note: '',
     }
     fetchData()
-  }
+  },
 })
 
 const { mutate: deleteOrder, loading: deleting } = useMutation({
   mutationFn: (id: string) => ordersApi.deleteOrder(id),
-  onSuccess: () => fetchData()
+  onSuccess: () => fetchData(),
 })
 
 const { mutate: batchDeleteOrders } = useMutation({
@@ -119,7 +118,7 @@ const { mutate: batchDeleteOrders } = useMutation({
   onSuccess: () => {
     tableRef.value?.clearSelection()
     fetchData()
-  }
+  },
 })
 
 // ==================== 统计数据 ====================
@@ -131,36 +130,36 @@ const statisticsCards = computed(() => {
       value: stats.total || 0,
       icon: ShoppingCart,
       color: 'text-blue-500',
-      bgColor: 'bg-blue-50'
+      bgColor: 'bg-blue-50',
     },
     {
       title: '待处理',
       value: stats.pending || 0,
       icon: Clock,
       color: 'text-yellow-500',
-      bgColor: 'bg-yellow-50'
+      bgColor: 'bg-yellow-50',
     },
     {
       title: '处理中',
       value: stats.processing || 0,
       icon: Package,
       color: 'text-purple-500',
-      bgColor: 'bg-purple-50'
+      bgColor: 'bg-purple-50',
     },
     {
       title: '已完成',
       value: stats.completed || 0,
       icon: CheckCircle,
       color: 'text-green-500',
-      bgColor: 'bg-green-50'
-    }
+      bgColor: 'bg-green-50',
+    },
   ]
 })
 
 // ==================== 搜索表单 ====================
 const searchFormData = ref({
   keyword: '',
-  status: ''
+  status: '',
 })
 
 const searchSchema: FormSchema = {
@@ -171,7 +170,7 @@ const searchSchema: FormSchema = {
       type: 'input',
       label: '',
       placeholder: '搜索订单号、客户...',
-      className: 'w-[240px]'
+      className: 'w-[240px]',
     },
     {
       name: 'status',
@@ -183,10 +182,10 @@ const searchSchema: FormSchema = {
         { label: STATUS_CONFIG.ORDER.PENDING.text, value: STATUS_CONFIG.ORDER.PENDING.value },
         { label: STATUS_CONFIG.ORDER.PROCESSING.text, value: STATUS_CONFIG.ORDER.PROCESSING.value },
         { label: STATUS_CONFIG.ORDER.COMPLETED.text, value: STATUS_CONFIG.ORDER.COMPLETED.value },
-        { label: STATUS_CONFIG.ORDER.CANCELLED.text, value: STATUS_CONFIG.ORDER.CANCELLED.value }
+        { label: STATUS_CONFIG.ORDER.CANCELLED.text, value: STATUS_CONFIG.ORDER.CANCELLED.value },
       ],
-      className: 'w-[140px]'
-    }
+      className: 'w-[140px]',
+    },
   ],
   searchConfig: {
     enabled: true,
@@ -205,8 +204,8 @@ const searchSchema: FormSchema = {
     onReset: () => {
       searchQuery.value = ''
       filters.value = {}
-    }
-  }
+    },
+  },
 }
 
 // ==================== 表格配置 ====================
@@ -218,26 +217,26 @@ const tableSchema = computed<TableSchema>(() => ({
       title: '订单号',
       dataIndex: 'orderNo',
       width: 150,
-      slot: 'orderNo'
+      slot: 'orderNo',
     },
     {
       title: '客户信息',
       dataIndex: 'customer',
       width: 180,
-      slot: 'customer'
+      slot: 'customer',
     },
     {
       title: '商品数量',
       dataIndex: 'items',
       width: 100,
-      align: 'center'
+      align: 'center',
     },
     {
       title: '订单金额',
       dataIndex: 'total',
       width: 120,
       slot: 'total',
-      sorter: true
+      sorter: true,
     },
     {
       title: '状态',
@@ -248,55 +247,55 @@ const tableSchema = computed<TableSchema>(() => ({
         { text: STATUS_CONFIG.ORDER.PENDING.text, value: STATUS_CONFIG.ORDER.PENDING.value },
         { text: STATUS_CONFIG.ORDER.PROCESSING.text, value: STATUS_CONFIG.ORDER.PROCESSING.value },
         { text: STATUS_CONFIG.ORDER.COMPLETED.text, value: STATUS_CONFIG.ORDER.COMPLETED.value },
-        { text: STATUS_CONFIG.ORDER.CANCELLED.text, value: STATUS_CONFIG.ORDER.CANCELLED.value }
-      ]
+        { text: STATUS_CONFIG.ORDER.CANCELLED.text, value: STATUS_CONFIG.ORDER.CANCELLED.value },
+      ],
     },
     {
       title: '下单日期',
       dataIndex: 'date',
       width: 120,
-      sorter: true
+      sorter: true,
     },
     {
       title: '收货地址',
       dataIndex: 'address',
       width: 200,
-      ellipsis: true
-    }
+      ellipsis: true,
+    },
   ],
   pagination: {
     pageSize: 10,
     show: true,
     showSizeChanger: true,
-    showQuickJumper: true
+    showQuickJumper: true,
   },
   rowSelection: {
     type: 'checkbox',
-    show: true
+    show: true,
   },
   actions: [
     {
       text: '查看',
       type: 'primary',
-      onClick: (record) => handleViewOrder(record as unknown as Order)
+      onClick: record => handleViewOrder(record as unknown as Order),
     },
     {
       text: '删除',
       type: 'danger',
       confirm: true,
       confirmText: '确定要删除该订单吗？此操作不可恢复。',
-      onClick: (record) => handleDeleteOrder((record as unknown as Order).id)
-    }
+      onClick: record => handleDeleteOrder((record as unknown as Order).id),
+    },
   ],
   actionWidth: 150,
-  actionFixed: 'right'
+  actionFixed: 'right',
 }))
 
 // 表格数据 - 后端分页直接使用 orders
 const tableData = computed(() => {
   return orders.value.map(order => ({
     ...order,
-    key: order.id
+    key: order.id,
   }))
 })
 
@@ -304,8 +303,6 @@ const tableData = computed(() => {
 const isAddDialogOpen = ref(false)
 const isViewDialogOpen = ref(false)
 const viewingOrder = ref<Order | null>(null)
-
-
 
 // 新增表单数据
 const addFormData = ref({
@@ -316,7 +313,7 @@ const addFormData = ref({
   total: 0,
   items: 1,
   status: ORDER_STATUS.PENDING,
-  note: ''
+  note: '',
 })
 
 // 新增表单 Schema
@@ -330,7 +327,7 @@ const addSchema: FormSchema = {
       type: 'input',
       label: '客户姓名',
       placeholder: '请输入客户姓名',
-      rules: [{ required: true, message: '客户姓名不能为空' }]
+      rules: [{ required: true, message: '客户姓名不能为空' }],
     },
     {
       name: 'email',
@@ -339,36 +336,36 @@ const addSchema: FormSchema = {
       placeholder: '请输入邮箱',
       rules: [
         { required: true, message: '邮箱不能为空' },
-        { type: 'email', message: '邮箱格式不正确' }
-      ]
+        { type: 'email', message: '邮箱格式不正确' },
+      ],
     },
     {
       name: 'phone',
       type: 'input',
       label: '电话',
       placeholder: '请输入电话',
-      rules: [{ required: true, message: '电话不能为空' }]
+      rules: [{ required: true, message: '电话不能为空' }],
     },
     {
       name: 'address',
       type: 'input',
       label: '收货地址',
       placeholder: '请输入收货地址',
-      rules: [{ required: true, message: '收货地址不能为空' }]
+      rules: [{ required: true, message: '收货地址不能为空' }],
     },
     {
       name: 'total',
       type: 'number',
       label: '订单金额',
       placeholder: '请输入订单金额',
-      rules: [{ required: true, message: '订单金额不能为空' }]
+      rules: [{ required: true, message: '订单金额不能为空' }],
     },
     {
       name: 'items',
       type: 'number',
       label: '商品数量',
       placeholder: '请输入商品数量',
-      rules: [{ required: true, message: '商品数量不能为空' }]
+      rules: [{ required: true, message: '商品数量不能为空' }],
     },
     {
       name: 'status',
@@ -379,16 +376,16 @@ const addSchema: FormSchema = {
         { label: STATUS_CONFIG.ORDER.PENDING.text, value: STATUS_CONFIG.ORDER.PENDING.value },
         { label: STATUS_CONFIG.ORDER.PROCESSING.text, value: STATUS_CONFIG.ORDER.PROCESSING.value },
         { label: STATUS_CONFIG.ORDER.COMPLETED.text, value: STATUS_CONFIG.ORDER.COMPLETED.value },
-        { label: STATUS_CONFIG.ORDER.CANCELLED.text, value: STATUS_CONFIG.ORDER.CANCELLED.value }
+        { label: STATUS_CONFIG.ORDER.CANCELLED.text, value: STATUS_CONFIG.ORDER.CANCELLED.value },
       ],
-      rules: [{ required: true, message: '请选择订单状态' }]
+      rules: [{ required: true, message: '请选择订单状态' }],
     },
     {
       name: 'note',
       type: 'textarea',
       label: '备注',
-      placeholder: '请输入备注（可选）'
-    }
+      placeholder: '请输入备注（可选）',
+    },
   ],
   actions: {
     showSubmit: true,
@@ -398,8 +395,8 @@ const addSchema: FormSchema = {
     align: 'right',
     onReset: () => {
       isAddDialogOpen.value = false
-    }
-  }
+    },
+  },
 }
 
 // ==================== 事件处理 ====================
@@ -454,7 +451,6 @@ function handleTableChange(pagination: any): void {
     setPageSize(pagination.pageSize)
   }
 }
-
 </script>
 
 <template>
@@ -464,7 +460,7 @@ function handleTableChange(pagination: any): void {
       title="订单管理"
       subtitle="查看和管理所有订单"
       :actions="[
-        { text: '创建订单', type: 'primary', iconName: 'Plus', onClick: () => isAddDialogOpen = true }
+        { text: '创建订单', type: 'primary', iconName: 'Plus', onClick: () => isAddDialogOpen = true },
       ]"
     />
 
@@ -507,7 +503,9 @@ function handleTableChange(pagination: any): void {
       <CardHeader>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <CardTitle class="text-base font-semibold">订单列表</CardTitle>
+            <CardTitle class="text-base font-semibold">
+              订单列表
+            </CardTitle>
             <span class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
               共 {{ tableData.length }} 单
             </span>
@@ -523,8 +521,8 @@ function handleTableChange(pagination: any): void {
                   type: 'danger',
                   confirm: true,
                   confirmText: '确定要删除选中的订单吗？此操作不可恢复。',
-                  onClick: handleBatchDelete
-                }
+                  onClick: handleBatchDelete,
+                },
               ]"
               @clear="handleClearSelection"
             />
@@ -569,7 +567,7 @@ function handleTableChange(pagination: any): void {
                 [ORDER_STATUS.PENDING]: { text: '待处理', color: 'pending' },
                 [ORDER_STATUS.PROCESSING]: { text: '处理中', color: 'processing' },
                 [ORDER_STATUS.COMPLETED]: { text: '已完成', color: 'success' },
-                [ORDER_STATUS.CANCELLED]: { text: '已取消', color: 'error' }
+                [ORDER_STATUS.CANCELLED]: { text: '已取消', color: 'error' },
               }"
             />
           </template>
@@ -599,8 +597,12 @@ function handleTableChange(pagination: any): void {
         <!-- 订单基本信息 -->
         <div class="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
           <div>
-            <p class="text-sm text-muted-foreground">订单号</p>
-            <p class="font-mono font-medium">{{ viewingOrder.orderNo }}</p>
+            <p class="text-sm text-muted-foreground">
+              订单号
+            </p>
+            <p class="font-mono font-medium">
+              {{ viewingOrder.orderNo }}
+            </p>
           </div>
           <Tag :color="(viewingOrder.status === ORDER_STATUS.PENDING ? 'warning' : viewingOrder.status === ORDER_STATUS.PROCESSING ? 'processing' : viewingOrder.status === ORDER_STATUS.COMPLETED ? 'success' : 'error')">
             <Space>
@@ -612,18 +614,26 @@ function handleTableChange(pagination: any): void {
 
         <!-- 客户信息 -->
         <div class="space-y-3">
-          <h4 class="font-medium">客户信息</h4>
+          <h4 class="font-medium">
+            客户信息
+          </h4>
           <div class="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p class="text-muted-foreground">姓名</p>
+              <p class="text-muted-foreground">
+                姓名
+              </p>
               <p>{{ viewingOrder.customer }}</p>
             </div>
             <div>
-              <p class="text-muted-foreground">电话</p>
+              <p class="text-muted-foreground">
+                电话
+              </p>
               <p>{{ viewingOrder.phone }}</p>
             </div>
             <div class="col-span-2">
-              <p class="text-muted-foreground">邮箱</p>
+              <p class="text-muted-foreground">
+                邮箱
+              </p>
               <p>{{ viewingOrder.email }}</p>
             </div>
           </div>
@@ -631,22 +641,34 @@ function handleTableChange(pagination: any): void {
 
         <!-- 订单信息 -->
         <div class="space-y-3">
-          <h4 class="font-medium">订单信息</h4>
+          <h4 class="font-medium">
+            订单信息
+          </h4>
           <div class="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p class="text-muted-foreground">商品数量</p>
+              <p class="text-muted-foreground">
+                商品数量
+              </p>
               <p>{{ viewingOrder.items }} 件</p>
             </div>
             <div>
-              <p class="text-muted-foreground">订单金额</p>
-              <p class="font-medium text-primary">¥{{ viewingOrder.total.toFixed(2) }}</p>
+              <p class="text-muted-foreground">
+                订单金额
+              </p>
+              <p class="font-medium text-primary">
+                ¥{{ viewingOrder.total.toFixed(2) }}
+              </p>
             </div>
             <div>
-              <p class="text-muted-foreground">下单日期</p>
+              <p class="text-muted-foreground">
+                下单日期
+              </p>
               <p>{{ viewingOrder.date }}</p>
             </div>
             <div class="col-span-2">
-              <p class="text-muted-foreground">收货地址</p>
+              <p class="text-muted-foreground">
+                收货地址
+              </p>
               <p>{{ viewingOrder.address }}</p>
             </div>
           </div>
@@ -654,7 +676,9 @@ function handleTableChange(pagination: any): void {
 
         <!-- 备注 -->
         <div v-if="viewingOrder.note" class="space-y-3">
-          <h4 class="font-medium">备注</h4>
+          <h4 class="font-medium">
+            备注
+          </h4>
           <p class="text-sm text-muted-foreground p-3 bg-muted/50 rounded-lg">
             {{ viewingOrder.note }}
           </p>

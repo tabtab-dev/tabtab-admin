@@ -128,7 +128,7 @@ export interface TableColumn {
   /** 自定义筛选函数 */
   onFilter?: (value: string | number | boolean, record: TableRecord) => boolean
   /** 是否省略显示 */
-  ellipsis?: boolean | { showTitle?: boolean; tooltip?: boolean }
+  ellipsis?: boolean | { showTitle?: boolean, tooltip?: boolean }
   /** 是否可编辑 */
   editable?: boolean
   /** 自定义插槽名（用于自定义单元格内容） */
@@ -138,9 +138,9 @@ export interface TableColumn {
   /** 透传给 antd 列的其他属性 */
   props?: Record<string, unknown>
   /** 自定义渲染函数 */
-  customRender?: (params: { text: unknown; record: TableRecord; index: number; column: TableColumn }) => unknown
+  customRender?: (params: { text: unknown, record: TableRecord, index: number, column: TableColumn }) => unknown
   /** 自定义表头渲染函数 */
-  customHeaderRender?: (params: { title: unknown; column: TableColumn; index: number }) => unknown
+  customHeaderRender?: (params: { title: unknown, column: TableColumn, index: number }) => unknown
   /** 列的类名 */
   className?: string
 }
@@ -165,10 +165,10 @@ export interface RowSelectionConfig {
   /** 是否隐藏全选框 */
   hideSelectAll?: boolean
   /** 自定义选择项 */
-  selections?: Array<'SELECT_ALL' | 'SELECT_INVERT' | 'SELECT_NONE' | { key: string; text: string; onSelect: (changeableRowKeys: (string | number)[]) => void }>
+  selections?: Array<'SELECT_ALL' | 'SELECT_INVERT' | 'SELECT_NONE' | { key: string, text: string, onSelect: (changeableRowKeys: (string | number)[]) => void }>
   /** 是否允许选择该行的复选框 */
-  getCheckboxProps?: (record: TableRecord) => { disabled?: boolean; indeterminate?: boolean }
-  /** 
+  getCheckboxProps?: (record: TableRecord) => { disabled?: boolean, indeterminate?: boolean }
+  /**
    * 父子节点选择是否严格独立
    * @description 设置为 true 时，父子节点的选择互不影响；设置为 false 时，选择父节点会自动选中所有子节点
    * @default false
@@ -262,7 +262,7 @@ export interface ExpandableConfig {
   /** 展开图标是否显示在单元格内 */
   expandIconColumnIndex?: number
   /** 自定义展开图标 */
-  expandIcon?: (props: { expanded: boolean; onExpand: (expanded: boolean, record: TableRecord) => void; record: TableRecord; expandable: boolean }) => unknown
+  expandIcon?: (props: { expanded: boolean, onExpand: (expanded: boolean, record: TableRecord) => void, record: TableRecord, expandable: boolean }) => unknown
   /** 展开行插槽名 */
   expandedRowSlot?: string
   /** 展开行渲染函数 */
@@ -311,7 +311,7 @@ export interface TableSchema {
   showHeader?: boolean
   tableLayout?: 'auto' | 'fixed'
   virtual?: boolean
-  sticky?: boolean | { offsetHeader?: number; offsetSummary?: number; offsetScroll?: number; getContainer?: () => HTMLElement }
+  sticky?: boolean | { offsetHeader?: number, offsetSummary?: number, offsetScroll?: number, getContainer?: () => HTMLElement }
   expandable?: ExpandableConfig
   actions?: TableAction[]
   actionWidth?: number | string

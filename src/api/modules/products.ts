@@ -1,43 +1,43 @@
+import type { PaginationData, Product } from '@/types'
 /**
  * 产品管理相关 API
  * @description 产品的增删改查等接口
  */
-import { request } from '../client';
-import type { Product, PaginationData } from '@/types';
+import { request } from '../client'
 
 /**
  * 创建产品参数
  */
 export interface CreateProductParams {
-  sku: string;
-  name: string;
-  category: string;
-  price: number;
-  stock: number;
-  description?: string;
+  sku: string
+  name: string
+  category: string
+  price: number
+  stock: number
+  description?: string
 }
 
 /**
  * 更新产品参数
  */
 export interface UpdateProductParams {
-  sku?: string;
-  name?: string;
-  category?: string;
-  price?: number;
-  stock?: number;
-  description?: string;
+  sku?: string
+  name?: string
+  category?: string
+  price?: number
+  stock?: number
+  description?: string
 }
 
 /**
  * 查询产品列表参数
  */
 export interface GetProductsParams {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-  category?: string;
-  status?: Product['status'];
+  page?: number
+  pageSize?: number
+  search?: string
+  category?: string
+  status?: Product['status']
 }
 
 /**
@@ -107,4 +107,4 @@ export const productsApi = {
    */
   updateStock: (id: string, stock: number) =>
     request.patch<Product>(`/products/${id}/stock`, { stock }),
-};
+}
