@@ -74,10 +74,10 @@ function findSiblingsInMenuTree(menus: MenuItem[], targetPath: string): MenuItem
 
 /**
  * 获取菜单项的描述信息
- * @param menu 菜单项
+ * @param _menu 菜单项
  * @returns 描述文本
  */
-function getMenuDescription(menu: MenuItem): string {
+function getMenuDescription(_menu: MenuItem): string {
   // 返回默认提示文本
   return t('common.breadcrumb.clickToEnter')
 }

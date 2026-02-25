@@ -19,6 +19,11 @@ import TFormItem from './TFormItem.vue'
 
 const props = defineProps<Props>()
 
+const emit = defineEmits<{
+  /** 字段值变化 */
+  (e: 'fieldChange', name: string, value: any): void
+}>()
+
 /**
  * i18n
  */
@@ -60,7 +65,7 @@ const itemIds = ref<string[]>([])
 const listData = computed<any[]>({
   get: () => props.formData[props.field.name as string] || [],
   set: (val) => {
-    props.formData[props.field.name as string] = val
+    emit('fieldChange', props.field.name as string, val)
   },
 })
 

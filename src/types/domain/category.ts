@@ -13,9 +13,12 @@ export type CategoryStatus = typeof CATEGORY_STATUS[keyof typeof CATEGORY_STATUS
 export interface Category {
   id: string
   name: string
+  code?: string
   description?: string
   icon?: string
   parentId?: string
+  level?: number
+  sort?: number
   sortOrder: number
   status: CategoryStatus
   productCount?: number
@@ -50,10 +53,16 @@ export interface GetCategoriesParams {
  */
 export interface CreateCategoryParams {
   name: string
+  code?: string
   description?: string
   icon?: string
   parentId?: string
+  parentName?: string
+  level?: number
   sortOrder?: number
+  sort?: number
+  status?: CategoryStatus
+  productCount?: number
 }
 
 /**
@@ -61,10 +70,13 @@ export interface CreateCategoryParams {
  */
 export interface UpdateCategoryParams {
   name?: string
+  code?: string
   description?: string
   icon?: string
   parentId?: string
   sortOrder?: number
+  sort?: number
+  status?: CategoryStatus
   isActive?: boolean
 }
 

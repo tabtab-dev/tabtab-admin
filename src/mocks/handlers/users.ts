@@ -1,4 +1,4 @@
-import Mock from 'mockjs'
+import { faker } from '@faker-js/faker'
 /**
  * 用户模块 MSW handlers
  * @description 用户增删改查等接口
@@ -72,15 +72,15 @@ function generateMockUsers() {
   for (let i = 6; i <= 50; i++) {
     users.push({
       id: String(i),
-      name: Mock.mock('@cname'),
-      email: Mock.mock('@email'),
+      name: faker.person.fullName(),
+      email: faker.internet.email(),
       avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=user${i}`,
-      role: Mock.mock('@pick(["admin", "editor", "viewer"])'),
-      status: Mock.mock('@pick(["active", "inactive"])'),
-      phone: Mock.mock('@string("number", 11)'),
-      address: Mock.mock('@county(true)'),
-      createdAt: Mock.mock('@datetime("yyyy-MM-ddTHH:mm:ssZ")'),
-      updatedAt: Mock.mock('@datetime("yyyy-MM-ddTHH:mm:ssZ")'),
+      role: faker.helpers.arrayElement(['admin', 'editor', 'viewer']),
+      status: faker.helpers.arrayElement(['active', 'inactive']),
+      phone: faker.string.numeric(11),
+      address: `${faker.location.city()}${faker.location.street()}`,
+      createdAt: faker.date.past().toISOString(),
+      updatedAt: faker.date.recent().toISOString(),
     })
   }
 

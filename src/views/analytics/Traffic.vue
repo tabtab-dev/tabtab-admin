@@ -360,7 +360,7 @@ onMounted(() => {
         <CardContent class="pt-0">
           <div class="space-y-4">
             <div
-              v-for="(source, index) in trafficSources"
+              v-for="source in trafficSources"
               :key="source.name"
               class="space-y-2"
             >
@@ -403,7 +403,7 @@ onMounted(() => {
         <CardContent class="pt-0">
           <div class="space-y-4">
             <div
-              v-for="(device, index) in deviceData"
+              v-for="device in deviceData"
               :key="device.name"
               class="space-y-2"
             >

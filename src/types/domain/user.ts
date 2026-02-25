@@ -67,8 +67,9 @@ export interface GetUsersParams {
 export interface CreateUserParams {
   email: string
   name: string
-  password: string
+  password?: string
   role?: UserRole
+  status?: UserStatus
   avatar?: string
 }
 
@@ -77,6 +78,7 @@ export interface CreateUserParams {
  */
 export interface UpdateUserParams {
   name?: string
+  email?: string
   avatar?: string
   role?: UserRole
   status?: UserStatus

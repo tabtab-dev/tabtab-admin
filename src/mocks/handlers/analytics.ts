@@ -1,4 +1,4 @@
-import Mock from 'mockjs'
+import { faker } from '@faker-js/faker'
 /**
  * 数据分析模块 MSW handlers
  * @description 数据分析相关接口
@@ -11,14 +11,14 @@ export const analyticsHandlers = [
     return HttpResponse.json({
       code: 200,
       data: {
-        totalVisits: Mock.mock('@integer(40000, 50000)'),
-        visitsChange: Mock.mock('@float(-10, 20, 1, 1)'),
-        newUsers: Mock.mock('@integer(2000, 4000)'),
-        newUsersChange: Mock.mock('@float(-5, 15, 1, 1)'),
-        conversionRate: Mock.mock('@float(1, 5, 2, 2)'),
-        conversionRateChange: Mock.mock('@float(-3, 3, 1, 1)'),
-        avgOrderValue: Mock.mock('@float(100, 200, 2, 2)'),
-        avgOrderValueChange: Mock.mock('@float(-5, 10, 1, 1)'),
+        totalVisits: faker.number.int({ min: 40000, max: 50000 }),
+        visitsChange: faker.number.float({ min: -10, max: 20, fractionDigits: 1 }),
+        newUsers: faker.number.int({ min: 2000, max: 4000 }),
+        newUsersChange: faker.number.float({ min: -5, max: 15, fractionDigits: 1 }),
+        conversionRate: faker.number.float({ min: 1, max: 5, fractionDigits: 2 }),
+        conversionRateChange: faker.number.float({ min: -3, max: 3, fractionDigits: 1 }),
+        avgOrderValue: faker.number.float({ min: 100, max: 200, fractionDigits: 2 }),
+        avgOrderValueChange: faker.number.float({ min: -5, max: 10, fractionDigits: 1 }),
       },
       message: 'success',
     })

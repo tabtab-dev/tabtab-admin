@@ -21,7 +21,7 @@ const emit = defineEmits<{
   /** 更新折叠状态 */
   (e: 'update:collapsed', value: boolean): void
   /** 切换折叠 */
-  (e: 'toggle-collapse'): void
+  (e: 'toggleCollapse'): void
 }>()
 const router = useRouter()
 const themeStore = useThemeStore()
@@ -74,7 +74,7 @@ function handleToggleCollapse(): void {
   sidebarState.toggleCollapse()
   // 同步通知父组件（如果使用了 v-model:collapsed）
   emit('update:collapsed', sidebarState.collapsed.value)
-  emit('toggle-collapse')
+  emit('toggleCollapse')
 }
 
 const {

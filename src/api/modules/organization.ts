@@ -19,6 +19,7 @@ export interface Organization {
   status: 'active' | 'inactive'
   description: string
   createdAt: string
+  children?: Organization[]
 }
 
 /**
@@ -107,6 +108,6 @@ export const organizationApi = {
    * @param status - 新状态
    * @returns 更新结果
    */
-  updateOrganizationStatus: (id: string, status: 'active' | 'inactive') =>
+  updateOrganizationStatus: (id: string, status: string) =>
     request.patch<Organization>(`/organizations/${id}/status`, { status }),
 }

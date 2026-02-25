@@ -15,15 +15,21 @@ export type ErrorLevel = 'info' | 'warning' | 'error' | 'fatal'
  * 注意：项目使用 TypeScript target: ES2022+，不需要手动修复原型链
  */
 export class AppError extends Error {
+  code: string
+  level: ErrorLevel
+  details?: Record<string, unknown>
+
   constructor(
     message: string,
-    public code: string = 'UNKNOWN_ERROR',
-    public level: ErrorLevel,
-    public details?: Record<string, unknown>,
+    code: string = 'UNKNOWN_ERROR',
+    level: ErrorLevel = 'error',
+    details?: Record<string, unknown>,
   ) {
     super(message)
     this.name = 'AppError'
-    // TypeScript ES2022+ 自动处理原型链，无需 Object.setPrototypeOf
+    this.code = code
+    this.level = level
+    this.details = details
   }
 
   /**
@@ -46,15 +52,20 @@ export class AppError extends Error {
  * 用于处理后端返回的错误
  */
 export class ApiError extends AppError {
+  statusCode?: number
+  response?: any
+
   constructor(
     message: string,
     code: string = 'API_ERROR',
-    public statusCode?: number,
-    public response?: any,
+    statusCode?: number,
+    response?: any,
     level: ErrorLevel = 'error',
   ) {
     super(message, code, level, { statusCode, response })
     this.name = 'ApiError'
+    this.statusCode = statusCode
+    this.response = response
   }
 }
 
@@ -63,13 +74,16 @@ export class ApiError extends AppError {
  * 用于处理表单验证错误
  */
 export class ValidationError extends AppError {
+  fields: Record<string, string[]>
+
   constructor(
     message: string = '验证失败',
-    public fields: Record<string, string[]> = {},
+    fields: Record<string, string[]> = {},
     code: string = 'VALIDATION_ERROR',
   ) {
     super(message, code, 'warning', { fields })
     this.name = 'ValidationError'
+    this.fields = fields
   }
 
   /**
@@ -370,7 +384,7 @@ function reportError(error: AppError): void {
   // 例如：Sentry.captureException(error);
 
   if (import.meta.env.DEV) {
-    console.log('[Error Report]', error.toJSON())
+    console.warn('[Error Report]', error.toJSON())
   }
 }
 
@@ -379,8 +393,7 @@ function reportError(error: AppError): void {
  * 用于 window.onerror 和 unhandledrejection
  */
 export function setupGlobalErrorHandler(): void {
-  // 处理同步错误
-  window.onerror = (message, source, lineno, colno, error) => {
+  window.onerror = (message, _source, _lineno, _colno, error) => {
     handleError(error || new Error(String(message)), {
       showToast: false,
       report: true,
@@ -398,7 +411,7 @@ export function setupGlobalErrorHandler(): void {
       appError.level = 'warning'
 
       if (import.meta.env.DEV) {
-        console.log('[ErrorHandler] Form validation error (suppressed toast):', appError)
+        console.warn('[ErrorHandler] Form validation error (suppressed toast):', appError)
       }
       reportError(appError)
       event.preventDefault()

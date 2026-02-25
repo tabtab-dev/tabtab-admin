@@ -22,9 +22,6 @@ import { Button } from '@/components/ui/button'
  */
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-// 时间范围
-const timeRange = ref('7d')
-
 // 核心指标
 const metrics = computed(() => [
   {

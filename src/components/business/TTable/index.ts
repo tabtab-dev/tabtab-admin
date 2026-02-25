@@ -171,7 +171,6 @@ export {
   useTTableTheme,
 } from './theme'
 // 导出组件
-// @ts-ignore
 export { default as TTable } from './TTable.vue'
 
 // 导出类型
@@ -186,19 +185,18 @@ export type {
   ScrollConfig,
   SummaryConfig,
   TableAction,
+  TableCellSlotProps,
   TableColumn,
   TableFilters,
   TableFilterValue,
   TablePagination,
-  // 新增类型
   TableRecord,
-  // 核心类型
   TableSchema,
   TableSize,
+  TableSlotProps,
   TableSorter,
   TableState,
   TTableEmits,
   TTableExpose,
-  // 组件类型
   TTableProps,
 } from './types'

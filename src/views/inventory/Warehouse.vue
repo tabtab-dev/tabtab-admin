@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { FormSchema } from '@/components/business/TForm'
-import type { TableSchema } from '@/components/business/TTable'
+import type { TableCellSlotProps, TableSchema } from '@/components/business/TTable'
 import type { Warehouse } from '@/types'
 import {
   Building,
@@ -24,20 +24,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useMutation, useTableData } from '@/composables'
 import { WAREHOUSE_STATUS } from '@/constants'
 
-interface TableSlotProps {
-  record: Warehouse
-  text: any
-  index: number
-}
-
 const {
-  data: warehouses,
-  loading,
+  data: _warehouses,
   searchQuery,
   filters,
-  filteredData,
+  filteredData: _filteredData,
   paginatedData,
-  total,
   statistics,
   fetchData,
 } = useTableData<Warehouse>({
@@ -382,7 +374,7 @@ const { mutate: createWarehouse } = useMutation({
   },
 })
 
-const { mutate: updateWarehouse, loading: updating } = useMutation({
+const { mutate: updateWarehouse } = useMutation({
   mutationFn: ({ id, values }: { id: string, values: Record<string, any> }) =>
     inventoryApi.updateWarehouse(id, {
       name: values.name,
@@ -500,7 +492,6 @@ function handleSelectChange(keys: (string | number)[]) {
       </CardHeader>
       <CardContent class="pt-0">
         <TTable
-          ref="tableRef"
           v-model:data="tableData"
           :schema="tableSchema"
           @select-change="handleSelectChange"
@@ -508,34 +499,34 @@ function handleSelectChange(keys: (string | number)[]) {
           <template #name="slotProps">
             <div class="flex items-center gap-2">
               <Building class="h-4 w-4 text-blue-500" />
-              <span class="font-medium">{{ (slotProps as TableSlotProps).text }}</span>
+              <span class="font-medium">{{ (slotProps as TableCellSlotProps).text }}</span>
             </div>
           </template>
 
           <template #location="slotProps">
             <div class="flex items-center gap-1 text-sm">
               <MapPin class="h-3 w-3 text-muted-foreground" />
-              <span>{{ (slotProps as TableSlotProps).text }}</span>
+              <span>{{ (slotProps as TableCellSlotProps).text }}</span>
             </div>
           </template>
 
           <template #manager="slotProps">
             <div class="flex items-center gap-1 text-sm">
               <User class="h-3 w-3 text-muted-foreground" />
-              <span>{{ (slotProps as TableSlotProps).text }}</span>
+              <span>{{ (slotProps as TableCellSlotProps).text }}</span>
             </div>
           </template>
 
           <template #capacity="slotProps">
             <div class="space-y-1">
               <div class="flex justify-between text-xs">
-                <span>{{ (slotProps as TableSlotProps).record.usedCapacity ?? 0 }} / {{ (slotProps as TableSlotProps).text }}</span>
-                <span>{{ Math.round((((slotProps as TableSlotProps).record.usedCapacity ?? 0) / ((slotProps as TableSlotProps).text || 1)) * 100) }}%</span>
+                <span>{{ (slotProps as TableCellSlotProps).record.usedCapacity ?? 0 }} / {{ (slotProps as TableCellSlotProps).text }}</span>
+                <span>{{ Math.round((((slotProps as TableCellSlotProps).record.usedCapacity ?? 0) / ((slotProps as TableCellSlotProps).text || 1)) * 100) }}%</span>
               </div>
               <div class="h-1.5 bg-muted rounded-full overflow-hidden">
                 <div
                   class="h-full bg-primary rounded-full"
-                  :style="{ width: `${Math.min((((slotProps as TableSlotProps).record.usedCapacity ?? 0) / ((slotProps as TableSlotProps).text || 1)) * 100, 100)}%` }"
+                  :style="{ width: `${Math.min((((slotProps as TableCellSlotProps).record.usedCapacity ?? 0) / ((slotProps as TableCellSlotProps).text || 1)) * 100, 100)}%` }"
                 />
               </div>
             </div>
@@ -544,12 +535,12 @@ function handleSelectChange(keys: (string | number)[]) {
           <template #status="slotProps">
             <Badge
               :class="{
-                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableSlotProps).text === WAREHOUSE_STATUS.ACTIVE,
-                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as TableSlotProps).text === WAREHOUSE_STATUS.INACTIVE,
+                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableCellSlotProps).text === WAREHOUSE_STATUS.ACTIVE,
+                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as TableCellSlotProps).text === WAREHOUSE_STATUS.INACTIVE,
               }"
               variant="outline"
             >
-              {{ (slotProps as TableSlotProps).text === WAREHOUSE_STATUS.ACTIVE ? '运营中' : '已停用' }}
+              {{ (slotProps as TableCellSlotProps).text === WAREHOUSE_STATUS.ACTIVE ? '运营中' : '已停用' }}
             </Badge>
           </template>
 

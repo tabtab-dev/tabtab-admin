@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { FormSchema } from '@/components/business/TForm'
-import type { TableSchema, TTableExpose } from '@/components/business/TTable'
+import type { TableCellSlotProps, TableSchema, TTableExpose } from '@/components/business/TTable'
 import type { Category } from '@/types'
 import {
   CheckCircle,
@@ -23,28 +23,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useTableData } from '@/composables'
 import { CATEGORY_STATUS } from '@/constants'
 
-interface TableSlotProps {
-  record: Category
-  text: any
-  index: number
-}
-
 const {
   data: categories,
-  loading,
+  loading: _loading,
   searchQuery,
   filters,
-  currentPage,
-  pageSize,
-  total,
+  currentPage: _currentPage,
+  pageSize: _pageSize,
+  total: _total,
   statistics,
   fetchData,
   goToPage,
   setPageSize,
-  addData,
-  updateData,
-  removeData,
-  batchRemoveData,
+  addData: _addData,
+  updateData: _updateData,
+  removeData: _removeData,
+  batchRemoveData: _batchRemoveData,
 } = useTableData<Category>({
   apiCall: async (params) => {
     const res = await categoriesApi.getCategories(params)
@@ -556,16 +550,16 @@ function handleTableChange(pagination: any): void {
           <!-- 名称列 -->
           <template #name="slotProps">
             <div class="flex items-center gap-2">
-              <FolderTree v-if="(slotProps as TableSlotProps).record.level === 1" class="h-4 w-4 text-blue-500" />
+              <FolderTree v-if="(slotProps as TableCellSlotProps).record.level === 1" class="h-4 w-4 text-blue-500" />
               <Tag v-else class="h-4 w-4 text-orange-500" />
-              <span class="font-medium">{{ (slotProps as TableSlotProps).text }}</span>
+              <span class="font-medium">{{ (slotProps as TableCellSlotProps).text }}</span>
             </div>
           </template>
 
           <!-- 级别列 -->
           <template #level="slotProps">
-            <Badge :variant="(slotProps as TableSlotProps).text === 1 ? 'default' : 'secondary'">
-              {{ (slotProps as TableSlotProps).text === 1 ? '一级' : '二级' }}
+            <Badge :variant="(slotProps as TableCellSlotProps).text === 1 ? 'default' : 'secondary'">
+              {{ (slotProps as TableCellSlotProps).text === 1 ? '一级' : '二级' }}
             </Badge>
           </template>
 
@@ -573,12 +567,12 @@ function handleTableChange(pagination: any): void {
           <template #status="slotProps">
             <Badge
               :class="{
-                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableSlotProps).text === CATEGORY_STATUS.ACTIVE,
-                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as TableSlotProps).text === CATEGORY_STATUS.INACTIVE,
+                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableCellSlotProps).text === CATEGORY_STATUS.ACTIVE,
+                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as TableCellSlotProps).text === CATEGORY_STATUS.INACTIVE,
               }"
               variant="outline"
             >
-              {{ (slotProps as TableSlotProps).text === CATEGORY_STATUS.ACTIVE ? '启用' : '禁用' }}
+              {{ (slotProps as TableCellSlotProps).text === CATEGORY_STATUS.ACTIVE ? '启用' : '禁用' }}
             </Badge>
           </template>
 

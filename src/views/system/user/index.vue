@@ -14,24 +14,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useMutation, useTableData } from '@/composables'
 import { STATUS_CONFIG, USER_ROLES, USER_STATUS } from '@/constants'
 
-// ==================== 类型定义 ====================
-interface TableSlotProps {
-  record: User
-  text: any
-  index: number
-  column: any
-}
-
 // ==================== 数据管理 ====================
 const {
   data: users,
   loading,
   searchQuery,
   filters,
-  currentPage,
-  pageSize,
-  total,
   statistics,
+  total,
   fetchData,
   goToPage,
   setPageSize,
@@ -64,6 +54,19 @@ const {
       today,
     }
   },
+})
+
+// ==================== 弹窗和表单状态 ====================
+const isAddDialogOpen = ref(false)
+const isEditDialogOpen = ref(false)
+const editingUser = ref<User | null>(null)
+const tableRef = ref<TTableExpose>()
+
+const addFormData = ref({
+  name: '',
+  email: '',
+  role: USER_ROLES.VIEWER,
+  status: USER_STATUS.ACTIVE,
 })
 
 const { mutate: createUser } = useMutation({

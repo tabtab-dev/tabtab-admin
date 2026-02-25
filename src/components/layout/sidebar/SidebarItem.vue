@@ -8,7 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { formatBadge, getButtonVariant, getIconClass, useMenuUtils } from '@/layouts/composables/useMenuUtils'
+import { formatBadge, getButtonVariant, useMenuUtils } from '@/layouts/composables/useMenuUtils'
 
 const props = defineProps<Props>()
 
@@ -52,11 +52,6 @@ function handleClick(): void {
  * 按钮变体
  */
 const variant = computed(() => getButtonVariant(props.active))
-
-/**
- * 图标类名
- */
-const iconClass = computed(() => getIconClass(props.active))
 
 /**
  * 菜单标题（翻译后）

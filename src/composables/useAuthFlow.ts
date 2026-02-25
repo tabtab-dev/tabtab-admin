@@ -88,7 +88,7 @@ export function useAuthFlow() {
 
       // 如果已登录，尝试获取菜单
       if (authStore.isAuthenticated) {
-        console.log('[AuthFlow] User is authenticated, fetching menus...')
+        console.warn('[AuthFlow] User is authenticated, fetching menus...')
         const menuSuccess = await menuStore.fetchMenus()
 
         if (!menuSuccess) {
@@ -97,7 +97,7 @@ export function useAuthFlow() {
           // 这样用户刷新页面后不会因为菜单加载失败而被登出
         }
         else {
-          console.log('[AuthFlow] Menus fetched successfully')
+          console.warn('[AuthFlow] Menus fetched successfully')
         }
       }
 

@@ -102,7 +102,7 @@ function getActionIcon(action: TableAction) {
  * @param t - i18n 翻译函数
  * @returns 渲染函数
  */
-function createActionsRenderer(actions: TableAction[], t: (key: string) => string) {
+function createActionsRenderer(actions: TableAction[], _t: (key: string) => string) {
   return (_value: unknown, record: TableRecord, index: number) => {
     const visibleActions = actions.filter((action) => {
       if (typeof action.show === 'function') {

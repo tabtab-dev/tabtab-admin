@@ -54,51 +54,36 @@ export function updateHtmlLang(locale: SupportedLocale): void {
 }
 
 /**
+ * 创建 i18n 实例
+ * 初始为空 messages，语言包将异步加载
+ */
+export const i18n = createI18n({
+  legacy: false,
+  globalInjection: true,
+  locale: getInitialLocale(),
+  fallbackLocale: 'en-US',
+  messages: {},
+  missingWarn: false,
+  fallbackWarn: false,
+  warnHtmlMessage: false,
+})
+
+/**
  * 更新文档标题
  * @param to 目标路由
  */
 export function updateDocumentTitle(to?: RouteLocationNormalized): void {
   const t = i18n.global.t
 
-  // 优先使用 titleKey，如果没有则使用 i18nKey
   const titleKey = to?.meta?.titleKey || to?.meta?.i18nKey
   if (titleKey) {
     const pageTitle = t(titleKey as string)
     document.title = `${pageTitle} - ${APP_TITLE}`
   }
   else {
-    // 否则只显示应用标题
     document.title = APP_TITLE
   }
 }
-
-/**
- * 创建 i18n 实例
- * 初始为空 messages，语言包将异步加载
- */
-export const i18n = createI18n({
-  // 使用 Composition API 模式
-  legacy: false,
-
-  // 全局注入 $t 等方法
-  globalInjection: true,
-
-  // 当前语言
-  locale: getInitialLocale(),
-
-  // 回退语言
-  fallbackLocale: 'en-US',
-
-  // 初始为空，语言包将异步加载
-  messages: {},
-
-  // 禁用警告（生产环境）
-  missingWarn: false,
-  fallbackWarn: false,
-
-  // 允许在模板中使用 HTML
-  warnHtmlMessage: false,
-})
 
 /**
  * 异步加载并设置语言包

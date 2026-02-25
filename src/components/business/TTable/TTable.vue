@@ -2,7 +2,9 @@
 import type {
   ResponsiveConfig,
   SortOrder,
+  TableCellSlotProps,
   TableFilters,
+  TableHeaderSlotProps,
   TablePagination,
   TableRecord,
   TableSorter,
@@ -55,11 +57,18 @@ const emit = defineEmits([
 ])
 
 /**
+ * 插槽定义
+ */
+defineSlots<{
+  [slotName: string]: (props: TableCellSlotProps | TableHeaderSlotProps) => any
+}>()
+
+/**
  * i18n
  */
 const { t, locale } = useI18n()
 
-const { currentBreakpoint, isMobile, smallerThan } = useResponsive()
+const { currentBreakpoint, isMobile: _isMobile, smallerThan } = useResponsive()
 
 const responsiveConfig = computed<ResponsiveConfig>(() => {
   return props.schema.responsive || { enabled: true }
@@ -176,7 +185,7 @@ function getRowKey(record: TableRecord): string | number {
 /**
  * 使用 useTableColumns 管理列配置
  */
-const { tableColumns, showActionColumn } = useTableColumns({
+const { tableColumns, showActionColumn: _showActionColumn } = useTableColumns({
   columns: computed(() => props.schema.columns || []),
   actions: computed(() => props.schema.actions || []),
   actionTitle: computed(() => props.schema.actionTitle),

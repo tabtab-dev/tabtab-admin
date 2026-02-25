@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Menu as MenuType, MenuType as MenuTypeEnum } from '@/api/modules/menu'
-import type { FormSchema, TableSchema, TTableExpose } from '@/components/business'
+import type { FormSchema, TableCellSlotProps, TableSchema } from '@/components/business'
 import { Switch } from 'antdv-next'
 import { ExternalLink, Eye, EyeOff, FolderTree, LayoutGrid, Menu } from 'lucide-vue-next'
 import { watch } from 'vue'
@@ -69,6 +69,11 @@ function buildMenuTree(menus: MenuType[]): MenuType[] {
  * 树形菜单数据
  */
 const treeMenus = computed(() => buildMenuTree(flatMenus.value))
+
+// ==================== 弹窗和表单 ====================
+const isAddDialogOpen = ref(false)
+const isEditDialogOpen = ref(false)
+const editingMenu = ref<MenuType | null>(null)
 
 const { mutate: createMenu } = useMutation({
   mutationFn: (values: Record<string, any>) => menuApi.createMenu({
@@ -164,9 +169,6 @@ const searchSchema: FormSchema = {
   },
 }
 
-// ==================== 表格配置 ====================
-const tableRef = ref<TTableExpose>()
-
 /**
  * 获取图标组件
  * @param iconName 图标名称
@@ -174,20 +176,6 @@ const tableRef = ref<TTableExpose>()
  */
 function getIconComponent(iconName: string) {
   return getIcon(iconName) || Menu
-}
-
-/**
- * 获取菜单类型标签配置
- * @param type 菜单类型
- * @returns 标签配置
- */
-function getMenuTypeConfig(type: MenuTypeEnum) {
-  const config = {
-    directory: { label: '目录', color: 'blue' },
-    menu: { label: '菜单', color: 'green' },
-    button: { label: '按钮', color: 'orange' },
-  }
-  return config[type] || config.menu
 }
 
 const tableSchema = computed<TableSchema>(() => ({
@@ -284,11 +272,6 @@ const tableSchema = computed<TableSchema>(() => ({
   actionFixed: 'right',
 }))
 
-// ==================== 弹窗和表单 ====================
-const isAddDialogOpen = ref(false)
-const isEditDialogOpen = ref(false)
-const editingMenu = ref<MenuType | null>(null)
-
 /**
  * 创建表单初始值
  * @returns 表单初始值对象
@@ -321,18 +304,6 @@ watch(() => addFormData.value.path, (newPath) => {
     const cleanPath = newPath.startsWith('/') ? newPath.slice(1) : newPath
     addFormData.value.component = cleanPath ? `${cleanPath}/index` : ''
   }
-})
-
-// 菜单选择选项
-const menuOptions = computed(() => {
-  const list = flatMenus.value || []
-  return [
-    { label: '顶级菜单', value: null },
-    ...list.map(item => ({
-      label: item.title,
-      value: item.id,
-    })),
-  ]
 })
 
 /**
@@ -641,8 +612,6 @@ function resetAddForm(): void {
 const statisticsCards = computed(() => {
   const list = flatMenus.value || []
   const total = list.length
-  const active = list.filter(m => m.status === 'active').length
-  const visible = list.filter(m => !m.hidden).length
   const directoryCount = list.filter(m => m.type === 'directory').length
   const menuCount = list.filter(m => m.type === 'menu').length
   const buttonCount = list.filter(m => m.type === 'button').length
@@ -693,38 +662,37 @@ const statisticsCards = computed(() => {
       </CardHeader>
       <CardContent class="pt-0">
         <TTable
-          ref="tableRef"
           v-model:data="treeMenus"
           :schema="tableSchema"
           :loading="loading"
         >
           <!-- 菜单名称列 -->
-          <template #title="{ text, record }">
+          <template #title="slotProps">
             <div class="flex items-center gap-2">
               <component
-                :is="getIconComponent((record as MenuType).icon)"
-                v-if="record"
+                :is="getIconComponent((slotProps as TableCellSlotProps).record?.icon)"
+                v-if="(slotProps as TableCellSlotProps).record"
                 class="h-4 w-4 text-muted-foreground"
               />
-              <span class="font-medium">{{ text }}</span>
+              <span class="font-medium">{{ (slotProps as TableCellSlotProps).text }}</span>
             </div>
           </template>
 
           <!-- 图标列 -->
-          <template #icon="{ text }">
+          <template #icon="slotProps">
             <component
-              :is="getIconComponent(text as string)"
-              v-if="text"
+              :is="getIconComponent((slotProps as TableCellSlotProps).text as string)"
+              v-if="(slotProps as TableCellSlotProps).text"
               class="h-4 w-4 text-muted-foreground mx-auto"
             />
             <span v-else class="text-muted-foreground">-</span>
           </template>
 
           <!-- 类型列 -->
-          <template #type="{ text }">
+          <template #type="slotProps">
             <TStatusBadge
-              v-if="text"
-              :status="text"
+              v-if="(slotProps as TableCellSlotProps).text"
+              :status="(slotProps as TableCellSlotProps).text"
               :status-map="{
                 directory: { text: '目录', color: 'info' },
                 menu: { text: '菜单', color: 'success' },
@@ -734,29 +702,29 @@ const statisticsCards = computed(() => {
           </template>
 
           <!-- 状态列 -->
-          <template #status="{ text, record }">
+          <template #status="slotProps">
             <TStatusBadge
-              v-if="record"
-              :status="text"
+              v-if="(slotProps as TableCellSlotProps).record"
+              :status="(slotProps as TableCellSlotProps).text"
               :status-map="{
                 active: { text: '启用', color: 'success' },
                 inactive: { text: '禁用', color: 'default' },
               }"
               clickable
-              @click="handleToggleStatus(record as MenuType)"
+              @click="handleToggleStatus((slotProps as TableCellSlotProps).record as MenuType)"
             />
           </template>
 
           <!-- 可见列 -->
-          <template #hidden="{ text }">
-            <Eye v-if="!text" class="h-4 w-4 text-green-500 mx-auto" />
+          <template #hidden="slotProps">
+            <Eye v-if="!(slotProps as TableCellSlotProps).text" class="h-4 w-4 text-green-500 mx-auto" />
             <EyeOff v-else class="h-4 w-4 text-gray-400 mx-auto" />
           </template>
 
           <!-- 缓存列 -->
-          <template #keepAlive="{ text }">
+          <template #keepAlive="slotProps">
             <Switch
-              :checked="text as boolean"
+              :checked="(slotProps as TableCellSlotProps).text as boolean"
               size="small"
               disabled
               class="mx-auto"
@@ -764,9 +732,9 @@ const statisticsCards = computed(() => {
           </template>
 
           <!-- 外链列 -->
-          <template #external="{ text }">
+          <template #external="slotProps">
             <ExternalLink
-              v-if="text"
+              v-if="(slotProps as TableCellSlotProps).text"
               class="h-4 w-4 text-blue-500 mx-auto"
             />
             <span v-else class="text-muted-foreground block text-center">-</span>

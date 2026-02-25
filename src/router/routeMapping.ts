@@ -55,7 +55,7 @@ function initComponentMap() {
   layoutCache.set('blanklayout', () => import('@/layouts/BlankLayout.vue'))
 
   if (import.meta.env.DEV) {
-    console.log('[RouteMapping] 已加载组件:', Array.from(componentCache.keys()))
+    console.warn('[RouteMapping] 已加载组件:', Array.from(componentCache.keys()))
   }
 }
 
@@ -132,13 +132,12 @@ function convertMeta(meta: RouteMeta): Record<string, any> {
  */
 export function convertToRouteRecords(routes: RouteConfig[]): RouteRecordRaw[] {
   return routes.map((route) => {
-    const routeRecord: RouteRecordRaw = {
+    const routeRecord: Partial<RouteRecordRaw> = {
       path: route.path,
       name: route.name,
       meta: convertMeta(route.meta),
     }
 
-    // 处理组件
     if (route.component) {
       const componentLoader = getComponentLoader(route.component)
       if (componentLoader) {
@@ -150,17 +149,15 @@ export function convertToRouteRecords(routes: RouteConfig[]): RouteRecordRaw[] {
       }
     }
 
-    // 处理重定向
     if (route.redirect) {
       routeRecord.redirect = route.redirect
     }
 
-    // 递归处理子路由
     if (route.children && route.children.length > 0) {
       routeRecord.children = convertToRouteRecords(route.children)
     }
 
-    return routeRecord
+    return routeRecord as RouteRecordRaw
   })
 }
 

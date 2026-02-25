@@ -39,16 +39,18 @@ export type FormFieldType
 
 /**
  * 选项类型
- * @description 用于 select、radio、checkbox 等选项类组件
+ * @description 用于 select、radio、checkbox、tree-select 等选项类组件
  */
 export interface FormOption {
-  /** 选项标签 */
-  label: string
+  /** 选项标签（用于 select/radio/checkbox） */
+  label?: string
+  /** 选项标题（用于 tree-select） */
+  title?: string
   /** 选项值 */
   value: string | number | boolean
   /** 是否禁用 */
   disabled?: boolean
-  /** 子选项（用于 cascader） */
+  /** 子选项（用于 cascader/tree-select） */
   children?: FormOption[]
   /** 唯一标识 */
   key?: string
@@ -201,7 +203,7 @@ export interface FormField<T extends Record<string, any> = Record<string, any>> 
   /** 字段名（唯一标识） */
   name: keyof T | NamePath
   /** 字段类型 */
-  type: FormFieldType
+  type?: string
   /** 标签文本 */
   label?: string
   /** 占位提示 */
@@ -212,6 +214,8 @@ export interface FormField<T extends Record<string, any> = Record<string, any>> 
   options?: FormOption[] | AsyncOptionsLoader<T>
   /** 透传给 antd 组件的属性 */
   props?: Record<string, any>
+  /** 行数（用于 textarea） */
+  rows?: number
   /** 是否隐藏 */
   hidden?: boolean | ((formData: T) => boolean)
   /** 是否禁用（支持函数动态判断） */

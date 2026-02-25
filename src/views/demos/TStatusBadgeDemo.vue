@@ -12,6 +12,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 /**
+ * 显示提示信息
+ */
+function showAlert(msg: string) {
+  alert(msg)
+}
+
+/**
  * 组件引用
  */
 const badgeRef = ref<TStatusBadgeExpose>()
@@ -525,19 +532,19 @@ function cycleCustomStatus() {
               <TStatusBadge
                 status="warning"
                 :clickable="true"
-                @click="() => window.alert('点击了警告状态')"
+                @click="showAlert('点击了警告状态')"
               />
               <TStatusBadge
                 status="error"
                 :clickable="true"
                 variant="outline"
-                @click="() => window.alert('点击了错误状态')"
+                @click="showAlert('点击了错误状态')"
               />
               <TStatusBadge
                 status="processing"
                 :clickable="true"
                 variant="dot"
-                @click="() => window.alert('点击了处理中状态')"
+                @click="showAlert('点击了处理中状态')"
               />
             </div>
           </CardContent>

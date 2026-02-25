@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Organization } from '@/api/modules/organization'
-import type { FormSchema, TableSchema, TTableExpose } from '@/components/business'
+import type { FormSchema, TableCellSlotProps, TableSchema } from '@/components/business'
 import { Badge } from 'antdv-next'
 import { Building, Network, Users } from 'lucide-vue-next'
 import { organizationApi } from '@/api'
@@ -67,6 +67,11 @@ function buildOrgTree(orgs: Organization[]): Organization[] {
  * 树形部门数据
  */
 const treeOrganizations = computed(() => buildOrgTree(flatOrganizations.value))
+
+// ==================== 弹窗和表单 ====================
+const isAddDialogOpen = ref(false)
+const isEditDialogOpen = ref(false)
+const editingOrganization = ref<Organization | null>(null)
 
 const { mutate: createOrganization } = useMutation({
   mutationFn: (values: Record<string, any>) => organizationApi.createOrganization({
@@ -151,7 +156,6 @@ const searchSchema: FormSchema = {
 }
 
 // ==================== 表格配置 ====================
-const tableRef = ref<TTableExpose>()
 
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
@@ -222,11 +226,6 @@ const tableSchema = computed<TableSchema>(() => ({
   actionFixed: 'right',
 }))
 
-// ==================== 弹窗和表单 ====================
-const isAddDialogOpen = ref(false)
-const isEditDialogOpen = ref(false)
-const editingOrganization = ref<Organization | null>(null)
-
 /**
  * 创建表单初始值
  * @returns 表单初始值对象
@@ -245,18 +244,6 @@ function createInitialFormData() {
 
 const addFormData = ref(createInitialFormData())
 const editFormData = ref({ id: '', ...createInitialFormData() })
-
-// 部门选择选项
-const organizationOptions = computed(() => {
-  const list = flatOrganizations.value || []
-  return [
-    { label: '顶级部门', value: null },
-    ...list.map(item => ({
-      label: item.name,
-      value: item.id,
-    })),
-  ]
-})
 
 /**
  * 上级部门树形选项
@@ -468,10 +455,10 @@ const statisticsCards = computed(() => {
   const totalMembers = list.reduce((sum, o) => sum + (o.memberCount || 0), 0)
 
   return [
-    { title: '部门总数', value: total, icon: Building, color: 'text-blue-500' },
-    { title: '启用部门', value: active, icon: Network, color: 'text-green-500' },
-    { title: '顶级部门', value: topLevel, icon: Building, color: 'text-purple-500' },
-    { title: '总成员数', value: totalMembers, icon: Users, color: 'text-orange-500' },
+    { title: '部门总数', value: total, icon: Building, color: 'blue' },
+    { title: '启用部门', value: active, icon: Network, color: 'green' },
+    { title: '顶级部门', value: topLevel, icon: Building, color: 'purple' },
+    { title: '总成员数', value: totalMembers, icon: Users, color: 'orange' },
   ]
 })
 </script>
@@ -513,37 +500,36 @@ const statisticsCards = computed(() => {
       </CardHeader>
       <CardContent class="pt-0">
         <TTable
-          ref="tableRef"
           v-model:data="treeOrganizations"
           :schema="tableSchema"
           :loading="loading"
         >
           <!-- 部门名称列 -->
-          <template #name="{ text, record }">
+          <template #name="slotProps">
             <div class="flex items-center gap-2">
               <Building class="h-4 w-4 text-muted-foreground" />
-              <span class="font-medium">{{ text }}</span>
+              <span class="font-medium">{{ (slotProps as TableCellSlotProps).text }}</span>
               <Badge
-                v-if="record?.memberCount"
+                v-if="(slotProps as TableCellSlotProps).record?.memberCount"
                 variant="outline"
                 class="text-xs bg-muted/50"
               >
-                {{ record.memberCount }}人
+                {{ (slotProps as TableCellSlotProps).record.memberCount }}人
               </Badge>
             </div>
           </template>
 
           <!-- 状态列 -->
-          <template #status="{ text, record }">
+          <template #status="slotProps">
             <TStatusBadge
-              v-if="record"
-              :status="text"
+              v-if="(slotProps as TableCellSlotProps).record"
+              :status="(slotProps as TableCellSlotProps).text"
               :status-map="{
                 active: { text: '启用', color: 'success' },
                 inactive: { text: '禁用', color: 'default' },
               }"
               clickable
-              @click="handleToggleStatus(record as Organization)"
+              @click="handleToggleStatus((slotProps as TableCellSlotProps).record as Organization)"
             />
           </template>
 

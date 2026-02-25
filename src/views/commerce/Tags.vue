@@ -19,12 +19,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useTableData } from '@/composables'
 
 const {
-  data: tags,
-  loading,
+  data: _tags,
+  loading: _loading,
   searchQuery,
-  filteredData,
+  filteredData: _filteredData,
   paginatedData,
-  total,
+  total: _total,
   statistics,
   fetchData,
 } = useTableData<Tag>({
@@ -335,7 +335,6 @@ const statisticsCards = computed(() => [
       </CardHeader>
       <CardContent class="pt-0">
         <TTable
-          ref="tableRef"
           v-model:data="tableData"
           :schema="tableSchema"
           @select-change="handleSelectChange"

@@ -1,30 +1,30 @@
-import Mock from 'mockjs'
+import { faker } from '@faker-js/faker'
 /**
  * 订单模块 MSW handlers
  * @description 订单管理相关接口
  */
 import { delay, http, HttpResponse } from 'msw'
 
-function generateOrders() {
-  const statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled']
+const statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled']
 
-  return Mock.mock({
-    'list|50': [
-      {
-        id: '@id',
-        orderNo: 'ORD-@datetime("yyyyMMddHHmmss")',
-        customer: '@cname',
-        email: '@email',
-        phone: '@string("number", 11)',
-        address: '@county(true)',
-        items: '@integer(1, 10)',
-        total: '@float(50, 5000, 2, 2)',
-        status: () => statuses[Math.floor(Math.random() * statuses.length)],
-        note: '@csentence(5, 15)',
-        date: '@date("yyyy-MM-dd")',
-      },
-    ],
-  }).list
+function generateOrders() {
+  const list = []
+  for (let i = 0; i < 50; i++) {
+    list.push({
+      id: faker.string.uuid(),
+      orderNo: `ORD-${faker.date.past().toISOString().replace(/[-:T]/g, '').slice(0, 14)}`,
+      customer: faker.person.fullName(),
+      email: faker.internet.email(),
+      phone: faker.string.numeric(11),
+      address: `${faker.location.city()}${faker.location.street()}`,
+      items: faker.number.int({ min: 1, max: 10 }),
+      total: faker.number.float({ min: 50, max: 5000, fractionDigits: 2 }),
+      status: faker.helpers.arrayElement(statuses),
+      note: faker.lorem.sentence({ min: 5, max: 15 }),
+      date: faker.date.past().toISOString().split('T')[0],
+    })
+  }
+  return list
 }
 
 let ordersData = generateOrders()
@@ -43,7 +43,7 @@ export const orderHandlers = [
     if (search) {
       const lowerSearch = search.toLowerCase()
       filteredData = filteredData.filter(
-        (o: any) =>
+        o =>
           o.orderNo.toLowerCase().includes(lowerSearch)
           || o.customer.toLowerCase().includes(lowerSearch)
           || o.email.toLowerCase().includes(lowerSearch),
@@ -51,7 +51,7 @@ export const orderHandlers = [
     }
 
     if (status) {
-      filteredData = filteredData.filter((o: any) => o.status === status)
+      filteredData = filteredData.filter(o => o.status === status)
     }
 
     const total = filteredData.length
@@ -67,7 +67,7 @@ export const orderHandlers = [
 
   http.get('/mock-api/orders/:id', async ({ params }) => {
     await delay(200)
-    const order = ordersData.find((o: any) => o.id === params.id)
+    const order = ordersData.find(o => o.id === params.id)
     if (!order) {
       return HttpResponse.json({ code: 404, data: null, message: '订单不存在' })
     }
@@ -78,7 +78,7 @@ export const orderHandlers = [
     await delay(300)
     const body = (await request.json()) as Record<string, unknown>
     const newOrder = {
-      id: Mock.mock('@id'),
+      id: faker.string.uuid(),
       orderNo: `ORD-${Date.now()}`,
       customer: body.customer || '新客户',
       email: body.email || '',
@@ -91,25 +91,25 @@ export const orderHandlers = [
       date: new Date().toISOString().split('T')[0],
     }
 
-    ordersData.unshift(newOrder as any)
+    ordersData.unshift(newOrder)
     return HttpResponse.json({ code: 200, data: newOrder, message: 'success' })
   }),
 
   http.put('/mock-api/orders/:id', async ({ params, request }) => {
     await delay(300)
-    const index = ordersData.findIndex((o: any) => o.id === params.id)
+    const index = ordersData.findIndex(o => o.id === params.id)
     if (index === -1) {
       return HttpResponse.json({ code: 404, data: null, message: '订单不存在' })
     }
 
     const body = (await request.json()) as Record<string, unknown>
-    ordersData[index] = { ...ordersData[index], ...body } as any
+    ordersData[index] = { ...ordersData[index], ...body }
     return HttpResponse.json({ code: 200, data: ordersData[index], message: 'success' })
   }),
 
   http.delete('/mock-api/orders/:id', async ({ params }) => {
     await delay(200)
-    const index = ordersData.findIndex((o: any) => o.id === params.id)
+    const index = ordersData.findIndex(o => o.id === params.id)
     if (index === -1) {
       return HttpResponse.json({ code: 404, data: null, message: '订单不存在' })
     }
@@ -123,7 +123,7 @@ export const orderHandlers = [
     const body = (await request.json()) as { ids?: string[] }
     const ids = body.ids || []
     const initialLength = ordersData.length
-    ordersData = ordersData.filter((o: any) => !ids.includes(o.id))
+    ordersData = ordersData.filter(o => !ids.includes(o.id))
 
     return HttpResponse.json({
       code: 200,

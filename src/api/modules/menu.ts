@@ -34,6 +34,7 @@ export interface Menu {
    */
   type: MenuType
   createdAt: string
+  children?: Menu[]
 }
 
 /**
@@ -147,6 +148,6 @@ export const menuApi = {
    * @param status - 新状态
    * @returns 更新结果
    */
-  updateMenuStatus: (id: string, status: 'active' | 'inactive') =>
+  updateMenuStatus: (id: string, status: string) =>
     request.patch<Menu>(`/menus/${id}/status`, { status }),
 }

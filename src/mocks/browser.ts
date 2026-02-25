@@ -24,7 +24,7 @@ export async function startMockService(options?: {
     })
 
     if (!quiet) {
-      console.log('[MSW] Mock Service Worker started successfully')
+      console.warn('[MSW] Mock Service Worker started successfully')
     }
 
     return true

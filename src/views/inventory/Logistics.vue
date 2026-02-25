@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { FormSchema } from '@/components/business/TForm'
-import type { TableSchema } from '@/components/business/TTable'
+import type { TableCellSlotProps, TableSchema } from '@/components/business/TTable'
+import type { LogisticsCompany } from '@/types'
 import {
   CheckCircle,
   Package,
@@ -8,36 +9,14 @@ import {
   Star,
   Truck,
 } from 'lucide-vue-next'
-import { TForm } from '@/components/business/TForm'
-import { TModal } from '@/components/business/TModal'
-/**
- * 物流管理页
- */
-import { TTable } from '@/components/business/TTable'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { ref } from 'vue'
+import { TForm, TModal, TTable } from '@/components/business'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { WAREHOUSE_STATUS } from '@/constants'
 
-interface TableSlotProps {
-  record: LogisticsCompany
-  text: any
-  index: number
-}
-
-// 物流公司数据
-interface LogisticsCompany {
-  id: string
-  name: string
-  code: string
-  contact: string
-  phone: string
-  address: string
-  status: WAREHOUSE_STATUS.ACTIVE | WAREHOUSE_STATUS.INACTIVE
-  rating: number
-  deliveryCount: number
-  createdAt: string
-}
+const WAREHOUSE_STATUS = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+} as const
 
 const logisticsCompanies = ref<LogisticsCompany[]>([
   {
@@ -494,7 +473,6 @@ function handleSelectChange(keys: (string | number)[]) {
       </CardHeader>
       <CardContent class="pt-0">
         <TTable
-          ref="tableRef"
           v-model:data="filteredCompanies"
           :schema="tableSchema"
           @select-change="handleSelectChange"
@@ -503,7 +481,7 @@ function handleSelectChange(keys: (string | number)[]) {
           <template #name="slotProps">
             <div class="flex items-center gap-2">
               <Truck class="h-4 w-4 text-blue-500" />
-              <span class="font-medium">{{ (slotProps as TableSlotProps).text }}</span>
+              <span class="font-medium">{{ (slotProps as TableCellSlotProps).text }}</span>
             </div>
           </template>
 
@@ -511,7 +489,7 @@ function handleSelectChange(keys: (string | number)[]) {
           <template #rating="slotProps">
             <div class="flex items-center gap-1">
               <Star class="h-3 w-3 text-yellow-500 fill-yellow-500" />
-              <span class="font-medium">{{ (slotProps as TableSlotProps).text }}</span>
+              <span class="font-medium">{{ (slotProps as TableCellSlotProps).text }}</span>
             </div>
           </template>
 
@@ -519,12 +497,12 @@ function handleSelectChange(keys: (string | number)[]) {
           <template #status="slotProps">
             <Badge
               :class="{
-                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableSlotProps).text === WAREHOUSE_STATUS.ACTIVE,
-                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as TableSlotProps).text === WAREHOUSE_STATUS.INACTIVE,
+                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableCellSlotProps).text === WAREHOUSE_STATUS.ACTIVE,
+                'bg-gray-500/10 text-gray-500 border-gray-500/20': (slotProps as TableCellSlotProps).text === WAREHOUSE_STATUS.INACTIVE,
               }"
               variant="outline"
             >
-              {{ (slotProps as TableSlotProps).text === WAREHOUSE_STATUS.ACTIVE ? '合作中' : '已停用' }}
+              {{ (slotProps as TableCellSlotProps).text === WAREHOUSE_STATUS.ACTIVE ? '合作中' : '已停用' }}
             </Badge>
           </template>
 

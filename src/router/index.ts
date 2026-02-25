@@ -143,7 +143,7 @@ router.beforeEach(async (to, from, next) => {
 router.afterEach((to, from) => {
   // 记录路由切换日志（仅在开发环境）
   if (import.meta.env.DEV) {
-    console.log(`[Router] ${from.fullPath} -> ${to.fullPath}`)
+    console.warn(`[Router] ${from.fullPath} -> ${to.fullPath}`)
   }
 
   // 清理过期的请求缓存

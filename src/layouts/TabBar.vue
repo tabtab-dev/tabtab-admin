@@ -37,7 +37,7 @@ import { useFullscreen } from '@/composables/useFullscreen'
 import { useTabBar } from '@/composables/useTabBar'
 import { useTabBarStore } from '@/stores/global/tabbar'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const tabBarStore = useTabBarStore()
 
 /**

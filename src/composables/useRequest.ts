@@ -1,4 +1,4 @@
-import type { Method } from 'alova'
+import type { AlovaGenerics, Method } from 'alova'
 import type { Ref } from 'vue'
 import type { AppError } from '@/utils/errorHandler'
 /**
@@ -6,6 +6,7 @@ import type { AppError } from '@/utils/errorHandler'
  * @description 封装 Alova 的请求方法，提供统一的请求状态管理和错误处理
  */
 import { useRequest as useAlovaRequest, useFetcher } from 'alova/client'
+import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { api } from '@/api'
 import { normalizeError } from '@/utils/errorHandler'
@@ -27,7 +28,7 @@ export interface UseQueryReturn<T> {
 }
 
 export interface UseMutationOptions<TVariables = any, TData = any> {
-  mutationFn: (variables: TVariables) => Promise<TData>
+  mutationFn: (variables: TVariables) => Method<AlovaGenerics<TData>> | Promise<TData>
   onSuccess?: (data: TData, variables: TVariables) => void
   onError?: (error: AppError, variables: TVariables) => void
   onComplete?: () => void
@@ -37,6 +38,7 @@ export interface UseMutationOptions<TVariables = any, TData = any> {
 export interface UseMutationReturn<TVariables, TData> {
   mutate: (variables: TVariables) => Promise<TData | null>
   readonly loading: Ref<boolean>
+  readonly error: Ref<AppError | null>
   abort: () => void
 }
 
@@ -67,10 +69,14 @@ export function useQuery<T = any>(
 ): UseQueryReturn<T> {
   const { immediate = true, initialData, onSuccess, onError } = options
 
-  const { data, loading, error, send, abort, update } = useAlovaRequest(methodHandler, {
+  const alovaOptions: Record<string, any> = {
     immediate,
-    initialData,
-  })
+  }
+  if (initialData !== undefined) {
+    alovaOptions.initialData = initialData
+  }
+
+  const { data, loading, error, send, abort } = useAlovaRequest<AlovaGenerics<T>, any[]>(methodHandler, alovaOptions)
 
   const fetchData = async (...args: any[]): Promise<T | null> => {
     try {
@@ -90,8 +96,19 @@ export function useQuery<T = any>(
     error: error as Ref<AppError | null>,
     send: fetchData,
     abort,
-    update,
+    update: () => {},
   }
+}
+
+/**
+ * 检查是否为 Method 实例
+ */
+function isMethodInstance<T>(value: unknown): value is Method<AlovaGenerics<T>> {
+  return value !== null
+    && typeof value === 'object'
+    && 'type' in value
+    && 'url' in value
+    && 'context' in value
 }
 
 /**
@@ -102,16 +119,34 @@ export function useMutation<TVariables = any, TData = any>(
 ): UseMutationReturn<TVariables, TData> {
   const { mutationFn, onSuccess, onError, onComplete, successMessage = '操作成功' } = options
 
-  const { loading, send, abort } = useFetcher()
+  const error = ref<AppError | null>(null)
+  const loading = ref(false)
+  const { fetch, abort: fetchAbort } = useFetcher()
+
+  let abortController: AbortController | null = null
 
   const mutate = async (variables: TVariables): Promise<TData | null> => {
+    error.value = null
+    loading.value = true
+
     try {
-      const result = await send(mutationFn(variables))
-      if (result === null) {
-        const error = normalizeError(new Error('操作失败'))
-        onError?.(error, variables)
+      const fnResult = mutationFn(variables)
+      let result: TData
+
+      if (isMethodInstance<TData>(fnResult)) {
+        result = await fetch(fnResult)
+      }
+      else {
+        abortController = new AbortController()
+        result = await fnResult
+      }
+
+      if (result === null || result === undefined) {
+        error.value = normalizeError(new Error('操作失败'))
+        onError?.(error.value, variables)
         return null
       }
+
       if (successMessage !== false) {
         toast.success(successMessage)
       }
@@ -119,18 +154,25 @@ export function useMutation<TVariables = any, TData = any>(
       return result
     }
     catch (err) {
-      const error = normalizeError(err)
-      onError?.(error, variables)
+      error.value = normalizeError(err)
+      onError?.(error.value, variables)
       return null
     }
     finally {
+      loading.value = false
       onComplete?.()
     }
+  }
+
+  const abort = () => {
+    fetchAbort()
+    abortController?.abort()
   }
 
   return {
     mutate,
     loading: loading as Ref<boolean>,
+    error: error as Ref<AppError | null>,
     abort,
   }
 }

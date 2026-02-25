@@ -31,12 +31,14 @@ export function useMenuUtils(options: UseMenuUtilsOptions = {}) {
         if (path === '/')
           return false
 
-        const pathWithSlash = path.endsWith('/') ? path : `${path}/`
-        if (!currentPath.startsWith(pathWithSlash))
-          return false
+        {
+          const pathWithSlash = path.endsWith('/') ? path : `${path}/`
+          if (!currentPath.startsWith(pathWithSlash))
+            return false
 
-        const remainingPath = currentPath.slice(pathWithSlash.length)
-        return !remainingPath.includes('/')
+          const remainingPath = currentPath.slice(pathWithSlash.length)
+          return !remainingPath.includes('/')
+        }
     }
   }
 
@@ -55,7 +57,8 @@ export function useMenuUtils(options: UseMenuUtilsOptions = {}) {
 
     const traverse = (items: (MenuItem | SidebarMenuItem)[], parentKeys: string[] = []) => {
       for (const item of items) {
-        const currentKeys = [...parentKeys, item.key]
+        const itemKey = 'key' in item ? item.key : item.path
+        const currentKeys = [...parentKeys, itemKey]
 
         if (isActive(item.path)) {
           parentKeys.forEach(key => keys.add(key))
@@ -65,7 +68,7 @@ export function useMenuUtils(options: UseMenuUtilsOptions = {}) {
         if (item.children) {
           const hasActive = traverse(item.children, currentKeys)
           if (hasActive) {
-            keys.add(item.key)
+            keys.add(itemKey)
             return true
           }
         }

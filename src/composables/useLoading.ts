@@ -26,7 +26,7 @@ export interface LocalLoadingState {
   text: ComputedRef<string>
   start: (text?: string) => void
   stop: () => void
-  wrap: <T extends (...args: any[]) => Promise<any>>(fn: T) => (...args: Parameters<T>) => Promise<ReturnType<T>>
+  wrap: <T extends (...args: any[]) => Promise<any>>(fn: T) => (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>>
 }
 
 const loadingStates = ref<Map<string, LoadingState>>(new Map())
@@ -50,8 +50,8 @@ function generateId(): string {
 function createWrap<T extends (...args: any[]) => Promise<any>>(
   start: () => string,
   stop: (id: string) => void,
-): (fn: T) => (...args: Parameters<T>) => Promise<ReturnType<T>> {
-  return (fn: T) => async (...args: Parameters<T>): Promise<ReturnType<T>> => {
+): (fn: T) => (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
+  return (fn: T) => async (...args: Parameters<T>): Promise<Awaited<ReturnType<T>>> => {
     const id = start()
     try {
       return await fn(...args)

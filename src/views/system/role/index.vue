@@ -37,12 +37,10 @@ const {
   data: roles,
   loading,
   searchQuery,
-  currentPage,
-  pageSize,
-  total,
   fetchData,
   goToPage,
   setPageSize,
+  total,
 } = useTableData<Role>({
   apiCall: async (params) => {
     const res = await roleApi.getRoles(params)
@@ -54,6 +52,14 @@ const {
     search: ctx.searchQuery,
   }),
 })
+
+// ==================== 弹窗和表单状态 ====================
+const isAddDialogOpen = ref(false)
+const isEditDialogOpen = ref(false)
+const isPermissionDrawerOpen = ref(false)
+const editingRole = ref<Role | null>(null)
+const currentRole = ref<Role | null>(null)
+const tableRef = ref<TTableExpose>()
 
 const { mutate: createRole } = useMutation({
   mutationFn: (values: Record<string, any>) => roleApi.createRole({
@@ -233,9 +239,6 @@ const searchSchema: FormSchema = {
   },
 }
 
-// ==================== 表格配置 ====================
-const tableRef = ref<TTableExpose>()
-
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
     {
@@ -314,13 +317,6 @@ const tableSchema = computed<TableSchema>(() => ({
   actionWidth: 260,
   actionFixed: 'right',
 }))
-
-// ==================== 弹窗和表单 ====================
-const isAddDialogOpen = ref(false)
-const isEditDialogOpen = ref(false)
-const isPermissionDrawerOpen = ref(false)
-const editingRole = ref<Role | null>(null)
-const currentRole = ref<Role | null>(null)
 
 // 表单 ref，用于 TModal 触发表单验证
 const addFormRef = ref()
@@ -618,10 +614,10 @@ const statisticsCards = computed(() => {
   const totalPermissions = list.reduce((sum, r) => sum + ((r.permissions as string[])?.length || 0), 0)
 
   return [
-    { title: '角色总数', value: total, icon: Shield, color: 'text-blue-500' },
-    { title: '启用角色', value: active, icon: Check, color: 'text-green-500' },
-    { title: '关联用户', value: totalUsers, icon: Users, color: 'text-purple-500' },
-    { title: '权限总数', value: totalPermissions, icon: Key, color: 'text-orange-500' },
+    { title: '角色总数', value: total, icon: Shield, color: 'blue' },
+    { title: '启用角色', value: active, icon: Check, color: 'green' },
+    { title: '关联用户', value: totalUsers, icon: Users, color: 'purple' },
+    { title: '权限总数', value: totalPermissions, icon: Key, color: 'orange' },
   ]
 })
 </script>

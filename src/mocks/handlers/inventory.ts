@@ -1,4 +1,4 @@
-import Mock from 'mockjs'
+import { faker } from '@faker-js/faker'
 /**
  * 库存管理模块 MSW handlers
  * @description 仓库和库存管理相关接口
@@ -47,20 +47,24 @@ const warehousesData = [
   },
 ]
 
-const stockData = Mock.mock({
-  'list|50': [
-    {
-      id: '@id',
-      productId: 'p-@integer(1, 20)',
-      productName: '@ctitle(4, 8)',
-      sku: 'SKU-@string("number", 6)',
-      warehouseId: '@pick(["1", "2", "3"])',
-      quantity: '@integer(10, 500)',
-      minStock: '@integer(10, 100)',
-      createdAt: '@date("yyyy-MM-dd")',
-    },
-  ],
-}).list
+function generateStockData() {
+  const list = []
+  for (let i = 0; i < 50; i++) {
+    list.push({
+      id: faker.string.uuid(),
+      productId: `p-${faker.number.int({ min: 1, max: 20 })}`,
+      productName: faker.commerce.productName(),
+      sku: `SKU-${faker.string.numeric(6)}`,
+      warehouseId: faker.helpers.arrayElement(['1', '2', '3']),
+      quantity: faker.number.int({ min: 10, max: 500 }),
+      minStock: faker.number.int({ min: 10, max: 100 }),
+      createdAt: faker.date.past().toISOString().split('T')[0],
+    })
+  }
+  return list
+}
+
+const stockData = generateStockData()
 
 export const inventoryHandlers = [
   http.get('/mock-api/warehouses', async ({ request }) => {
@@ -163,14 +167,14 @@ export const inventoryHandlers = [
     if (search) {
       const lowerSearch = search.toLowerCase()
       filteredData = filteredData.filter(
-        (s: any) =>
+        s =>
           s.productName.toLowerCase().includes(lowerSearch)
           || s.sku.toLowerCase().includes(lowerSearch),
       )
     }
 
     if (warehouseId) {
-      filteredData = filteredData.filter((s: any) => s.warehouseId === warehouseId)
+      filteredData = filteredData.filter(s => s.warehouseId === warehouseId)
     }
 
     const total = filteredData.length
@@ -186,13 +190,13 @@ export const inventoryHandlers = [
 
   http.patch('/mock-api/stock/:id', async ({ params, request }) => {
     await delay(200)
-    const index = stockData.findIndex((s: any) => s.id === params.id)
+    const index = stockData.findIndex(s => s.id === params.id)
     if (index === -1) {
       return HttpResponse.json({ code: 404, data: null, message: '库存记录不存在' })
     }
 
-    const body = (await request.json()) as { quantity?: number };
-    (stockData[index] as any).quantity = body.quantity
+    const body = (await request.json()) as { quantity?: number }
+    stockData[index].quantity = body.quantity
     return HttpResponse.json({ code: 200, data: stockData[index], message: 'success' })
   }),
 ]

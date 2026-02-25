@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FormSchema, TableSchema, TTableExpose } from '@/components/business'
+import type { FormSchema, TableCellSlotProps, TableSchema, TTableExpose } from '@/components/business'
 
 import type { Product } from '@/types'
 import { Avatar, Space } from 'antdv-next'
@@ -32,29 +32,23 @@ interface ProductFormData {
   description: string
 }
 
-interface TableSlotProps {
-  record: Product
-  text: any
-  index: number
-}
-
 // ==================== 数据管理 ====================
 const {
   data: products,
-  loading,
+  loading: _loading,
   searchQuery,
   filters,
-  currentPage,
-  pageSize,
-  total,
+  currentPage: _currentPage,
+  pageSize: _pageSize,
+  total: _total,
   statistics,
   fetchData,
   goToPage,
   setPageSize,
-  addData,
-  updateData,
-  removeData,
-  batchRemoveData,
+  addData: _addData,
+  updateData: _updateData,
+  removeData: _removeData,
+  batchRemoveData: _batchRemoveData,
 } = useTableData<Product>({
   // API 调用函数
   apiCall: async (params) => {
@@ -89,7 +83,34 @@ const {
   },
 })
 
-const { mutate: createProduct, loading: creating } = useMutation({
+// ==================== 表单状态 ====================
+const isAddDialogOpen = ref(false)
+const isEditDialogOpen = ref(false)
+const editingProduct = ref<Product | null>(null)
+
+// 新增表单数据
+const addFormData = ref<ProductFormData>({
+  name: '',
+  category: '',
+  price: 0,
+  stock: 0,
+  description: '',
+})
+
+// 编辑表单数据
+const editFormData = ref<ProductFormData>({
+  id: '',
+  name: '',
+  category: '',
+  price: 0,
+  stock: 0,
+  description: '',
+})
+
+// ==================== 表格配置 ====================
+const tableRef = ref<TTableExpose>()
+
+const { mutate: createProduct } = useMutation({
   mutationFn: (values: Record<string, any>) => {
     const stock = Number(values.stock)
     return productsApi.createProduct({
@@ -115,7 +136,7 @@ const { mutate: createProduct, loading: creating } = useMutation({
   },
 })
 
-const { mutate: updateProduct, loading: updating } = useMutation({
+const { mutate: updateProduct } = useMutation({
   mutationFn: ({ id, values }: { id: string, values: Record<string, any> }) =>
     productsApi.updateProduct(id, {
       name: values.name,
@@ -245,9 +266,6 @@ const searchSchema: FormSchema = {
   },
 }
 
-// ==================== 表格配置 ====================
-const tableRef = ref<TTableExpose>()
-
 // 表格 Schema
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
@@ -333,30 +351,6 @@ const tableData = computed(() => {
     ...product,
     key: product.id,
   }))
-})
-
-// ==================== 新增/编辑表单 ====================
-const isAddDialogOpen = ref(false)
-const isEditDialogOpen = ref(false)
-const editingProduct = ref<Product | null>(null)
-
-// 新增表单数据
-const addFormData = ref<ProductFormData>({
-  name: '',
-  category: '',
-  price: 0,
-  stock: 0,
-  description: '',
-})
-
-// 编辑表单数据
-const editFormData = ref<ProductFormData>({
-  id: '',
-  name: '',
-  category: '',
-  price: 0,
-  stock: 0,
-  description: '',
 })
 
 // 共享表单 Schema
@@ -632,15 +626,15 @@ function handleTableChange(pagination: any): void {
                 <Package class="h-5 w-5" />
               </Avatar>
               <Space direction="vertical" size="small">
-                <span class="font-medium">{{ (slotProps as TableSlotProps).record.name }}</span>
-                <span class="text-xs text-muted-foreground font-mono">{{ (slotProps as TableSlotProps).record.sku }}</span>
+                <span class="font-medium">{{ (slotProps as TableCellSlotProps).record.name }}</span>
+                <span class="text-xs text-muted-foreground font-mono">{{ (slotProps as TableCellSlotProps).record.sku }}</span>
               </Space>
             </Space>
           </template>
 
           <!-- 自定义价格列 -->
           <template #price="slotProps">
-            <span class="font-medium text-primary">¥{{ Number((slotProps as TableSlotProps).text).toFixed(2) }}</span>
+            <span class="font-medium text-primary">¥{{ Number((slotProps as TableCellSlotProps).text).toFixed(2) }}</span>
           </template>
 
           <!-- 自定义库存列 -->
@@ -648,14 +642,14 @@ function handleTableChange(pagination: any): void {
             <Space>
               <span
                 class="font-medium" :class="[
-                  (slotProps as TableSlotProps).record.stock === 0 ? 'text-red-500'
-                  : (slotProps as TableSlotProps).record.stock < 10 ? 'text-yellow-500' : 'text-green-500',
+                  (slotProps as TableCellSlotProps).record.stock === 0 ? 'text-red-500'
+                  : (slotProps as TableCellSlotProps).record.stock < 10 ? 'text-yellow-500' : 'text-green-500',
                 ]"
               >
-                {{ (slotProps as TableSlotProps).text }}
+                {{ (slotProps as TableCellSlotProps).text }}
               </span>
               <TrendingUp
-                v-if="(slotProps as TableSlotProps).record.stock < 10"
+                v-if="(slotProps as TableCellSlotProps).record.stock < 10"
                 class="h-4 w-4 text-red-500"
               />
             </Space>
@@ -664,7 +658,7 @@ function handleTableChange(pagination: any): void {
           <!-- 自定义状态列 -->
           <template #status="slotProps">
             <TStatusBadge
-              :status="(slotProps as TableSlotProps).text"
+              :status="(slotProps as TableCellSlotProps).text"
               :status-map="{
                 [PRODUCT_STATUS.ACTIVE]: { text: '在售', color: 'success' },
                 [PRODUCT_STATUS.LOW_STOCK]: { text: '库存不足', color: 'warning' },

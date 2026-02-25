@@ -13,7 +13,41 @@ export type TableSize = 'small' | 'middle' | 'large'
  * 表格记录类型
  * @description 表格行数据的通用类型
  */
-export type TableRecord = Record<string, unknown>
+export type TableRecord = Record<string, any>
+
+/**
+ * 表格单元格插槽属性
+ * @description 用于表格列的自定义单元格插槽
+ */
+export interface TableCellSlotProps {
+  /** 当前单元格文本值 */
+  text: any
+  /** 当前行数据 */
+  record: TableRecord
+  /** 当前行索引 */
+  index: number
+  /** 当前列配置 */
+  column: TableColumn
+}
+
+/**
+ * 表格标题插槽属性
+ * @description 用于表格列标题插槽
+ */
+export interface TableHeaderSlotProps {
+  /** 列标题 */
+  title: any
+  /** 当前列配置 */
+  column: TableColumn
+  /** 列索引 */
+  index: number
+}
+
+/**
+ * 表格插槽属性（联合类型）
+ * @description 兼容单元格和标题插槽
+ */
+export type TableSlotProps = TableCellSlotProps | TableHeaderSlotProps
 
 /**
  * 表格排序结果

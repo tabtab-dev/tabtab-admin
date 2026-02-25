@@ -22,13 +22,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useTableData } from '@/composables'
 
 const {
-  data: categories,
-  loading,
   searchQuery,
   filters,
-  filteredData,
   paginatedData,
-  total,
   statistics,
   fetchData,
 } = useTableData<Category>({
@@ -482,7 +478,6 @@ async function handleBatchDelete() {
       </CardHeader>
       <CardContent class="pt-0">
         <TTable
-          ref="tableRef"
           v-model:data="tableData"
           :schema="tableSchema"
           @select-change="handleSelectChange"

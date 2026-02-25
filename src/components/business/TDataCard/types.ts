@@ -49,7 +49,7 @@ export interface TDataCardProps {
   value: number | string
   icon?: Component
   iconName?: string
-  color?: CardColor
+  color?: string
   size?: CardSize
   trend?: TrendConfig
   loading?: boolean

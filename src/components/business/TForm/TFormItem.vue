@@ -16,6 +16,11 @@ import TFormList from './TFormList.vue'
 
 const props = defineProps<Props>()
 
+const emit = defineEmits<{
+  /** 字段值变化 */
+  (e: 'fieldChange', name: string, value: any): void
+}>()
+
 /**
  * i18n
  */
@@ -92,7 +97,7 @@ const fieldValue = computed<any>({
   get: () => props.formData[props.field.name as string],
   /** 设置字段值 */
   set: (val: any) => {
-    props.formData[props.field.name as string] = val
+    emit('fieldChange', props.field.name as string, val)
   },
 })
 
@@ -254,7 +259,7 @@ const processedRules = computed(() => {
 /**
  * 判断是否为特殊类型（需要自定义渲染）
  */
-const isSpecialType = computed(() => {
+const _isSpecialType = computed(() => {
   return ['list', 'group', 'custom', 'color-picker'].includes(props.field.type)
 })
 
@@ -640,6 +645,7 @@ defineExpose({
       :field="field"
       :form-data="formData"
       :list-config="field.listConfig"
+      @field-change="(name, value) => emit('fieldChange', name, value)"
     />
 
     <!-- Group 分组 -->

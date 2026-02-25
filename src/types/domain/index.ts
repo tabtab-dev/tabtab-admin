@@ -1,61 +1,84 @@
 /**
- * 领域类型统一导出
- * @description 统一导出所有业务领域类型
+ * 业务实体类型定义
+ * 绑定之前的修复，
  */
 
-// 分类和标签相关类型
-export type {
-  Category,
-  CategoryStatus,
-  CreateCategoryParams,
-  CreateTagParams,
-  GetCategoriesParams,
-  Tag,
-  UpdateCategoryParams,
-  UpdateTagParams,
-} from './category'
+export * from './base'
+export * from './category'
+export * from './menu'
+export * from './organization'
+export * from './user'
+export * from './warehouse'
 
-// 库存相关类型
-export type {
-  CreateWarehouseParams,
-  GetStockParams,
-  GetWarehousesParams,
-  Stock,
-  StockItem,
-  StockMovement,
-  UpdateWarehouseParams,
-  Warehouse,
-  WarehouseStatus,
-} from './inventory'
+export interface Category {
+  id: string
+  name: string
+  code?: string
+  description?: string
+  icon?: string
+  parentId?: string
+  level?: number
+  sort?: number
+  sortOrder: number
+  status: CategoryStatus
+  productCount?: number
+  createdAt: string
+  updatedAt: string
+}
 
-// 订单相关类型
-export type {
-  CreateOrderParams,
-  GetOrdersParams,
-  Order,
-  OrderItem,
-  OrderStatus,
-  ShippingAddress,
-  UpdateOrderParams,
-} from './order'
+export interface User {
+  id: string
+  email: string
+  name: string
+  avatar?: string
+  role: UserRole
+  status: UserStatus
+  createdAt: string
+  updatedAt: string
+}
 
-// 产品相关类型
-export type {
-  CreateProductParams,
-  GetProductsParams,
-  Product,
-  ProductStatus,
-  UpdateProductParams,
-} from './product'
+export interface Warehouse {
+  id: string
+  name: string
+  code: string
+  location: string
+  manager: string
+  capacity: number
+  usedCapacity: number
+  status: WarehouseStatus
+  createdAt: string
+  updatedAt: string
+}
 
-// 用户相关类型
-export type {
-  ChangePasswordParams,
-  CreateUserParams,
-  GetUsersParams,
-  UpdateProfileParams,
-  UpdateUserParams,
-  User,
-  UserRole,
-  UserStatus,
-} from './user'
+export interface Menu {
+  id: string
+  name: string
+  title: string
+  path: string
+  component: string
+  icon: string
+  parentId: string | null
+  sort: number
+  status: MenuStatus
+  hidden: boolean
+  keepAlive: boolean
+  external: boolean
+  permission: string
+  type: MenuType
+  createdAt: string
+  children?: Menu[]
+}
+
+export interface Organization {
+  id: string
+  name: string
+  code: string
+  parentId: string | null
+  leader: string
+  memberCount: number
+  sort: number
+  status: OrganizationStatus
+  description: string
+  createdAt: string
+  children?: Organization[]
+}

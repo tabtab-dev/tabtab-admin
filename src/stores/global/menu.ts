@@ -89,40 +89,56 @@ export const useMenuStore = defineStore(
     // 用于防止重复请求的 Promise 锁
     let pendingPromise: Promise<boolean> | null = null
 
+    /**
+     * 添加动态路由
+     * @param routeConfigs - 路由配置数组
+     */
+    const addDynamicRoutes = (routeConfigs: RouteConfig[]) => {
+      const dynamicRoutes = convertToRouteRecords(routeConfigs)
+
+      dynamicRoutes.forEach((route) => {
+        const existingRoutes = router.getRoutes()
+        const isExists = existingRoutes.some(r => r.name === route.name)
+
+        if (!isExists) {
+          router.addRoute('Root', route)
+
+          if (route.name && !addedRouteNames.value.includes(route.name as string)) {
+            addedRouteNames.value.push(route.name as string)
+          }
+        }
+      })
+    }
+
     // Actions
     /**
      * 获取菜单和路由数据
      * @returns 是否获取成功
      */
     const fetchMenus = async (): Promise<boolean> => {
-      // 如果已经加载完成，直接返回成功
       if (isLoaded.value) {
-        console.log('[MenuStore] Menus already loaded')
+        console.warn('[MenuStore] Menus already loaded')
         return true
       }
 
-      // 如果正在加载中，返回正在进行的 Promise
       if (pendingPromise) {
-        console.log('[MenuStore] Menus are loading, returning pending promise...')
+        console.warn('[MenuStore] Menus are loading, returning pending promise...')
         return pendingPromise
       }
 
-      // 创建新的加载 Promise
       pendingPromise = (async () => {
         isLoading.value = true
         try {
-          console.log('[MenuStore] Fetching menus...')
-          const routeConfigs = await menuApi.getUserMenus()
-          console.log('[MenuStore] Response:', routeConfigs)
+          console.warn('[MenuStore] Fetching menus...')
+          const routeConfigs = await menuApi.getUserMenus() as RouteConfig[]
+          console.warn('[MenuStore] Response:', routeConfigs)
 
           routes.value = routeConfigs
-          // 从路由配置自动生成菜单数据
           menus.value = generateMenusFromRoutes(routeConfigs)
           isLoaded.value = true
 
-          // 动态添加路由
           addDynamicRoutes(routeConfigs)
-          console.log('[MenuStore] Menus loaded and routes added')
+          console.warn('[MenuStore] Menus loaded and routes added')
 
           return true
         }
@@ -137,31 +153,6 @@ export const useMenuStore = defineStore(
       })()
 
       return pendingPromise
-    }
-
-    /**
-     * 添加动态路由
-     * @param routeConfigs - 路由配置数组
-     */
-    const addDynamicRoutes = (routeConfigs: RouteConfig[]) => {
-      // 转换并添加路由
-      const dynamicRoutes = convertToRouteRecords(routeConfigs)
-
-      dynamicRoutes.forEach((route) => {
-        // 检查路由是否已存在（通过 name 检查）
-        const existingRoutes = router.getRoutes()
-        const isExists = existingRoutes.some(r => r.name === route.name)
-
-        if (!isExists) {
-          // 路由不存在，添加到布局路由的子路由中
-          router.addRoute('Root', route)
-
-          // 记录已添加的路由名称
-          if (route.name && !addedRouteNames.value.includes(route.name as string)) {
-            addedRouteNames.value.push(route.name as string)
-          }
-        }
-      })
     }
 
     /**

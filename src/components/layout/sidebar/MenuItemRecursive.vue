@@ -32,7 +32,6 @@ interface Props {
   level?: number
 }
 
-const route = useRoute()
 const { isActive, hasActiveChild, getAriaCurrent } = useMenuUtils()
 
 /**

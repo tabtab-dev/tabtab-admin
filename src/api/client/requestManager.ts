@@ -64,7 +64,7 @@ export class RequestManager {
 
     // 去重检查
     if (this.options.enableDedupe && this.pendingRequests.has(key)) {
-      console.log(`[RequestManager] 请求去重: ${key}`)
+      console.warn(`[RequestManager] 请求去重: ${key}`)
       return this.pendingRequests.get(key) as Promise<T>
     }
 
@@ -100,7 +100,7 @@ export class RequestManager {
       // 判断是否可重试
       if (this.shouldRetry(error, attempt)) {
         const delay = this.calculateDelay(attempt)
-        console.log(`[RequestManager] 请求重试 (${attempt + 1}/${this.options.maxRetries}): ${key}`)
+        console.warn(`[RequestManager] 请求重试 (${attempt + 1}/${this.options.maxRetries}): ${key}`)
 
         await this.sleep(delay)
         return this.executeWithRetry<T>(method, key, attempt + 1)

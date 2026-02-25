@@ -4,6 +4,7 @@ import type { AppError } from '@/utils/errorHandler'
  * @description 封装数据获取、过滤、分页、统计等通用逻辑（仅支持后端分页）
  */
 import { useDebounceFn } from '@vueuse/core'
+import { shallowRef } from 'vue'
 import { normalizeError } from '@/utils/errorHandler'
 
 /**
@@ -23,12 +24,14 @@ export interface UseTableDataOptions<T> {
   /**
    * API 调用函数，支持传入参数
    */
-  apiCall: (params?: Record<string, any>) => Promise<{ list: T[], total: number, page: number, pageSize: number }>
+  apiCall: (params?: Record<string, any>) => Promise<any>
   /**
    * 构建 API 调用参数的函数，用于后端分页/搜索
    * @param ctx - 当前分页和搜索状态
    */
   apiCallParams?: (ctx: ApiCallParamsContext) => Record<string, any>
+  /** 过滤函数（用于前端过滤） */
+  filterFn?: (items: T[], query: string, filterValues: Record<string, any>) => T[]
   /** 是否立即加载数据 */
   immediate?: boolean
   /** 默认页码 */
@@ -120,7 +123,7 @@ export function useTableData<T = any>(options: UseTableDataOptions<T>) {
   } = options
 
   // ============ 状态 ============
-  const data = ref<T[]>([])
+  const data = shallowRef<T[]>([])
   const loading = ref(false)
   const error = ref<AppError | null>(null)
   const searchQuery = ref('')
@@ -304,7 +307,9 @@ export function useTableData<T = any>(options: UseTableDataOptions<T>) {
   const updateData = (id: string | number, updates: Partial<T>) => {
     const index = data.value.findIndex((item: any) => item.id === id)
     if (index !== -1) {
-      data.value[index] = { ...data.value[index], ...updates } as T
+      const newData = [...data.value]
+      newData[index] = { ...newData[index], ...updates } as T
+      data.value = newData
     }
   }
 

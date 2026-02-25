@@ -1,4 +1,4 @@
-import type { SidebarConfig } from '@/components/layout/sidebar/config'
+import type { SidebarConfig } from '@/types/menu'
 import { defaultSidebarConfig } from '@/components/layout/sidebar/config'
 import { STORAGE_KEYS } from '@/constants/common'
 import { useMenuUtils } from './useMenuUtils'
@@ -12,7 +12,6 @@ interface SidebarState {
 }
 
 export function useSidebar(config: SidebarConfig = defaultSidebarConfig) {
-  const route = useRoute()
   const { width: windowWidth } = useWindowSize()
 
   const pxToPercent = (px: number): number => (px / windowWidth.value) * 100

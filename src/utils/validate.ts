@@ -29,13 +29,8 @@ export function isValidPhone(phone: string): boolean {
  * @returns 是否有效
  */
 export function isValidUrl(url: string): boolean {
-  try {
-    new URL(url)
-    return true
-  }
-  catch {
-    return false
-  }
+  const urlRegex = /^https?:\/\/.+/
+  return urlRegex.test(url)
 }
 
 /**
@@ -44,7 +39,7 @@ export function isValidUrl(url: string): boolean {
  * @returns 是否有效
  */
 export function isValidIdCard(idCard: string): boolean {
-  const idCardRegex = /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9X]$/i
+  const idCardRegex = /^[1-9]\d{5}(?:18|19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|30|31)\d{3}[0-9X]$/i
   return idCardRegex.test(idCard)
 }
 

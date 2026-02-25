@@ -238,7 +238,7 @@ async function handleOk(e: MouseEvent): Promise<void> {
         close()
       }
     }
-    catch (error) {
+    catch {
       // 表单验证失败，不触发 ok 事件，保持弹窗打开
     }
     finally {

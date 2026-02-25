@@ -27,6 +27,18 @@ export type StatusType
     | 'active'
     | 'inactive'
     | 'disabled'
+    | 'completed'
+    | 'online'
+    | 'offline'
+    | 'approved'
+    | 'rejected'
+    | 'reviewing'
+    | 'busy'
+    | 'draft'
+    | 'published'
+    | 'archived'
+    | 'custom'
+    | 'blue'
 
 /**
  * 状态配置
@@ -56,7 +68,7 @@ export interface StatusBadgeResponsiveConfig {
 }
 
 export interface TStatusBadgeProps {
-  status: string | number | boolean
+  status?: unknown
   statusMap?: StatusMap
   size?: BadgeSize
   variant?: BadgeVariant

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { FormSchema } from '@/components/business/TForm'
-import type { TableSchema } from '@/components/business/TTable'
+import type { TableCellSlotProps, TableSchema } from '@/components/business/TTable'
 import type { StockItem } from '@/types'
 import {
   AlertTriangle,
@@ -21,12 +21,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useTableData } from '@/composables'
 import { STOCK_CHECK_STATUS } from '@/constants'
-
-interface TableSlotProps {
-  record: StockItem
-  text: any
-  index: number
-}
 
 const {
   data: stockItems,
@@ -321,7 +315,6 @@ function handleSelectChange(keys: (string | number)[]) {
     <Card class="bg-muted/40 border border-border/50 rounded-xl">
       <CardContent class="pt-6">
         <TTable
-          ref="tableRef"
           v-model:data="stockChecks"
           :schema="tableSchema"
           @select-change="handleSelectChange"
@@ -329,10 +322,10 @@ function handleSelectChange(keys: (string | number)[]) {
           <template #product="slotProps">
             <div>
               <div class="font-medium">
-                {{ (slotProps as TableSlotProps).text }}
+                {{ (slotProps as TableCellSlotProps).text }}
               </div>
               <div class="text-xs text-muted-foreground font-mono">
-                {{ (slotProps as TableSlotProps).record.sku }}
+                {{ (slotProps as TableCellSlotProps).record.sku }}
               </div>
             </div>
           </template>
@@ -340,25 +333,25 @@ function handleSelectChange(keys: (string | number)[]) {
           <template #difference="slotProps">
             <span
               class="font-medium" :class="[
-                (slotProps as TableSlotProps).text > 0 ? 'text-green-500'
-                : (slotProps as TableSlotProps).text < 0 ? 'text-red-500' : 'text-gray-500',
+                (slotProps as TableCellSlotProps).text > 0 ? 'text-green-500'
+                : (slotProps as TableCellSlotProps).text < 0 ? 'text-red-500' : 'text-gray-500',
               ]"
             >
-              {{ (slotProps as TableSlotProps).text > 0 ? '+' : '' }}{{ (slotProps as TableSlotProps).text }}
+              {{ (slotProps as TableCellSlotProps).text > 0 ? '+' : '' }}{{ (slotProps as TableCellSlotProps).text }}
             </span>
           </template>
 
           <template #status="slotProps">
             <Badge
               :class="{
-                'bg-yellow-500/10 text-yellow-500 border-yellow-500/20': (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.PENDING,
-                'bg-purple-500/10 text-purple-500 border-purple-500/20': (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.ADJUSTED,
-                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.CONFIRMED,
+                'bg-yellow-500/10 text-yellow-500 border-yellow-500/20': (slotProps as TableCellSlotProps).text === STOCK_CHECK_STATUS.PENDING,
+                'bg-purple-500/10 text-purple-500 border-purple-500/20': (slotProps as TableCellSlotProps).text === STOCK_CHECK_STATUS.ADJUSTED,
+                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableCellSlotProps).text === STOCK_CHECK_STATUS.CONFIRMED,
               }"
               variant="outline"
             >
-              {{ (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.PENDING ? '待确认'
-                : (slotProps as TableSlotProps).text === STOCK_CHECK_STATUS.ADJUSTED ? '已调整' : '已确认' }}
+              {{ (slotProps as TableCellSlotProps).text === STOCK_CHECK_STATUS.PENDING ? '待确认'
+                : (slotProps as TableCellSlotProps).text === STOCK_CHECK_STATUS.ADJUSTED ? '已调整' : '已确认' }}
             </Badge>
           </template>
 

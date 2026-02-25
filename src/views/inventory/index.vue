@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { FormSchema } from '@/components/business/TForm'
-import type { TableSchema } from '@/components/business/TTable'
+import type { TableCellSlotProps, TableSchema } from '@/components/business/TTable'
 import type { StockItem } from '@/types'
 import {
   AlertTriangle,
@@ -19,20 +19,12 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { useTableData } from '@/composables'
 
-interface TableSlotProps {
-  record: StockItem
-  text: any
-  index: number
-}
-
 const {
   data: stockItems,
-  loading,
   searchQuery,
   filters,
-  total,
   statistics,
-  fetchData,
+  fetchData: _fetchData,
 } = useTableData<StockItem>({
   apiCall: () => inventoryApi.getStock(),
   statisticsFn: (items) => {
@@ -230,7 +222,6 @@ function handleSelectChange(keys: (string | number)[]) {
     <Card class="bg-muted/40 border border-border/50 rounded-xl">
       <CardContent class="pt-6">
         <TTable
-          ref="tableRef"
           v-model:data="tableData"
           :schema="tableSchema"
           @select-change="handleSelectChange"
@@ -239,10 +230,10 @@ function handleSelectChange(keys: (string | number)[]) {
           <template #product="slotProps">
             <div>
               <div class="font-medium">
-                {{ (slotProps as TableSlotProps).text }}
+                {{ (slotProps as TableCellSlotProps).text }}
               </div>
               <div class="text-xs text-muted-foreground font-mono">
-                {{ (slotProps as TableSlotProps).record.sku }}
+                {{ (slotProps as TableCellSlotProps).record.sku }}
               </div>
             </div>
           </template>
@@ -251,10 +242,10 @@ function handleSelectChange(keys: (string | number)[]) {
           <template #available="slotProps">
             <span
               class="font-medium" :class="[
-                (slotProps as TableSlotProps).record.available <= (slotProps as TableSlotProps).record.minStock ? 'text-red-500' : 'text-green-500',
+                (slotProps as TableCellSlotProps).record.available <= (slotProps as TableCellSlotProps).record.minStock ? 'text-red-500' : 'text-green-500',
               ]"
             >
-              {{ (slotProps as TableSlotProps).text }}
+              {{ (slotProps as TableCellSlotProps).text }}
             </span>
           </template>
 
@@ -262,14 +253,14 @@ function handleSelectChange(keys: (string | number)[]) {
           <template #status="slotProps">
             <Badge
               :class="{
-                'bg-red-500/10 text-red-500 border-red-500/20': (slotProps as TableSlotProps).record.available <= (slotProps as TableSlotProps).record.minStock,
-                'bg-yellow-500/10 text-yellow-500 border-yellow-500/20': (slotProps as TableSlotProps).record.available > (slotProps as TableSlotProps).record.minStock && (slotProps as TableSlotProps).record.available <= (slotProps as TableSlotProps).record.minStock * 1.5,
-                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableSlotProps).record.available > (slotProps as TableSlotProps).record.minStock * 1.5,
+                'bg-red-500/10 text-red-500 border-red-500/20': (slotProps as TableCellSlotProps).record.available <= (slotProps as TableCellSlotProps).record.minStock,
+                'bg-yellow-500/10 text-yellow-500 border-yellow-500/20': (slotProps as TableCellSlotProps).record.available > (slotProps as TableCellSlotProps).record.minStock && (slotProps as TableCellSlotProps).record.available <= (slotProps as TableCellSlotProps).record.minStock * 1.5,
+                'bg-green-500/10 text-green-500 border-green-500/20': (slotProps as TableCellSlotProps).record.available > (slotProps as TableCellSlotProps).record.minStock * 1.5,
               }"
               variant="outline"
             >
-              {{ (slotProps as TableSlotProps).record.available <= (slotProps as TableSlotProps).record.minStock ? '库存不足'
-                : (slotProps as TableSlotProps).record.available <= (slotProps as TableSlotProps).record.minStock * 1.5 ? '库存偏低' : '库存充足' }}
+              {{ (slotProps as TableCellSlotProps).record.available <= (slotProps as TableCellSlotProps).record.minStock ? '库存不足'
+                : (slotProps as TableCellSlotProps).record.available <= (slotProps as TableCellSlotProps).record.minStock * 1.5 ? '库存偏低' : '库存充足' }}
             </Badge>
           </template>
 

@@ -200,9 +200,6 @@ const {
   setInitialData,
   updateMeta,
   markTouched,
-  setValid,
-  setSubmitting,
-  setValidating,
   getMetaSnapshot,
 } = useFormMeta()
 
@@ -243,8 +240,8 @@ function setFieldHidden(name: NamePath, hidden: boolean): void {
  * @param field - 字段配置
  * @returns 是否禁用
  */
-function getFieldDisabled(field: FormField): boolean {
-  const key = getFieldKey(field.name)
+function _getFieldDisabled(field: FormField): boolean {
+  const key = getFieldKey(field)
   if (fieldDisabledMap.has(key)) {
     return fieldDisabledMap.get(key)!
   }
@@ -273,7 +270,7 @@ function initFormData(): void {
  * 处理表单提交成功
  * @param values - 表单值
  */
-function handleFinish(values: Record<string, any>): void {
+function _handleFinish(values: Record<string, any>): void {
   emit('update:modelValue', { ...formData })
   emit('submit', values)
 }
@@ -318,7 +315,7 @@ function handleSearch(values: Record<string, any>): void {
  * 处理字段值变化
  * @param changedValues - 变化的值
  */
-function handleValuesChange(changedValues: Record<string, any>): void {
+function _handleValuesChange(changedValues: Record<string, any>): void {
   Object.assign(formData, changedValues)
   emit('update:modelValue', { ...formData })
   emit('change', changedValues, { ...formData })
@@ -331,6 +328,17 @@ function handleValuesChange(changedValues: Record<string, any>): void {
  */
 function handleFieldsChange(changedFields: unknown[], allFields: unknown[]): void {
   emit('fieldsChange', changedFields as any, allFields as any)
+}
+
+/**
+ * 处理子组件字段值变化
+ * @param name - 字段名
+ * @param value - 字段值
+ */
+function handleFieldChange(name: string, value: any): void {
+  formData[name] = value
+  emit('update:modelValue', { ...formData })
+  emit('change', { [name]: value }, { ...formData })
 }
 
 /**
@@ -587,6 +595,7 @@ initFormData()
               :field="field"
               :form-data="formData"
               class="search-form-item-inline"
+              @field-change="handleFieldChange"
             >
               <!-- 自定义插槽透传 -->
               <template
@@ -648,6 +657,7 @@ initFormData()
               :field="field"
               :form-data="formData"
               class="search-form-item"
+              @field-change="handleFieldChange"
             >
               <!-- 自定义插槽透传 -->
               <template
@@ -706,6 +716,7 @@ initFormData()
                 :field="field"
                 :form-data="formData"
                 class="search-form-item"
+                @field-change="handleFieldChange"
               >
                 <!-- 自定义插槽透传 -->
                 <template
@@ -770,6 +781,7 @@ initFormData()
             :field="field"
             :form-data="formData"
             style="margin-bottom: 0"
+            @field-change="handleFieldChange"
           >
             <!-- 自定义插槽透传 -->
             <template
@@ -789,6 +801,7 @@ initFormData()
             :key="String(field.name)"
             :field="field"
             :form-data="formData"
+            @field-change="handleFieldChange"
           >
             <!-- 自定义插槽透传 -->
             <template

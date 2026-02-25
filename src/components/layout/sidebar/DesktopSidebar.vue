@@ -67,11 +67,11 @@ interface Emits {
   /** 拖拽状态变化 */
   (e: 'dragging', dragging: boolean): void
   /** 切换子菜单 */
-  (e: 'toggle-sub-menu', key: string): void
+  (e: 'toggleSubMenu', key: string): void
   /** 导航 */
   (e: 'navigate', path: string): void
   /** 切换折叠状态 */
-  (e: 'toggle-collapse'): void
+  (e: 'toggleCollapse'): void
 }
 
 const themeStore = useThemeStore()
@@ -134,7 +134,7 @@ function handleNavigate(path: string): void {
  * @param key - 菜单 key
  */
 function handleToggleSubMenu(key: string): void {
-  emit('toggle-sub-menu', key)
+  emit('toggleSubMenu', key)
 }
 
 /**
@@ -148,7 +148,7 @@ function hasChildren(item: SidebarMenuItem): boolean {
  * 处理折叠切换
  */
 function handleToggleCollapse(): void {
-  emit('toggle-collapse')
+  emit('toggleCollapse')
 }
 
 /**

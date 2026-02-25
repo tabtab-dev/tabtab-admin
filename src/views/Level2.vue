@@ -2,7 +2,7 @@
 import type { FormSchema } from '@/components/business/TForm'
 import type { TableSchema } from '@/components/business/TTable'
 import type { Category } from '@/types'
-import { Plus } from 'lucide-vue-next'
+import { CheckCircle2, Layers, Package, Plus, XCircle } from 'lucide-vue-next'
 import { categoriesApi } from '@/api'
 import { TForm } from '@/components/business/TForm'
 import { TModal } from '@/components/business/TModal'
@@ -17,12 +17,9 @@ import { useTableData } from '@/composables'
 
 const {
   data: categories,
-  loading,
   searchQuery,
   filters,
-  filteredData,
   paginatedData,
-  total,
   statistics,
   fetchData,
 } = useTableData<Category>({
@@ -65,7 +62,22 @@ const searchSchema: FormSchema = {
     { name: 'keyword', type: 'input', label: '', placeholder: '搜索分类名称...', className: 'w-[200px]' },
     { name: 'status', type: 'select', label: '', placeholder: '全部状态', options: [{ label: '全部状态', value: '' }, { label: '启用', value: 'active' }, { label: '禁用', value: 'inactive' }], className: 'w-[140px]' },
   ],
-  searchConfig: { enabled: true, collapsed: false, showCollapseButton: false, searchText: '搜索', resetText: '重置', showReset: true, onSearch: (values) => { searchQuery.value = values.keyword || ''; filters.value = { status: values.status } }, onReset: () => { searchQuery.value = ''; filters.value = {} } },
+  searchConfig: {
+    enabled: true,
+    collapsed: false,
+    showCollapseButton: false,
+    searchText: '搜索',
+    resetText: '重置',
+    showReset: true,
+    onSearch: (values) => {
+      searchQuery.value = values.keyword || ''
+      filters.value = { status: values.status }
+    },
+    onReset: () => {
+      searchQuery.value = ''
+      filters.value = {}
+    },
+  },
 }
 
 const tableSchema = computed<TableSchema>(() => ({
@@ -88,7 +100,16 @@ const tableSchema = computed<TableSchema>(() => ({
 
 const tableData = computed(() => paginatedData.value.map(c => ({ ...c, key: c.id })))
 
-const isAddOpen = ref(false); const isEditOpen = ref(false); const editingItem = ref<Category | null>(null)
+const statisticsCards = computed(() => [
+  { title: '分类总数', value: statistics.value.total ?? 0, icon: Layers, color: 'text-orange-500' },
+  { title: '已启用', value: statistics.value.active ?? 0, icon: CheckCircle2, color: 'text-green-500' },
+  { title: '已禁用', value: statistics.value.inactive ?? 0, icon: XCircle, color: 'text-gray-500' },
+  { title: '商品总数', value: statistics.value.totalProducts ?? 0, icon: Package, color: 'text-purple-500' },
+])
+
+const isAddOpen = ref(false)
+const isEditOpen = ref(false)
+const editingItem = ref<Category | null>(null)
 const addFormData = ref({ name: '', code: '', parentId: '', sort: 0, status: 'active' as 'active' | 'inactive', description: '' })
 const editFormData = ref({ id: '', name: '', code: '', parentId: '', sort: 0, status: 'active' as 'active' | 'inactive', description: '' })
 
@@ -149,7 +170,9 @@ async function handleDelete(id: string) {
 }
 
 const selectedRowKeys = ref<(string | number)[]>([])
-function handleSelectChange(keys: (string | number)[]) { selectedRowKeys.value = keys }
+function handleSelectChange(keys: (string | number)[]) {
+  selectedRowKeys.value = keys
+}
 
 async function handleBatchDelete() {
   if (selectedRowKeys.value.length === 0) {
@@ -224,7 +247,7 @@ async function handleBatchDelete() {
         </div>
       </CardHeader>
       <CardContent class="pt-0">
-        <TTable ref="tableRef" v-model:data="tableData" :schema="tableSchema" @select-change="handleSelectChange">
+        <TTable v-model:data="tableData" :schema="tableSchema" @select-change="handleSelectChange">
           <template #name="slotProps">
             <div class="flex items-center gap-2">
               <Layers class="h-4 w-4 text-orange-500" />

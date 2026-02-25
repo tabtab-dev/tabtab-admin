@@ -46,12 +46,10 @@ interface Emits {
   (e: 'navigate', path: string): void
 }
 
-const route = useRoute()
-
 /**
  * 使用菜单工具
  */
-const { isActive, hasActiveChild, getAriaCurrent } = useMenuUtils()
+const { hasActiveChild, getAriaCurrent } = useMenuUtils()
 
 /**
  * 按钮元素引用
@@ -74,27 +72,10 @@ const { y: scrollY } = useWindowScroll()
 const { height: windowHeight } = useWindowSize()
 
 /**
- * 计算菜单项总数量（包括嵌套子菜单）
- */
-function getTotalMenuItemCount(items: SidebarMenuItem[] | undefined): number {
-  if (!items || items.length === 0)
-    return 0
-  let count = items.length
-  for (const item of items) {
-    if (item.children && item.children.length > 0) {
-      count += getTotalMenuItemCount(item.children)
-    }
-  }
-  return count
-}
-
-/**
  * 弹窗位置 - 考虑滚动偏移和视口边界
  */
 const popoverPosition = computed<PopoverPosition>(() => {
   const rawTop = top.value - scrollY.value
-  // 计算所有可能的子菜单项总数（包括嵌套），用于估算最大高度
-  const totalItemCount = getTotalMenuItemCount(props.item.children)
   // 弹框高度 = 标题(60px) + 最大内容高度(400px) + 底部装饰(10px)
   const estimatedPopoverHeight = 470
   const maxTop = windowHeight.value - estimatedPopoverHeight - 20 // 20px 底部边距
@@ -107,6 +88,9 @@ const popoverPosition = computed<PopoverPosition>(() => {
     left: left.value + width.value + 8, // 8px 间距
   }
 })
+
+/** 折叠状态下的子菜单弹窗显示控制 */
+const showPopover = ref(false)
 
 /**
  * 滚动时更新位置
@@ -130,9 +114,6 @@ onUnmounted(() => {
  * 判断是否有子菜单处于激活状态
  */
 const isChildActive = computed(() => hasActiveChild(props.item.children))
-
-/** 折叠状态下的子菜单弹窗显示控制 */
-const showPopover = ref(false)
 
 /**
  * 延迟关闭弹窗的 timeout 控制
@@ -203,14 +184,6 @@ const ariaLabel = computed(() => {
   return props.item.badge
     ? `${menuTitle.value} (${props.item.badge} 条通知, ${childCount} 个子菜单)`
     : `${menuTitle.value} (${childCount} 个子菜单)`
-})
-
-/**
- * 子菜单数量文本
- */
-const childCountText = computed(() => {
-  const count = props.item.children?.length ?? 0
-  return t('common.total', { total: count })
 })
 </script>
 

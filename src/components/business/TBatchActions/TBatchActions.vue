@@ -76,6 +76,18 @@ const isMobileView = computed(() => {
   return smallerThan(mobileBreakpoint.value)
 })
 
+/**
+ * 过滤后的操作按钮
+ */
+const visibleActions = computed(() => {
+  return (props.actions || []).filter((action) => {
+    if (typeof action.show === 'function') {
+      return action.show()
+    }
+    return action.show !== false
+  })
+})
+
 const primaryActions = computed(() => {
   if (isMobileView.value && responsiveConfig.value.collapseActionsOnMobile) {
     return visibleActions.value.slice(0, 1)
@@ -95,18 +107,6 @@ const showActionText = computed(() => {
  */
 const confirmModalOpen = ref(false)
 const pendingAction = ref<BatchAction | null>(null)
-
-/**
- * 过滤后的操作按钮
- */
-const visibleActions = computed(() => {
-  return (props.actions || []).filter((action) => {
-    if (typeof action.show === 'function') {
-      return action.show()
-    }
-    return action.show !== false
-  })
-})
 
 /**
  * 是否显示操作栏

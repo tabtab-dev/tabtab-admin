@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ErrorBoundary from './ErrorBoundary.vue'
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   refreshKey: 0,
   transitionName: 'fade-slide',
 })

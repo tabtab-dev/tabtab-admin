@@ -192,7 +192,7 @@ export function responseErrorInterceptor(error: AxiosError) {
  * 使用 Vue Router 进行导航，而不是直接操作 window.location
  */
 function handleUnauthorized(): void {
-  console.log('[Auth] Handling 401 unauthorized')
+  console.warn('[Auth] Handling 401 unauthorized')
 
   // 清除请求缓存和 token 缓存
   requestCache.clear()

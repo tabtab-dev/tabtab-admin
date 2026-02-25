@@ -19,7 +19,7 @@ export function checkAuthentication(): boolean {
       try {
         const parsed = JSON.parse(authData)
         const hasAuth = !!(parsed?.token && parsed?.user)
-        console.log('[Auth Guard] checkAuthentication from localStorage:', hasAuth, `${parsed?.token?.slice(0, 20)}...`)
+        console.warn('[Auth Guard] checkAuthentication from localStorage:', hasAuth, `${parsed?.token?.slice(0, 20)}...`)
         return hasAuth
       }
       catch {
@@ -31,7 +31,7 @@ export function checkAuthentication(): boolean {
   // 降级：尝试从 Pinia store 读取
   try {
     const authStore = useAuthStore()
-    console.log('[Auth Guard] checkAuthentication from store:', authStore.isAuthenticated)
+    console.warn('[Auth Guard] checkAuthentication from store:', authStore.isAuthenticated)
     return authStore.isAuthenticated
   }
   catch (error) {

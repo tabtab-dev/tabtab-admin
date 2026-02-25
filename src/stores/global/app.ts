@@ -45,21 +45,30 @@ export const useAppStore = defineStore('app', () => {
    * @param type 通知类型
    * @param options 额外选项
    */
+  const removeNotification = (id: string) => {
+    const index = notifications.value.findIndex(n => n.id === id)
+    if (index > -1) {
+      notifications.value.splice(index, 1)
+    }
+  }
+
   const addNotification = (
     message: string,
     type: Notification['type'] = 'info',
-    options: { dismissible?: boolean, duration?: number } = {},
+    options?: { dismissible?: boolean, duration?: number },
   ) => {
-    const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-    const { dismissible = true, duration = 3000 } = options
+    const { dismissible = true, duration = 3000 } = options || {}
 
-    notifications.value.push({
+    const id = crypto.randomUUID()
+    const notification: Notification = {
       id,
       message,
       type,
       dismissible,
       duration,
-    })
+    }
+
+    notifications.value.push(notification)
 
     if (duration > 0) {
       setTimeout(() => {
@@ -68,17 +77,6 @@ export const useAppStore = defineStore('app', () => {
     }
 
     return id
-  }
-
-  /**
-   * 移除通知
-   * @param id 通知ID
-   */
-  const removeNotification = (id: string) => {
-    const index = notifications.value.findIndex(n => n.id === id)
-    if (index > -1) {
-      notifications.value.splice(index, 1)
-    }
   }
 
   /**

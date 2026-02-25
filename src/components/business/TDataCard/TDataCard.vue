@@ -71,6 +71,18 @@ const responsiveSize = computed(() => {
   return responsiveConfig.value.mobileSize || 'sm'
 })
 
+/**
+ * 图标组件
+ */
+const IconComponent = computed(() => {
+  if (props.icon)
+    return props.icon
+  if (props.iconName) {
+    return (icons as Record<string, unknown>)[props.iconName] as typeof TrendingUp | null
+  }
+  return null
+})
+
 const showIcon = computed(() => {
   if (isMobileView.value && responsiveConfig.value.hideIconOnMobile) {
     return false
@@ -94,18 +106,6 @@ const colorCfg = computed(() => getColorConfig(props.color))
  * 尺寸配置
  */
 const sizeCfg = computed(() => getSizeConfig(responsiveSize.value))
-
-/**
- * 图标组件
- */
-const IconComponent = computed(() => {
-  if (props.icon)
-    return props.icon
-  if (props.iconName) {
-    return (icons as Record<string, unknown>)[props.iconName] as typeof TrendingUp | null
-  }
-  return null
-})
 
 /**
  * 趋势图标

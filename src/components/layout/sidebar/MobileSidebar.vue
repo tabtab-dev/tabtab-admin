@@ -31,7 +31,7 @@ const emit = defineEmits<Emits>()
  */
 interface Emits {
   /** 切换子菜单 */
-  (e: 'toggle-sub-menu', key: string): void
+  (e: 'toggleSubMenu', key: string): void
   /** 导航 */
   (e: 'navigate', path: string): void
 }
@@ -59,7 +59,7 @@ function handleNavigate(path: string): void {
  * 切换子菜单
  */
 function handleToggleSubMenu(key: string): void {
-  emit('toggle-sub-menu', key)
+  emit('toggleSubMenu', key)
 }
 
 /**

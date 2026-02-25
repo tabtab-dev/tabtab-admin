@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FormSchema, TableSchema, TTableExpose } from '@/components/business'
+import type { FormSchema, TableCellSlotProps, TableSchema, TTableExpose } from '@/components/business'
 
 import type { Order } from '@/types'
 import { Space, Tag } from 'antdv-next'
@@ -24,30 +24,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useMutation, useTableData } from '@/composables'
 import { ORDER_STATUS, STATUS_CONFIG } from '@/constants'
 
-// ==================== 类型定义 ====================
-interface TableSlotProps {
-  record: Order
-  text: any
-  index: number
-}
-
 // ==================== 数据管理 ====================
 const {
   data: orders,
-  loading,
+  loading: _loading,
   searchQuery,
   filters,
-  currentPage,
-  pageSize,
-  total,
+  currentPage: _currentPage,
+  pageSize: _pageSize,
+  total: _total,
   statistics,
   fetchData,
   goToPage,
   setPageSize,
-  addData,
-  updateData,
-  removeData,
-  batchRemoveData,
+  addData: _addData,
+  updateData: _updateData,
+  removeData: _removeData,
+  batchRemoveData: _batchRemoveData,
 } = useTableData<Order>({
   // API 调用函数
   apiCall: async (params) => {
@@ -81,6 +74,7 @@ const {
   },
 })
 
+// ==================== 增删改查 ====================
 const { mutate: createOrder } = useMutation({
   mutationFn: (values: Record<string, any>) => ordersApi.createOrder({
     customer: values.customer,
@@ -108,10 +102,13 @@ const { mutate: createOrder } = useMutation({
   },
 })
 
-const { mutate: deleteOrder, loading: deleting } = useMutation({
+const { mutate: deleteOrder } = useMutation({
   mutationFn: (id: string) => ordersApi.deleteOrder(id),
   onSuccess: () => fetchData(),
 })
+
+// ==================== 表格配置 ====================
+const tableRef = ref<TTableExpose>()
 
 const { mutate: batchDeleteOrders } = useMutation({
   mutationFn: (ids: string[]) => ordersApi.batchDeleteOrders(ids),
@@ -208,9 +205,6 @@ const searchSchema: FormSchema = {
   },
 }
 
-// ==================== 表格配置 ====================
-const tableRef = ref<TTableExpose>()
-
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
     {
@@ -300,25 +294,11 @@ const tableData = computed(() => {
 })
 
 // ==================== 新增/查看表单 ====================
-const isAddDialogOpen = ref(false)
 const isViewDialogOpen = ref(false)
 const viewingOrder = ref<Order | null>(null)
 
-// 新增表单数据
-const addFormData = ref({
-  customer: '',
-  email: '',
-  phone: '',
-  address: '',
-  total: 0,
-  items: 1,
-  status: ORDER_STATUS.PENDING,
-  note: '',
-})
-
-// 新增表单 Schema
-const addSchema: FormSchema = {
-  layout: 'horizontal',
+// ==================== 新增表单 Schema ====================
+const addSchema = {
   labelCol: { span: 6 },
   wrapperCol: { span: 18 },
   fields: [
@@ -466,14 +446,12 @@ function handleTableChange(pagination: any): void {
 
     <!-- 新增订单弹窗 -->
     <TModal
-      ref="addModalRef"
       v-model:open="isAddDialogOpen"
       title="创建新订单"
       width="560"
       :footer="null"
     >
       <TForm
-        ref="formRef"
         v-model="addFormData"
         :schema="addSchema"
         @submit="handleAddSubmit"
@@ -543,26 +521,26 @@ function handleTableChange(pagination: any): void {
         >
           <!-- 自定义订单号列 -->
           <template #orderNo="slotProps">
-            <span class="font-mono font-medium">{{ (slotProps as TableSlotProps).text }}</span>
+            <span class="font-mono font-medium">{{ (slotProps as TableCellSlotProps).text }}</span>
           </template>
 
           <!-- 自定义客户列 -->
           <template #customer="slotProps">
             <Space direction="vertical" size="small">
-              <span class="font-medium">{{ (slotProps as TableSlotProps).record.customer }}</span>
-              <span class="text-xs text-muted-foreground">{{ (slotProps as TableSlotProps).record.phone }}</span>
+              <span class="font-medium">{{ (slotProps as TableCellSlotProps).record.customer }}</span>
+              <span class="text-xs text-muted-foreground">{{ (slotProps as TableCellSlotProps).record.phone }}</span>
             </Space>
           </template>
 
           <!-- 自定义金额列 -->
           <template #total="slotProps">
-            <span class="font-medium text-primary">¥{{ Number((slotProps as TableSlotProps).text).toFixed(2) }}</span>
+            <span class="font-medium text-primary">¥{{ Number((slotProps as TableCellSlotProps).text).toFixed(2) }}</span>
           </template>
 
           <!-- 自定义状态列 -->
           <template #status="slotProps">
             <TStatusBadge
-              :status="(slotProps as TableSlotProps).text"
+              :status="(slotProps as TableCellSlotProps).text"
               :status-map="{
                 [ORDER_STATUS.PENDING]: { text: '待处理', color: 'pending' },
                 [ORDER_STATUS.PROCESSING]: { text: '处理中', color: 'processing' },
@@ -587,7 +565,6 @@ function handleTableChange(pagination: any): void {
 
     <!-- 查看订单弹窗 -->
     <TModal
-      ref="viewModalRef"
       v-model:open="isViewDialogOpen"
       title="订单详情"
       width="560"

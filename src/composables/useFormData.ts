@@ -68,6 +68,11 @@ export function useFormData<T = Record<string, any>>(options: UseFormDataOptions
   const formData = ref<T>({ ...initialData })
   const isDirty = ref(false)
 
+  const reset = () => {
+    formData.value = { ...initialData }
+    isDirty.value = false
+  }
+
   // 使用 useMutation 管理提交状态
   const {
     mutate,
@@ -93,11 +98,6 @@ export function useFormData<T = Record<string, any>>(options: UseFormDataOptions
   const submit = async () => {
     isDirty.value = true
     return mutate(formData.value)
-  }
-
-  const reset = () => {
-    formData.value = { ...initialData }
-    isDirty.value = false
   }
 
   const updateFormData = (updates: Partial<T>) => {
