@@ -27,13 +27,6 @@ const sidebarCollapsed = computed({
 const refreshKey = ref(0);
 
 /**
- * 切换侧栏折叠
- */
-const toggleSidebarCollapse = () => {
-  sidebarCollapsed.value = !sidebarCollapsed.value;
-};
-
-/**
  * 处理标签栏刷新事件 - 局部刷新
  */
 const handleTabRefresh = (event: CustomEvent<{ path: string }>) => {
@@ -68,7 +61,6 @@ onUnmounted(() => {
     <AppSidebar
       v-if="!isFullscreen"
       v-model:collapsed="sidebarCollapsed"
-      @toggle-collapse="toggleSidebarCollapse"
       class="overflow-hidden"
     >
       <!-- 主内容区 -->
