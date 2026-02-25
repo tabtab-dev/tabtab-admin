@@ -11,10 +11,13 @@ import { request } from '../client'
 export interface CreateWarehouseParams {
   name: string
   code: string
-  location: string
-  manager: string
-  phone: string
+  location?: string
+  manager?: string
+  phone?: string
   capacity: number
+  status?: string
+  productCount?: number
+  usedCapacity?: number
 }
 
 /**

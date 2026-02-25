@@ -39,12 +39,6 @@ export const useAppStore = defineStore('app', () => {
     mobileSidebarOpen.value = open
   }
 
-  /**
-   * 添加通知
-   * @param message 消息内容
-   * @param type 通知类型
-   * @param options 额外选项
-   */
   const removeNotification = (id: string) => {
     const index = notifications.value.findIndex(n => n.id === id)
     if (index > -1) {
@@ -52,6 +46,11 @@ export const useAppStore = defineStore('app', () => {
     }
   }
 
+  /**
+   * 添加通知
+   * @param message - 消息内容
+   * @param type - 通知类型
+   */
   const addNotification = (
     message: string,
     type: Notification['type'] = 'info',

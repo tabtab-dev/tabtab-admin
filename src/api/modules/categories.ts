@@ -13,7 +13,10 @@ export interface CreateCategoryParams {
   code: string
   level: 1 | 2
   parentId?: string
+  parentName?: string
   sort: number
+  status?: string
+  productCount?: number
   description?: string
 }
 
@@ -118,7 +121,6 @@ export const categoriesApi = {
 
   /**
    * 获取标签列表
-   * @param params - 查询参数
    * @returns 分页标签列表
    */
   getTags: (params: { page?: number, pageSize?: number, search?: string } = {}) =>

@@ -9,7 +9,9 @@ export const worker = setupWorker(...handlers)
 
 /**
  * 启动 MSW Service Worker
- * @param options 配置选项
+ * @param options - 配置选项
+ * @param options.onUnhandledRequest - 处理未捕获请求的方式
+ * @param options.quiet - 是否静默启动
  */
 export async function startMockService(options?: {
   onUnhandledRequest?: 'bypass' | 'warn' | 'error'

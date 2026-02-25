@@ -19,6 +19,7 @@ export interface Product {
   stock: number
   status: ProductStatus
   categoryId: string
+  category?: string
   categoryName?: string
   images: string[]
   tags: string[]
@@ -51,9 +52,11 @@ export interface CreateProductParams {
   originalPrice?: number
   stock: number
   categoryId: string
+  category?: string
   images?: string[]
   tags?: string[]
   sku?: string
+  status?: string
 }
 
 /**

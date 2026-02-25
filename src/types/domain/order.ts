@@ -42,11 +42,17 @@ export interface Order {
   userName?: string
   items: OrderItem[]
   totalAmount: number
+  total?: number
   discountAmount?: number
   shippingAmount?: number
   finalAmount: number
   status: OrderStatus
   shippingAddress?: ShippingAddress
+  customer?: string
+  phone?: string
+  email?: string
+  address?: string
+  date?: string
   note?: string
   createdAt: string
   updatedAt: string
@@ -73,11 +79,17 @@ export interface GetOrdersParams {
  */
 export interface CreateOrderParams {
   userId: string
+  customer?: string
+  email?: string
+  phone?: string
+  address?: string
+  total?: number
   items: Array<{
     productId: string
     quantity: number
   }>
-  shippingAddress: ShippingAddress
+  shippingAddress?: ShippingAddress
+  status?: string
   note?: string
 }
 

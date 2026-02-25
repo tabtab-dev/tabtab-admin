@@ -75,6 +75,18 @@ const {
 })
 
 // ==================== 增删改查 ====================
+const isAddDialogOpen = ref(false)
+const addFormData = ref({
+  customer: '',
+  email: '',
+  phone: '',
+  address: '',
+  total: 0,
+  items: 1,
+  status: ORDER_STATUS.PENDING,
+  note: '',
+})
+
 const { mutate: createOrder } = useMutation({
   mutationFn: (values: Record<string, any>) => ordersApi.createOrder({
     customer: values.customer,
@@ -506,7 +518,7 @@ function handleTableChange(pagination: any): void {
             />
             <div class="flex items-center gap-2 text-sm text-muted-foreground">
               <DollarSign class="h-4 w-4" />
-              <span>总金额: ¥{{ (statistics.value?.totalAmount || 0).toFixed(2) }}</span>
+              <span>总金额: ¥{{ ((statistics.value?.totalAmount ?? 0) as number).toFixed(2) }}</span>
             </div>
           </div>
         </div>

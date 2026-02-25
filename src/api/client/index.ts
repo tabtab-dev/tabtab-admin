@@ -109,6 +109,8 @@ export const api = {
 
   /**
    * GET 请求（带缓存）
+   * @param url - 请求 URL
+   * @param config - 请求配置
    * @param ttl - 缓存有效期（毫秒）
    */
   async getCached<T>(url: string, config?: RequestConfig, ttl = 60000): Promise<T> {

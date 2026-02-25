@@ -304,6 +304,7 @@ export const roleDirective: Directive<HTMLElement, RoleBinding> = {
 /**
  * 注册权限指令
  * @param app - Vue 应用实例
+ * @param app.directive - 注册指令的方法
  */
 export function registerPermissionDirectives(app: {
   directive: (name: string, directive: Directive) => void

@@ -195,8 +195,6 @@ const searchSchema: FormSchema = {
   },
 }
 
-const tableRef = ref<TTableExpose>()
-
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
     {
@@ -268,17 +266,6 @@ const tableSchema = computed<TableSchema>(() => ({
   actionWidth: 150,
   actionFixed: 'right',
 }))
-
-const isAddDialogOpen = ref(false)
-const isEditDialogOpen = ref(false)
-const editingUser = ref<User | null>(null)
-
-const addFormData = ref({
-  name: '',
-  email: '',
-  role: USER_ROLES.VIEWER,
-  status: USER_STATUS.ACTIVE,
-})
 
 const editFormData = ref<{
   id: string

@@ -665,14 +665,14 @@ watch(
       <!-- 展开图标插槽 -->
       <template
         v-if="slots.expandIcon"
-        #expandIcon="{ expanded, onExpand, record, expandable }"
+        #expandIcon="{ expanded, onExpand, record, expandable: expandRowConfig }"
       >
         <slot
           name="expandIcon"
           :expanded="expanded"
           :on-expand="onExpand"
           :record="record"
-          :expandable="expandable"
+          :expandable="expandRowConfig"
         />
       </template>
 

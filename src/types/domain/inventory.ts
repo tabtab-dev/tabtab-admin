@@ -123,3 +123,20 @@ export interface UpdateWarehouseParams {
   contactPhone?: string
   isActive?: boolean
 }
+
+/**
+ * 物流公司
+ */
+export interface LogisticsCompany {
+  id: string
+  name: string
+  code: string
+  contact?: string
+  phone?: string
+  address?: string
+  status: string
+  rating?: number
+  deliveryCount?: number
+  createdAt: string
+  updatedAt?: string
+}

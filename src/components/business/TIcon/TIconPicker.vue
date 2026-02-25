@@ -225,21 +225,21 @@ function getIconComponent(name: string) {
           <!-- 按分类显示图标 -->
           <template v-else-if="showCategoryTabs && activeTab === 'all' && !searchQuery">
             <div
-              v-for="(icons, categoryKey) in groupedIcons"
+              v-for="(categoryIcons, categoryKey) in groupedIcons"
               :key="categoryKey"
               class="mb-6 last:mb-0"
             >
               <h4 class="text-xs font-semibold text-muted-foreground/80 mb-3 flex items-center gap-2 sticky top-0 bg-background/95 backdrop-blur-sm py-2 z-10">
                 <span class="w-1 h-3.5 rounded-full bg-primary/60" />
                 {{ t(`icon.category.${categoryKey}`, getCategoryName(categoryKey)) }}
-                <span class="text-muted-foreground/40 font-normal">({{ icons.length }})</span>
+                <span class="text-muted-foreground/40 font-normal">({{ categoryIcons.length }})</span>
               </h4>
               <div
                 class="grid gap-1.5"
                 :style="{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }"
               >
                 <button
-                  v-for="icon in icons"
+                  v-for="icon in categoryIcons"
                   :key="icon.name"
                   type="button"
                   :data-selected="localSelectedIcon === icon.name"

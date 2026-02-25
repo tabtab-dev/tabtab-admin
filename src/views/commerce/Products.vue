@@ -597,11 +597,11 @@ function handleTableChange(pagination: any): void {
             <div class="flex items-center gap-4 text-sm text-muted-foreground">
               <div class="flex items-center gap-1">
                 <TrendingUp class="h-4 w-4" />
-                <span>总销量: {{ statistics.value?.totalSales || 0 }}</span>
+                <span>总销量: {{ (statistics.value?.totalSales ?? 0) as number }}</span>
               </div>
               <div class="flex items-center gap-1">
                 <Layers class="h-4 w-4" />
-                <span>总库存: {{ statistics.value?.totalStock || 0 }}</span>
+                <span>总库存: {{ (statistics.value?.totalStock ?? 0) as number }}</span>
               </div>
             </div>
           </div>

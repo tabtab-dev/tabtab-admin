@@ -99,7 +99,7 @@ function getActionIcon(action: TableAction) {
 /**
  * 渲染操作按钮
  * @param actions - 操作按钮配置数组
- * @param t - i18n 翻译函数
+ * @param _t - i18n 翻译函数
  * @returns 渲染函数
  */
 function createActionsRenderer(actions: TableAction[], _t: (key: string) => string) {
