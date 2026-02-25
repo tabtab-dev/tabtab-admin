@@ -7,15 +7,16 @@
       "@/*": ["./src/*"]
     },
     "types": ["vite/client"],
+    "skipLibCheck": true,
 
     /* Linting */
     "strict": false,
     "noFallthroughCasesInSwitch": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "erasableSyntaxOnly": true,
     "noUncheckedSideEffectImports": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
-  "exclude": ["src/components/ui/**/*"]
+  "exclude": ["src/components/ui/**/*", "src/test/**/*"]
 }

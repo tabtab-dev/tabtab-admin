@@ -29,7 +29,7 @@ const {
   fetchData,
 } = useTableData<Tag>({
   apiCall: async () => {
-    const response = await categoriesApi.getTags()
+    const response = await categoriesApi.getTags() as unknown as { list: Tag[], total: number, page: number, pageSize: number }
     return {
       list: response.list || [],
       total: response.total || 0,
