@@ -8,6 +8,7 @@
     "dev": "vite",
     "dev:mock": "vite --mode demo",
     "build": "vite build",
+    "build:mock": "vite build --mode demo",
     "build:check": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "preview:demo": "vite preview --mode demo",
