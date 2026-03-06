@@ -14,7 +14,7 @@ export const themeConfig = {
     sidebarWidth: 280,
     sidebarCollapsed: false,
     radius: 0.625,
-    fontSize: 'base' as 'sm' | 'base' | 'lg',
+    fontSize: 16,
     animations: true,
     showTabBar: true,
     showBreadcrumb: true,

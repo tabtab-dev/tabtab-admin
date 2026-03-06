@@ -41,6 +41,7 @@ const {
   goToPage,
   setPageSize,
   total,
+  pageSize,
 } = useTableData<Role>({
   apiCall: async (params) => {
     const res = await roleApi.getRoles(params)
@@ -520,11 +521,11 @@ function handleBatchDelete(): void {
 }
 
 function handleTableChange(pagination: any): void {
-  if (pagination.current !== undefined) {
-    goToPage(pagination.current)
-  }
-  if (pagination.pageSize !== undefined) {
+  if (pagination.pageSize !== undefined && pagination.pageSize !== pageSize.value) {
     setPageSize(pagination.pageSize)
+  }
+  else if (pagination.current !== undefined) {
+    goToPage(pagination.current)
   }
 }
 

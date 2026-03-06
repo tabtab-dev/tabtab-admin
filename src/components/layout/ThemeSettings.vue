@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import type { LayoutConfig } from '@/stores/global/theme'
 import { Check, CircleDot, Download, FolderTree, Layout, Monitor, Moon, Palette, PanelLeft, PanelTop, Sun, Type } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import {
+  NumberField,
+  NumberFieldContent,
+  NumberFieldDecrement,
+  NumberFieldIncrement,
+  NumberFieldInput,
+} from '@/components/ui/number-field'
 import { Slider } from '@/components/ui/slider'
 
 import { Switch } from '@/components/ui/switch'
@@ -45,15 +50,6 @@ const themeColorMap: Record<string, string> = {
 }
 
 /**
- * 字体大小选项
- */
-const fontSizes = [
-  { value: 'sm', labelKey: 'common.theme.small', size: '14px' },
-  { value: 'base', labelKey: 'common.theme.medium', size: '16px' },
-  { value: 'lg', labelKey: 'common.theme.large', size: '18px' },
-]
-
-/**
  * 更新圆角
  */
 function updateRadius(value: number[]) {
@@ -70,8 +66,8 @@ function updateSidebarWidth(value: number[]) {
 /**
  * 更新字体大小
  */
-function updateFontSize(value: string) {
-  themeStore.updateLayoutConfig({ fontSize: value as LayoutConfig['fontSize'] })
+function updateFontSize(value: number) {
+  themeStore.updateLayoutConfig({ fontSize: value })
 }
 
 /**
@@ -293,26 +289,19 @@ async function copyConfig() {
         <Type class="h-4 w-4 text-muted-foreground" />
         <span>{{ t('common.theme.fontSize') }}</span>
       </div>
-      <RadioGroup
+      <NumberField
         :model-value="themeStore.layoutConfig.fontSize"
-        class="flex gap-2"
+        :min="12"
+        :max="24"
+        :step="1"
         @update:model-value="updateFontSize"
       >
-        <div v-for="size in fontSizes" :key="size.value" class="flex-1">
-          <RadioGroupItem
-            :id="`font-${size.value}`"
-            :value="size.value"
-            class="peer sr-only"
-          />
-          <Label
-            :for="`font-${size.value}`"
-            class="flex flex-col items-center justify-center rounded-lg border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all duration-200"
-          >
-            <span class="font-semibold" :style="{ fontSize: size.size }">A</span>
-            <span class="text-xs mt-1 text-muted-foreground">{{ t(size.labelKey) }}</span>
-          </Label>
-        </div>
-      </RadioGroup>
+        <NumberFieldContent>
+          <NumberFieldDecrement />
+          <NumberFieldInput />
+          <NumberFieldIncrement />
+        </NumberFieldContent>
+      </NumberField>
     </div>
 
     <!-- 动画设置 -->

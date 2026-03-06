@@ -29,7 +29,7 @@ export interface LayoutConfig {
   sidebarCollapsed: boolean
   headerHeight: number
   radius: number
-  fontSize: 'sm' | 'base' | 'lg'
+  fontSize: number
   animations: boolean
   showTabBar: boolean
   showBreadcrumb: boolean

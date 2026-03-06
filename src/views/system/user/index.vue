@@ -2,17 +2,40 @@
 import type { FormSchema, TableSchema, TTableExpose } from '@/components/business'
 
 import type { User } from '@/types'
-import { Avatar, Space, Tag } from 'antdv-next'
-import { TrendingUp, UserCheck, UserCog, Users } from 'lucide-vue-next'
+import { Avatar } from 'antdv-next'
+import { 
+  TrendingUp, 
+  UserCheck, 
+  UserCog, 
+  Users, 
+  Mail,
+  Phone,
+  Calendar,
+  Shield,
+  Clock,
+  Edit,
+  Trash2,
+} from 'lucide-vue-next'
 import { usersApi } from '@/api'
+import { TBatchActions, TDataCard, TEmptyState, TForm, TModal, TPageHeader, TTable } from '@/components/business'
+import { useMutation, useTableData } from '@/composables'
+import { STATUS_CONFIG, USER_ROLES, USER_STATUS } from '@/constants'
+import { Button } from '@/components/ui/button'
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from '@/components/ui/drawer'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
 /**
  * 用户管理页面
  * @description 系统用户管理，包含用户的增删改查、状态管理等功能
  */
-import { TBatchActions, TDataCard, TEmptyState, TForm, TModal, TPageHeader, TStatusBadge, TTable } from '@/components/business'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useMutation, useTableData } from '@/composables'
-import { STATUS_CONFIG, USER_ROLES, USER_STATUS } from '@/constants'
 
 // ==================== 数据管理 ====================
 const {
@@ -25,6 +48,7 @@ const {
   fetchData,
   goToPage,
   setPageSize,
+  pageSize,
 } = useTableData<User>({
   apiCall: async (params) => {
     const res = await usersApi.getUsers(params)
@@ -55,6 +79,10 @@ const {
     }
   },
 })
+
+// ==================== 状态 ====================
+const selectedUser = ref<User | null>(null)
+const isDetailDrawerOpen = ref(false)
 
 // ==================== 弹窗和表单状态 ====================
 const isAddDialogOpen = ref(false)
@@ -120,81 +148,83 @@ const { mutate: batchDeleteUsers } = useMutation({
   },
 })
 
+// ==================== 统计卡片数据 ====================
 const statisticsCards = computed(() => {
   const stats = statistics.value || {}
   return [
-    { title: '总用户', value: stats.total || 0, icon: Users, color: 'text-blue-500', bgColor: 'bg-blue-50' },
-    { title: '活跃用户', value: stats.active || 0, icon: UserCheck, color: 'text-green-500', bgColor: 'bg-green-50' },
-    { title: '管理员', value: stats.admins || 0, icon: UserCog, color: 'text-purple-500', bgColor: 'bg-purple-50' },
-    { title: '今日新增', value: stats.today || 0, icon: TrendingUp, color: 'text-orange-500', bgColor: 'bg-orange-50' },
+    { title: '总用户', value: stats.total || 0, icon: Users, color: 'blue' },
+    { title: '活跃用户', value: stats.active || 0, icon: UserCheck, color: 'green' },
+    { title: '管理员', value: stats.admins || 0, icon: UserCog, color: 'purple' },
+    { title: '今日新增', value: stats.today || 0, icon: TrendingUp, color: 'orange' },
   ]
 })
 
+// ==================== 搜索筛选 ====================
 const searchFormData = ref({
-  keyword: '',
-  role: '',
-  status: '',
+  search: '',
+  role: 'all',
+  status: 'all',
 })
 
 const searchSchema: FormSchema = {
   layout: 'inline',
   fields: [
     {
-      name: 'keyword',
+      name: 'search',
       type: 'input',
-      label: '',
       placeholder: '搜索用户名或邮箱...',
-      className: 'w-[200px]',
+      props: {
+        allowClear: true,
+      },
     },
     {
       name: 'role',
       type: 'select',
-      label: '',
       placeholder: '全部角色',
       options: [
-        { label: '全部角色', value: '' },
+        { label: '全部角色', value: 'all' },
         { label: '管理员', value: USER_ROLES.ADMIN },
         { label: '编辑', value: USER_ROLES.EDITOR },
         { label: '查看者', value: USER_ROLES.VIEWER },
       ],
-      className: 'w-[140px]',
     },
     {
       name: 'status',
       type: 'select',
-      label: '',
       placeholder: '全部状态',
       options: [
-        { label: '全部状态', value: '' },
-        { label: STATUS_CONFIG.USER.ACTIVE.text, value: STATUS_CONFIG.USER.ACTIVE.value },
-        { label: STATUS_CONFIG.USER.INACTIVE.text, value: STATUS_CONFIG.USER.INACTIVE.value },
-        { label: STATUS_CONFIG.USER.SUSPENDED.text, value: STATUS_CONFIG.USER.SUSPENDED.value },
+        { label: '全部状态', value: 'all' },
+        { label: '启用', value: USER_STATUS.ACTIVE },
+        { label: '禁用', value: USER_STATUS.INACTIVE },
+        { label: '已暂停', value: USER_STATUS.SUSPENDED },
       ],
-      className: 'w-[140px]',
     },
   ],
   searchConfig: {
     enabled: true,
-    collapsed: false,
-    collapseThreshold: 3,
-    showCollapseButton: false,
     searchText: '搜索',
     resetText: '重置',
     showReset: true,
     onSearch: (values) => {
-      searchQuery.value = values.keyword || ''
+      searchQuery.value = values.search
       filters.value = {
-        role: values.role,
-        status: values.status,
+        role: values.role === 'all' ? undefined : values.role,
+        status: values.status === 'all' ? undefined : values.status,
       }
     },
     onReset: () => {
+      searchFormData.value = {
+        search: '',
+        role: 'all',
+        status: 'all',
+      }
       searchQuery.value = ''
       filters.value = {}
     },
   },
 }
 
+// ==================== 表格配置 ====================
 const tableSchema = computed<TableSchema>(() => ({
   columns: [
     {
@@ -281,7 +311,6 @@ const editFormData = ref<{
   status: USER_STATUS.ACTIVE,
 })
 
-// 共享的表单字段配置
 const userFormFields = [
   {
     name: 'name',
@@ -329,7 +358,6 @@ const userFormFields = [
   },
 ]
 
-// 共享的表单布局配置
 const formLayoutConfig = {
   layout: 'horizontal' as const,
   labelCol: { span: 6 },
@@ -366,6 +394,7 @@ const editSchema: FormSchema = {
   },
 }
 
+// ==================== 事件处理 ====================
 function handleEditUser(user: User): void {
   editingUser.value = user
   editFormData.value = {
@@ -376,6 +405,11 @@ function handleEditUser(user: User): void {
     status: user.status,
   }
   isEditDialogOpen.value = true
+}
+
+function handleViewUser(user: User): void {
+  selectedUser.value = user
+  isDetailDrawerOpen.value = true
 }
 
 function handleAddSubmit(values: Record<string, any>): void {
@@ -408,21 +442,64 @@ function handleClearSelection(): void {
 
 function handleBatchDelete(): void {
   if (selectedRowKeys.value.length === 0) {
-    alert('请先选择要删除的用户')
     return
   }
-  if (confirm(`确定要删除选中的 ${selectedRowKeys.value.length} 个用户吗？`)) {
-    batchDeleteUsers(selectedRowKeys.value as string[])
-  }
+  batchDeleteUsers(selectedRowKeys.value as string[])
 }
 
 function handleTableChange(pagination: any): void {
-  if (pagination.current !== undefined) {
-    goToPage(pagination.current)
-  }
-  if (pagination.pageSize !== undefined) {
+  if (pagination.pageSize !== undefined && pagination.pageSize !== pageSize.value) {
     setPageSize(pagination.pageSize)
   }
+  else if (pagination.current !== undefined) {
+    goToPage(pagination.current)
+  }
+}
+
+// ==================== 辅助函数 ====================
+function getRoleColor(role: string): string {
+  const colors: Record<string, string> = {
+    [USER_ROLES.ADMIN]: 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400',
+    [USER_ROLES.EDITOR]: 'bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400',
+    [USER_ROLES.VIEWER]: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400',
+  }
+  return colors[role] || 'bg-gray-100 text-gray-700'
+}
+
+function getRoleText(role: string): string {
+  const texts: Record<string, string> = {
+    [USER_ROLES.ADMIN]: '管理员',
+    [USER_ROLES.EDITOR]: '编辑',
+    [USER_ROLES.VIEWER]: '查看者',
+  }
+  return texts[role] || role
+}
+
+function getStatusColor(status: string): string {
+  const colors: Record<string, string> = {
+    [USER_STATUS.ACTIVE]: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400',
+    [USER_STATUS.INACTIVE]: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400',
+    [USER_STATUS.SUSPENDED]: 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400',
+  }
+  return colors[status] || 'bg-gray-100 text-gray-700'
+}
+
+function getStatusText(status: string): string {
+  const texts: Record<string, string> = {
+    [USER_STATUS.ACTIVE]: '启用',
+    [USER_STATUS.INACTIVE]: '禁用',
+    [USER_STATUS.SUSPENDED]: '已暂停',
+  }
+  return texts[status] || status
+}
+
+function formatDate(dateStr: string | undefined): string {
+  if (!dateStr) return '-'
+  return new Date(dateStr).toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
 }
 </script>
 
@@ -436,19 +513,7 @@ function handleTableChange(pagination: any): void {
       ]"
     />
 
-    <TModal
-      v-model:open="isAddDialogOpen"
-      title="添加新用户"
-      width="480"
-      :footer="null"
-    >
-      <TForm
-        v-model="addFormData"
-        :schema="addSchema"
-        @submit="handleAddSubmit"
-      />
-    </TModal>
-
+    <!-- 统计卡片 -->
     <div class="flex flex-wrap gap-3">
       <TDataCard
         v-for="stat in statisticsCards"
@@ -461,10 +526,15 @@ function handleTableChange(pagination: any): void {
       />
     </div>
 
+    <!-- 搜索栏 -->
     <div class="bg-muted/40 border border-border/50 rounded-xl px-3 py-3">
-      <TForm v-model="searchFormData" :schema="searchSchema" />
+      <TForm
+        v-model="searchFormData"
+        :schema="searchSchema"
+      />
     </div>
 
+    <!-- 用户列表 -->
     <Card class="bg-muted/40 border border-border/50 rounded-xl">
       <CardHeader>
         <div class="flex items-center justify-between">
@@ -504,40 +574,39 @@ function handleTableChange(pagination: any): void {
           @change="handleTableChange"
         >
           <template #user="slotProps">
-            <Space>
+            <div 
+              class="flex items-center gap-3 cursor-pointer group"
+              @click="handleViewUser((slotProps as any).record)"
+            >
               <Avatar
                 :style="{
                   backgroundColor: (slotProps as any).record.status === USER_STATUS.ACTIVE ? '#87d068' : '#ccc',
                 }"
+                class="transition-transform group-hover:scale-110"
               >
                 {{ (slotProps as any).record.name.charAt(0) }}
               </Avatar>
               <div>
-                <div class="font-medium">
+                <div class="font-medium group-hover:text-primary transition-colors">
                   {{ (slotProps as any).record.name }}
                 </div>
                 <div class="text-sm text-muted-foreground">
                   {{ (slotProps as any).record.email }}
                 </div>
               </div>
-            </Space>
+            </div>
           </template>
 
           <template #role="slotProps">
-            <Tag :color="(slotProps as any).text === USER_ROLES.ADMIN ? 'red' : (slotProps as any).text === USER_ROLES.EDITOR ? 'blue' : 'default'">
-              {{ (slotProps as any).text === USER_ROLES.ADMIN ? '管理员' : (slotProps as any).text === USER_ROLES.EDITOR ? '编辑' : '查看者' }}
-            </Tag>
+            <span :class="['px-2.5 py-1 rounded-full text-xs font-medium', getRoleColor((slotProps as any).text)]">
+              {{ getRoleText((slotProps as any).text) }}
+            </span>
           </template>
 
           <template #status="slotProps">
-            <TStatusBadge
-              :status="(slotProps as any).text"
-              :status-map="{
-                [USER_STATUS.ACTIVE]: { text: '启用', color: 'success' },
-                [USER_STATUS.INACTIVE]: { text: '禁用', color: 'default' },
-                [USER_STATUS.SUSPENDED]: { text: '已暂停', color: 'error' },
-              }"
-            />
+            <span :class="['px-2.5 py-1 rounded-full text-xs font-medium', getStatusColor((slotProps as any).text)]">
+              {{ getStatusText((slotProps as any).text) }}
+            </span>
           </template>
 
           <template #emptyText>
@@ -552,6 +621,21 @@ function handleTableChange(pagination: any): void {
       </CardContent>
     </Card>
 
+    <!-- 添加用户弹窗 -->
+    <TModal
+      v-model:open="isAddDialogOpen"
+      title="添加新用户"
+      width="480"
+      :footer="null"
+    >
+      <TForm
+        v-model="addFormData"
+        :schema="addSchema"
+        @submit="handleAddSubmit"
+      />
+    </TModal>
+
+    <!-- 编辑用户弹窗 -->
     <TModal
       v-model:open="isEditDialogOpen"
       title="编辑用户"
@@ -565,5 +649,120 @@ function handleTableChange(pagination: any): void {
         @submit="handleEditSubmit"
       />
     </TModal>
+
+    <!-- 用户详情抽屉 -->
+    <Drawer v-model:open="isDetailDrawerOpen" direction="right">
+      <DrawerContent class="w-[400px] sm:max-w-[400px]">
+        <DrawerHeader class="border-b border-border">
+          <DrawerTitle class="flex items-center gap-3">
+            <Avatar
+              v-if="selectedUser"
+              :style="{
+                backgroundColor: selectedUser.status === USER_STATUS.ACTIVE ? '#87d068' : '#ccc',
+              }"
+              class="w-10 h-10"
+            >
+              {{ selectedUser?.name.charAt(0) }}
+            </Avatar>
+            <div>
+              <div class="text-lg font-semibold">{{ selectedUser?.name }}</div>
+              <div class="text-sm font-normal text-muted-foreground">{{ selectedUser?.email }}</div>
+            </div>
+          </DrawerTitle>
+          <DrawerDescription class="sr-only">
+            用户详细信息
+          </DrawerDescription>
+        </DrawerHeader>
+        
+        <div v-if="selectedUser" class="p-6 space-y-6">
+          <!-- 状态和角色 -->
+          <div class="flex items-center gap-3">
+            <span :class="['px-3 py-1.5 rounded-full text-sm font-medium', getRoleColor(selectedUser.role)]">
+              {{ getRoleText(selectedUser.role) }}
+            </span>
+            <span :class="['px-3 py-1.5 rounded-full text-sm font-medium', getStatusColor(selectedUser.status)]">
+              {{ getStatusText(selectedUser.status) }}
+            </span>
+          </div>
+
+          <!-- 详细信息 -->
+          <div class="space-y-4">
+            <div class="flex items-center gap-3 text-sm">
+              <div class="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                <Mail class="w-4 h-4 text-muted-foreground" />
+              </div>
+              <div>
+                <div class="text-muted-foreground">邮箱</div>
+                <div class="font-medium">{{ selectedUser.email }}</div>
+              </div>
+            </div>
+
+            <div v-if="selectedUser.phone" class="flex items-center gap-3 text-sm">
+              <div class="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                <Phone class="w-4 h-4 text-muted-foreground" />
+              </div>
+              <div>
+                <div class="text-muted-foreground">电话</div>
+                <div class="font-medium">{{ selectedUser.phone }}</div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3 text-sm">
+              <div class="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                <Shield class="w-4 h-4 text-muted-foreground" />
+              </div>
+              <div>
+                <div class="text-muted-foreground">角色</div>
+                <div class="font-medium">{{ getRoleText(selectedUser.role) }}</div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3 text-sm">
+              <div class="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                <Calendar class="w-4 h-4 text-muted-foreground" />
+              </div>
+              <div>
+                <div class="text-muted-foreground">创建时间</div>
+                <div class="font-medium">{{ formatDate(selectedUser.createdAt) }}</div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3 text-sm">
+              <div class="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                <Clock class="w-4 h-4 text-muted-foreground" />
+              </div>
+              <div>
+                <div class="text-muted-foreground">最后登录</div>
+                <div class="font-medium">{{ formatDate(selectedUser.lastLogin) }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 简介 -->
+          <div v-if="selectedUser.bio" class="pt-4 border-t border-border">
+            <h4 class="text-sm font-medium text-muted-foreground mb-2">简介</h4>
+            <p class="text-sm text-muted-foreground leading-relaxed">
+              {{ selectedUser.bio }}
+            </p>
+          </div>
+        </div>
+
+        <DrawerFooter class="border-t border-border">
+          <div class="flex gap-2 w-full">
+            <Button variant="outline" class="flex-1" @click="selectedUser && handleEditUser(selectedUser); isDetailDrawerOpen = false">
+              <Edit class="w-4 h-4 mr-2" />
+              编辑
+            </Button>
+            <Button variant="destructive" class="flex-1" @click="selectedUser && handleDeleteUser(selectedUser.id); isDetailDrawerOpen = false">
+              <Trash2 class="w-4 h-4 mr-2" />
+              删除
+            </Button>
+          </div>
+          <DrawerClose as-child>
+            <Button variant="ghost" class="w-full">关闭</Button>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   </div>
 </template>

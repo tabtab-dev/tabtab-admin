@@ -104,7 +104,7 @@ const baseLayoutConfig: LayoutConfig = {
   sidebarCollapsed: false,
   headerHeight: 56,
   radius: 0.625,
-  fontSize: 'base',
+  fontSize: 16,
   animations: true,
   showTabBar: true,
   showBreadcrumb: true,
@@ -176,9 +176,7 @@ export const useThemeStore = defineStore(
       root.style.setProperty('--sidebar-width', `${config.sidebarWidth}px`)
       root.style.setProperty('--sidebar-collapsed-width', `${config.sidebarCollapsedWidth}px`)
       root.style.setProperty('--header-height', `${config.headerHeight}px`)
-
-      const fontSizeMap = { sm: '14px', base: '16px', lg: '18px' }
-      root.style.setProperty('--font-size-base', fontSizeMap[config.fontSize])
+      root.style.setProperty('--font-size-base', `${config.fontSize}px`)
 
       root.classList.toggle('reduce-motion', !config.animations)
     }
