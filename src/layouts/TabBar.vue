@@ -75,7 +75,6 @@ const {
   isOverflowing,
   canScrollLeft,
   canScrollRight,
-  scrollProgress,
   scrollLeft,
   scrollRight,
   scrollToStart,
@@ -408,13 +407,6 @@ function handleTouchEnd() {
         </template>
       </DropdownMenuContent>
     </DropdownMenu>
-
-    <!-- Progress Bar -->
-    <div
-      v-show="isOverflowing"
-      class="absolute bottom-0 left-0 h-0.5 bg-primary/20 transition-all duration-300"
-      :style="{ width: `${scrollProgress}%` }"
-    />
   </div>
 </template>
 

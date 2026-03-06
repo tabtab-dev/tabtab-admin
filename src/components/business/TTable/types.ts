@@ -10,6 +10,52 @@ export type SortOrder = 'ascend' | 'descend' | null
 export type TableSize = 'small' | 'middle' | 'large'
 
 /**
+ * 工具栏操作按钮配置
+ * @description 用于自定义工具栏按钮
+ */
+export interface TableToolbarAction {
+  /** 按钮唯一标识 */
+  key: string
+  /** 按钮图标（lucide 图标名称或组件） */
+  icon?: string | any
+  /** 按钮文本 */
+  text?: string
+  /** 点击事件 */
+  onClick?: () => void
+  /** 是否显示 */
+  show?: boolean
+  /** 是否禁用 */
+  disabled?: boolean
+  /** Tooltip 提示 */
+  tooltip?: string
+}
+
+/**
+ * 工具栏配置
+ * @description 表格工具栏的配置选项
+ */
+export interface TableToolbarConfig {
+  /** 是否启用工具栏 */
+  enabled?: boolean
+  /** 是否显示刷新按钮 */
+  showRefresh?: boolean
+  /** 是否显示密度切换 */
+  showDensity?: boolean
+  /** 是否显示列设置 */
+  showColumnSettings?: boolean
+  /** 是否显示全屏切换 */
+  showFullscreen?: boolean
+  /** 自定义工具按钮 */
+  customActions?: TableToolbarAction[]
+  /** 刷新按钮文本 */
+  refreshText?: string
+  /** 密度选项配置 */
+  densityOptions?: { label: string, value: TableSize }[]
+  /** 全屏切换回调 */
+  onFullscreen?: (isFullscreen: boolean) => void
+}
+
+/**
  * 表格记录类型
  * @description 表格行数据的通用类型
  */
@@ -358,6 +404,8 @@ export interface TableSchema {
   childrenColumnName?: string
   indentSize?: number
   responsive?: ResponsiveConfig
+  /** 工具栏配置 */
+  toolbar?: boolean | TableToolbarConfig
 }
 
 /**

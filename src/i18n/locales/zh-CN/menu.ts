@@ -4,6 +4,7 @@
 export default {
   // 主要菜单
   dashboard: '仪表板',
+  notifications: '消息通知',
   orders: '订单管理',
   products: '商品管理',
   analytics: '数据分析',

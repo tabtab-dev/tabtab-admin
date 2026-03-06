@@ -295,6 +295,13 @@ const tableSchema = computed<TableSchema>(() => ({
   ],
   actionWidth: 150,
   actionFixed: 'right',
+  // 工具栏配置
+  toolbar: {
+    showRefresh: true,
+    showDensity: true,
+    showColumnSettings: true,
+    showFullscreen: true,
+  },
 }))
 
 const editFormData = ref<{

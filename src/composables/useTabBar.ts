@@ -21,7 +21,6 @@ export interface UseTabBarReturn {
   isOverflowing: ReturnType<typeof ref<boolean>>
   canScrollLeft: ComputedRef<boolean>
   canScrollRight: ComputedRef<boolean>
-  scrollProgress: ComputedRef<number>
 
   // Actions
   scrollToTab: (path: string) => void
@@ -99,19 +98,6 @@ export function useTabBar(options: UseTabBarOptions): UseTabBarReturn {
 
   const canScrollLeft = computed(() => isOverflowing.value && !isAtStart.value)
   const canScrollRight = computed(() => isOverflowing.value && !isAtEnd.value)
-
-  const scrollProgress = computed(() => {
-    if (!isOverflowing.value)
-      return 0
-    const container = scrollContainerRef.value
-    const content = tabsContainerRef.value
-    if (!container || !content)
-      return 0
-    const maxScroll = content.scrollWidth - container.clientWidth
-    if (maxScroll <= 0)
-      return 0
-    return (scrollX.value / maxScroll) * 100
-  })
 
   // ============ Scroll Actions ============
   const scrollOffset = 200
@@ -287,7 +273,6 @@ export function useTabBar(options: UseTabBarOptions): UseTabBarReturn {
     isOverflowing,
     canScrollLeft,
     canScrollRight,
-    scrollProgress,
 
     // Scroll actions
     scrollToTab,

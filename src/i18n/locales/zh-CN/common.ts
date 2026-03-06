@@ -76,6 +76,17 @@ export default {
   // 其他
   items: '个子菜单',
 
+  // 表格工具栏
+  compact: '紧凑',
+  default: '默认',
+  loose: '宽松',
+  density: '表格密度',
+  columnSettings: '列设置',
+  fullscreen: '全屏',
+  exitFullscreen: '退出全屏',
+  table: '表格',
+  tableFullscreenDescription: '表格全屏模式，按 ESC 键退出',
+
   // Header
   header: {
     search: '搜索...',

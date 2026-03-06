@@ -76,6 +76,15 @@ export default {
   // Other
   items: 'items',
 
+  // Table Toolbar
+  compact: 'Compact',
+  default: 'Default',
+  loose: 'Loose',
+  density: 'Table Density',
+  columnSettings: 'Column Settings',
+  fullscreen: 'Fullscreen',
+  exitFullscreen: 'Exit Fullscreen',
+
   // Header
   header: {
     search: 'Search...',

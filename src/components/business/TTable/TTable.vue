@@ -7,11 +7,12 @@ import type {
   TableHeaderSlotProps,
   TablePagination,
   TableRecord,
-  TableSorter,
+  TableSize,
+  TableToolbarConfig,
   TTableExpose,
   TTableProps,
 } from './types'
-import { ConfigProvider } from 'antdv-next'
+import { ConfigProvider, Tooltip } from 'antdv-next'
 /**
  * TTable - 基于 antdv-next 的 JSON 配置化表格组件
  *
@@ -19,9 +20,23 @@ import { ConfigProvider } from 'antdv-next'
  */
 import { computed, ref, shallowRef, useSlots, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { Columns3, Maximize2, Minimize2, RefreshCw, Settings2 } from 'lucide-vue-next'
 import { useResponsive } from '@/composables/useResponsive'
 import { useTableColumns } from '@/composables/useTableColumns'
 import { getAntdvLocale } from '@/i18n/locales'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import { useTTableTheme } from './theme'
 
@@ -134,6 +149,102 @@ const state = ref({
 })
 
 /**
+ * 工具栏状态
+ */
+const tableSize = ref<TableSize>('middle')
+const isFullscreen = ref(false)
+const isRefreshing = ref(false)
+const columnSettingsVisible = ref(false)
+const visibleColumnKeys = ref<(string | number)[]>([])
+
+/**
+ * 工具栏配置
+ */
+const toolbarConfig = computed<TableToolbarConfig>(() => {
+  if (typeof props.schema.toolbar === 'boolean') {
+    return {
+      enabled: props.schema.toolbar,
+      showRefresh: true,
+      showDensity: true,
+      showColumnSettings: true,
+      showFullscreen: false,
+    }
+  }
+  return {
+    enabled: true,
+    showRefresh: true,
+    showDensity: true,
+    showColumnSettings: true,
+    showFullscreen: false,
+    ...props.schema.toolbar,
+  }
+})
+
+/**
+ * 密度选项
+ */
+const densityOptions = computed(() => {
+  return toolbarConfig.value.densityOptions || [
+    { label: t('common.compact'), value: 'small' as TableSize },
+    { label: t('common.default'), value: 'middle' as TableSize },
+    { label: t('common.loose'), value: 'large' as TableSize },
+  ]
+})
+
+/**
+ * 初始化可见列
+ */
+function initVisibleColumns() {
+  if (visibleColumnKeys.value.length === 0) {
+    visibleColumnKeys.value = props.schema.columns
+      .filter(col => col.dataIndex || col.key)
+      .map(col => col.key || col.dataIndex as string)
+  }
+}
+
+/**
+ * 刷新表格
+ */
+async function handleRefresh() {
+  if (isRefreshing.value)
+    return
+  isRefreshing.value = true
+  emit('change', { ...state.value.pagination }, {}, { field: '', order: undefined, column: undefined } as TableSorter)
+  setTimeout(() => {
+    isRefreshing.value = false
+  }, 300)
+}
+
+/**
+ * 切换表格密度
+ */
+function handleDensityChange(size: TableSize) {
+  tableSize.value = size
+}
+
+/**
+ * 切换全屏
+ */
+function handleFullscreenToggle() {
+  isFullscreen.value = !isFullscreen.value
+  toolbarConfig.value.onFullscreen?.(isFullscreen.value)
+}
+
+/**
+ * 切换列可见性
+ */
+function toggleColumnVisibility(key: string, checked: boolean) {
+  if (checked) {
+    if (!visibleColumnKeys.value.includes(key)) {
+      visibleColumnKeys.value.push(key)
+    }
+  }
+  else {
+    visibleColumnKeys.value = visibleColumnKeys.value.filter(k => k !== key)
+  }
+}
+
+/**
  * 计算表格数据
  */
 const tableData = computed({
@@ -194,46 +305,53 @@ const { tableColumns, showActionColumn: _showActionColumn } = useTableColumns({
 })
 
 const filteredColumns = computed(() => {
-  if (!isResponsiveEnabled.value || !isMobileView.value) {
-    return tableColumns.value
+  let columns = tableColumns.value
+
+  if (isResponsiveEnabled.value && isMobileView.value && responsiveConfig.value.enableHorizontalScrollOnMobile === false) {
+    const hideColumns = responsiveConfig.value.hideColumnsOnMobile || []
+    const breakpointOrder = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'] as const
+
+    columns = columns.filter((col) => {
+      const colKey = col.key || col.dataIndex
+      if (colKey && hideColumns.includes(String(colKey))) {
+        return false
+      }
+
+      const colWithResponsive = col as any
+      if (colWithResponsive.hiddenOn) {
+        const currentIndex = breakpointOrder.indexOf(currentBreakpoint.value)
+        const shouldHide = colWithResponsive.hiddenOn.some((bp: string) => {
+          const bpIndex = breakpointOrder.indexOf(bp as any)
+          return bpIndex >= currentIndex
+        })
+        if (shouldHide)
+          return false
+      }
+
+      if (colWithResponsive.showOn) {
+        const currentIndex = breakpointOrder.indexOf(currentBreakpoint.value)
+        const shouldShow = colWithResponsive.showOn.some((bp: string) => {
+          const bpIndex = breakpointOrder.indexOf(bp as any)
+          return bpIndex <= currentIndex
+        })
+        if (!shouldShow)
+          return false
+      }
+
+      return true
+    })
   }
 
-  if (responsiveConfig.value.enableHorizontalScrollOnMobile !== false) {
-    return tableColumns.value
+  if (toolbarConfig.value.enabled && visibleColumnKeys.value.length > 0) {
+    columns = columns.filter((col) => {
+      const colKey = col.key || col.dataIndex
+      if (!colKey)
+        return true
+      return visibleColumnKeys.value.includes(colKey)
+    })
   }
 
-  const hideColumns = responsiveConfig.value.hideColumnsOnMobile || []
-  const breakpointOrder = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'] as const
-
-  return tableColumns.value.filter((col) => {
-    const colKey = col.key || col.dataIndex
-    if (colKey && hideColumns.includes(String(colKey))) {
-      return false
-    }
-
-    const colWithResponsive = col as any
-    if (colWithResponsive.hiddenOn) {
-      const currentIndex = breakpointOrder.indexOf(currentBreakpoint.value)
-      const shouldHide = colWithResponsive.hiddenOn.some((bp: string) => {
-        const bpIndex = breakpointOrder.indexOf(bp as any)
-        return bpIndex >= currentIndex
-      })
-      if (shouldHide)
-        return false
-    }
-
-    if (colWithResponsive.showOn) {
-      const currentIndex = breakpointOrder.indexOf(currentBreakpoint.value)
-      const shouldShow = colWithResponsive.showOn.some((bp: string) => {
-        const bpIndex = breakpointOrder.indexOf(bp as any)
-        return bpIndex <= currentIndex
-      })
-      if (!shouldShow)
-        return false
-    }
-
-    return true
-  })
+  return columns
 })
 
 const responsiveScroll = computed(() => {
@@ -559,50 +677,174 @@ watch(
   },
   { immediate: true },
 )
+
+/**
+ * 初始化可见列
+ */
+watch(
+  () => props.schema.columns,
+  () => {
+    initVisibleColumns()
+  },
+  { immediate: true },
+)
+
+/**
+ * 监听 schema.size 变化
+ */
+watch(
+  () => props.schema.size,
+  (newSize) => {
+    if (newSize) {
+      tableSize.value = newSize
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
   <ConfigProvider v-if="antdvLocale" :theme="ttableTheme" :locale="antdvLocale">
-    <a-table
-      ref="tableRef"
-      :data-source="tableData"
-      :columns="filteredColumns"
-      :row-key="rowKey"
-      :loading="loading || schema.loading"
-      :size="schema.size || 'middle'"
-      :bordered="schema.bordered"
-      :pagination="pagination"
-      :row-selection="rowSelection"
-      :scroll="responsiveScroll"
-      :show-header="schema.showHeader !== false"
-      :table-layout="schema.tableLayout"
-      :virtual="schema.virtual"
-      :sticky="schema.sticky"
-      :expandable="expandable"
-      :children-column-name="schema.childrenColumnName || 'children'"
-      :indent-size="schema.indentSize ?? 15"
-      :class="cn('t-table', $attrs.class as string)"
-      @change="handleChange"
-    >
-      <!-- 标题插槽 -->
-      <template v-if="schema.title || slots.title || schema.showTotalBadge" #title>
-        <slot name="title" :data="tableData">
-          <div class="flex items-center gap-3">
-            <template v-if="typeof schema.title === 'function'">
-              {{ schema.title(tableData) }}
-            </template>
-            <template v-else>
-              {{ schema.title }}
-            </template>
+    <!-- 正常模式表格 -->
+    <div :class="cn('t-table-wrapper', $attrs.class as string)">
+      <a-table
+        ref="tableRef"
+        :data-source="tableData"
+        :columns="filteredColumns"
+        :row-key="rowKey"
+        :loading="loading || schema.loading"
+        :size="tableSize"
+        :bordered="schema.bordered"
+        :pagination="pagination"
+        :row-selection="rowSelection"
+        :scroll="responsiveScroll"
+        :show-header="schema.showHeader !== false"
+        :table-layout="schema.tableLayout"
+        :virtual="schema.virtual"
+        :sticky="schema.sticky"
+        :expandable="expandable"
+        :children-column-name="schema.childrenColumnName || 'children'"
+        :indent-size="schema.indentSize ?? 15"
+        class="t-table"
+        @change="handleChange"
+      >
+      <!-- 标题插槽 - 包含标题和工具栏 -->
+      <template v-if="schema.title || slots.title || schema.showTotalBadge || toolbarConfig.enabled" #title>
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3 min-w-0">
+            <slot name="title" :data="tableData">
+              <template v-if="typeof schema.title === 'function'">
+                {{ schema.title(tableData) }}
+              </template>
+              <template v-else-if="schema.title">
+                {{ schema.title }}
+              </template>
+            </slot>
             <!-- 总数徽章 -->
             <span
               v-if="schema.showTotalBadge"
-              class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full"
+              class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full whitespace-nowrap"
             >
               {{ t('common.total', { total: tableData.length }) }}
             </span>
           </div>
-        </slot>
+          
+          <!-- 工具栏 -->
+          <div v-if="toolbarConfig.enabled" class="t-table-toolbar">
+            <!-- 刷新按钮 -->
+            <Tooltip v-if="toolbarConfig.showRefresh" :title="toolbarConfig.refreshText || t('common.refresh')">
+              <button
+                type="button"
+                class="t-table-toolbar-btn"
+                :class="{ 'animate-spin': isRefreshing }"
+                :disabled="isRefreshing"
+                @click="handleRefresh"
+              >
+                <RefreshCw class="w-4 h-4" />
+              </button>
+            </Tooltip>
+
+            <!-- 密度切换 -->
+            <DropdownMenu v-if="toolbarConfig.showDensity">
+              <DropdownMenuTrigger as-child>
+                <button type="button" class="t-table-toolbar-btn" :title="t('common.density')">
+                  <Settings2 class="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" class="w-32">
+                <DropdownMenuItem
+                  v-for="opt in densityOptions"
+                  :key="opt.value"
+                  :class="tableSize === opt.value && 'bg-accent'"
+                  @click="handleDensityChange(opt.value)"
+                >
+                  {{ opt.label }}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <!-- 列设置 -->
+            <DropdownMenu v-if="toolbarConfig.showColumnSettings">
+              <DropdownMenuTrigger as-child>
+                <button type="button" class="t-table-toolbar-btn" :title="t('common.columnSettings')">
+                  <Columns3 class="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" class="w-48">
+                <div class="text-sm font-medium mb-2 px-2">
+                  {{ t('common.columnSettings') }}
+                </div>
+                <div class="space-y-1 px-1">
+                  <label
+                    v-for="col in schema.columns.filter(c => c.dataIndex || c.key)"
+                    :key="col.key || col.dataIndex"
+                    class="t-table-column-item"
+                  >
+                    <input
+                      type="checkbox"
+                      :checked="visibleColumnKeys.includes(col.key || col.dataIndex as string)"
+                      @change="(e: Event) => {
+                        const key = col.key || col.dataIndex as string
+                        const checked = (e.target as HTMLInputElement).checked
+                        toggleColumnVisibility(key, checked)
+                      }"
+                    >
+                    <span>{{ col.title }}</span>
+                  </label>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <!-- 全屏切换 -->
+            <Tooltip v-if="toolbarConfig.showFullscreen" :title="t('common.fullscreen')">
+              <button type="button" class="t-table-toolbar-btn" @click="handleFullscreenToggle">
+                <Maximize2 class="w-4 h-4" />
+              </button>
+            </Tooltip>
+
+            <!-- 自定义按钮 -->
+            <template v-if="toolbarConfig.customActions?.length">
+              <div class="w-px h-4 bg-border mx-1" />
+              <template v-for="action in toolbarConfig.customActions" :key="action.key">
+                <Tooltip v-if="action.show !== false" :title="action.tooltip || action.text">
+                  <button
+                    type="button"
+                    class="t-table-toolbar-btn"
+                    :disabled="action.disabled"
+                    @click="action.onClick"
+                  >
+                    <component
+                      :is="typeof action.icon === 'string' ? null : action.icon"
+                      v-if="action.icon && typeof action.icon !== 'string'"
+                      class="w-4 h-4"
+                    />
+                    <span v-if="action.text">{{ action.text }}</span>
+                  </button>
+                </Tooltip>
+              </template>
+            </template>
+          </div>
+        </div>
       </template>
 
       <!-- 尾部插槽 -->
@@ -712,6 +954,158 @@ watch(
           </template>
         </template>
       </template>
-    </a-table>
+      </a-table>
+    </div>
+
+    <!-- 全屏模式 Dialog -->
+    <Dialog v-model:open="isFullscreen">
+      <DialogContent :show-close-button="false" class="min-w-[95vw] max-h-[95vh] h-[95vh] p-0 gap-0">
+        <DialogTitle class="sr-only">
+          {{ typeof schema.title === 'function' ? schema.title(tableData) : schema.title || t('common.table') }}
+        </DialogTitle>
+        <DialogDescription class="sr-only">
+          {{ t('common.tableFullscreenDescription') }}
+        </DialogDescription>
+        <div class="flex flex-col h-full">
+          <!-- 全屏模式工具栏 -->
+          <div class="flex items-center justify-between px-6 py-4 border-b">
+            <div class="flex items-center gap-3">
+              <slot name="title" :data="tableData">
+                <template v-if="typeof schema.title === 'function'">
+                  {{ schema.title(tableData) }}
+                </template>
+                <template v-else-if="schema.title">
+                  {{ schema.title }}
+                </template>
+              </slot>
+              <span
+                v-if="schema.showTotalBadge"
+                class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full whitespace-nowrap"
+              >
+                {{ t('common.total', { total: tableData.length }) }}
+              </span>
+            </div>
+            <div class="t-table-toolbar">
+              <Tooltip v-if="toolbarConfig.showRefresh" :title="toolbarConfig.refreshText || t('common.refresh')">
+                <button
+                  type="button"
+                  class="t-table-toolbar-btn"
+                  :class="{ 'animate-spin': isRefreshing }"
+                  :disabled="isRefreshing"
+                  @click="handleRefresh"
+                >
+                  <RefreshCw class="w-4 h-4" />
+                </button>
+              </Tooltip>
+              <DropdownMenu v-if="toolbarConfig.showDensity">
+                <DropdownMenuTrigger as-child>
+                  <button type="button" class="t-table-toolbar-btn" :title="t('common.density')">
+                    <Settings2 class="w-4 h-4" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" class="w-32">
+                  <DropdownMenuItem
+                    v-for="opt in densityOptions"
+                    :key="opt.value"
+                    :class="tableSize === opt.value && 'bg-accent'"
+                    @click="handleDensityChange(opt.value)"
+                  >
+                    {{ opt.label }}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu v-if="toolbarConfig.showColumnSettings">
+                <DropdownMenuTrigger as-child>
+                  <button type="button" class="t-table-toolbar-btn" :title="t('common.columnSettings')">
+                    <Columns3 class="w-4 h-4" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" class="w-48">
+                  <div class="text-sm font-medium mb-2 px-2">
+                    {{ t('common.columnSettings') }}
+                  </div>
+                  <div class="space-y-1 px-1">
+                    <label
+                      v-for="col in schema.columns.filter(c => c.dataIndex || c.key)"
+                      :key="col.key || col.dataIndex"
+                      class="t-table-column-item"
+                    >
+                      <input
+                        type="checkbox"
+                        :checked="visibleColumnKeys.includes(col.key || col.dataIndex as string)"
+                        @change="(e: Event) => {
+                          const key = col.key || col.dataIndex as string
+                          const checked = (e.target as HTMLInputElement).checked
+                          toggleColumnVisibility(key, checked)
+                        }"
+                      >
+                      <span>{{ col.title }}</span>
+                    </label>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Tooltip :title="t('common.exitFullscreen')">
+                <button type="button" class="t-table-toolbar-btn" @click="isFullscreen = false">
+                  <Minimize2 class="w-4 h-4" />
+                </button>
+              </Tooltip>
+            </div>
+          </div>
+          <!-- 全屏模式表格 -->
+          <div class="flex-1 overflow-auto p-6">
+            <a-table
+              :data-source="tableData"
+              :columns="filteredColumns"
+              :row-key="rowKey"
+              :loading="loading || schema.loading"
+              :size="tableSize"
+              :bordered="schema.bordered"
+              :pagination="false"
+              :row-selection="rowSelection"
+              :scroll="{ x: 'max-content' }"
+              :show-header="schema.showHeader !== false"
+              :table-layout="schema.tableLayout"
+              :virtual="schema.virtual"
+              :expandable="expandable"
+              :children-column-name="schema.childrenColumnName || 'children'"
+              :indent-size="schema.indentSize ?? 15"
+              class="t-table"
+            >
+              <template #bodyCell="{ column, text, record, index }">
+                <template
+                  v-for="col in schema.columns"
+                  :key="col.key || col.dataIndex"
+                >
+                  <template v-if="(col.key || col.dataIndex) === column.key && col.slot && slots[col.slot]">
+                    <slot
+                      :name="col.slot"
+                      :text="text"
+                      :record="record"
+                      :index="index"
+                      :column="col"
+                    />
+                  </template>
+                </template>
+              </template>
+              <template #headerCell="{ column, text, index }">
+                <template
+                  v-for="col in schema.columns"
+                  :key="col.key || col.dataIndex"
+                >
+                  <template v-if="(col.key || col.dataIndex) === column.key && col.headerSlot && slots[col.headerSlot]">
+                    <slot
+                      :name="col.headerSlot"
+                      :title="text"
+                      :column="col"
+                      :index="index"
+                    />
+                  </template>
+                </template>
+              </template>
+            </a-table>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   </ConfigProvider>
 </template>

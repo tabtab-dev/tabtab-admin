@@ -4,6 +4,7 @@
 export default {
   // Main Menu
   dashboard: 'Dashboard',
+  notifications: 'Notifications',
   orders: 'Order Management',
   products: 'Product Management',
   analytics: 'Analytics',

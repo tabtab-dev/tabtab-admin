@@ -173,6 +173,8 @@ export type {
   TableSlotProps,
   TableSorter,
   TableState,
+  TableToolbarAction,
+  TableToolbarConfig,
   TTableEmits,
   TTableExpose,
   TTableProps,

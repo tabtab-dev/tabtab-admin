@@ -19,6 +19,19 @@ const routeData = [
     },
   },
   {
+    path: '/notifications',
+    name: 'notifications',
+    component: '/notifications/index',
+    meta: {
+      title: '消息通知',
+      icon: 'Bell',
+      keepAlive: false,
+      hideInMenu: true,
+      order: 5,
+      i18nKey: 'menu.notifications',
+    },
+  },
+  {
     path: '/system',
     name: 'system',
     component: 'BasicLayout',

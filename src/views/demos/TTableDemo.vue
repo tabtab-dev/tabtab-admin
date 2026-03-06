@@ -107,6 +107,17 @@ const advancedSchema: TableSchema = {
     },
   ],
   actionWidth: 180, // 操作列宽
+  // 启用工具栏
+  toolbar: {
+    showRefresh: true,
+    showDensity: true,
+    showColumnSettings: true,
+    showFullscreen: true,
+    showExport: true,
+    onExport: (format) => {
+      alert(`导出数据为 ${format.toUpperCase()} 格式`)
+    },
+  },
 }
 
 // ==================== 选择行示例数据 ====================
