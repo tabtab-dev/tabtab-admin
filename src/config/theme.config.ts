@@ -8,17 +8,17 @@ import type { LayoutConfig } from '@/types/theme'
  * 可用模式: light, dark
  */
 export const themeConfig = {
-  theme: 'lime',
+  theme: 'blue',
   mode: 'light' as 'light' | 'dark',
   layout: {
-    sidebarWidth: 280,
-    sidebarCollapsed: false,
-    radius: 0.625,
-    fontSize: 16,
+    sidebarWidth: 222,
+    sidebarCollapsed: true,
+    radius: 1.125,
+    fontSize: 17,
     animations: true,
     showTabBar: true,
     showBreadcrumb: true,
-    fixedTabBar: false,
+    fixedTabBar: true,
   } as Partial<LayoutConfig>,
   customThemes: {} as Record<string, {
     name: string
