@@ -345,6 +345,9 @@ const filteredColumns = computed(() => {
   if (toolbarConfig.value.enabled && visibleColumnKeys.value.length > 0) {
     columns = columns.filter((col) => {
       const colKey = col.key || col.dataIndex
+      // 操作列（key 为 'action'）始终显示，不受列设置过滤
+      if (colKey === 'action')
+        return true
       if (!colKey)
         return true
       return visibleColumnKeys.value.includes(colKey)
