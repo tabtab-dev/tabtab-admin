@@ -109,6 +109,8 @@ const baseLayoutConfig: LayoutConfig = {
   showTabBar: true,
   showBreadcrumb: true,
   fixedTabBar: false,
+  showGithub: true,
+  githubUrl: 'https://github.com/tabtab-dev/tabtab-admin',
 }
 
 export const defaultLayoutConfig: LayoutConfig = {

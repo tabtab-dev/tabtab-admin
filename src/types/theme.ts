@@ -34,6 +34,8 @@ export interface LayoutConfig {
   showTabBar: boolean
   showBreadcrumb: boolean
   fixedTabBar: boolean
+  showGithub: boolean
+  githubUrl: string
 }
 
 export interface PresetTheme {

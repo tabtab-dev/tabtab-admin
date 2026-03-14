@@ -167,6 +167,8 @@ export default {
     },
     exportConfig: '复制主题配置',
     exportConfigSuccess: '配置已复制',
+    showGithub: '显示 GitHub 图标',
+    githubUrl: 'GitHub 链接',
   },
 
   // 标签栏

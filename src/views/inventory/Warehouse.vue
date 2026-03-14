@@ -12,6 +12,7 @@ import {
   User,
 } from 'lucide-vue-next'
 import { inventoryApi } from '@/api'
+import { createModalFormSchema } from '@/config/formConfig'
 import { TForm } from '@/components/business/TForm'
 import { TModal } from '@/components/business/TModal'
 /**
@@ -231,10 +232,7 @@ const editFormData = ref({
   status: 'active' as 'active' | 'inactive',
 })
 
-const addSchema: FormSchema = {
-  layout: 'horizontal',
-  labelCol: { span: 6 },
-  wrapperCol: { span: 18 },
+const addSchema = createModalFormSchema({
   fields: [
     {
       name: 'name',
@@ -289,19 +287,13 @@ const addSchema: FormSchema = {
     },
   ],
   actions: {
-    showSubmit: true,
-    showReset: true,
     submitText: '添加仓库',
     resetText: '取消',
-    align: 'right',
     onReset: () => { isAddOpen.value = false },
   },
-}
+})
 
-const editSchema: FormSchema = {
-  layout: 'horizontal',
-  labelCol: { span: 6 },
-  wrapperCol: { span: 18 },
+const editSchema = createModalFormSchema({
   fields: [
     {
       name: 'name',
@@ -346,14 +338,11 @@ const editSchema: FormSchema = {
     },
   ],
   actions: {
-    showSubmit: true,
-    showReset: true,
     submitText: '保存修改',
     resetText: '取消',
-    align: 'right',
     onReset: () => { isEditOpen.value = false },
   },
-}
+})
 
 const { mutate: createWarehouse } = useMutation({
   mutationFn: (values: Record<string, any>) => inventoryApi.createWarehouse({

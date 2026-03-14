@@ -170,7 +170,7 @@ export function useSearchForm(options: UseSearchFormOptions): UseSearchFormRetur
    * 可见字段列表（过滤 hidden 和 dependencies）
    */
   const visibleFields = computed<FormField[]>(() => {
-    return schema.fields.filter((field) => {
+    return schema.fields?.filter((field) => {
       // 隐藏字段
       if (getFieldHidden(field))
         return false

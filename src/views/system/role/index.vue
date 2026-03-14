@@ -4,6 +4,7 @@ import { Badge, Switch, Tag, Tooltip } from 'antdv-next'
 import { Check, Key, Shield, Users } from 'lucide-vue-next'
 import { nextTick } from 'vue'
 import { roleApi } from '@/api'
+import { createModalFormSchema } from '@/config/formConfig'
 /**
  * 角色管理页面
  * @description 管理系统角色和权限分配
@@ -356,10 +357,7 @@ const editFormData = ref({
   status: 'active',
 })
 
-const addSchema: FormSchema = {
-  layout: 'horizontal',
-  labelCol: { span: 6 },
-  wrapperCol: { span: 18 },
+const addSchema = createModalFormSchema({
   fields: [
     {
       name: 'name',
@@ -401,21 +399,15 @@ const addSchema: FormSchema = {
     },
   ],
   actions: {
-    showSubmit: true,
-    showReset: true,
     submitText: '添加角色',
     resetText: '取消',
-    align: 'right',
     onReset: () => {
       isAddDialogOpen.value = false
     },
   },
-}
+})
 
-const editSchema: FormSchema = {
-  layout: 'horizontal',
-  labelCol: { span: 6 },
-  wrapperCol: { span: 18 },
+const editSchema = createModalFormSchema({
   fields: [
     {
       name: 'name',
@@ -457,16 +449,13 @@ const editSchema: FormSchema = {
     },
   ],
   actions: {
-    showSubmit: true,
-    showReset: true,
     submitText: '保存修改',
     resetText: '取消',
-    align: 'right',
     onReset: () => {
       isEditDialogOpen.value = false
     },
   },
-}
+})
 
 // ==================== 事件处理 ====================
 function handleEditRole(role: Role): void {

@@ -18,6 +18,7 @@ import {
 } from 'lucide-vue-next'
 import { usersApi } from '@/api'
 import { TBatchActions, TDataCard, TEmptyState, TForm, TModal, TPageHeader, TTable } from '@/components/business'
+import { createModalFormSchema, createModalFormGridSchema } from '@/config/formConfig'
 import { useMutation, useTableData } from '@/composables'
 import { STATUS_CONFIG, USER_ROLES, USER_STATUS } from '@/constants'
 import { Button } from '@/components/ui/button'
@@ -365,41 +366,29 @@ const userFormFields = [
   },
 ]
 
-const formLayoutConfig = {
-  layout: 'horizontal' as const,
-  labelCol: { span: 6 },
-  wrapperCol: { span: 18 },
-}
-
-const addSchema: FormSchema = {
-  ...formLayoutConfig,
+const addSchema = createModalFormGridSchema({
+  columns: 2,
   fields: userFormFields,
   actions: {
-    showSubmit: true,
-    showReset: true,
     submitText: '添加用户',
     resetText: '取消',
-    align: 'right',
     onReset: () => {
       isAddDialogOpen.value = false
     },
   },
-}
+})
 
-const editSchema: FormSchema = {
-  ...formLayoutConfig,
+const editSchema = createModalFormGridSchema({
+  columns: 2,
   fields: userFormFields,
   actions: {
-    showSubmit: true,
-    showReset: true,
     submitText: '保存修改',
     resetText: '取消',
-    align: 'right',
     onReset: () => {
       isEditDialogOpen.value = false
     },
   },
-}
+})
 
 // ==================== 事件处理 ====================
 function handleEditUser(user: User): void {

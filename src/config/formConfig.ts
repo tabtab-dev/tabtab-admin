@@ -15,6 +15,34 @@ export const commonFormConfig = {
 } as const
 
 /**
+ * 弹框表单配置（紧凑布局，适合弹框内使用）
+ */
+export const modalFormConfig = {
+  layout: 'horizontal' as const,
+  labelCol: { span: 4 },
+  wrapperCol: { span: 20 },
+  actions: {
+    showSubmit: true,
+    showReset: true,
+    align: 'right' as const,
+  },
+} as const
+
+/**
+ * 弹框表单配置（双列布局，适合弹框内使用）
+ */
+export const modalFormGridConfig = {
+  layout: 'horizontal' as const,
+  labelCol: { span: 6 },
+  wrapperCol: { span: 18 },
+  actions: {
+    showSubmit: true,
+    showReset: true,
+    align: 'right' as const,
+  },
+} as const
+
+/**
  * 创建带通用配置的表单 Schema
  */
 export function createFormSchema(config: Partial<FormSchema>): FormSchema {
@@ -23,6 +51,34 @@ export function createFormSchema(config: Partial<FormSchema>): FormSchema {
     ...config,
     actions: {
       ...commonFormConfig.actions,
+      ...config.actions,
+    },
+  }
+}
+
+/**
+ * 创建弹框表单 Schema（紧凑布局）
+ */
+export function createModalFormSchema(config: Partial<FormSchema>): FormSchema {
+  return {
+    ...modalFormConfig,
+    ...config,
+    actions: {
+      ...modalFormConfig.actions,
+      ...config.actions,
+    },
+  }
+}
+
+/**
+ * 创建弹框表单 Schema（双列布局）
+ */
+export function createModalFormGridSchema(config: Partial<FormSchema>): FormSchema {
+  return {
+    ...modalFormGridConfig,
+    ...config,
+    actions: {
+      ...modalFormGridConfig.actions,
       ...config.actions,
     },
   }

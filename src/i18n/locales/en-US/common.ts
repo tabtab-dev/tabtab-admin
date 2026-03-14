@@ -165,6 +165,8 @@ export default {
     },
     exportConfig: 'Copy Theme Config',
     exportConfigSuccess: 'Config Copied',
+    showGithub: 'Show GitHub Icon',
+    githubUrl: 'GitHub URL',
   },
 
   // Tab Bar

@@ -4,6 +4,7 @@ import type { TableSchema } from '@/components/business/TTable'
 import type { Category } from '@/types'
 import { CheckCircle2, Layers, Package, Plus, XCircle } from 'lucide-vue-next'
 import { categoriesApi } from '@/api'
+import { createModalFormSchema } from '@/config/formConfig'
 import { TForm } from '@/components/business/TForm'
 import { TModal } from '@/components/business/TModal'
 /**
@@ -113,10 +114,7 @@ const editingItem = ref<Category | null>(null)
 const addFormData = ref({ name: '', code: '', parentId: '', sort: 0, status: 'active' as 'active' | 'inactive', description: '' })
 const editFormData = ref({ id: '', name: '', code: '', parentId: '', sort: 0, status: 'active' as 'active' | 'inactive', description: '' })
 
-const addSchema: FormSchema = {
-  layout: 'horizontal',
-  labelCol: { span: 6 },
-  wrapperCol: { span: 18 },
+const addSchema = createModalFormSchema({
   fields: [
     { name: 'name', type: 'input', label: '分类名称', placeholder: '请输入分类名称', rules: [{ required: true, message: '分类名称不能为空' }] },
     { name: 'code', type: 'input', label: '分类编码', placeholder: '请输入分类编码', rules: [{ required: true, message: '分类编码不能为空' }] },
@@ -125,21 +123,18 @@ const addSchema: FormSchema = {
     { name: 'status', type: 'select', label: '状态', placeholder: '请选择状态', options: [{ label: '启用', value: 'active' }, { label: '禁用', value: 'inactive' }] },
     { name: 'description', type: 'textarea', label: '描述', placeholder: '请输入描述（可选）' },
   ],
-  actions: { showSubmit: true, showReset: true, submitText: '添加分类', resetText: '取消', align: 'right', onReset: () => { isAddOpen.value = false } },
-}
+  actions: { submitText: '添加分类', resetText: '取消', onReset: () => { isAddOpen.value = false } },
+})
 
-const editSchema: FormSchema = {
-  layout: 'horizontal',
-  labelCol: { span: 6 },
-  wrapperCol: { span: 18 },
+const editSchema = createModalFormSchema({
   fields: [
     { name: 'name', type: 'input', label: '分类名称', placeholder: '请输入分类名称', rules: [{ required: true, message: '分类名称不能为空' }] },
     { name: 'sort', type: 'number', label: '排序', placeholder: '请输入排序号' },
     { name: 'status', type: 'select', label: '状态', placeholder: '请选择状态', options: [{ label: '启用', value: 'active' }, { label: '禁用', value: 'inactive' }] },
     { name: 'description', type: 'textarea', label: '描述', placeholder: '请输入描述（可选）' },
   ],
-  actions: { showSubmit: true, showReset: true, submitText: '保存修改', resetText: '取消', align: 'right', onReset: () => { isEditOpen.value = false } },
-}
+  actions: { submitText: '保存修改', resetText: '取消', onReset: () => { isEditOpen.value = false } },
+})
 
 async function handleAddSubmit(values: Record<string, any>) {
   const parent = level1Categories.value.find(c => c.id === values.parentId)

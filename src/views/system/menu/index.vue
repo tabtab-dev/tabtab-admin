@@ -5,6 +5,7 @@ import { Switch } from 'antdv-next'
 import { ExternalLink, Eye, EyeOff, FolderTree, LayoutGrid, Menu } from 'lucide-vue-next'
 import { watch } from 'vue'
 import { menuApi } from '@/api'
+import { createModalFormGridSchema } from '@/config/formConfig'
 /**
  * 菜单管理页面
  * @description 管理系统菜单和导航配置，使用 TTable 树形表格展示
@@ -502,38 +503,24 @@ function getFormFields(isEdit: boolean) {
   ]
 }
 
-const addSchema = computed<FormSchema>(() => ({
-  layout: 'horizontal',
-  // 每行显示2个组件
+const addSchema = computed(() => createModalFormGridSchema({
   columns: 2,
-  labelCol: { span: 8 },
-  wrapperCol: { span: 16 },
   fields: getFormFields(false),
   actions: {
-    showSubmit: true,
-    showReset: true,
     submitText: '添加菜单',
     resetText: '取消',
-    align: 'right',
     onReset: () => {
       isAddDialogOpen.value = false
     },
   },
 }))
 
-const editSchema = computed<FormSchema>(() => ({
-  layout: 'horizontal',
-  // 每行显示2个组件
+const editSchema = computed(() => createModalFormGridSchema({
   columns: 2,
-  labelCol: { span: 8 },
-  wrapperCol: { span: 16 },
   fields: getFormFields(true),
   actions: {
-    showSubmit: true,
-    showReset: true,
     submitText: '保存修改',
     resetText: '取消',
-    align: 'right',
     onReset: () => {
       isEditDialogOpen.value = false
     },

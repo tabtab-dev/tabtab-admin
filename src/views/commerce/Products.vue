@@ -12,6 +12,7 @@ import {
   XCircle,
 } from 'lucide-vue-next'
 import { productsApi } from '@/api'
+import { createModalFormSchema } from '@/config/formConfig'
 /**
  * 商品管理页 - 使用 useMutation 重构
  *
@@ -355,11 +356,8 @@ const tableData = computed(() => {
   }))
 })
 
-// 共享表单 Schema
-const productFormSchema: FormSchema = {
-  layout: 'horizontal',
-  labelCol: { span: 6 },
-  wrapperCol: { span: 18 },
+// 共享表单 Schema（弹框使用紧凑布局）
+const productFormSchema = createModalFormSchema({
   fields: [
     {
       name: 'name',
@@ -416,37 +414,31 @@ const productFormSchema: FormSchema = {
       placeholder: '请输入商品描述（可选）',
     },
   ],
-}
+})
 
 // 新增表单 Schema
-const addSchema: FormSchema = {
-  ...productFormSchema,
+const addSchema = createModalFormSchema({
+  fields: productFormSchema.fields,
   actions: {
-    showSubmit: true,
-    showReset: true,
     submitText: '添加商品',
     resetText: '取消',
-    align: 'right',
     onReset: () => {
       isAddDialogOpen.value = false
     },
   },
-}
+})
 
 // 编辑表单 Schema
-const editSchema: FormSchema = {
-  ...productFormSchema,
+const editSchema = createModalFormSchema({
+  fields: productFormSchema.fields,
   actions: {
-    showSubmit: true,
-    showReset: true,
     submitText: '保存修改',
     resetText: '取消',
-    align: 'right',
     onReset: () => {
       isEditDialogOpen.value = false
     },
   },
-}
+})
 
 // ==================== 事件处理 ====================
 

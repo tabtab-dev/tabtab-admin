@@ -48,19 +48,35 @@
 
 .t-modal .ant-modal-close {
   color: var(--muted-foreground);
-  transition: color 0.15s ease;
+  transition: all 0.15s ease;
+  top: 16px;
+  right: 16px;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
 }
 
 .t-modal .ant-modal-close:hover {
   color: var(--foreground);
+  background-color: var(--accent);
+  border-radius: 4px;
+}
+
+.t-modal .ant-modal-close:active {
+  background-color: var(--accent);
 }
 
 .t-modal .ant-modal-close-x {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: auto;
+  height: auto;
+  font-size: 1.125rem;
+  line-height: 1;
 }
 
 /* 遮罩样式 */

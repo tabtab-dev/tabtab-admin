@@ -4,6 +4,7 @@ import type { FormSchema, TableCellSlotProps, TableSchema } from '@/components/b
 import { Badge } from 'antdv-next'
 import { Building, Network, Users } from 'lucide-vue-next'
 import { organizationApi } from '@/api'
+import { createModalFormGridSchema } from '@/config/formConfig'
 /**
  * 组织架构管理页面
  * @description 管理部门组织架构，支持树形结构展示和层级管理
@@ -346,38 +347,24 @@ function getFormFields(isEdit: boolean) {
   ]
 }
 
-const addSchema = computed<FormSchema>(() => ({
-  layout: 'horizontal',
-  // 每行显示2个组件
+const addSchema = computed(() => createModalFormGridSchema({
   columns: 2,
-  labelCol: { span: 8 },
-  wrapperCol: { span: 16 },
   fields: getFormFields(false),
   actions: {
-    showSubmit: true,
-    showReset: true,
     submitText: '添加部门',
     resetText: '取消',
-    align: 'right',
     onReset: () => {
       isAddDialogOpen.value = false
     },
   },
 }))
 
-const editSchema = computed<FormSchema>(() => ({
-  layout: 'horizontal',
-  // 每行显示2个组件
+const editSchema = computed(() => createModalFormGridSchema({
   columns: 2,
-  labelCol: { span: 8 },
-  wrapperCol: { span: 16 },
   fields: getFormFields(true),
   actions: {
-    showSubmit: true,
-    showReset: true,
     submitText: '保存修改',
     resetText: '取消',
-    align: 'right',
     onReset: () => {
       isEditDialogOpen.value = false
     },

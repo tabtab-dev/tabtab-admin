@@ -19,6 +19,7 @@ import { ordersApi } from '@/api'
  * @description 基于 JSON 配置化的订单管理页面
  */
 import { TBatchActions, TDataCard, TEmptyState, TForm, TModal, TPageHeader, TStatusBadge, TTable } from '@/components/business'
+import { createModalFormSchema } from '@/config/formConfig'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useMutation, useTableData } from '@/composables'
@@ -310,9 +311,7 @@ const isViewDialogOpen = ref(false)
 const viewingOrder = ref<Order | null>(null)
 
 // ==================== 新增表单 Schema ====================
-const addSchema = {
-  labelCol: { span: 6 },
-  wrapperCol: { span: 18 },
+const addSchema = createModalFormSchema({
   fields: [
     {
       name: 'customer',
@@ -367,29 +366,27 @@ const addSchema = {
       options: [
         { label: STATUS_CONFIG.ORDER.PENDING.text, value: STATUS_CONFIG.ORDER.PENDING.value },
         { label: STATUS_CONFIG.ORDER.PROCESSING.text, value: STATUS_CONFIG.ORDER.PROCESSING.value },
-        { label: STATUS_CONFIG.ORDER.COMPLETED.text, value: STATUS_CONFIG.ORDER.COMPLETED.value },
+        { label: STATUS_CONFIG.ORDER.SHIPPED.text, value: STATUS_CONFIG.ORDER.SHIPPED.value },
+        { label: STATUS_CONFIG.ORDER.DELIVERED.text, value: STATUS_CONFIG.ORDER.DELIVERED.value },
         { label: STATUS_CONFIG.ORDER.CANCELLED.text, value: STATUS_CONFIG.ORDER.CANCELLED.value },
       ],
       rules: [{ required: true, message: '请选择订单状态' }],
     },
     {
-      name: 'note',
+      name: 'remark',
       type: 'textarea',
       label: '备注',
       placeholder: '请输入备注（可选）',
     },
   ],
   actions: {
-    showSubmit: true,
-    showReset: true,
     submitText: '创建订单',
     resetText: '取消',
-    align: 'right' as const,
     onReset: () => {
       isAddDialogOpen.value = false
     },
   },
-}
+})
 
 // ==================== 事件处理 ====================
 

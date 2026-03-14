@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Check, CircleDot, Download, FolderTree, Layout, Monitor, Moon, Palette, PanelLeft, PanelTop, Sun, Type } from 'lucide-vue-next'
+import { Check, CircleDot, Download, FolderTree, Github, Layout, Monitor, Moon, Palette, PanelLeft, PanelTop, Sun, Type } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   NumberField,
@@ -106,6 +107,20 @@ function updateFixedTabBar(value: boolean) {
 }
 
 /**
+ * 更新 GitHub 显示状态
+ */
+function updateShowGithub(value: boolean) {
+  themeStore.updateLayoutConfig({ showGithub: value })
+}
+
+/**
+ * 更新 GitHub URL
+ */
+function updateGithubUrl(value: string) {
+  themeStore.updateLayoutConfig({ githubUrl: value })
+}
+
+/**
  * 生成主题配置代码
  * @returns 可用于 theme.config.ts 的配置代码
  */
@@ -123,6 +138,8 @@ function generateThemeConfigCode(): string {
       showTabBar: layout.showTabBar,
       showBreadcrumb: layout.showBreadcrumb,
       fixedTabBar: layout.fixedTabBar,
+      showGithub: layout.showGithub,
+      githubUrl: layout.githubUrl,
     },
     customThemes: {},
   }
@@ -314,6 +331,33 @@ async function copyConfig() {
         :model-value="themeStore.layoutConfig.animations"
         @update:model-value="updateAnimations"
       />
+    </div>
+
+    <!-- GitHub 设置 -->
+    <div class="space-y-4">
+      <div class="flex items-center gap-2 text-sm font-medium text-foreground">
+        <Github class="h-4 w-4 text-muted-foreground" />
+        <span>GitHub</span>
+      </div>
+
+      <!-- 显示 GitHub 图标 -->
+      <div class="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+        <span class="text-sm text-foreground">{{ t('common.theme.showGithub') }}</span>
+        <Switch
+          :model-value="themeStore.layoutConfig.showGithub"
+          @update:model-value="updateShowGithub"
+        />
+      </div>
+
+      <!-- GitHub URL -->
+      <div v-if="themeStore.layoutConfig.showGithub" class="space-y-2">
+        <Label class="text-sm text-muted-foreground">{{ t('common.theme.githubUrl') }}</Label>
+        <Input
+          :model-value="themeStore.layoutConfig.githubUrl"
+          placeholder="https://github.com/username/repo"
+          @update:model-value="updateGithubUrl"
+        />
+      </div>
     </div>
 
     <!-- 重置按钮 -->

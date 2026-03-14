@@ -256,7 +256,7 @@ function _getFieldDisabled(field: FormField): boolean {
  * @description 设置字段默认值
  */
 function initFormData(): void {
-  props.schema.fields.forEach((field) => {
+  props.schema.fields?.forEach((field) => {
     const fieldName = field.name as string
     if (field.defaultValue !== undefined && formData[fieldName] === undefined) {
       formData[fieldName] = field.defaultValue
@@ -360,7 +360,7 @@ const formMethods = {
  */
 const allWatches = computed(() => {
   const watches: Array<{ field: string, watch: FieldWatch }> = []
-  props.schema.fields.forEach((field) => {
+  props.schema.fields?.forEach((field) => {
     if (field.watch && field.watch.length > 0) {
       field.watch.forEach((w) => {
         watches.push({ field: getFieldKey(field.name), watch: w })

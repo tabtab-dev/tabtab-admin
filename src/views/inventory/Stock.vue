@@ -10,6 +10,7 @@ import {
   Plus,
 } from 'lucide-vue-next'
 import { inventoryApi } from '@/api'
+import { createModalFormSchema } from '@/config/formConfig'
 import { TForm } from '@/components/business/TForm'
 import { TModal } from '@/components/business/TModal'
 /**
@@ -213,10 +214,7 @@ const addFormData = ref({
   reason: '',
 })
 
-const addSchema: FormSchema = {
-  layout: 'horizontal',
-  labelCol: { span: 6 },
-  wrapperCol: { span: 18 },
+const addSchema = createModalFormSchema({
   fields: [
     {
       name: 'productId',
@@ -249,14 +247,11 @@ const addSchema: FormSchema = {
     },
   ],
   actions: {
-    showSubmit: true,
-    showReset: true,
     submitText: '提交盘点',
     resetText: '取消',
-    align: 'right',
     onReset: () => { isAddOpen.value = false },
   },
-}
+})
 
 function handleAddSubmit(_values: Record<string, any>) {
   isAddOpen.value = false

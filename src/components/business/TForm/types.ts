@@ -373,7 +373,7 @@ export interface FormResponsiveConfig {
 }
 
 export interface FormSchema<T extends Record<string, any> = Record<string, any>> {
-  fields: FormField<T>[]
+  fields?: FormField<T>[]
   layout?: FormLayout
   labelCol?: { span?: number, offset?: number }
   wrapperCol?: { span?: number, offset?: number }

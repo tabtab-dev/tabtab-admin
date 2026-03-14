@@ -51,6 +51,8 @@ export type UserStatus = typeof USER_STATUS[keyof typeof USER_STATUS]
 export const ORDER_STATUS = {
   PENDING: 'pending',
   PROCESSING: 'processing',
+  SHIPPED: 'shipped',
+  DELIVERED: 'delivered',
   COMPLETED: 'completed',
   CANCELLED: 'cancelled',
 } as const
@@ -127,6 +129,8 @@ export const STATUS_CONFIG = {
   ORDER: {
     PENDING: { value: ORDER_STATUS.PENDING, text: '待处理', color: 'warning' },
     PROCESSING: { value: ORDER_STATUS.PROCESSING, text: '处理中', color: 'info' },
+    SHIPPED: { value: ORDER_STATUS.SHIPPED, text: '已发货', color: 'primary' },
+    DELIVERED: { value: ORDER_STATUS.DELIVERED, text: '已送达', color: 'success' },
     COMPLETED: { value: ORDER_STATUS.COMPLETED, text: '已完成', color: 'success' },
     CANCELLED: { value: ORDER_STATUS.CANCELLED, text: '已取消', color: 'error' },
   },

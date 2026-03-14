@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Home } from 'lucide-vue-next'
+import { Home, Github } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/stores/global/app'
 import { useMenuStore } from '@/stores/global/menu'
@@ -42,6 +42,16 @@ const currentRouteTitle = computed(() => {
  */
 function goToHome() {
   router.push('/')
+}
+
+/**
+ * 打开 GitHub 链接
+ */
+function openGithub() {
+  const url = themeStore.layoutConfig.githubUrl
+  if (url) {
+    window.open(url, '_blank')
+  }
 }
 </script>
 
@@ -88,6 +98,18 @@ function goToHome() {
       </div>
 
       <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
+        <!-- GitHub 链接 -->
+        <Button
+          v-if="themeStore.layoutConfig.showGithub"
+          variant="ghost"
+          size="icon"
+          class="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors hidden sm:flex"
+          title="GitHub"
+          @click="openGithub"
+        >
+          <Github class="h-4 w-4" />
+        </Button>
+
         <!-- 搜索框 -->
         <HeaderSearch v-model:expanded="isMenuSearchOpen" />
 
