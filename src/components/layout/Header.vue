@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Home, Github } from 'lucide-vue-next'
+import { Home, Github, Sparkles } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/stores/global/app'
 import { useMenuStore } from '@/stores/global/menu'
@@ -53,6 +53,13 @@ function openGithub() {
     window.open(url, '_blank')
   }
 }
+
+/**
+ * 打开新版本链接
+ */
+function openNewVersion() {
+  window.open('https://ui.tabtab.dev', '_blank')
+}
 </script>
 
 <template>
@@ -98,6 +105,16 @@ function openGithub() {
       </div>
 
       <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
+        <!-- 新版本链接 -->
+        <Button
+          class="h-8 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-medium px-3 hidden sm:flex items-center gap-1.5 shadow-sm hover:shadow transition-all"
+          title="访问新版本"
+          @click="openNewVersion"
+        >
+          <Sparkles class="h-3.5 w-3.5" />
+          <span>新版本</span>
+        </Button>
+
         <!-- GitHub 链接 -->
         <Button
           v-if="themeStore.layoutConfig.showGithub"

@@ -402,7 +402,7 @@ function setTypeFilter(type: NotificationType | 'all'): void {
 
             <template v-else>
               <template v-if="hasGroupItems('unread')">
-                <div class="px-4 py-2 bg-primary/5 border-b border-border/30 sticky top-0 z-10">
+                <div class="px-4 py-2 bg-primary/5 border-b border-border/30">
                   <span class="text-sm font-semibold text-primary flex items-center gap-2">
                     <span class="h-2 w-2 rounded-full bg-primary animate-pulse" />
                     {{ getGroupTitle('unread') }}
@@ -459,7 +459,7 @@ function setTypeFilter(type: NotificationType | 'all'): void {
               </template>
 
               <template v-if="hasGroupItems('today')">
-                <div class="px-4 py-2 bg-muted/30 border-b border-border/30 sticky top-0 z-10">
+                <div class="px-4 py-2 bg-muted/30 border-b border-border/30">
                   <span class="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <span class="h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />
                     {{ getGroupTitle('today') }}
@@ -508,7 +508,7 @@ function setTypeFilter(type: NotificationType | 'all'): void {
               </template>
 
               <template v-if="hasGroupItems('yesterday')">
-                <div class="px-4 py-2 bg-muted/30 border-b border-border/30 sticky top-0 z-10">
+                <div class="px-4 py-2 bg-muted/30 border-b border-border/30">
                   <span class="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <span class="h-1 w-1 rounded-full bg-muted-foreground/40" />
                     {{ getGroupTitle('yesterday') }}
@@ -557,7 +557,7 @@ function setTypeFilter(type: NotificationType | 'all'): void {
               </template>
 
               <template v-if="hasGroupItems('earlier')">
-                <div class="px-4 py-2 bg-muted/30 border-b border-border/30 sticky top-0 z-10">
+                <div class="px-4 py-2 bg-muted/30 border-b border-border/30">
                   <span class="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <span class="h-1 w-1 rounded-full bg-muted-foreground/30" />
                     {{ getGroupTitle('earlier') }}
