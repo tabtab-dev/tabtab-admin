@@ -160,8 +160,18 @@ export function useTabBar(options: UseTabBarOptions): UseTabBarReturn {
     router.push(path)
   }
 
+  /**
+   * 关闭标签页
+   * @param path - 标签页路径
+   */
   const handleCloseTab = (path: string) => {
+    const isActiveTab = tabBarStore.activeTab === path
     tabBarStore.removeTab(path)
+
+    // 如果关闭的是当前激活的标签，需要跳转到新的激活标签
+    if (isActiveTab && tabBarStore.activeTab) {
+      router.push(tabBarStore.activeTab)
+    }
   }
 
   const handleRefreshTab = (path: string) => {
